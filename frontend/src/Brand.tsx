@@ -1,0 +1,3 @@
+export function ArchIntelBrand({compact=false}:{compact?:boolean}) {
+  return <span className={'archintel-brand '+(compact?'compact':'')}><svg className="archintel-mark" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4 42 14v20L24 44 6 34V14L24 4Z" fill="none" stroke="currentColor" strokeWidth="2"/><path d="m24 12 10 6v12l-10 6-10-6V18l10-6Z" fill="none" stroke="currentColor" strokeWidth="2" opacity=".7"/><path d="M24 12v12m10-6-10 6m-10-6 10 6m0 0v12" fill="none" stroke="currentColor" strokeWidth="2"/><circle cx="24" cy="24" r="3" fill="currentColor"/></svg>{!compact&&<span className="archintel-wordmark">arch<span>intel</span><small>ARCHITECTURE INTELLIGENCE</small></span>}</span>
+}

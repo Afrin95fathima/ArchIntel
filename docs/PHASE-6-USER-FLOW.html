@@ -1,0 +1,144 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ArchIntel PHASE-6-USER-FLOW</title><style>
+@page { size: A4; margin: 19mm 17mm; }
+body { font: 14px/1.65 Arial, sans-serif; color: #24332e; max-width: 900px; margin: 40px auto; padding: 0 24px; }
+h1 { font-size: 32px; color: #125a43; line-height: 1.2; border-bottom: 3px solid #168561; padding-bottom: 18px; }
+h2 { font-size: 21px; color: #125a43; margin-top: 32px; }
+h3 { font-size: 16px; margin-top: 24px; }
+h1,h2,h3 { break-after: avoid; }
+a { color: #12664c; overflow-wrap: anywhere; }
+pre { background: #eff4f1; padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+code { font-size: 0.9em; background: #eff4f1; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+td,th { padding: 8px; border: 1px solid #d6dfda; text-align: left; overflow-wrap: anywhere; }
+th { background: #eff4f1; }
+tr, img { break-inside: avoid; }
+img { max-width: 100%; }
+blockquote { border-left: 3px solid #168561; padding-left: 15px; }
+.edition { text-transform: uppercase; font-size: 11px; letter-spacing: 1px; color: #63786e; }
+@media print { body { margin: 0; padding: 0; font-size: 11px; max-width: none; } h1 { font-size: 27px; } h2 { font-size: 18px; } pre { font-size: 9px; } table { font-size: 9px; } }
+</style></head><body><div class="edition">ArchIntel · Investor prototype · 5 October 2026</div><h1 id="phase-6-controlled-source-tasks">Phase 6: controlled source tasks</h1>
+<p>Phase 6 adds the <strong>Source tasks</strong> workspace. You can prepare a private copy of explicitly permitted source files, document behavioral contracts, review an exact patch, stage it privately, and roll it back while preserving the original checkout.</p>
+<p><strong>Current checkpoint:</strong> source-task implementation and the local Docker sandbox are available. A controlled Java/Maven fixture compiled and passed its test offline inside the restricted container. Customer-specific dependency caches, artifact reproduction and the broader Phase 6 security/characterization gates still require validation. Build buttons also require the workspace build policy to be enabled. This is not a completed modernization or a production-ready transformation engine. See <a href="PHASE-6-VERIFICATION.md">verification</a>.</p>
+<h2 id="analyze-a-multi-module-java-project-zip">Analyze a multi-module Java project ZIP</h2>
+<p>The upload screen accepts a <code>.zip</code> containing compiled Java class output from <code>target/classes</code> or <code>build/classes</code> folders, including outputs from multiple modules. It also accepts module JAR/WAR files under <code>target/</code> or <code>build/libs/</code>. The scanner combines these application classes into one architecture view. It does not compile source, execute uploaded code, or recursively scan dependency libraries. A ZIP containing only <code>.java</code> files is not supported and is rejected with an explanation. Identical class duplicates are collapsed; when a fully qualified class is defined differently in multiple modules, the first normalized project path is scanned, and the manifest and Overview identify the selected and skipped paths.</p>
+<p>On Windows, package Concord's existing compiled classes from its clean checkout with:</p>
+<pre><code class="language-powershell">powershell -NoProfile -ExecutionPolicy Bypass -File D:\vfunction\scripts\package-java-project-zip.ps1 -SourceRoot E:\concord\concord -OutputZip E:\concord\concord-compiled-classes.zip
+</code></pre>
+<p>Then open <strong>Applications → Analyze application</strong>, choose the generated ZIP, name the application <code>Concord</code>, and start analysis. The packaging script includes only compiled <code>.class</code> files under recognized output folders, preserves their module paths, excludes common caches, and refuses to overwrite an existing ZIP. The ZIP must remain below ArchIntel's configured upload limit (100 MB by default). If the build outputs are absent, build Concord first; if the ZIP is too large, package selected modules or raise the configured upload size deliberately.</p>
+<p>This produces static bytecode architecture evidence across modules. It does not imply a complete source-level, runtime, business-domain, or modernization assessment. Keep the Concord source checkout separately registered and pinned for later source-task work.</p>
+<h2 id="1-prepare-evidence-and-access">1. Prepare evidence and access</h2>
+<ol>
+<li>Open ArchIntel at <code>http://127.0.0.1:8000</code> and sign in. Use <code>Start-ArchIntel.cmd</code> from the application folder if the local services are stopped.</li>
+<li>Complete a static analysis. In <strong>Evidence &amp; digital twin</strong>, capture an architecture version. In <strong>Modernization intelligence</strong>, save and review a planning proposal as <code>APPROVED_PLANNING</code>.</li>
+<li>In <strong>Security &amp; access</strong>, register an existing local Git checkout using the full 40-character commit. Its application must match the architecture version. The checkout must be below an operator-configured source root, with its own normal <code>.git</code> directory.</li>
+<li>Give your identity <code>ANALYSIS_READ</code>, <code>ANALYSIS_WRITE</code> and <code>SOURCE_READ</code>, plus an explicit repository grant for the files involved. Runtime-backed versions also require runtime-read permission. Administrators need source grants too.</li>
+<li>A security administrator enables source reads and <strong>Source tasks</strong> in workspace policy. <strong>Isolated builds</strong> is a separate permission. Defaults remain disabled; installing the feature does not grant access or change existing policy.</li>
+</ol>
+<p>Use committed source matching the analyzed artifact. Task preparation reads committed blobs; uncommitted customer edits are preserved and are not copied into the task. Repository registration alone does not prove that its source produced the analyzed artifact.</p>
+<h2 id="2-prepare-the-private-workspace">2. Prepare the private workspace</h2>
+<p>In <strong>Source tasks</strong>, select the application, captured version, approved proposal and decision. Enter:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>What to enter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Repository ID and pinned commit</td>
+<td>The registered source repository and its exact commit</td>
+</tr>
+<tr>
+<td>Objective and expected change</td>
+<td>A specific, reviewable intent</td>
+</tr>
+<tr>
+<td>Snapshot files</td>
+<td>Explicit repository-relative file paths, one per line</td>
+</tr>
+<tr>
+<td>Files allowed to change</td>
+<td>The narrower set permitted in a patch; new paths may be declared here</td>
+</tr>
+<tr>
+<td>Built artifact path</td>
+<td>A JAR or WAR under <code>target/</code>, for example <code>target/application.jar</code></td>
+</tr>
+</tbody>
+</table>
+<p>Click <strong>Prepare isolated task</strong>. Check the returned state and prerequisites. <code>PLANNED</code> means the authorized snapshot was prepared. <code>FAILED</code> with a preparation error requires storage/Git investigation and a new task after repair. A retry of the same creation request does not create duplicate tasks; the UI generates a new request key after a successful response.</p>
+<p>The private task directory has its own Git repository and baseline copy. It does not share Git worktree metadata with the customer's checkout. A partial snapshot can be reviewed, but it cannot run a baseline build: the selected file set must equal the full committed repository file set.</p>
+<p>Supported inputs are regular UTF-8 text files with portable ASCII paths. Binary assets, links/junctions, submodules, <code>.gitattributes</code>, <code>.gitmodules</code>, <code>.lfsconfig</code>, dotenv files and common private-key files are unsupported or blocked. A repository containing such files cannot currently meet the complete-snapshot build gate. Default limits are 100 files / 1 MiB; the policy API can raise them up to 2,000 files / 32 MiB. Filters can reject legitimate source containing sensitive-looking sample data; do not disable safeguards to force it through.</p>
+<h2 id="3-describe-and-review-behavior">3. Describe and review behavior</h2>
+<p>Open <strong>Contracts</strong>. Enter a behavior name, captured test-file path, exact JUnit case name (<code>ClassName#methodName</code>), scenario and expected result. Add the contract, then enter a review note and select <strong>Review contract</strong>.</p>
+<p>A reviewed description is a human assertion. It becomes baseline test evidence only when a passing baseline build reports that exact non-skipped test case. Critical contracts without such evidence remain explicit gaps. Existing tests can still miss important business behavior; the application does not automatically infer or generate a complete test suite.</p>
+<h2 id="4-propose-and-inspect-a-patch">4. Propose and inspect a patch</h2>
+<ol>
+<li>Enter an operation/review note of at least eight characters.</li>
+<li>Open <strong>Patch review</strong>, choose an allowed file and operation (<code>MODIFY</code>, <code>ADD</code> or <code>DELETE</code>).</li>
+<li>For an existing file, select <strong>Load current file</strong>, then enter the complete replacement content. A deletion has no replacement content.</li>
+<li>Select <strong>Propose changeset</strong>, then <strong>Inspect patch</strong>. Review the exact diff, file list, risk and patch hash.</li>
+<li>Select <strong>Approve isolated staging</strong> or <strong>Reject patch</strong>. A high-risk patch needs a different human security administrator with the necessary source grant. Build/dependency/configuration/test/security-sensitive files, deletions and large changes trigger the conservative high-risk rule.</li>
+<li>Select <strong>Stage reviewed patch</strong>. The task becomes <code>STAGED</code>; only its private files change.</li>
+</ol>
+<p>Approval is bound to the patch, source hashes, reviewer authorization and policy revision, and expires after 24 hours. A changed policy, revoked grant, stale task revision or changed files requires refreshed review. Each task supports one initial patch against its baseline; prepare a new task for another staged revision.</p>
+<p>Staging approval permits a private patch inspection step. It does not certify behavior, authorize merge, or approve deployment. Source-task changes are currently supplied by a person or API client; this phase does not generate AI refactors.</p>
+<h2 id="5-run-builds-when-the-environment-is-available">5. Run builds when the environment is available</h2>
+<p>An operator must provision a local Docker engine in Linux-container mode and a trusted immutable image containing the required JDK, Maven and a complete offline dependency/plugin cache. See the <a href="PHASE-6-DEVELOPER-GUIDE.md">developer guide</a>. The runner does not pull images or install dependencies automatically.</p>
+<p>The <strong>Builds</strong> tab offers baseline and candidate runs. Both use a fixed offline Maven package recipe inside the container. The baseline must run non-skipped tests successfully and reproduce the exact SHA-256 of the artifact already analyzed. A different timestamp or other non-reproducible build input may cause an artifact mismatch; do not override the hash gate. Establish a reproducible build first.</p>
+<p><code>READY</code> means the baseline and reviewed critical-contract prerequisites passed. A candidate build requires a staged patch. Even a passing candidate build leaves the task <code>VALIDATION_BLOCKED</code>: architecture reanalysis, comprehensive generated-code security checks and final transformation approval are not delivered by this slice.</p>
+<p>Structured build results show counts, artifact hash and error codes. Raw customer build logs are not retained. Only single-module Maven projects with Surefire reports in <code>target/surefire-reports</code> are supported by this initial adapter. External-service integration tests, multi-module report aggregation and Gradle are not supported.</p>
+<h2 id="6-pause-recover-and-roll-back">6. Pause, recover and roll back</h2>
+<ul>
+<li><strong>PAUSE</strong> prevents further task progression. It does not immediately terminate an already running container command; that command remains time-bounded. Wait for its recorded completion before resuming or rolling back.</li>
+<li><strong>RESUME</strong> rechecks current evidence and workspace integrity. It does not bypass prerequisites.</li>
+<li><strong>RECHECK</strong> reevaluates baseline/contract prerequisites in supported states.</li>
+<li><strong>ROLLBACK</strong> restores the private task files to their captured baseline and ends that task. The customer's original files, branch and commit remain untouched.</li>
+</ul>
+<p>Unexpected files, changed baseline data or unreviewed byte changes cause integrity checks to refuse overwrite. Interrupted preparation, staging or builds are marked <code>FAILED</code> at API startup; they are not automatically retried. An interrupted approved staging operation can be rolled back when all surviving bytes match the recorded before/after hashes. Other damage requires operator inspection.</p>
+<h2 id="7-troubleshooting-and-verification">7. Troubleshooting and verification</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Meaning / next step</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Isolated builds unavailable</td>
+<td>Install/configure the local environment and immutable image; no host fallback exists</td>
+</tr>
+<tr>
+<td>403 / source task disabled</td>
+<td>Check source-read permission, task policy, explicit grant and protected paths</td>
+</tr>
+<tr>
+<td>409 / task changed</td>
+<td>Refresh, inspect the current revision, then review again</td>
+</tr>
+<tr>
+<td>Incomplete source snapshot</td>
+<td>Include every supported committed file within the authorized policy budget</td>
+</tr>
+<tr>
+<td>Baseline artifact mismatch</td>
+<td>Source/build inputs do not reproduce the analyzed artifact</td>
+</tr>
+<tr>
+<td>Critical behavior unvalidated</td>
+<td>Review the contract and run a matching successful baseline test</td>
+</tr>
+<tr>
+<td>Workspace integrity failure</td>
+<td>Inspect unexpected files or interrupted writes; do not overwrite unrelated work</td>
+</tr>
+<tr>
+<td>Validation blocked after candidate build</td>
+<td>Required architecture/security validation remains pending</td>
+</tr>
+</tbody>
+</table>
+<p>For a demonstration, verify preparation, exact patch review, private staging and rollback on a controlled repository. Confirm the original checkout remains unchanged. Do not present a successful patch workflow as evidence of a completed real build, validated modernization or production deployment.</p>
+<p><a href="PHASE-6-DEVELOPER-GUIDE.md">Developer handoff</a> | <a href="PHASE-6-VERIFICATION.md">Verification record</a></p></body></html>

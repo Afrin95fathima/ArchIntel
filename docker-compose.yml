@@ -1,0 +1,33 @@
+name: archintel
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: archintel
+      POSTGRES_USER: archintel
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U archintel -d archintel"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  backend:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg://archintel:${POSTGRES_PASSWORD}@postgres:5432/archintel
+      DATA_DIR: /app/.data
+    ports: ["127.0.0.1:8000:8000"]
+    volumes: ["analysis-data:/app/.data"]
+    depends_on:
+      postgres: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/ready', timeout=10)"]
+      interval: 15s
+      timeout: 12s
+      retries: 10
+volumes:
+  postgres-data:
+  analysis-data:

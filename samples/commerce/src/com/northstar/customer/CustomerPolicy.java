@@ -1,0 +1,1 @@
+package com.northstar.customer; public interface CustomerPolicy { boolean valid(CustomerEntity entity); }

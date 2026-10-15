@@ -1,0 +1,1 @@
+package com.northstar.payment; @org.springframework.stereotype.Controller public class PaymentController { private PaymentService service; public PaymentEntity get() { return service.load(); } }

@@ -1,0 +1,1 @@
+package com.northstar.payment; public class PaymentDefaultPolicy implements PaymentPolicy { public boolean valid(PaymentEntity entity) { return entity != null; } }

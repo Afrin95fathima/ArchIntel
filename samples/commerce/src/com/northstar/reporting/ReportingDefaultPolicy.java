@@ -1,0 +1,1 @@
+package com.northstar.reporting; public class ReportingDefaultPolicy implements ReportingPolicy { public boolean valid(ReportingEntity entity) { return entity != null; } }

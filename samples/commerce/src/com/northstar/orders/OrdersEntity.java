@@ -1,0 +1,1 @@
+package com.northstar.orders; @jakarta.persistence.Entity public class OrdersEntity { public String id; public String status; }

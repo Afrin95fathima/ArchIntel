@@ -1,0 +1,1 @@
+package com.northstar.orders; @org.springframework.stereotype.Repository public class OrdersRepository { public OrdersEntity find() { return new OrdersEntity(); } }

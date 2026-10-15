@@ -1,0 +1,1 @@
+package com.northstar.orders; @org.springframework.stereotype.Controller public class OrdersController { private OrdersService service; public OrdersEntity get() { return service.load(); } }

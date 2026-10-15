@@ -1,0 +1,38 @@
+.task-workspace textarea {
+  display: block;
+  width: 100%;
+  min-height: 7rem;
+  padding: 10px;
+  border: 1px solid var(--palette-ccdacf);
+  border-radius: 6px;
+  background: var(--palette-fff);
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.task-workspace .runtime-card > label {
+  display: grid;
+  gap: 7px;
+  margin: 12px 0;
+  font-size: 13px;
+}
+
+.task-workspace textarea[rows] {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 13px;
+}
+
+.task-workspace .runtime-form {
+  margin-bottom: 16px;
+}
+
+.task-workspace article {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--palette-e0e8e2);
+  overflow-wrap: anywhere;
+}
+
+.task-workspace button + button {
+  margin-left: 6px;
+}

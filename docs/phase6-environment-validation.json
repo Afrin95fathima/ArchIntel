@@ -1,0 +1,27 @@
+{
+  "checked_at": "2026-10-05T14:50:00+00:00",
+  "docker_desktop": "4.94.0",
+  "engine": "29.8.2",
+  "platform": "linux/amd64 on WSL 2",
+  "sandbox": {
+    "available": true,
+    "image_id": "sha256:75daf87793a2e2708a3e0f793f108c08138076801f162ff625453d969170cedc",
+    "java": "21.0.12.1",
+    "maven": "3.9.11"
+  },
+  "controlled_fixture": {
+    "actual_container_build_executed": true,
+    "network": "NONE",
+    "user": "1000:1000",
+    "read_only_root": true,
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "test_case": "local.archintel.FixtureTest#preservesValue",
+    "artifact_sha256": "e1e7edd0a7b3a55fcb3a5069740f531cba663a30525b2ce67d6c7a3bfd94ed20",
+    "container_removed": true
+  },
+  "host_customer_build_fallback": false,
+  "customer_artifact_reproduction_validated": false
+}

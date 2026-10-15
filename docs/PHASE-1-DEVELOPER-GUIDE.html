@@ -1,0 +1,161 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ArchIntel PHASE-1-DEVELOPER-GUIDE</title><style>
+@page { size: A4; margin: 19mm 17mm; }
+body { font: 14px/1.65 Arial, sans-serif; color: #24332e; max-width: 900px; margin: 40px auto; padding: 0 24px; }
+h1 { font-size: 32px; color: #125a43; line-height: 1.2; border-bottom: 3px solid #168561; padding-bottom: 18px; }
+h2 { font-size: 21px; color: #125a43; margin-top: 32px; }
+h3 { font-size: 16px; margin-top: 24px; }
+h1,h2,h3 { break-after: avoid; }
+a { color: #12664c; overflow-wrap: anywhere; }
+pre { background: #eff4f1; padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+code { font-size: 0.9em; background: #eff4f1; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+td,th { padding: 8px; border: 1px solid #d6dfda; text-align: left; overflow-wrap: anywhere; }
+th { background: #eff4f1; }
+tr, img { break-inside: avoid; }
+img { max-width: 100%; }
+blockquote { border-left: 3px solid #168561; padding-left: 15px; }
+.edition { text-transform: uppercase; font-size: 11px; letter-spacing: 1px; color: #63786e; }
+@media print { body { margin: 0; padding: 0; font-size: 11px; max-width: none; } h1 { font-size: 27px; } h2 { font-size: 18px; } pre { font-size: 9px; } table { font-size: 9px; } }
+</style></head><body><div class="edition">ArchIntel · Investor prototype · 5 October 2026</div><h1 id="phase-1-developer-handoff">Phase 1: developer handoff</h1>
+<p>Delivered 4 October 2026. Read alongside DEVELOPER-GUIDE.md, RUNTIME-DEVELOPER-GUIDE.md and the enterprise roadmap. This document describes the implemented security slice, not the full target architecture.</p>
+<h2 id="module-boundaries">Module boundaries</h2>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>backend/app/access/models.py</code></td>
+<td>Workspaces, bootstrap state, principals, credentials, rate windows, policies, repository registrations, grants and audit events</td>
+</tr>
+<tr>
+<td><code>access/core.py</code></td>
+<td>Scrypt passwords, token digests, CSRF derivation, scoped sessions, bootstrap state and durable audit chaining</td>
+</tr>
+<tr>
+<td><code>access/middleware.py</code></td>
+<td>Authentication, permissions, CSRF, request-intent audit and bounded security request bodies</td>
+</tr>
+<tr>
+<td><code>access/schemas.py</code></td>
+<td>Strict request contracts, permission/path validation and policy limits</td>
+</tr>
+<tr>
+<td><code>access/gateway.py</code></td>
+<td>Read-only pinned Git access; explicit scopes, protected paths, file/byte caps and audit-before-release</td>
+</tr>
+<tr>
+<td><code>access/routes.py</code></td>
+<td>Auth/session administration, workspaces, policy, repositories, source requests and audit queries</td>
+</tr>
+<tr>
+<td><code>backend/app/security.py</code></td>
+<td>Existing browser origin/host boundary; separate from account authorization</td>
+</tr>
+<tr>
+<td><code>frontend/src/security/AccessShell.tsx</code></td>
+<td>First-run setup, login, logout, expiry handling and identity shell</td>
+</tr>
+<tr>
+<td><code>frontend/src/security/SecurityConsole.tsx</code></td>
+<td>Permission-aware administration, password change, source requests and audit</td>
+</tr>
+<tr>
+<td><code>backend/alembic/versions/0003_security.py</code></td>
+<td>Additive security schema and audit immutability triggers</td>
+</tr>
+</tbody>
+</table>
+<p>Static algorithms and runtime mapping/fusion stay in their existing service packages. HTTP handlers use ScopedSession; internal worker/retention processes deliberately use ordinary sessions. Do not add raw SQL or an unscoped session to a request handler without an explicit tenant authorization design. SQLAlchemy scoping is application enforcement, not PostgreSQL row-level security.</p>
+<h2 id="request-and-identity-flow">Request and identity flow</h2>
+<p>Public endpoints are health, readiness, setup status, bootstrap and login. POST bootstrap/login require <code>X-ArchIntel-Request: 1</code>. Management endpoints and OpenAPI/docs require an identity. Browser sessions use an opaque HttpOnly, SameSite=Strict cookie. Unsafe cookie requests require <code>X-CSRF-Token</code>, derived from the session token; <code>/security/me</code> returns it to the authenticated browser. It lives in frontend memory. CORS permits configured origins and the required headers.</p>
+<p>Passwords use scrypt with a random 16-byte salt, N=131072, r=8 and p=1. Unknown usernames still perform hash work. Login/password attempts have persisted rolling 15-minute limits (8 per username, 40 per client host). Browser credentials default to 8 hours, configurable from 1 to 24. Service credentials last 168 hours. Only hashes of opaque credentials are stored. Service tokens cannot act as human-cookie sessions and human session tokens cannot act as service bearer tokens.</p>
+<p>Password changes verify the current password, remove all credentials for the principal, hash the new password and issue a replacement session atomically with audit. Revoking a principal invalidates credentials and active state. No SSO, forgotten-password recovery, automatic credential renewal or role catalog is implemented yet.</p>
+<p>Runtime ingestion is an explicit exception: a bearer token is checked against the exact runtime session, which supplies the tenant. It authorizes ingestion only. Runtime session state checks remain in the existing runtime routes/services. Management and telemetry credentials are not interchangeable.</p>
+<h2 id="tenant-enforcement">Tenant enforcement</h2>
+<p>Authenticated tenant identity determines ScopedSession.info. SQLAlchemy loader criteria constrain Identity models, tenant audit rows and RuntimeEvent rows through their parent session. Flush validation assigns the authenticated tenant to new Identity rows and rejects cross-tenant mutations. Parent resource lookups prevent indirect ID escapes. Analysis admission deliberately uses an internal unscoped count to preserve the shared four-job capacity limit; it exposes no other workspace records.</p>
+<p>The installation owner may provision a workspace plus a distinct administrator, but remains scoped to the local workspace for data access. Usernames are installation-wide unique. Existing tenant_id=local records remain local; migration does not rewrite analyses or runtime snapshots.</p>
+<h2 id="source-authorization-pipeline">Source authorization pipeline</h2>
+<ol>
+<li>Middleware authenticates the caller and requires SOURCE_READ; intent is committed.</li>
+<li>Under the security RLock, the gateway rechecks the current principal's active state/permission and loads the tenant-scoped repository, latest policy and explicit grant.</li>
+<li>Require SOURCE_READ, LOCAL_CONTEXT, enabled policy and the exact registered 40-character commit. Protected paths take precedence over literal allowed files/prefixes.</li>
+<li>Resolve the checkout strictly below an operator-configured source root; reject symlinks/junctions and linked Git directories.</li>
+<li>Use argument-list Git subprocesses with no shell, no pager, no replacement objects, no inherited GIT_* overrides, no global/system Git config, no prompts and a 15-second timeout. Read only regular committed UTF-8 blobs, never working-tree files or submodule/link targets. Enforce file and aggregate-byte limits.</li>
+<li>Close the read transaction, commit an ALLOW/DENY metadata event, and only then return the complete context. Audit failure returns no source. There is no partial-file success.</li>
+</ol>
+<p>The RLock serializes source release with policy/grant/principal mutations <strong>within one API process</strong>. PostgreSQL row locks also serialize audit heads and policy revisions. Multiple API workers are not supported for this security release; cross-process authorization fencing must precede scale-out. Trusted server operators can modify checkout/object storage and the database; this is not an OS sandbox against a malicious operator.</p>
+<h2 id="policy-and-audit">Policy and audit</h2>
+<p>Policies are append-only revisions through the API with optimistic expected_revision checking. Current outcomes are ALLOW/DENY. Limits allow up to 20 files and 262,144 bytes but default to 5/65,536. External transfer is fixed DENY and telemetry fixed DISABLED. Phase 2 adds data classification, sensitive-content filtering, redaction and destination/model policy; current filename blocking is not a secrets detector.</p>
+<p>Workspace audit events contain sequence, previous hash, canonical-JSON event hash, actor, action, outcome, resource, timestamp and request ID. Source events include requested/permitted/denied paths, purpose, commit, policy revision, destination and byte count, never source content. Ordinary security changes and their audit commit in one transaction. General analysis/runtime writes record REQUESTED intent before dispatch; this is not a comprehensive atomic business-action outcome log. Malformed requests rejected before the gateway do not have a source manifest decision.</p>
+<p>SQLite and PostgreSQL triggers prohibit ordinary audit UPDATE/DELETE. Verification checks all events against the workspace head. A database owner can remove triggers and replace the entire chain; no external immutable anchor exists yet. Logging reports exception type without SQL parameters or credential-bearing exception text. Source failure responses are generic. Keep free-text audit purposes free of secrets.</p>
+<h2 id="api-summary">API summary</h2>
+<p>All paths below begin <code>/api/v1/security</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET status; POST bootstrap/login</td>
+<td>Public setup/login; POST client header required</td>
+</tr>
+<tr>
+<td>GET me; POST logout/password</td>
+<td>Authenticated identity/session/password operations</td>
+</tr>
+<tr>
+<td>GET/POST principals; POST principals/{id}/revoke</td>
+<td>Workspace identity management</td>
+</tr>
+<tr>
+<td>POST workspaces</td>
+<td>Installation-owner-only provisioning</td>
+</tr>
+<tr>
+<td>GET/POST policy</td>
+<td>Read/latest revision and optimistic update</td>
+</tr>
+<tr>
+<td>GET/POST repositories</td>
+<td>Register pinned, server-local checkouts</td>
+</tr>
+<tr>
+<td>POST grants</td>
+<td>Replace exact principal/repository scope</td>
+</tr>
+<tr>
+<td>POST context</td>
+<td>Bounded read through gateway</td>
+</tr>
+<tr>
+<td>GET audit?after=N; GET audit/verify</td>
+<td>Paginated events and hash verification</td>
+</tr>
+</tbody>
+</table>
+<p>Use a service bearer token for automation and supply only its explicit permissions. Cookie-based clients must obtain the CSRF token from <code>/me</code> and supply it on unsafe requests. There is no authentication-disable test switch.</p>
+<h2 id="migration-and-deployment">Migration and deployment</h2>
+<p>Startup upgrades Alembic to 0003, then initializes bootstrap state before recovering the analysis worker. The schema adds nine security tables and a local workspace. Existing static/runtime records are untouched by migration. Migration 0003 currently creates tables from the security model definitions; freeze or explicitly version those definitions before future incompatible model edits.</p>
+<p><code>SECURE_COOKIES=false</code> supports the prepared loopback HTTP launcher. HTTPS deployments require <code>SECURE_COOKIES=true</code>, explicit host/origin configuration and deployment review. Source roots default to DATA_DIR/source-repositories; configure SOURCE_REPOSITORY_ROOTS as a JSON array. Bootstrap key files use restrictive creation mode where supported; Windows operators must ensure the inherited filesystem ACL is appropriate. Never include .data or .env in version control or support bundles.</p>
+<p>Use one API process. Multi-host workers, distributed locks, production IdP/TLS provisioning, secret-vault integration, backup/restore certification and OS execution isolation remain future work. The pre-migration local row snapshot is preservation evidence, not a tested disaster-recovery backup.</p>
+<h2 id="validation-commands">Validation commands</h2>
+<p>From the project root, PowerShell:</p>
+<pre><code class="language-powershell">$phaseTests = '.data/phase1-check-' + [guid]::NewGuid().ToString('N')
+$env:ARCHINTEL_RUN_SCANNER_TESTS = '1'
+.\.runtime\python\tools\python.exe -m pytest backend/tests -q -p no:cacheprovider --basetemp=$phaseTests
+Set-Location frontend
+npm.cmd test
+npm.cmd run build
+npx.cmd playwright test --config playwright.security.config.ts
+</code></pre>
+<p>The security browser configuration creates a separate SQLite database under a unique .data/browser-validation-* directory, uses port 18001 and the prepared Java scanner, and never consumes the real installation bootstrap. Browser test account passwords are fixture values only. Do not point these tests at a customer server. The existing runtime browser suite relies on an older persisted PetClinic fixture and is not included in the isolated security suite; runtime API/isolation regressions remain in pytest.</p>
+<h2 id="next-extension-boundary">Next extension boundary</h2>
+<p>Phase 2 should add the AI gateway, local adapter, minimized/filtered context, policy routing, output validation and audited dispatch. Direct OllamaProvider.select_facts now raises instead of issuing network calls. Deterministic static/runtime evidence stays available. New agents must not read source or contact models around the gateways. Do not start Phase 2 until the Phase 1 user verification checkpoint is accepted.</p>
+<p>Operator live-check scripts now require ARCHINTEL_SERVICE_TOKEN from a scoped service identity. verify_delivery.py needs ANALYSIS_READ. validate_runtime_petclinic.py is a trusted local maintenance utility with database access and requires a local-workspace service identity with ANALYSIS_READ, ANALYSIS_WRITE, RUNTIME_READ and RUNTIME_WRITE; it verifies these before seeding its existing local fixture or launching Java. No new real PetClinic run is claimed in this phase.</p></body></html>

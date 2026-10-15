@@ -1,0 +1,22 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ArchIntel PHASE-9-USER-FLOW</title><style>
+@page { size: A4; margin: 19mm 17mm; }
+body { font: 14px/1.65 Arial, sans-serif; color: #24332e; max-width: 900px; margin: 40px auto; padding: 0 24px; }
+h1 { font-size: 32px; color: #125a43; line-height: 1.2; border-bottom: 3px solid #168561; padding-bottom: 18px; }
+h2 { font-size: 21px; color: #125a43; margin-top: 32px; }
+h3 { font-size: 16px; margin-top: 24px; }
+h1,h2,h3 { break-after: avoid; }
+a { color: #12664c; overflow-wrap: anywhere; }
+pre { background: #eff4f1; padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+code { font-size: 0.9em; background: #eff4f1; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+td,th { padding: 8px; border: 1px solid #d6dfda; text-align: left; overflow-wrap: anywhere; }
+th { background: #eff4f1; }
+tr, img { break-inside: avoid; }
+img { max-width: 100%; }
+blockquote { border-left: 3px solid #168561; padding-left: 15px; }
+.edition { text-transform: uppercase; font-size: 11px; letter-spacing: 1px; color: #63786e; }
+@media print { body { margin: 0; padding: 0; font-size: 11px; max-width: none; } h1 { font-size: 27px; } h2 { font-size: 18px; } pre { font-size: 9px; } table { font-size: 9px; } }
+</style></head><body><div class="edition">ArchIntel · Investor prototype · 5 October 2026</div><h1 id="phase-9-user-flow-preview-and-download-a-local-support-report">Phase 9 user flow: preview and download a local support report</h1>
+<p>Open <strong>Local setup</strong> and find <strong>Local support bundle</strong>. Select <strong>Preview included data</strong> and inspect the file list, exclusions, local-download-only statement, and fingerprint. Choose <strong>Confirm and download</strong> only after reviewing the preview. If the status changes between preview and confirmation, ArchIntel rejects the export and you must preview again.</p>
+<p>The resulting <code>archintel-support-bundle.json</code> contains limited health/status metadata. It does not include source code, secrets, environment values, logs, database contents, runtime payloads, or architecture/customer data. ArchIntel does not upload the file; share it only through a channel you choose.</p>
+<p>This first Phase 9 slice does not provide signed updates, licensing, Docker/Compose deployment, encrypted backup/restore, or air-gap acceptance.</p></body></html>

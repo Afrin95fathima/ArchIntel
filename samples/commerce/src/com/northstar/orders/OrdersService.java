@@ -1,0 +1,1 @@
+package com.northstar.orders; @org.springframework.stereotype.Service public class OrdersService { private OrdersRepository repository; private OrdersPolicy policy; public OrdersEntity load() { return repository.find(); } private com.northstar.customer.CustomerService partner; public Object related() { return partner.load(); } }

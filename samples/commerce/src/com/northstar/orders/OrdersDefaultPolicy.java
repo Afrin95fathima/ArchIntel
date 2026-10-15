@@ -1,0 +1,1 @@
+package com.northstar.orders; public class OrdersDefaultPolicy implements OrdersPolicy { public boolean valid(OrdersEntity entity) { return entity != null; } }

@@ -1,0 +1,1 @@
+package com.northstar.notification; public class Message { public String text; }

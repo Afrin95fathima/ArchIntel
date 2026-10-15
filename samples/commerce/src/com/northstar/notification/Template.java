@@ -1,0 +1,1 @@
+package com.northstar.notification; public class Template { public Message render() { return new Message(); } }

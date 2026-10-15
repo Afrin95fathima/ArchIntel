@@ -1,0 +1,1 @@
+package com.northstar.payment; @org.springframework.stereotype.Repository public class PaymentRepository { private java.util.List<PaymentEntity> cache; public PaymentEntity find() { return new PaymentEntity(); } public void validate() throws java.io.IOException { throw new java.io.IOException(); } }

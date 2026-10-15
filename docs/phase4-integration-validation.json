@@ -1,0 +1,121 @@
+{
+  "verified_at": "2026-10-05T03:33:21.465005+00:00",
+  "source": "Real Phase 3 Java-agent PetClinic capture",
+  "isolation": "Temporary PostgreSQL schema and test-owned Neo4j version scope",
+  "source_spans": 190,
+  "source_traces": 83,
+  "static_unchanged": true,
+  "restart_export_unchanged": true,
+  "graph_outage_canonical_available": true,
+  "rebuild_graph_unchanged": true,
+  "version_id": "7617d3db-9176-5d96-9b6c-ae03aba02360",
+  "facts": 52,
+  "evidence": 399,
+  "graph_nodes": 708,
+  "graph_relationships": 1008,
+  "coverage": {
+    "classes": {
+      "observed": 11,
+      "total": 25,
+      "percentage": 44.0,
+      "status": "AVAILABLE",
+      "reason": null
+    },
+    "dependencies": {
+      "observed": 6,
+      "total": 26,
+      "percentage": 23.08,
+      "status": "AVAILABLE",
+      "reason": "Distinct directed METHOD_CALL class pairs only."
+    },
+    "methods": {
+      "observed": 26,
+      "total": 94,
+      "percentage": 27.66,
+      "status": "AVAILABLE",
+      "reason": "Named declared methods only; inherited reference stubs excluded. Exact JVM descriptor or unique owner + method name; ambiguous overloads remain unobserved."
+    },
+    "entry_points": {
+      "observed": 7,
+      "total": 17,
+      "percentage": 41.18,
+      "status": "AVAILABLE",
+      "reason": "Explicit supported method annotations only; inherited/composed routes may be absent."
+    },
+    "domains": {
+      "observed": 3,
+      "total": 5,
+      "percentage": 60.0,
+      "status": "AVAILABLE",
+      "reason": null
+    },
+    "domain_observations": [
+      {
+        "id": "domain-47d9028fd2e3797a",
+        "name": "PetClinicApplication",
+        "observed": 0,
+        "total": 4,
+        "state": "UNOBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.PetClinicApplication",
+          "org.springframework.samples.petclinic.PetClinicRuntimeHints",
+          "org.springframework.samples.petclinic.model.BaseEntity",
+          "org.springframework.samples.petclinic.model.Person"
+        ]
+      },
+      {
+        "id": "domain-23465d579fbf785f",
+        "name": "Named",
+        "observed": 0,
+        "total": 1,
+        "state": "UNOBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.model.NamedEntity"
+        ]
+      },
+      {
+        "id": "domain-c27a2633842a7968",
+        "name": "Owner",
+        "observed": 6,
+        "total": 11,
+        "state": "PARTIALLY_OBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.owner.Owner",
+          "org.springframework.samples.petclinic.owner.Pet",
+          "org.springframework.samples.petclinic.owner.PetType",
+          "org.springframework.samples.petclinic.owner.PetValidator",
+          "org.springframework.samples.petclinic.owner.Visit"
+        ]
+      },
+      {
+        "id": "domain-c8fb47353d19fc72",
+        "name": "System",
+        "observed": 3,
+        "total": 4,
+        "state": "PARTIALLY_OBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.system.CrashController"
+        ]
+      },
+      {
+        "id": "domain-69e89d53232c7967",
+        "name": "Vet",
+        "observed": 2,
+        "total": 5,
+        "state": "PARTIALLY_OBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.vet.Specialty",
+          "org.springframework.samples.petclinic.vet.Vet",
+          "org.springframework.samples.petclinic.vet.Vets"
+        ]
+      }
+    ],
+    "method_mapping_diagnostics": {
+      "UNIQUE_NAME": 45,
+      "AMBIGUOUS": 11
+    },
+    "unresolved_node_count": 9,
+    "missing_parent_count": 0,
+    "note": "Unobserved means not observed in selected sessions, never unused. Domain observation does not establish complete behavior coverage."
+  }
+}

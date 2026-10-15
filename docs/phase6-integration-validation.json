@@ -1,0 +1,10 @@
+{
+  "verified_at": "2026-10-05T03:42:58.828542+00:00",
+  "fixture": "Controlled Java source fixture; no real container build",
+  "database": "Isolated PostgreSQL schema",
+  "restart_task_unchanged": true,
+  "reviewed_patch_preserved": true,
+  "rollback_restored_baseline": true,
+  "original_dirty_checkout_unchanged": true,
+  "original_commit_unchanged": true
+}

@@ -1,0 +1,194 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ArchIntel PHASE-5-DEVELOPER-GUIDE</title><style>
+@page { size: A4; margin: 19mm 17mm; }
+body { font: 14px/1.65 Arial, sans-serif; color: #24332e; max-width: 900px; margin: 40px auto; padding: 0 24px; }
+h1 { font-size: 32px; color: #125a43; line-height: 1.2; border-bottom: 3px solid #168561; padding-bottom: 18px; }
+h2 { font-size: 21px; color: #125a43; margin-top: 32px; }
+h3 { font-size: 16px; margin-top: 24px; }
+h1,h2,h3 { break-after: avoid; }
+a { color: #12664c; overflow-wrap: anywhere; }
+pre { background: #eff4f1; padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+code { font-size: 0.9em; background: #eff4f1; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+td,th { padding: 8px; border: 1px solid #d6dfda; text-align: left; overflow-wrap: anywhere; }
+th { background: #eff4f1; }
+tr, img { break-inside: avoid; }
+img { max-width: 100%; }
+blockquote { border-left: 3px solid #168561; padding-left: 15px; }
+.edition { text-transform: uppercase; font-size: 11px; letter-spacing: 1px; color: #63786e; }
+@media print { body { margin: 0; padding: 0; font-size: 11px; max-width: none; } h1 { font-size: 27px; } h2 { font-size: 18px; } pre { font-size: 9px; } table { font-size: 9px; } }
+</style></head><body><div class="edition">ArchIntel · Investor prototype · 5 October 2026</div><h1 id="phase-5-developer-handoff">Phase 5 developer handoff</h1>
+<h2 id="architecture">Architecture</h2>
+<p><code>backend/app/modernization/</code> contains the planning subsystem:</p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>engine.py</code></td>
+<td>Pure deterministic findings, scores, decisions, evidence-fit comparison, decision brief, dependency waves and planning graph</td>
+</tr>
+<tr>
+<td><code>validation.py</code></td>
+<td>Independent publication checks for references, arithmetic, strategy-brief claims, conflicts, supported conclusions, dependency ordering and no execution</td>
+</tr>
+<tr>
+<td><code>service.py</code></td>
+<td>Version-bound materialization, fingerprints, immutable persistence, review revisions, graph recovery and typed explanations</td>
+</tr>
+<tr>
+<td><code>schemas.py</code></td>
+<td>Strict bounded proposal, review and question contracts</td>
+</tr>
+<tr>
+<td><code>models.py</code></td>
+<td>Tenant-owned assessments and append-only planning review records</td>
+</tr>
+<tr>
+<td><code>routes.py</code></td>
+<td>Authenticated API and runtime-evidence permission inheritance</td>
+</tr>
+</tbody>
+</table>
+<p><code>frontend/src/modernization/PlanningWorkspace.tsx</code> provides a distinct navigation entry. Existing static modernization scores and runtime interfaces remain available. Phase 5 does not replace the scanner, runtime receiver, source gateway or model gateway.</p>
+<h2 id="persistence-and-reproducibility">Persistence and reproducibility</h2>
+<p>Migration <code>0006</code> adds <code>modernization_assessments</code> and <code>modernization_reviews</code>. It adds no new user, credential, policy or provider record and does not rewrite existing analysis/evidence data.</p>
+<p>An assessment stores its actor, version ID, fingerprint and frozen JSON document. The fingerprint covers the captured version fingerprint, canonical document/facts/evidence digest, objective/strategy, rule version and calibration version. The UUID is namespaced by tenant plus fingerprint. Unique tenant/fingerprint prevents duplicate persisted proposals.</p>
+<p>Before generation, the source analysis JSON digest must match the immutable version manifest. Changed source snapshots yield 409. Reviewed domain memberships are taken from the captured version, not a mutable UI state. Source snapshots and canonical Phase 4 graphs are never modified by planning.</p>
+<p>Rule version: <code>modernization-intelligence-2</code>. Calibration version: <code>fixture-calibration-1</code>. Validator version: <code>proposal-validator-1</code>. The rule version changed when the strategy comparison and decision brief were introduced, so new outputs are not confused with prior derivations. The calibration version remains unchanged because no calibration data or score weights changed.</p>
+<p>The decision brief identifies the requested strategy as user-selected and never claims an automatic winner. The six strategy rows use categorical evidence-sufficiency statuses and cite finding IDs. Modular-monolith fit uses observed cycle, coupling and shared-persistence findings; distributed options call out missing behavior, data and operational evidence; cloud/upgrade options explicitly lack a compatibility inventory. These statuses are an explainable review aid, not measured likelihood, cost, or prediction. The independent validator rejects a brief with a fabricated winner or dangling finding references.</p>
+<p>The service currently uses the existing in-process evidence lock. Deployment remains single API process. Unique database constraints are a second integrity boundary, not a distributed task/lease implementation.</p>
+<h2 id="scores-and-uncertainty">Scores and uncertainty</h2>
+<p>For unreviewed versions, reuse <code>static.modernization</code> structural scores, component weights and components exactly. For reviewed memberships, reuse <code>enrich_domains</code> and <code>assess_and_rank</code> over a copied static class graph, updating cycle impacted domains. No source or historical result mutation occurs.</p>
+<p>Runtime readiness reuses the existing transparent component convention:</p>
+<pre><code>cohesion = 100 * observed internal mapped calls / all outgoing mapped calls
+cycles = 0 if the domain participates in an observed cross-domain SCC, else 100
+persistence = 25 if a shared observed resource candidate exists, else 50 (unknown)
+runtime = 0.60 * cohesion + 0.25 * cycles + 0.15 * persistence
+combined = 0.60 * structural + 0.40 * runtime
+</code></pre>
+<p>No mapped outgoing calls means runtime <code>null</code> and combined equals structural. Cycle absence is sample-scoped, not proof of acyclicity. Coverage does not scale readiness. Runtime call counts come from canonical observed facts, not client fields or model output.</p>
+<p>Confidence is a separate 0–100 heuristic evidence index:</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th style="text-align: right;">Weight</th>
+<th>Input</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Static support</td>
+<td style="text-align: right;">.25</td>
+<td>100 for a valid captured static baseline</td>
+</tr>
+<tr>
+<td>Runtime observation</td>
+<td style="text-align: right;">.25</td>
+<td>Domain observed-class percentage, zero without selected runtime</td>
+</tr>
+<tr>
+<td>Mapping/ingestion quality</td>
+<td style="text-align: right;">.15</td>
+<td>100 minus bounded diagnostic penalties, zero without runtime</td>
+</tr>
+<tr>
+<td>Boundary review</td>
+<td style="text-align: right;">.15</td>
+<td>100 only for a captured explicit domain review</td>
+</tr>
+<tr>
+<td>Behavioral validation</td>
+<td style="text-align: right;">.10</td>
+<td>0: unavailable in Phase 5</td>
+</tr>
+<tr>
+<td>Data ownership</td>
+<td style="text-align: right;">.10</td>
+<td>0: unavailable in Phase 5</td>
+</tr>
+</tbody>
+</table>
+<p>Quality subtracts 20 points per missing parent, unresolved node, dropped/conflicting span, invalid parent link or binding rejection, capped at 100. Any ingestion warnings or unverified spans impose at least a 25-point penalty. Diagnostics are global to selected sessions and conservative, not domain-specific statistical error estimates. Quality gaps add a review blocker. Labels are LIMITED below 50, otherwise PARTIAL; Phase 5 never labels the evidence fully validated.</p>
+<p>Calibration fixtures assert static-only confidence 25, full observed/reviewed confidence 80, and complete quality penalty confidence 65 while readiness remains unchanged. These are arithmetic/rule acceptance fixtures, not expert-reviewed empirical success calibration. Real-world calibration against representative modernization outcomes remains future work.</p>
+<h2 id="decision-precedence-and-findings">Decision precedence and findings</h2>
+<p>Each domain has evidence-linked findings and one decision, selected in this order:</p>
+<ol>
+<li>Conflicting facts or cloud/upgrade strategy: <code>MANUAL_REVIEW_REQUIRED</code>.</li>
+<li>Cross-domain SCC in the combined static/runtime dependency graph: <code>BREAK_CYCLE_FIRST</code>.</li>
+<li>Shared observed database resource: <code>ISOLATE_DATA_FIRST</code>.</li>
+<li>Structural cross-domain ratio above .5: <code>REDUCE_COUPLING_FIRST</code>.</li>
+<li>Class observation below 80%, mapping/quality gaps or unreviewed domain: <code>COLLECT_MORE_EVIDENCE</code>.</li>
+<li>Otherwise modular target: <code>RETAIN_MODULAR_MONOLITH</code>; distributed target: <code>PREPARE_FOR_EXTRACTION</code>.</li>
+</ol>
+<p>Database resource equality requires system, server, namespace and resource, with direct mapped callers in multiple domains. It establishes a sharing candidate only. Missing resource identity never establishes independence. Source/build, behavioral contracts, data ownership and human change approval remain prerequisites on every proposal. <code>EXTRACT_NOW</code> cannot be published in Phase 5.</p>
+<p>Cycle facts, high coupling, shared resources, evidence conflicts, unresolved boundaries, observation gaps, unreviewed boundaries and unknown behavior/data generate typed findings. Each links to domain facts and/or canonical evidence; no free-form model conclusion can enter this publishing path.</p>
+<h2 id="independent-validation">Independent validation</h2>
+<p>The validator checks fact evidence existence, endpoint correspondence and evidence-kind classification; conclusion references; bounded finite score arithmetic and normalized weights; no invented behavioral/data confidence; finding/decision domain consistency; conflict and cycle blockers; no unsupported optimistic decisions; dependency-first SCC waves; and graph endpoint integrity.</p>
+<p>Failure yields HTTP 409 and no assessment is persisted. The validator checks a planning proposal, not customer behavioral equivalence, security of generated code or empirical suitability. Clients cannot submit generated findings, scores, Cypher or source patches.</p>
+<h2 id="targets-waves-and-review">Targets, waves and review</h2>
+<p>Six target strategies are supported as proposals. Modular monolith assigns in-process deployment; other strategies leave deployment undecided. Interfaces reflect observed/static domain dependencies with unspecified contracts. No business capability, REST schema, event or transaction contract is fabricated. Cloud/Java/framework proposals explicitly block on compatibility inventory.</p>
+<p>Waves use the SCC condensation DAG, selecting dependency leaves before consumers. All domains in a cyclic group remain in the same wave. Wave metadata includes domains, dependencies, readiness, confidence, difficulty, blockers, prerequisites and unmeasured expected impact.</p>
+<p>Review records are immutable inserts with sequential revision, actor, note and state. The expected revision rejects stale browser submissions. Reviews are limited to 100 per assessment. The latest captured application version defines CURRENT; older versions become SUPERSEDED and cannot receive new reviews. An approved plan remains blocked for code execution. Revised objectives/strategies produce new immutable proposals; changed boundaries/evidence require new architecture versions.</p>
+<h2 id="graph-and-explanation">Graph and explanation</h2>
+<p>Reuse the existing fixed parameterized Neo4j projection/query adapter under a separate <code>tenant:assessment_id</code> scope. All node IDs are assessment-namespaced, including canonical fact/evidence reference nodes. This avoids collisions with the Phase 4 version graph. Reference nodes retain canonical IDs; decision-to-finding-to-fact/evidence relationships form the explanation chain. Relationships include SUPPORTS, REQUIRES, BLOCKED_BY and PRECEDES.</p>
+<p>Creation commits PostgreSQL first, then attempts projection if enabled. Projection errors store exception class only. Graph reads verify marker digest and counts; rebuild retries idempotently. Planning retries are manual in this release. Review events and current-context status are authoritative relational data and are not copied into the immutable planning graph.</p>
+<p>Typed WHY/BLOCKERS/NEXT_STEP questions retrieve a saved decision and its canonical references without an LLM. Unsupported question values are rejected. The existing AI gateway is untouched. Generative narrative, arbitrary graph queries and code execution are outside this workflow.</p>
+<h2 id="api">API</h2>
+<p>Base: <code>/api/v1/architecture-versions/{vid}/modernization</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Method/path</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST <code>/preview</code></td>
+<td>Validate and return a proposal without saving</td>
+</tr>
+<tr>
+<td>POST base</td>
+<td>Idempotently save an immutable proposal</td>
+</tr>
+<tr>
+<td>GET base</td>
+<td>Up to 100 proposals for this version</td>
+</tr>
+<tr>
+<td>GET <code>/{aid}</code></td>
+<td>Frozen document, live context, review history and projection status</td>
+</tr>
+<tr>
+<td>GET <code>/{aid}/export</code></td>
+<td>Frozen proposal only; unaffected by reviews or projection failures</td>
+</tr>
+<tr>
+<td>POST <code>/{aid}/review</code></td>
+<td>Append review with expected revision</td>
+</tr>
+<tr>
+<td>POST <code>/{aid}/explain</code></td>
+<td>Typed evidence-linked answer</td>
+</tr>
+<tr>
+<td>GET <code>/{aid}/graph</code></td>
+<td>Bounded verified graph; optional scoped root</td>
+</tr>
+<tr>
+<td>POST <code>/{aid}/projection/rebuild</code></td>
+<td>Retry isolated planning projection</td>
+</tr>
+</tbody>
+</table>
+<p>ANALYSIS_READ protects reads and explanation requests. ANALYSIS_WRITE protects preview/save/review/rebuild. RUNTIME_READ is additionally required for every operation on a version containing runtime. Scoped database access and explicit version/assessment ownership checks prevent tenant and version substitution. Existing CSRF, audit-intent recording and 2 MiB version-route body cap apply. Proposal/objective and review note lengths are bounded. No new external destination is introduced.</p>
+<p>Planning caps: 500 domains, 30,000 facts, 100,000 graph nodes, 250,000 graph edges; graph queries show at most 500 nodes and 1,000 induced edges. This is not a large-repository performance certification.</p>
+<h2 id="verification-and-extension">Verification and extension</h2>
+<p>Run <code>backend/tests/test_modernization.py</code>; opt into actual PostgreSQL/Neo4j tests with <code>ARCHINTEL_RUN_POSTGRES_TESTS=1</code> and <code>ARCHINTEL_RUN_GRAPH_TESTS=1</code>. Real integration imports the retained Phase 3 PetClinic capture into a disposable PostgreSQL schema, verifies runtime-aware planning and restart preservation, then removes its schema and graph scopes. It does not execute a fresh Java workload or alter the user's workspace.</p>
+<p>Browser workflow: <code>frontend/e2e/04-modernization.spec.ts</code> using <code>playwright.security.config.ts</code> and isolated port 18001. See <a href="PHASE-5-VERIFICATION.md">verification</a> for actual final results and <a href="phase5-integration-validation.json">integration report</a> for measured output.</p>
+<p>Next phase should add pinned source/build identity, behavioral contracts and safe task/approval/rollback primitives. Do not remove current extraction blockers merely to demonstrate an executable action. Add evidence-backed prerequisites and independent checks before enabling any transformation.</p></body></html>

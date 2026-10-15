@@ -1,0 +1,120 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ArchIntel PHASE-2-USER-FLOW</title><style>
+@page { size: A4; margin: 19mm 17mm; }
+body { font: 14px/1.65 Arial, sans-serif; color: #24332e; max-width: 900px; margin: 40px auto; padding: 0 24px; }
+h1 { font-size: 32px; color: #125a43; line-height: 1.2; border-bottom: 3px solid #168561; padding-bottom: 18px; }
+h2 { font-size: 21px; color: #125a43; margin-top: 32px; }
+h3 { font-size: 16px; margin-top: 24px; }
+h1,h2,h3 { break-after: avoid; }
+a { color: #12664c; overflow-wrap: anywhere; }
+pre { background: #eff4f1; padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+code { font-size: 0.9em; background: #eff4f1; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+td,th { padding: 8px; border: 1px solid #d6dfda; text-align: left; overflow-wrap: anywhere; }
+th { background: #eff4f1; }
+tr, img { break-inside: avoid; }
+img { max-width: 100%; }
+blockquote { border-left: 3px solid #168561; padding-left: 15px; }
+.edition { text-transform: uppercase; font-size: 11px; letter-spacing: 1px; color: #63786e; }
+@media print { body { margin: 0; padding: 0; font-size: 11px; max-width: none; } h1 { font-size: 27px; } h2 { font-size: 18px; } pre { font-size: 9px; } table { font-size: 9px; } }
+</style></head><body><div class="edition">ArchIntel · Investor prototype · 5 October 2026</div><h1 id="phase-2-user-flow-controlled-local-ai">Phase 2 user flow: controlled local AI</h1>
+<p>Phase 2 adds an optional local-model gateway to the existing static and runtime evidence assistants. It also lets authorized users ask a local model to select relevant, explicitly granted source ranges. This is evidence selection, not autonomous code generation or modernization execution.</p>
+<h2 id="what-is-available">What is available</h2>
+<ul>
+<li>The existing deterministic assistants continue to work without a model.</li>
+<li>An approved local model can select relevant facts from a small server-built context. ArchIntel validates every returned citation and displays the corresponding stored evidence, never unrestricted generated prose.</li>
+<li>Source requests select literal files and bounded line ranges through the existing Code Security Gateway. Suspected secrets block model dispatch; recognized sensitive identifiers are redacted or blocked by policy.</li>
+<li>Model authorization, rejection and completion are recorded in workspace audit and invocation history. Prompts, source text and raw model replies are not stored there.</li>
+</ul>
+<h2 id="enable-the-prepared-local-model">Enable the prepared local model</h2>
+<p>Sign in as a workspace security administrator and open <strong>Security &amp; access</strong>.</p>
+<ol>
+<li>In <strong>People and service identities</strong>, find your account and select <strong>Allow local model</strong> if MODEL_USE_LOCAL is not already listed. Grant it separately to other permitted users. Existing accounts are not silently upgraded.</li>
+<li>In <strong>AI gateway</strong>, register a provider with:</li>
+<li>Provider name: a label such as <code>Local Ollama</code>.</li>
+<li>Local model endpoint: <code>http://127.0.0.1:11434</code>.</li>
+<li>Installed model name: <code>qwen2.5:0.5b</code>.</li>
+<li>Select <strong>Register local model</strong>. Registration checks the installed model and records its digest. Then select <strong>Check connection</strong>.</li>
+<li>Select it under <strong>Approved model</strong>. Review context bytes, calls per hour and sensitive-data handling. Choose <strong>Enable local model policy</strong>.</li>
+<li>Return to analysis, open a saved result, and ask the Architecture assistant a supported question. Expand <strong>Sources and limitations</strong> to inspect the actual mode and gateway reason.</li>
+</ol>
+<p>Ollama and the small qwen2.5:0.5b model were prepared locally during Phase 2 validation. On another machine, install Ollama and obtain the model through your approved software process. Model download requires network access; inference uses the installed local artifact. The ArchIntel launcher does not manage Ollama. Start the Ollama application if its endpoint is unavailable.</p>
+<p>The same workspace policy applies to the runtime assistant. Its selected facts still come from the selected runtime session and retain their evidence links. Static/runtime observations and heuristic scores are not changed by the model.</p>
+<h2 id="understand-modes-and-fallback">Understand modes and fallback</h2>
+<table>
+<thead>
+<tr>
+<th>Mode/reason</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LOCAL_MODEL_ASSISTED / VALIDATED_CITATIONS</td>
+<td>A permitted local model returned valid IDs from the supplied evidence</td>
+</tr>
+<tr>
+<td>LOCAL_EVIDENCE / MODEL_DISABLED</td>
+<td>Workspace policy is off; deterministic evidence is used</td>
+</tr>
+<tr>
+<td>MODEL_PERMISSION_REQUIRED</td>
+<td>This identity lacks MODEL_USE_LOCAL or the relevant evidence/source permission</td>
+</tr>
+<tr>
+<td>PROVIDER_UNAVAILABLE / MODEL_NOT_INSTALLED</td>
+<td>The registered local service/model cannot be used; no external fallback occurs</td>
+</tr>
+<tr>
+<td>MODEL_REVISION_CHANGED</td>
+<td>The installed model digest changed; review and register the new revision</td>
+</tr>
+<tr>
+<td>SECRET_DETECTED / PROMPT_INJECTION</td>
+<td>Filtering blocked the request before chat dispatch</td>
+</tr>
+<tr>
+<td>SENSITIVE_DATA</td>
+<td>Policy blocks recognized sensitive identifiers</td>
+</tr>
+<tr>
+<td>CONTEXT_LIMIT / HOURLY_BUDGET</td>
+<td>The bounded context or workspace attempt budget was exceeded</td>
+</tr>
+<tr>
+<td>INVALID_RESPONSE / INVALID_CITATIONS / MODEL_ABSTAINED</td>
+<td>The reply was rejected or supplied no usable citation; deterministic evidence is used</td>
+</tr>
+<tr>
+<td>AUTHORIZATION_CHANGED / SOURCE_SCOPE_REVOKED</td>
+<td>Policy/scope changed; model output is not released</td>
+</tr>
+<tr>
+<td>FILTER_OR_PROVIDER_FAILURE</td>
+<td>Filtering or the provider failed; no raw error details or model output are exposed</td>
+</tr>
+</tbody>
+</table>
+<p>For source queries, a blocked/failed model request returns <strong>no source facts</strong>. The existing separately authorized local source-read operation remains available. Do not interpret an empty AI result as evidence that the source has no relevant behavior.</p>
+<h2 id="ask-about-source-without-sharing-a-repository">Ask about source without sharing a repository</h2>
+<ol>
+<li>Register a commit-pinned repository and grant explicit file/directory scope as described in PHASE-1-USER-FLOW.md.</li>
+<li>Grant the caller both SOURCE_READ and MODEL_USE_LOCAL. Enable the chosen local-model policy.</li>
+<li>Under <strong>Ask about an authorized source range</strong>, enter the repository ID, exact registered commit, literal filename, start/end lines, question and a non-sensitive purpose.</li>
+<li>Choose <strong>Query source range</strong>. The UI requests one range; the API supports up to ten ranges, no more than 80 lines per range and 200 total lines, within the existing file/byte limits and model-context budget.</li>
+<li>Review selected range citations and filtered excerpts. Clear the displayed response when finished.</li>
+</ol>
+<p>Only requested ranges enter the model envelope. The gateway reads the authorized committed blobs to extract those ranges; unselected lines are not sent. Source path/commit/scope must still be valid when dispatch is authorized and before model output is returned. No file is modified and no generated command is executed.</p>
+<h2 id="manage-policy-and-inspect-audit">Manage policy and inspect audit</h2>
+<p><strong>Disable model policy</strong> stops new model authorizations and leaves deterministic assistants available. <strong>Disable provider</strong> prevents using that registration. Revoking MODEL_USE_LOCAL prevents future authorized calls for that identity. A request already sent to the local model cannot be unsent; the gateway rechecks permissions/policy before releasing its output.</p>
+<p>The policy defaults are: model disabled, external transfer DENY, telemetry DISABLED, 16,384 context bytes, 128 output tokens and 30 model attempts per workspace per hour. Failed attempts after authorization consume budget. Output-token limits are available through the policy API (32-512); UI controls cover context and hourly budget.</p>
+<p><strong>Model invocation history</strong> shows the latest 100 workspace requests, outcome/reason, context size and redaction categories. The audit trail contains correlated request IDs, policy revision, context digest, local model digest and usage counts when reported by the provider. Currency cost is unknown for local inference, not reported as zero.</p>
+<h2 id="limits-and-troubleshooting">Limits and troubleshooting</h2>
+<ul>
+<li>Only operator-allowlisted literal loopback HTTP endpoints are supported. External, enterprise-remote and private-cloud adapters are not enabled in this delivery. There is no external fallback.</li>
+<li>Secret/PII and injection detection are heuristic. Recognized identifiers include email, phone, payment-like numbers and US SSN format. This is not comprehensive name/address/health-data classification or a compliance certification.</li>
+<li>Small local models may select poor or empty citations. Check the evidence; the model does not prove business ownership, architecture correctness or modernization safety.</li>
+<li>If a model is updated, register it again and explicitly select its new registration. Existing registrations are immutable except for enable/disable.</li>
+<li>Old LLM_URL/LLM_MODEL settings do not authorize calls. Use provider registration, policy and explicit permissions.</li>
+<li>Keep this deployment on localhost. The gateway constrains ArchIntel HTTP dispatch; it does not install host firewall rules or control every outbound connection of an independently managed model service. Operators must enforce the model host's own egress/logging policy for an air-gapped deployment.</li>
+</ul>
+<p>Review PHASE-2-VERIFICATION.md and the developer handoff before approving the next phase. Phase 3 runtime foundation work has not started as part of this delivery.</p></body></html>

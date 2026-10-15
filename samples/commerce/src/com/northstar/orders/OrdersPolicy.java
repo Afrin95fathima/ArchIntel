@@ -1,0 +1,1 @@
+package com.northstar.orders; public interface OrdersPolicy { boolean valid(OrdersEntity entity); }

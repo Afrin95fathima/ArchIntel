@@ -1,0 +1,1 @@
+package com.northstar.inventory; public interface InventoryPolicy { boolean valid(InventoryEntity entity); }

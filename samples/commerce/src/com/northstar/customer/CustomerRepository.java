@@ -1,0 +1,1 @@
+package com.northstar.customer; @org.springframework.stereotype.Repository public class CustomerRepository { public CustomerEntity find() { return new CustomerEntity(); } }

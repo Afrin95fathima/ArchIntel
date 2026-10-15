@@ -1,0 +1,9 @@
+{
+  "verified_at": "2026-10-04T13:15:40.218316+00:00",
+  "graph_unchanged_after_jvm_restart": true,
+  "nodes": 1092,
+  "relationships": 1650,
+  "versions": 2,
+  "content_sha256": "715ef1f672162f312476c8f58202ef74da5628fec8999b74af4005fda6204540",
+  "scope": "Retained isolated browser-test graph projections; main workspace versions untouched"
+}

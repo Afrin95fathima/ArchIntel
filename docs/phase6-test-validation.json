@@ -1,0 +1,28 @@
+{
+  "backend": {
+    "total_cases_with_passing_evidence": 189,
+    "full_run_passed": 188,
+    "full_run_failed": 1,
+    "focused_rerun_passed": 1,
+    "rerun_reason": "New PostgreSQL test omitted CSRF token after re-login; test client corrected",
+    "scanner": true,
+    "local_model": true,
+    "postgresql": true,
+    "neo4j": true
+  },
+  "frontend": {
+    "unit_passed": 5,
+    "browser_passed": 8,
+    "browser_skipped": 0,
+    "browser_minutes": 4.2,
+    "typescript_build": "PASSED",
+    "bundle_warning": true
+  },
+  "dependencies": {
+    "python": "No broken requirements",
+    "npm_direct": "PASSED"
+  },
+  "container_execution": "CONTROLLED_FIXTURE_PASSED_OFFLINE",
+  "phase6_exit_gate": "OPEN",
+  "phase7_started": false
+}

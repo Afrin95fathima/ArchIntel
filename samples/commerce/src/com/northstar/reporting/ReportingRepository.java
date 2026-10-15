@@ -1,0 +1,1 @@
+package com.northstar.reporting; @org.springframework.stereotype.Repository public class ReportingRepository { public ReportingEntity find() { return new ReportingEntity(); } }

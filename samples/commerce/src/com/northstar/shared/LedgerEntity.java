@@ -1,0 +1,1 @@
+package com.northstar.shared; @jakarta.persistence.Entity public class LedgerEntity { public String id; }

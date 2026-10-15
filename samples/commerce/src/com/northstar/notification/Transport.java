@@ -1,0 +1,1 @@
+package com.northstar.notification; public interface Transport { void send(Message m); }

@@ -1,0 +1,1 @@
+package com.northstar.inventory; public class InventoryDefaultPolicy implements InventoryPolicy { public boolean valid(InventoryEntity entity) { return entity != null; } }

@@ -1,0 +1,188 @@
+﻿<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ArchIntel RUNTIME-USER-FLOW</title><style>
+@page { size: A4; margin: 19mm 17mm; }
+body { font: 14px/1.65 Arial, sans-serif; color: #24332e; max-width: 900px; margin: 40px auto; padding: 0 24px; }
+h1 { font-size: 32px; color: #125a43; line-height: 1.2; border-bottom: 3px solid #168561; padding-bottom: 18px; }
+h2 { font-size: 21px; color: #125a43; margin-top: 32px; }
+h3 { font-size: 16px; margin-top: 24px; }
+h1,h2,h3 { break-after: avoid; }
+a { color: #12664c; overflow-wrap: anywhere; }
+pre { background: #eff4f1; padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+code { font-size: 0.9em; background: #eff4f1; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+td,th { padding: 8px; border: 1px solid #d6dfda; text-align: left; overflow-wrap: anywhere; }
+th { background: #eff4f1; }
+tr, img { break-inside: avoid; }
+img { max-width: 100%; }
+blockquote { border-left: 3px solid #168561; padding-left: 15px; }
+.edition { text-transform: uppercase; font-size: 11px; letter-spacing: 1px; color: #63786e; }
+@media print { body { margin: 0; padding: 0; font-size: 11px; max-width: none; } h1 { font-size: 27px; } h2 { font-size: 18px; } pre { font-size: 9px; } table { font-size: 9px; } }
+</style></head><body><div class="edition">ArchIntel Â· Investor prototype Â· 5 October 2026</div><h1 id="archintel-dynamic-analysis-user-flow">ArchIntel dynamic analysis: user flow</h1>
+<blockquote>
+<p><strong>Phase 3 runtime update (4 October 2026):</strong> For current session setup, instrumentation preview/exclusions, strict identity declarations, quality diagnostics and recovery, read <a href="PHASE-3-USER-FLOW.md">Phase 3 user flow</a> and <a href="PHASE-3-DEVELOPER-GUIDE.md">developer handoff</a>. <a href="PHASE-3-VERIFICATION.md">Validation results</a> include a new real PetClinic capture; older results below remain historical.</p>
+</blockquote>
+<h2 id="purpose">Purpose</h2>
+<p>Static analysis describes possible architecture. Dynamic analysis records what was observed while your application ran. ArchIntel combines these without replacing the static graph. This delivery is a local prototype with authenticated workspaces; run the application and ArchIntel on the same machine for the simplest setup.</p>
+<pre><code class="language-text">Analyze compiled JAR/WAR statically
+  -&gt; Choose the matching completed static baseline
+  -&gt; Create a runtime session
+  -&gt; Configure the OpenTelemetry Java agent in the application process
+  -&gt; Start the session, then launch the application
+  -&gt; Exercise representative flows
+  -&gt; Observe real trace/span counts and runtime graphs
+  -&gt; Inspect mapping and coverage gaps
+  -&gt; Exercise additional flows
+  -&gt; Compare static, runtime and unified evidence
+  -&gt; Review readiness with observation confidence
+  -&gt; Stop the session and export its report
+</code></pre>
+<h2 id="1-start-archintel">1. Start ArchIntel</h2>
+<p>In PowerShell:</p>
+<pre><code class="language-powershell">cd 'C:\Users\afrin\OneDrive\Desktop\vfunction'
+.\Start-ArchIntel.cmd
+</code></pre>
+<p>Keep the launcher window open. Open http://127.0.0.1:8000 in Chrome or Edge. A browser page alone does not start the server. If it reports connection refused, read the launcher output and <code>.data/api.err.log</code>.</p>
+<p>For a fresh installation, run <code>scripts/setup.ps1</code> first. The locked Python dependencies now include OpenTelemetry protobuf support. A JDK and the jQAssistant exporter are needed for static analysis; the application also needs a suitable Java runtime.</p>
+<h2 id="2-establish-the-static-baseline">2. Establish the static baseline</h2>
+<p>Use <strong>Applications -&gt; Analyze application</strong> to upload your compiled application. Wait until analysis is completed. Use the same application build for static and runtime analysis: identical class names from a different version do not prove matching code.</p>
+<p>New static analyses include method identities and explicit supported entry-point annotations. Older snapshots remain readable, but method and entry-point coverage may show <strong>Unavailable</strong>. Run a new static analysis when you need those denominators.</p>
+<p>PetClinic is unusual: its application classes are under <code>org.springframework.samples.petclinic</code>, while the default noise filter excludes <code>org.springframework.</code>. The provided validation script explicitly includes that application namespace and excludes <code>org.springframework.boot.</code> loader classes. It stores a real static analysis in the workspace without changing the default settings or previous snapshots. For another application with an overlapping framework namespace, review <code>EXTERNAL_PREFIXES</code> before scanning rather than accepting an empty or misleading graph.</p>
+<h2 id="3-create-a-session">3. Create a session</h2>
+<p>Open <strong>Dynamic analysis</strong> in the existing sidebar.</p>
+<ol>
+<li>Choose the application and its completed static baseline.</li>
+<li>Name the observation, for example <code>Owner flows - local</code>.</li>
+<li>Choose an environment label such as LOCAL, TEST or STAGING.</li>
+<li>Keep <strong>BOUNDARY</strong> as the default instrumentation depth. STANDARD adds statically important classes. DEEP explicitly selects broader application methods and is not the default.</li>
+<li>Optionally enter comma-separated application package prefixes, for example <code>com.example.</code>.</li>
+<li>Click <strong>Create runtime session</strong>.</li>
+</ol>
+<p>Creating a session does not execute the uploaded application. ArchIntel displays a bearer token once inside the connection environment variables. The credential is reusable for OTLP batches and expires 24 hours after issue. Copy the settings into the application terminal and keep them private; the browser does not store them in local storage. <strong>New token</strong> revokes the old token and provides a replacement; update/restart the application's exporter accordingly.</p>
+<h2 id="4-connect-the-java-agent">4. Connect the Java agent</h2>
+<p>Use the official OpenTelemetry Java agent. The prepared workspace has version 2.31.1 at <code>.runtime/otel/opentelemetry-javaagent.jar</code>. <code>scripts/setup-runtime-demo.ps1</code> downloads that pinned version and builds the optional PetClinic sample.</p>
+<p>Copy the generated environment-variable commands from the UI. They include:</p>
+<ul>
+<li>An application/session-specific OTLP traces endpoint.</li>
+<li><code>http/protobuf</code> transport.</li>
+<li>A session bearer-token header.</li>
+<li>Disabled metric and log export.</li>
+<li>Explicit selected application class/method names, derived from the static inventory.</li>
+</ul>
+<p>Then launch your application with the agent. For the prepared workspace JDK:</p>
+<pre><code class="language-powershell">$javaDirectory = (Get-ChildItem '.runtime/java' -Directory | Select-Object -First 1).FullName
+&amp; &quot;$javaDirectory/bin/java.exe&quot; '-javaagent:.runtime/otel/opentelemetry-javaagent.jar' -jar 'C:/path/to/your-application.jar'
+</code></pre>
+<p>For a WAR deployed in a servlet container, configure the agent on that container's JVM according to its launch mechanism. Do not use <code>java -jar</code> on a non-executable WAR. Keep the application's port different from ArchIntel's port 8000. The validation sample uses 18080.</p>
+<p>The generated method plan uses explicit method names, not <code>Class[*]</code>, because the verified agent's parser rejects that wildcard syntax. Constructors and synthetic method names are not included. Interfaces, generated proxies and uninstrumented paths may remain partially observed.</p>
+<h2 id="5-start-observation-and-run-workload">5. Start observation and run workload</h2>
+<p>Click <strong>Start</strong> for the session before launching the instrumented application. The session enters WAITING_FOR_AGENT. There is no fake agent handshake: <strong>RECEIVING_DATA</strong> appears only after accepted telemetry arrives. A quiet application may show DISCONNECTED after 60 seconds without new telemetry even while its JVM is healthy.</p>
+<p>Run manual actions, integration tests or API requests that exercise important paths. Counts update automatically. A new session starts with zero traces; loading the dashboard does not create application activity. Repeated delivery of the same span is deduplicated within a session.</p>
+<p>Sampling and selected instrumentation limit what can be observed. The generated sample configuration uses a parent-based always-on sampler; assess overhead and sampling before applying it outside local testing. No production overhead percentage has been established.</p>
+<h2 id="6-inspect-the-evidence">6. Inspect the evidence</h2>
+<table>
+<thead>
+<tr>
+<th>Tab</th>
+<th>What it provides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Coverage</td>
+<td>Separate class, method, entry-point, executable-dependency and domain metrics; explicit unavailable denominators; domain observation gaps.</td>
+</tr>
+<tr>
+<td>Graph</td>
+<td>Domain, package and class views; runtime or unified evidence; click an edge for retained sanitized span links.</td>
+</tr>
+<tr>
+<td>Mapping</td>
+<td>EXACT, NORMALIZED, PROXY_RESOLVED or UNRESOLVED identities and the matching rule evidence.</td>
+</tr>
+<tr>
+<td>Flows</td>
+<td>Request groups by entry route and participating classes, with trace/error counts and entry-span duration. Class lists are not complete call sequences.</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>Available database system/resource/operation and directly supported caller evidence. Unknown values stay unknown.</td>
+</tr>
+<tr>
+<td>Modernization</td>
+<td>Preserved structural score, separate runtime score, combined score, confidence, formula and review risks.</td>
+</tr>
+<tr>
+<td>Assistant</td>
+<td>Deterministic explanations based on the selected session's evidence, with source links. No LLM service is required.</td>
+</tr>
+</tbody>
+</table>
+<p>Select multiple sessions only when they share the same application and static baseline. Runtime and unified graphs combine those observations; static mode shows the unchanged baseline. The runtime assistant currently uses the first selected session, as labelled in its heading; select one session when asking about a specific observation.</p>
+<p>Graph displays are capped at 150 nodes and 1,000 edges. The report export contains the full bounded result. A missing parent span is reported; ArchIntel does not invent a call across the gap.</p>
+<h2 id="7-interpret-coverage-and-fusion-correctly">7. Interpret coverage and fusion correctly</h2>
+<ul>
+<li><strong>STATIC_ONLY:</strong> detected statically, not observed in the selected sessions. It does not mean unused.</li>
+<li><strong>DYNAMIC_ONLY:</strong> observed at runtime without a matching static class-pair dependency. This may include proxies, reflection or external/resource observations.</li>
+<li><strong>STATIC_AND_DYNAMIC:</strong> a class-pair dependency has both kinds of evidence. Inspect static types and spans for details; this is not proof that every static dependency type was exercised.</li>
+</ul>
+<p>Class coverage uses distinct mapped application classes. Dependency coverage uses distinct directed static METHOD_CALL class pairs. Method coverage counts unambiguous owner/method observations against known static signatures; overloaded names without signature evidence remain unobserved. Entry-point coverage uses explicit supported method annotations, not every possible inherited or composed route.</p>
+<p>Domain coverage means at least one relevant class in a domain was observed. Domain rows additionally distinguish UNOBSERVED, PARTIALLY_OBSERVED and OBSERVED class membership. Even all classes observed does not imply every branch or business flow was exercised. These are architectural observation metrics, not JaCoCo instruction/branch coverage.</p>
+<p>Exercise an additional suggested flow and check the relevant metrics again. Recommendations are labelled SUGGESTED_SCENARIO and grounded in unobserved static classes; business steps are not inferred with certainty.</p>
+<h2 id="8-review-modernization">8. Review modernization</h2>
+<p>Structural scores remain unchanged. Runtime scores use configurable cohesion, cycle and persistence components. No mapped runtime calls means unknown runtime readiness, so the combined result retains the structural score. Low coverage reduces the displayed observation confidence; it does not subtract points from structural readiness.</p>
+<p>The existing dependency-first modernization order is retained, with runtime evidence available for review. This is an explainable prototype heuristic, not calibrated extraction effort or an automated migration approval.</p>
+<h2 id="9-stop-and-export">9. Stop and export</h2>
+<p>Stop the workload, allow the agent's batch exporter to drain, then click <strong>Stop</strong> for the session. ArchIntel produces a completed report and rejects subsequent ingestion. A completed session cannot be restarted; create another observation session.</p>
+<p>Click <strong>Export evidence</strong> to download JSON. Completed reports remain available after sanitized span retention expires, but individual span links then return not found. Combining an expired session with another session is rejected because the retained report does not contain enough span-level evidence to recompute a trustworthy union.</p>
+<p>By default, sessions are automatically closed after 24 hours and sanitized events from completed sessions are retained for a further 24 hours. A background sweep runs every 60 seconds while ArchIntel is running. Stop your Java application separately. Use <code>Stop-ArchIntel.cmd</code> to stop ArchIntel while preserving its database.</p>
+<h2 id="10-reproduce-the-prepared-real-demo">10. Reproduce the prepared real demo</h2>
+<pre><code class="language-powershell">powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup-runtime-demo.ps1
+# Start ArchIntel in another terminal, then:
+.runtime/python/tools/python.exe scripts/validate_runtime_petclinic.py
+</code></pre>
+<p>The script builds/uses the pinned public PetClinic sample, runs real static scanning, creates a session, starts the real Java agent, exercises owner then vet/pet/visit flows, verifies increased coverage and unchanged static evidence, stops the session and terminates the sample JVM. It does not execute uploaded customer artifacts. Results are recorded in <code>docs/runtime-validation.json</code> when all assertions pass.</p>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Connection refused at port 8000</td>
+<td>Start ArchIntel and keep its launcher open; inspect API logs.</td>
+</tr>
+<tr>
+<td>WAITING_FOR_AGENT</td>
+<td>Session started; agent attached to the actual JVM; generated environment set in that JVM's launch terminal; workload executed.</td>
+</tr>
+<tr>
+<td>HTTP 401 from exporter</td>
+<td>Session token/header is missing, expired, rotated or belongs to another session.</td>
+</tr>
+<tr>
+<td>HTTP 409</td>
+<td>Session is completed/not started, or selected sessions have incompatible baselines.</td>
+</tr>
+<tr>
+<td>Invalid trace method configuration</td>
+<td>Use the newly generated explicit method plan and verified agent version.</td>
+</tr>
+<tr>
+<td>Few mapped classes</td>
+<td>Check package filtering, old static inventory, agent method selection and workload completeness. Framework spans alone may not expose application methods.</td>
+</tr>
+<tr>
+<td>Dropped spans</td>
+<td>Session reached its configured span cap; create a shorter/scoped observation and review sampling.</td>
+</tr>
+<tr>
+<td>Unknown database resource</td>
+<td>The agent did not provide a reliable collection name; ArchIntel does not parse/store SQL text to fabricate one.</td>
+</tr>
+</tbody>
+</table>
+<p>Runtime ingestion requires its own session token. Management APIs now require an authenticated workspace identity and explicit permissions. See PHASE-1-USER-FLOW.md. Production SaaS deployment is not validated.</p>
+<h2 id="optional-local-ai-evidence-selection">Optional local AI evidence selection</h2>
+<p>The runtime assistant can now use the Phase 2 AI gateway to select supported facts from the selected session. It retains evidence links and deterministic fallback. Enable a registered local provider and grant MODEL_USE_LOCAL alongside RUNTIME_READ; see PHASE-2-USER-FLOW.md. No generative model changes coverage or modernization scores.</p></body></html>

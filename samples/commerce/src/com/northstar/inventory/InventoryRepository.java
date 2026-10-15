@@ -1,0 +1,1 @@
+package com.northstar.inventory; @org.springframework.stereotype.Repository public class InventoryRepository { public InventoryEntity find() { return new InventoryEntity(); } }

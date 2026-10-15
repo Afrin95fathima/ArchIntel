@@ -1,0 +1,1 @@
+package com.northstar.reporting; @org.springframework.stereotype.Controller public class ReportingController { private ReportingService service; public ReportingEntity get() { return service.load(); } }

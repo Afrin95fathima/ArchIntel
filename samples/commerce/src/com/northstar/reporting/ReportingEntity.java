@@ -1,0 +1,1 @@
+package com.northstar.reporting; @jakarta.persistence.Entity public class ReportingEntity { public String id; public String status; }

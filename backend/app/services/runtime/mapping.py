@@ -1,0 +1,64 @@
+"""Conservative class identity matching; unresolved identities stay visible."""
+import re
+
+
+def map_class(identity: str | None, classes: dict) -> dict:
+    result = dict(runtime_identity=identity,static_id=None,state='UNRESOLVED',confidence=0.,evidence=[])
+    if not identity:
+        return dict(result,evidence=['Telemetry did not supply an application class identity.'])
+    if identity in classes:
+        return dict(result,static_id=identity,state='EXACT',confidence=1.,evidence=['Exact fully qualified class match.'])
+    normalized = identity.replace('/', '.')
+    if normalized.startswith('L') and normalized.endswith(';'): normalized = normalized[1:-1]
+    if normalized in classes:
+        return dict(result,static_id=normalized,state='NORMALIZED',confidence=1.,evidence=['JVM internal-name/descriptor normalization.'])
+    proxy = re.sub(r'\$\$(?:SpringCGLIB\$\$\d+|EnhancerBySpringCGLIB\$\$[a-zA-Z0-9]+)$','',normalized)
+    if proxy != normalized and proxy in classes:
+        return dict(result,static_id=proxy,state='PROXY_RESOLVED',confidence=.9,evidence=['Recognized Spring subclass proxy suffix with exact existing base class.'])
+    return dict(result,evidence=['No unambiguous static class match; not forced by simple name.'])
+
+
+PRIMITIVES={'void':'V','boolean':'Z','byte':'B','char':'C','short':'S','int':'I','long':'J','float':'F','double':'D'}
+JVM_TYPE=r'(?:[BCDFIJSZ]|L[A-Za-z_$][A-Za-z0-9_$/]*;)'
+DESCRIPTOR=re.compile(r'^\((?:\[*'+JVM_TYPE+r')*\)(?:V|\[*'+JVM_TYPE+r')$')
+
+
+def method_descriptor(method):
+    explicit=method.get('descriptor')
+    if explicit and DESCRIPTOR.fullmatch(explicit):return explicit
+    signature=method.get('signature') or ''
+    match=re.fullmatch(r'([^ ]+)\s+[^ (]+\(([^()]*)\)',signature)
+    if not match:return None
+    def convert(value):
+        value=value.strip().replace('...','[]');dimensions=0
+        while value.endswith('[]'):dimensions+=1;value=value[:-2]
+        if value in PRIMITIVES:
+            base=PRIMITIVES[value]
+            if dimensions and base=='V':return None
+        elif re.fullmatch(r'[A-Za-z_$][A-Za-z0-9_$.]*',value) and '.' in value:
+            base='L'+value.replace('.','/')+';'
+        else:return None  # Do not guess an unqualified class or generic type.
+        return '['*dimensions+base
+    parts=[convert(p) for p in match[2].split(',')] if match[2].strip() else []
+    result=convert(match[1])
+    if result is None or any(p is None or p=='V' for p in parts):return None
+    candidate='('+''.join(parts)+')'+result
+    return candidate if DESCRIPTOR.fullmatch(candidate) else None
+
+
+def map_method(event,classes):
+    owner=map_class(event.get('class_name'),classes)['static_id']
+    base=dict(static_class=owner,signature=None,state='UNRESOLVED')
+    if not owner or not event.get('method_name'):return base
+    methods=classes[owner].get('methods')
+    if methods is None:return dict(base,state='UNAVAILABLE')
+    candidates=[m for m in methods if m.get('name')==event['method_name'] and m.get('signature')]
+    descriptor=event.get('method_descriptor') or event.get('attributes',{}).get('code.method.descriptor')
+    if event.get('invalid_method_descriptor'):return base
+    if descriptor:
+        candidates=[m for m in candidates if method_descriptor(m)==descriptor]
+        state='EXACT_DESCRIPTOR'
+    else:state='UNIQUE_NAME'
+    signatures={m['signature'] for m in candidates}
+    if len(signatures)==1:return dict(base,signature=next(iter(signatures)),state=state)
+    return dict(base,state='AMBIGUOUS' if len(signatures)>1 else 'UNRESOLVED')

@@ -1,0 +1,118 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ArchIntel PHASE-3-DEVELOPER-GUIDE</title><style>
+@page { size: A4; margin: 19mm 17mm; }
+body { font: 14px/1.65 Arial, sans-serif; color: #24332e; max-width: 900px; margin: 40px auto; padding: 0 24px; }
+h1 { font-size: 32px; color: #125a43; line-height: 1.2; border-bottom: 3px solid #168561; padding-bottom: 18px; }
+h2 { font-size: 21px; color: #125a43; margin-top: 32px; }
+h3 { font-size: 16px; margin-top: 24px; }
+h1,h2,h3 { break-after: avoid; }
+a { color: #12664c; overflow-wrap: anywhere; }
+pre { background: #eff4f1; padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+code { font-size: 0.9em; background: #eff4f1; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+td,th { padding: 8px; border: 1px solid #d6dfda; text-align: left; overflow-wrap: anywhere; }
+th { background: #eff4f1; }
+tr, img { break-inside: avoid; }
+img { max-width: 100%; }
+blockquote { border-left: 3px solid #168561; padding-left: 15px; }
+.edition { text-transform: uppercase; font-size: 11px; letter-spacing: 1px; color: #63786e; }
+@media print { body { margin: 0; padding: 0; font-size: 11px; max-width: none; } h1 { font-size: 27px; } h2 { font-size: 18px; } pre { font-size: 9px; } table { font-size: 9px; } }
+</style></head><body><div class="edition">ArchIntel · Investor prototype · 5 October 2026</div><h1 id="phase-3-developer-handoff-runtime-foundation">Phase 3 developer handoff: runtime foundation</h1>
+<p>Scope: harden the existing runtime pipeline; do not add a second scanner, receiver or model gateway. Phase 4 evidence entities, digital twin and guided discovery remain gated.</p>
+<h2 id="architecture-and-ownership">Architecture and ownership</h2>
+<pre><code class="language-text">SessionInput -&gt; prepare() -&gt; completed tenant/application baseline + Artifact SHA
+                          -&gt; build_plan() -&gt; immutable settings JSON
+Java agent -&gt; authenticated OTLP route -&gt; bounded decode + normalization
+           -&gt; session lock + reauthentication -&gt; resource binding -&gt; deduplication
+           -&gt; RuntimeEvent (sanitized fields only) + ingestion counters
+RuntimeEvent -&gt; graph builder -&gt; conservative class/method mapping -&gt; coverage
+             -&gt; existing fusion/intelligence -&gt; versioned report + quality
+Stop -&gt; frozen RuntimeSession.result
+Retention -&gt; delete expired RuntimeEvent rows, retain completed report
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>backend/app/runtime/schemas.py</code></td>
+<td>Validated includes/excludes, binding mode and optional service name; additive report metadata</td>
+</tr>
+<tr>
+<td><code>backend/app/runtime/routes.py</code></td>
+<td>Existing management/ingestion APIs, plan preview and diagnostics</td>
+</tr>
+<tr>
+<td><code>backend/app/services/runtime/instrumentation.py</code></td>
+<td>Deterministic bounded method selection and canonical plan digest</td>
+</tr>
+<tr>
+<td><code>backend/app/services/runtime/normalization.py</code></td>
+<td>Bounded OTLP JSON/protobuf/gzip decoding; architectural/resource allowlists; descriptor validation</td>
+</tr>
+<tr>
+<td><code>backend/app/services/runtime/mapping.py</code></td>
+<td>Exact/internal-name/recognized Spring proxy mapping; conservative JVM descriptor conversion</td>
+</tr>
+<tr>
+<td><code>backend/app/services/runtime/session_service.py</code></td>
+<td>Baseline association, plan persistence, batch binding, deduplication, lifecycle, quality, recovery and retention</td>
+</tr>
+<tr>
+<td><code>backend/app/services/runtime/graph_builder.py</code></td>
+<td>Parent reconstruction, resource identity, malformed-parent-cycle rejection and projection</td>
+</tr>
+<tr>
+<td><code>backend/app/services/runtime/coverage.py</code></td>
+<td>Five observation denominators and method-mapping diagnostics</td>
+</tr>
+<tr>
+<td><code>backend/app/main.py</code></td>
+<td>Recover interrupted report generation before accepting requests; existing periodic retention sweep</td>
+</tr>
+<tr>
+<td><code>frontend/src/runtime/</code></td>
+<td>Session setup, plan preview, quality diagnostics and existing runtime views</td>
+</tr>
+</tbody>
+</table>
+<h2 id="persistence-and-compatibility">Persistence and compatibility</h2>
+<p>No schema migration is needed; Alembic remains at 0004. New session metadata uses existing <code>settings</code> JSON. It includes <code>binding_mode</code>, <code>service_name</code>, <code>artifact_sha256</code>, <code>exclude_packages</code>, the saved <code>instrumentation_plan</code>, and <code>ingestion</code> counters. The bearer token stays hashed in its existing column and never enters the plan/report.</p>
+<p>New reports use <code>derivation_version: runtime-foundation-2</code>. Saved plans use <code>version: runtime-plan-2</code>, selected classes/method names, scope, omission counts, byte budget and a canonical SHA-256 computed without its own hash field. Saved plans are reused during token rotation/config retrieval. Legacy sessions obtain a transient plan only when needed; their stored snapshots are not rewritten. Existing completed reports are returned as stored; response schemas may add default empty quality/legacy version fields.</p>
+<p>The API defaults to COMPATIBLE for existing clients. The UI explicitly submits STRICT. Both reject any supplied service/artifact mismatch and malformed resource identity. Compatible mode accepts absent identity but records it as unverified. The whole batch is rejected atomically with 409 if any span violates binding. Only a numeric rejected-span count is retained. Empty batches do not imply a connection.</p>
+<p>Strict binding is a consistency check against a sender-declared SHA-256, not remote attestation. The generated <code>OTEL_RESOURCE_ATTRIBUTES</code> must describe the actual analyzed deployment artifact. Future collectors spanning multiple services need an explicit association contract; do not silently accept mixed-service batches.</p>
+<h2 id="api-additions">API additions</h2>
+<ul>
+<li><code>POST /api/v1/applications/{application_id}/runtime-sessions/plan</code>: same input as creation; returns a plan without creating a session or token. Requires RUNTIME_WRITE under the existing POST permission policy.</li>
+<li>Creation accepts <code>exclude_packages</code>, <code>binding_mode</code> and optional <code>service_name</code> in addition to existing fields. Unknown fields are rejected.</li>
+<li><code>GET /api/v1/runtime-sessions/{id}/diagnostics</code>: current lifecycle, purge/recovery metadata, ingestion counters, dropped count and saved plan. Requires RUNTIME_READ; no tokens.</li>
+<li>Agent configuration adds <code>plan</code>, <code>binding_mode</code>, generated service name and artifact resource attributes while preserving the existing <code>instrumentation_plan</code> list.</li>
+<li>Evidence adds <code>quality</code> and <code>derivation_version</code>; coverage adds <code>method_mapping_diagnostics</code>.</li>
+</ul>
+<p>Tenant/application/baseline checks remain in the existing scoped data/session path. OTLP requires a session bearer and reauthenticates after body parsing inside the process lock, preserving rotation behavior. Model and source permissions are unchanged.</p>
+<h2 id="mapping-and-quality-semantics">Mapping and quality semantics</h2>
+<p>Descriptors use JVM syntax, such as <code>(I)V</code> or <code>([Ljava/lang/String;)I</code>. The mapper prefers a valid static descriptor or conservatively converts a fully qualified jQAssistant method signature. It does not guess unqualified object types or generic signatures. A valid event descriptor must match a static signature; an invalid supplied descriptor cannot fall back to a method name. Without a descriptor, only one distinct static owner/name signature receives coverage. No simple-class-name mapping or arbitrary proxy stripping is introduced.</p>
+<p>Duplicate trace/span keys are session-scoped. Exact duplicates increment a counter and do not inflate coverage. Conflicting duplicates preserve the first sanitized event and increment duplicate plus conflict counts. Cumulative counters describe ingestion attempts, not unique workload operations. Default cap remains 50,000 unique spans/session; OTLP partial success identifies storage-cap rejections.</p>
+<p>Graph resource IDs now include service (or session when unknown), database server/namespace and message system along with prior type/resource/route fields. Distinct known databases no longer collapse into one resource node. Missing fields still mean unknown; these IDs do not prove resource ownership. Parent reconstruction is scoped to session and trace. Cyclic parent links are omitted; legitimate class-level cycles from valid span trees remain supported. Latency percentiles remain class-edge observations, not end-to-end latency or projected-domain percentiles.</p>
+<p>Coverage diagnostics count matching outcomes only where a reliable method inventory exists. Runtime coverage is not JaCoCo/line/branch coverage. The real agent fixture still produced 11 ambiguous method observations; this is reported rather than resolved by guessing.</p>
+<h2 id="lifecycle-and-retention">Lifecycle and retention</h2>
+<p>CREATED -&gt; WAITING_FOR_AGENT -&gt; RUNNING -&gt; PROCESSING -&gt; COMPLETED; report failure -&gt; FAILED. Start is idempotent only while accepting telemetry. Completed sessions cannot restart. Stop can retry a failed report while raw evidence remains. A server restart marks interrupted PROCESSING sessions FAILED with a reason/timestamp, preserving active sessions and token hashes.</p>
+<p>Retention runs once per minute. Active observation lifetimes are bounded by <code>runtime_raw_trace_retention_hours</code>; expired active sessions are finalized. A failure finalizing one session does not prevent later sessions from being processed. Completed/failed raw evidence is purged after the retention cutoff; old failed rows lacking an end timestamp use updated time. Already-purged sessions are skipped, so the returned count reflects newly purged sessions. Completed report JSON is unchanged. The implementation remains single-process; do not deploy multiple API writers until distributed locking/coordination exists.</p>
+<h2 id="verification-and-reproducibility">Verification and reproducibility</h2>
+<p>Backend contracts: <code>backend/tests/test_runtime_foundation.py</code>, alongside runtime/security/AI/scanner regressions. Browser workflow: <code>frontend/e2e/02-runtime.spec.ts</code>, included in <code>playwright.security.config.ts</code>.</p>
+<p>Run from the repository root in PowerShell:</p>
+<pre><code class="language-powershell">$env:ARCHINTEL_RUN_SCANNER_TESTS = '1'
+$env:ARCHINTEL_RUN_MODEL_TESTS = '1'
+$env:ARCHINTEL_RUN_POSTGRES_TESTS = '1'
+$phaseTests = '.data/phase3-tests-' + [guid]::NewGuid().ToString('N')
+.\.runtime\python\tools\python.exe -m pytest backend/tests -q -p no:cacheprovider --basetemp=$phaseTests
+.\.runtime\python\tools\python.exe scripts/validate_phase3_runtime.py
+</code></pre>
+<p>The real-Java script requires the pinned sample JAR, local Java/agent, an existing matching static method-inventory snapshot, and free loopback ports 18002/18080. It reads the source workspace, seeds an isolated SQLite database under <code>.data/phase3-real-java-*</code>, bootstraps only that isolated installation, runs trusted PetClinic, verifies traffic/coverage, stops/restarts only its own processes and writes a credential-free report to <code>docs/phase3-runtime-validation.json</code>. It leaves the isolated directory/logs for inspection. It does not execute uploaded customer applications. Credentials are randomly generated and are not included in the report.</p>
+<p>From <code>frontend</code>, use <code>npm.cmd test -- --run</code>, <code>npm.cmd run build</code>, and <code>npm.cmd exec playwright test -- --config=playwright.security.config.ts</code>. Browser tests use their own database on port 18001. The runtime browser fixture deliberately sends synthetic spans for workflow assertions; the separate Java script proves actual agent telemetry. Do not describe one as the other.</p>
+<h2 id="remaining-work">Remaining work</h2>
+<p>Reviewed mapping overrides, broader proxy/framework adapters, inherited/composed route resolution, application-server/WAR runtime certification, remote collector association, scenario tracking, projected latency distributions, independent JaCoCo coverage and production overhead/scale measurement are not implemented by this foundation slice. The existing runtime heuristic scores are unchanged and uncalibrated. Phase 4 canonical evidence/facts/twin and later modernization execution remain separate roadmap work.</p>
+<p>OpenTelemetry references: <a href="https://opentelemetry.io/docs/zero-code/java/agent/configuration/">Java configuration</a>, <a href="https://opentelemetry.io/docs/zero-code/java/agent/annotations/">method instrumentation</a>, <a href="https://opentelemetry.io/docs/specs/otlp/">OTLP protocol</a>.</p></body></html>

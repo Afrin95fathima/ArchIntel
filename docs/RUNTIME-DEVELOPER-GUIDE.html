@@ -1,0 +1,293 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ArchIntel RUNTIME-DEVELOPER-GUIDE</title><style>
+@page { size: A4; margin: 19mm 17mm; }
+body { font: 14px/1.65 Arial, sans-serif; color: #24332e; max-width: 900px; margin: 40px auto; padding: 0 24px; }
+h1 { font-size: 32px; color: #125a43; line-height: 1.2; border-bottom: 3px solid #168561; padding-bottom: 18px; }
+h2 { font-size: 21px; color: #125a43; margin-top: 32px; }
+h3 { font-size: 16px; margin-top: 24px; }
+h1,h2,h3 { break-after: avoid; }
+a { color: #12664c; overflow-wrap: anywhere; }
+pre { background: #eff4f1; padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+code { font-size: 0.9em; background: #eff4f1; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+td,th { padding: 8px; border: 1px solid #d6dfda; text-align: left; overflow-wrap: anywhere; }
+th { background: #eff4f1; }
+tr, img { break-inside: avoid; }
+img { max-width: 100%; }
+blockquote { border-left: 3px solid #168561; padding-left: 15px; }
+.edition { text-transform: uppercase; font-size: 11px; letter-spacing: 1px; color: #63786e; }
+@media print { body { margin: 0; padding: 0; font-size: 11px; max-width: none; } h1 { font-size: 27px; } h2 { font-size: 18px; } pre { font-size: 9px; } table { font-size: 9px; } }
+</style></head><body><div class="edition">ArchIntel · Investor prototype · 5 October 2026</div><h1 id="archintel-runtime-subsystem-developer-handoff">ArchIntel runtime subsystem: developer handoff</h1>
+<blockquote>
+<p><strong>Phase 3 runtime update (4 October 2026):</strong> For current session setup, instrumentation preview/exclusions, strict identity declarations, quality diagnostics and recovery, read <a href="PHASE-3-USER-FLOW.md">Phase 3 user flow</a> and <a href="PHASE-3-DEVELOPER-GUIDE.md">developer handoff</a>. <a href="PHASE-3-VERIFICATION.md">Validation results</a> include a new real PetClinic capture; older results below remain historical.</p>
+</blockquote>
+<h2 id="scope-and-architectural-boundaries">Scope and architectural boundaries</h2>
+<p>This is an implemented local dynamic-analysis prototype. It accepts actual OTLP traces from the Java agent, preserves sanitized session evidence, maps application classes to completed static snapshots, derives observation coverage, fuses class-pair evidence and exposes runtime-aware review information in the existing application.</p>
+<p>It is not a production observability backend or a replacement static engine. Existing static snapshots, metrics, issues, domain assignments and structural scores remain unchanged. New scans add an optional method inventory to class records; old snapshots remain valid and produce unavailable method/entry-point coverage where the denominator is absent.</p>
+<pre><code class="language-text">OTel Java agent (external application process)
+  -&gt; authenticated session-specific OTLP/HTTP route
+  -&gt; bounded wire decode + architectural attribute allowlist
+  -&gt; runtime_events (sanitized, deduplicated)
+  -&gt; mapping + runtime graph + coverage
+  -&gt; static snapshot + runtime graph -&gt; class-pair fusion
+  -&gt; flows / persistence signals / readiness / recommendations
+  -&gt; runtime and unified APIs -&gt; existing React application
+</code></pre>
+<p>The existing jQAssistant/Neo4j pipeline remains responsible for static extraction. Each static scan has an isolated temporary Neo4j store, then PostgreSQL stores the immutable normalized JSON snapshot. Runtime processing uses that snapshot and does not reconnect to or overwrite a static Neo4j store.</p>
+<h2 id="repository-structure">Repository structure</h2>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>backend/app/runtime/models.py</code></td>
+<td>RuntimeSession and RuntimeEvent SQLAlchemy persistence.</td>
+</tr>
+<tr>
+<td><code>backend/app/runtime/schemas.py</code></td>
+<td>Public Pydantic lifecycle and report envelopes; token hashes are never returned.</td>
+</tr>
+<tr>
+<td><code>backend/app/runtime/routes.py</code></td>
+<td>HTTP adapters, bounded request streaming, response transport and application/session selection.</td>
+</tr>
+<tr>
+<td><code>backend/app/services/runtime/normalization.py</code></td>
+<td>OTLP protobuf/JSON decoding, gzip bound, ID/time validation, allowlisted normalization.</td>
+</tr>
+<tr>
+<td><code>backend/app/services/runtime/mapping.py</code></td>
+<td>Conservative exact, normalized, recognized proxy and unresolved class mapping.</td>
+</tr>
+<tr>
+<td><code>backend/app/services/runtime/graph_builder.py</code></td>
+<td>Parent-child reconstruction, aggregation and separate graph-level projection.</td>
+</tr>
+<tr>
+<td><code>backend/app/services/runtime/coverage.py</code></td>
+<td>Independent observation metrics and domain states.</td>
+</tr>
+<tr>
+<td><code>backend/app/services/runtime/fusion.py</code></td>
+<td>Additive class-pair static/runtime evidence fusion.</td>
+</tr>
+<tr>
+<td><code>backend/app/services/runtime/intelligence.py</code></td>
+<td>Request groups, persistence candidates, domain runtime metrics and explainable assessments.</td>
+</tr>
+<tr>
+<td><code>backend/app/services/runtime/session_service.py</code></td>
+<td>Session lifecycle, hashing/authentication, ingestion, report selection, retention and agent plan.</td>
+</tr>
+<tr>
+<td><code>frontend/src/runtime/</code></td>
+<td>Runtime UI, graph presentation configuration, types and tests.</td>
+</tr>
+<tr>
+<td><code>scripts/setup-runtime-demo.ps1</code></td>
+<td>Pinned official agent/sample acquisition and Maven build.</td>
+</tr>
+<tr>
+<td><code>scripts/validate_runtime_petclinic.py</code></td>
+<td>Real static + agent + workload + coverage/fusion validation.</td>
+</tr>
+</tbody>
+</table>
+<p>This separation keeps parsing and graph algorithms out of routes, prevents runtime state from entering the static scoring services, and gives later worker/queue implementations a service boundary to reuse.</p>
+<h2 id="database-changes-and-lifecycle">Database changes and lifecycle</h2>
+<p>Alembic revision <strong>0002</strong> adds two tables; revision 0001 and its static tables are preserved.</p>
+<p><code>runtime_sessions</code> links to one application and one completed static analysis. It stores lifecycle timestamps, name/environment, a SHA-256 token hash, span/trace/drop counters, instrumentation settings and an optional completed derived report. <code>runtime_events</code> stores session/trace/span identity, receive time and sanitized normalized JSON. A unique constraint on <code>(session_id, trace_id, span_id)</code> prevents duplicate ingestion.</p>
+<p>Lifecycle: CREATED -&gt; WAITING_FOR_AGENT -&gt; RUNNING -&gt; PROCESSING -&gt; COMPLETED, with FAILED on processing errors. The first accepted span establishes RUNNING and <code>last_received_at</code>. A completed session rejects telemetry and cannot be restarted. Stop computes the report before committing COMPLETED. Start/stop are idempotent where appropriate. New tokens revoke previous ingestion credentials.</p>
+<p>One process-wide reentrant lock serializes ingestion and lifecycle/report operations. This is intentionally a <strong>single API worker</strong> design. PostgreSQL unique constraints protect identity, but the orchestration lock and counters are not a distributed concurrency protocol. Do not add multiple Uvicorn workers until row locking, durable jobs/leases and atomic bounded admission are implemented.</p>
+<p>Running-session evidence is derived on demand. Completed reports are persisted and remain readable after raw event expiry. A background task sweeps every 60 seconds. With the default 24-hour retention setting, active sessions older than 24 hours are completed; sanitized events are deleted 24 hours after completion. The result stores bounded trace/span references, not complete duplicated trace trees. Merging an expired session is rejected; its individual archived report remains readable.</p>
+<h2 id="configuration">Configuration</h2>
+<p>Settings are provided through the existing Pydantic configuration and <code>.env</code> mechanism. Names correspond to uppercase environment variables.</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th style="text-align: right;">Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RUNTIME_PUBLIC_URL</td>
+<td style="text-align: right;">http://127.0.0.1:8000</td>
+<td>Address embedded in generated agent instructions.</td>
+</tr>
+<tr>
+<td>RUNTIME_MAX_BODY_BYTES</td>
+<td style="text-align: right;">4194304</td>
+<td>Both compressed request-body and decompressed payload limit.</td>
+</tr>
+<tr>
+<td>RUNTIME_MAX_BATCH_SPANS</td>
+<td style="text-align: right;">5000</td>
+<td>Reject oversized normalized batches.</td>
+</tr>
+<tr>
+<td>RUNTIME_MAX_SESSION_SPANS</td>
+<td style="text-align: right;">50000</td>
+<td>Hard retained-span cap per session; excess returns OTLP partial success.</td>
+</tr>
+<tr>
+<td>RUNTIME_RAW_TRACE_RETENTION_HOURS</td>
+<td style="text-align: right;">24</td>
+<td>Session age bound and completed-event retention window.</td>
+</tr>
+<tr>
+<td>RUNTIME_STRUCTURAL_WEIGHT</td>
+<td style="text-align: right;">0.6</td>
+<td>Structural contribution to combined readiness.</td>
+</tr>
+<tr>
+<td>RUNTIME_SCORE_WEIGHTS</td>
+<td style="text-align: right;">{"cohesion":0.6,"cycles":0.25,"persistence":0.15}</td>
+<td>Runtime component weights; nonnegative and sum to one.</td>
+</tr>
+</tbody>
+</table>
+<p>Limits are validated as positive; weights are validated. The configured maximum is a safety bound, not a benchmarked capacity claim. Ten compatible sessions may be selected per report; query-time graph recomputation and JSON payload size need benchmarking before increasing limits.</p>
+<h2 id="agent-configuration-and-protocol">Agent configuration and protocol</h2>
+<p>Validated agent: <strong>OpenTelemetry Java agent 2.31.1</strong>. Python wire dependency: <code>opentelemetry-proto==1.44.0</code> with its locked protobuf dependency. The Java agent and Python package version numbers need not match; they communicate through OTLP protobuf contracts. Verify protocol compatibility when upgrading.</p>
+<p>Use <strong>OTLP/HTTP</strong> with <code>application/x-protobuf</code> or <code>application/json</code>. Identity and gzip encodings are accepted. gRPC, logs and metrics ingestion are not implemented. Java-agent instructions explicitly select HTTP protobuf and disable metrics/log export. An optional Collector may forward traces to the same authenticated HTTP endpoint; no Collector service is required locally.</p>
+<p>OTLP JSON trace/span IDs use hexadecimal. Standard protobuf JSON conversion uses base64 for byte fields, so the binary decoder explicitly converts those IDs to hex before normalization. Both paths validate nonzero trace/span IDs and monotonic positive timestamps. Empty/zero parent IDs represent roots.</p>
+<p>The ingestion endpoint is <code>/api/v1/runtime-sessions/{id}/v1/traces</code>. <code>Authorization: Bearer &lt;token&gt;</code> is checked against that session before body decoding and again inside the ingestion lock. Tokens are generated with 32 bytes of cryptographic randomness and only their hashes are stored. <code>service.name</code> is not used as session authorization.</p>
+<p>The agent's explicit method-instrumentation configuration comes from the static method inventory. BOUNDARY selects supported annotated application classes; STANDARD additionally selects cycle/high-fan-out classes; DEEP selects broader application classes subject to package filtering. Plans are capped at 200 classes and 100 valid method names per class. Constructor/synthetic names are excluded. Old snapshots without method inventories fall back to available framework spans. No custom bytecode extension or blanket all-JVM-method instrumentation is included.</p>
+<p>The live test caught and corrected an invalid <code>Class[*]</code> assumption: the verified agent expects explicit method names. Keep a regression test around the generated plan when upgrading the agent.</p>
+<h2 id="normalization-and-sensitive-data">Normalization and sensitive data</h2>
+<p>Never persist the original OTLP request. Normalization keeps trace IDs, parent linkage, timestamps/duration, error flags, class/method identifiers, supported HTTP route/method, database system/operation/collection/namespace/server, messaging system/destination, exception type and the small approved attribute set. Attributes must have bounded strings and accepted identifier/route syntax.</p>
+<p>Arbitrary span names, resource attributes, event messages, request/response bodies, headers, cookies, SQL text, query parameters and credentials are discarded. Exception messages and stack traces are not retained. The pipeline cannot guarantee an upstream producer has never placed sensitive text in an otherwise allowlisted route or resource name; enterprise deployments need configurable allowlists/redaction and a privacy review. Use route templates, not raw URLs.</p>
+<p>The demo JVM's own log file is separate from ingestion and belongs to the trusted PetClinic sample. Customer application execution is never triggered by upload. The real validation script explicitly executes only the downloaded pinned public sample.</p>
+<h2 id="mapping-and-graph-semantics">Mapping and graph semantics</h2>
+<p>Static class IDs are FQNs. EXACT requires an exact existing identity. NORMALIZED accepts JVM slash names and <code>L...;</code> descriptors. PROXY_RESOLVED only strips recognized Spring CGLIB subclass suffixes when the resulting base class exists exactly. It records a rule and heuristic confidence. JDK proxy numbers, arbitrary generated names and simple-name collisions remain UNRESOLVED; no fuzzy forced match exists.</p>
+<p>Unresolved class-bearing spans become <code>runtime:&lt;identity&gt;</code> nodes. Spans without class attributes become resource/framework observations with stable IDs and do not count as application classes. Parent reconstruction is keyed by session + trace + span. Cross-trace/session parent IDs cannot create edges. Missing parents are counted; the builder does not skip a gap to invent a direct caller.</p>
+<p>Runtime class edges aggregate direct observed nesting by source, target and event type. They store call count, distinct trace count, first/last times, total/average/nearest-rank p95 child span duration, errors and up to 20 source references. These are inclusive child-span duration summaries, not exclusive CPU time. Self-class edges are omitted from the class graph; class-level method coverage still sees their events.</p>
+<p>Package/domain projection is separate. Unmapped/resource identities stay in explicit unresolved groups instead of being assigned to business domains. Projected edge counts aggregate calls and bounded references; they do not claim an exact re-aggregated p95 or distinct trace count. Mixed evidence types are listed, not collapsed into a false all-observed claim.</p>
+<h2 id="coverage">Coverage</h2>
+<p>Use static class membership and explicit METHOD_CALL class pairs as denominators. Sets deduplicate repeated observations and overlapping selected-session identities. Unresolved/resources cannot inflate class numerators. Zero population is not applicable, never automatic 100%.</p>
+<p>The optional static method inventory is extracted by the trusted Java exporter from jQAssistant Method nodes: name, signature and annotation types. Method coverage matches a mapped owner and unique observed method name. Overloads without a reliable signature remain unobserved. Constructors and inherited-reference stubs lacking a parsed method name are excluded from the declared-method denominator. Explicit method annotations identify supported HTTP entry points, scheduled methods and message listeners. Inherited/composed annotations and instrumentation limitations are explained in the metric reason.</p>
+<p>Per-domain rows compare observed static class members with all relevant members: UNOBSERVED, PARTIALLY_OBSERVED, OBSERVED. The domain percentage counts domains with at least one observed member. It is not business-scenario or branch completeness. JaCoCo ingestion and instruction/branch coverage are not implemented; add a separate provider contract rather than conflating them with OTLP observation.</p>
+<h2 id="fusion-and-runtime-intelligence">Fusion and runtime intelligence</h2>
+<p>Fusion operates on <strong>directed class pairs</strong>, retaining all supporting static edge types and IDs. Pairs are STATIC_ONLY, DYNAMIC_ONLY or STATIC_AND_DYNAMIC. Therefore a runtime call can corroborate a class relationship without proving that every static field/inheritance/annotation relationship executed. No static edge is deleted because it was not observed.</p>
+<p>Request groups are aggregated by entry route/method and participating class set. They include counts, errors, average entry-span duration inputs and bounded trace references. They are not complete serialized call trees. Database evidence uses only directly observed mapped parents; unknown callers/resources remain unknown. Shared persistence candidates require matching database system, server, namespace and resource across mapped domains. No SQL parser guesses table names.</p>
+<p>Domain runtime metrics use mapped domain-to-domain/class edges: internal, outgoing/incoming and total calls, error counts, plus observed multi-domain SCC cycle participation. Frequency is evidence, not automatically a defect.</p>
+<p>Runtime readiness is <code>sum(component_score * runtime_score_weight)</code>. Cohesion is the observed internal-call percentage; cycles score 0 for observed cyclic membership and 100 otherwise; persistence is 25 for a supported shared candidate and 50 for unknown. No mapped calls means runtime score is null. Combined readiness blends structural and runtime scores using the configured structural weight; when runtime is unknown it retains the structural score. Displayed observation confidence is observed static class fraction, not a calibrated probability.</p>
+<p>Low coverage changes confidence/risk messaging and does not subtract from structural readiness. The existing static dependency-first order is retained, with runtime evidence attached for architect review. Runtime-based automatic resequencing, calibrated architecture-style-specific scores and runtime issue taxonomy remain future improvements.</p>
+<p>The runtime assistant returns deterministic facts with API evidence links and separate suggested scenarios. It does not send raw telemetry to an LLM. A future generative adapter must preserve bounded evidence retrieval and claim validation.</p>
+<h2 id="api-surface">API surface</h2>
+<p>All paths below are under <code>/api/v1</code> and use existing schema conventions.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Path</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POST / GET</td>
+<td>applications/{id}/runtime-sessions</td>
+<td>Create/list sessions; creation returns one-time token/config.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>runtime-sessions/{id} or /status</td>
+<td>Lifecycle/counters and telemetry-derived agent state.</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>runtime-sessions/{id}/start or /stop</td>
+<td>Begin acceptance or finalize the report.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>runtime-sessions/{id}/agent-config</td>
+<td>Non-secret configuration.</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>runtime-sessions/{id}/rotate-token</td>
+<td>Revoke old token and generate new connection settings.</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>runtime-sessions/{id}/v1/traces</td>
+<td>Authenticated OTLP HTTP protobuf/JSON ingestion.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>runtime-sessions/{id}/evidence or /coverage</td>
+<td>Derived report or coverage.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>runtime-sessions/{id}/graph/{classes,packages,domains}</td>
+<td>Runtime graph by level.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>runtime-sessions/{id}/spans/{trace}/{span}</td>
+<td>Retained sanitized evidence.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>applications/{id}/architecture/unified</td>
+<td>Compatible selected-session report via runtime_session_ids.</td>
+</tr>
+<tr>
+<td>GET</td>
+<td>applications/{id}/architecture/unified/{level}</td>
+<td>Selected unified graph projection.</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>runtime-sessions/{id}/assistant/query</td>
+<td>Deterministic bounded runtime explanation.</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>runtime/retention/purge</td>
+<td>Explicit completed-event retention sweep.</td>
+</tr>
+</tbody>
+</table>
+<p>Typical errors: 400 malformed/unsupported OTLP, 401 invalid ingestion token, 404 missing/cross-application evidence, 409 invalid lifecycle/baseline/expired merge, 413 body limit, 422 invalid schema or selection. Session cap overflow is OTLP partial success with rejected span count. Duplicate spans are silently deduplicated, not counted as new drops.</p>
+<p>Graph projection also accepts <code>graph_kind=static|runtime|unified</code>. Static mode returns the unchanged baseline; runtime/unified modes use all compatible selected sessions. The assistant route is intentionally session-specific.</p>
+<h2 id="validation-and-reproducibility">Validation and reproducibility</h2>
+<p>The baseline before runtime changes was 30 backend and 4 frontend tests. See <code>RUNTIME-VERIFICATION.md</code> for final executed checks and <code>runtime-validation.json</code> for real measured evidence. Do not infer success from test code alone.</p>
+<pre><code class="language-powershell">.runtime/python/tools/python.exe -m pytest backend/tests -q
+$env:ARCHINTEL_RUN_SCANNER_TESTS='1'
+.runtime/python/tools/python.exe -m pytest backend/tests/test_scanner_integration.py -q -p no:cacheprovider --basetemp=.data/unique-owned-test-folder
+cd frontend
+npm test
+npm run build
+npm exec playwright test
+</code></pre>
+<p>The real scanner test directory must be a fresh owned workspace folder because pytest may clean it. Real browser tests need the running API and installed Chrome. <code>runtime.spec.ts</code> requires the successfully generated PetClinic validation report.</p>
+<p><code>setup-runtime-demo.ps1</code> pins PetClinic revision <code>30aab0ae764ad845b5eedd76028756835fec771f</code> (Spring Boot 3.5.0, Java 17 baseline), agent 2.31.1 and Maven Central settings. Maven dependencies are cached in <code>.runtime/m2</code>; source/agent downloads are ignored runtime assets. Preserve upstream licenses when redistributing these artifacts. PetClinic test compilation is skipped when preparing this fixture; ArchIntel's own integration assertions validate the product pipeline.</p>
+<p>The validation driver runs real jQAssistant extraction, not a mocked scan, and intentionally handles PetClinic's framework-overlapping application namespace without changing default global filters. It stores an authentic static snapshot, runs the JVM on localhost 18080, drives representative HTTP flows, checks coverage increase, all fusion classifications, completed-session behavior and an unchanged static snapshot hash, then terminates only its sample process.</p>
+<h2 id="production-work-still-required">Production work still required</h2>
+<ul>
+<li>Authentication/authorization for management APIs and enforced tenant isolation; <code>tenant_id=local</code> is not a security boundary.</li>
+<li>Durable distributed ingestion/jobs, transactional admission, cancellation, backpressure, retry semantics and restart recovery for interrupted PROCESSING sessions.</li>
+<li>Rate limits/timeouts per principal, telemetry source/build verification, configurable redaction, encryption and auditable retention.</li>
+<li>Indexed normalized aggregate persistence and measured memory/latency limits; raw JSON recomputation is intentionally simple and bounded.</li>
+<li>Better signature-aware proxy/interface mapping, instrumentation extension only where built-in selected-method tracing is insufficient, and framework/inherited entry inventories.</li>
+<li>Optional code-coverage provider integration; real multi-application/version corpora and overhead benchmarks.</li>
+<li>Calibrated readiness, richer runtime issues/flow isolation, runtime-aware sequencing and evaluated generative explanations.</li>
+<li>Docker runtime verification and production deployment operations. The local Windows path is the demonstrated delivery.</li>
+</ul>
+<h2 id="official-contracts-used">Official contracts used</h2>
+<ul>
+<li><a href="https://opentelemetry.io/docs/specs/otlp/">OTLP specification</a>: HTTP encodings, ID representation and partial success.</li>
+<li><a href="https://opentelemetry.io/docs/zero-code/java/agent/configuration/">Java agent configuration</a>: environment configuration and HTTP protobuf transport.</li>
+<li><a href="https://explorer.opentelemetry.io/java-agent/instrumentation/methods">Method instrumentation</a>: explicit method selection.</li>
+<li><a href="https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases">Java agent releases</a>: pinned agent distribution.</li>
+<li><a href="https://github.com/spring-projects/spring-petclinic/tree/30aab0ae764ad845b5eedd76028756835fec771f">Spring PetClinic source</a>: trusted validation application.</li>
+</ul></body></html>

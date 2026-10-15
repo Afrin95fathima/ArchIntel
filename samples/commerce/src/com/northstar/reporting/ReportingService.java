@@ -1,0 +1,1 @@
+package com.northstar.reporting; @org.springframework.stereotype.Service public class ReportingService { private ReportingRepository repository; private ReportingPolicy policy; public ReportingEntity load() { return repository.find(); }  private com.northstar.shared.LedgerRepository ledger; public Object audit() { return ledger.find(); } }

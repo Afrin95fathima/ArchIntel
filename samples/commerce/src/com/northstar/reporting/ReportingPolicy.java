@@ -1,0 +1,1 @@
+package com.northstar.reporting; public interface ReportingPolicy { boolean valid(ReportingEntity entity); }

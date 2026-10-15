@@ -1,0 +1,339 @@
+{
+  "verified_at": "2026-10-04T08:13:37.363024+00:00",
+  "isolation": "Disposable SQLite workspace; source workspace read-only",
+  "application_id": "40b4ce50-3496-48f9-ac15-b3ae8c585274",
+  "analysis_id": "d4cb4c1f-77e4-4f0b-ba61-f4ffefa13836",
+  "session_id": "863157bd-e6fb-4b10-943f-784d49d30551",
+  "petclinic_revision": "30aab0ae764ad845b5eedd76028756835fec771f",
+  "agent_version": "v2.31.1",
+  "artifact_sha256": "54e657aee2156f762bf5bc4b83e65316dd10c0fbbb4524d8a48d66abdc39f6ec",
+  "static_snapshot_sha256": "018a67e11586e29a3daf639eb373552862984d70eb9c0f01c90462936ceb13aa",
+  "static_unchanged": true,
+  "source_workspace_unchanged": true,
+  "restart_report_unchanged": true,
+  "trace_count": 83,
+  "span_count": 190,
+  "plan": {
+    "version": "runtime-plan-2",
+    "mode": "BOUNDARY",
+    "include_packages": [
+      "org.springframework.samples.petclinic"
+    ],
+    "exclude_packages": [],
+    "classes": [
+      {
+        "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+        "methods": "addPaginationModel,findOwner,findPaginatedForOwnersLastName,initCreationForm,initFindForm,initUpdateOwnerForm,processCreationForm,processFindForm,processUpdateOwnerForm,setAllowedFields,showOwner",
+        "reason": "Annotated application boundary",
+        "priority": 1
+      },
+      {
+        "class_name": "org.springframework.samples.petclinic.owner.PetController",
+        "methods": "findOwner,findPet,initCreationForm,initOwnerBinder,initPetBinder,initUpdateForm,populatePetTypes,processCreationForm,processUpdateForm,updatePetDetails",
+        "reason": "Annotated application boundary",
+        "priority": 1
+      },
+      {
+        "class_name": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+        "methods": "parse,print",
+        "reason": "Annotated application boundary",
+        "priority": 1
+      },
+      {
+        "class_name": "org.springframework.samples.petclinic.owner.VisitController",
+        "methods": "initNewVisitForm,loadPetWithVisit,processNewVisitForm,setAllowedFields",
+        "reason": "Annotated application boundary",
+        "priority": 1
+      },
+      {
+        "class_name": "org.springframework.samples.petclinic.system.CacheConfiguration",
+        "methods": "cacheConfiguration,petclinicCacheConfigurationCustomizer",
+        "reason": "Annotated application boundary",
+        "priority": 1
+      },
+      {
+        "class_name": "org.springframework.samples.petclinic.system.CrashController",
+        "methods": "triggerException",
+        "reason": "Annotated application boundary",
+        "priority": 1
+      },
+      {
+        "class_name": "org.springframework.samples.petclinic.system.WebConfiguration",
+        "methods": "addInterceptors,localeChangeInterceptor,localeResolver",
+        "reason": "Annotated application boundary",
+        "priority": 1
+      },
+      {
+        "class_name": "org.springframework.samples.petclinic.system.WelcomeController",
+        "methods": "welcome",
+        "reason": "Annotated application boundary",
+        "priority": 1
+      },
+      {
+        "class_name": "org.springframework.samples.petclinic.vet.VetController",
+        "methods": "addPaginationModel,findPaginated,showResourcesVetList,showVetList",
+        "reason": "Annotated application boundary",
+        "priority": 1
+      }
+    ],
+    "selected_method_names": 38,
+    "encoded_bytes": 1188,
+    "omissions": {
+      "OUTSIDE_SELECTED_DEPTH": 16
+    },
+    "limitations": [
+      "Method-name instrumentation includes every overload; exact overload coverage requires descriptor telemetry.",
+      "Framework auto-instrumentation may emit spans outside this method plan. Review agent overhead before using it."
+    ],
+    "sha256": "2d995a8921cd262aef14cf8c117eb95baee29be5d915e1c97eef7818fa3ac266"
+  },
+  "initial_coverage": {
+    "classes": {
+      "observed": 5,
+      "total": 25,
+      "percentage": 20.0,
+      "status": "AVAILABLE",
+      "reason": null
+    },
+    "dependencies": {
+      "observed": 1,
+      "total": 26,
+      "percentage": 3.85,
+      "status": "AVAILABLE",
+      "reason": "Distinct directed METHOD_CALL class pairs only."
+    },
+    "methods": {
+      "observed": 13,
+      "total": 94,
+      "percentage": 13.83,
+      "status": "AVAILABLE",
+      "reason": "Named declared methods only; inherited reference stubs excluded. Exact JVM descriptor or unique owner + method name; ambiguous overloads remain unobserved."
+    },
+    "entry_points": {
+      "observed": 4,
+      "total": 17,
+      "percentage": 23.53,
+      "status": "AVAILABLE",
+      "reason": "Explicit supported method annotations only; inherited/composed routes may be absent."
+    },
+    "domains": {
+      "observed": 2,
+      "total": 5,
+      "percentage": 40.0,
+      "status": "AVAILABLE",
+      "reason": null
+    },
+    "domain_observations": [
+      {
+        "id": "domain-47d9028fd2e3797a",
+        "name": "PetClinicApplication",
+        "observed": 0,
+        "total": 4,
+        "state": "UNOBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.PetClinicApplication",
+          "org.springframework.samples.petclinic.PetClinicRuntimeHints",
+          "org.springframework.samples.petclinic.model.BaseEntity",
+          "org.springframework.samples.petclinic.model.Person"
+        ]
+      },
+      {
+        "id": "domain-23465d579fbf785f",
+        "name": "Named",
+        "observed": 0,
+        "total": 1,
+        "state": "UNOBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.model.NamedEntity"
+        ]
+      },
+      {
+        "id": "domain-c27a2633842a7968",
+        "name": "Owner",
+        "observed": 2,
+        "total": 11,
+        "state": "PARTIALLY_OBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.owner.Owner",
+          "org.springframework.samples.petclinic.owner.Pet",
+          "org.springframework.samples.petclinic.owner.PetController",
+          "org.springframework.samples.petclinic.owner.PetType",
+          "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+          "org.springframework.samples.petclinic.owner.PetTypeRepository",
+          "org.springframework.samples.petclinic.owner.PetValidator",
+          "org.springframework.samples.petclinic.owner.Visit",
+          "org.springframework.samples.petclinic.owner.VisitController"
+        ]
+      },
+      {
+        "id": "domain-c8fb47353d19fc72",
+        "name": "System",
+        "observed": 3,
+        "total": 4,
+        "state": "PARTIALLY_OBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.system.CrashController"
+        ]
+      },
+      {
+        "id": "domain-69e89d53232c7967",
+        "name": "Vet",
+        "observed": 0,
+        "total": 5,
+        "state": "UNOBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.vet.Specialty",
+          "org.springframework.samples.petclinic.vet.Vet",
+          "org.springframework.samples.petclinic.vet.VetController",
+          "org.springframework.samples.petclinic.vet.VetRepository",
+          "org.springframework.samples.petclinic.vet.Vets"
+        ]
+      }
+    ],
+    "method_mapping_diagnostics": {
+      "UNIQUE_NAME": 22,
+      "AMBIGUOUS": 2
+    },
+    "unresolved_node_count": 6,
+    "missing_parent_count": 0,
+    "note": "Unobserved means not observed in selected sessions, never unused. Domain observation does not establish complete behavior coverage."
+  },
+  "final_coverage": {
+    "classes": {
+      "observed": 11,
+      "total": 25,
+      "percentage": 44.0,
+      "status": "AVAILABLE",
+      "reason": null
+    },
+    "dependencies": {
+      "observed": 6,
+      "total": 26,
+      "percentage": 23.08,
+      "status": "AVAILABLE",
+      "reason": "Distinct directed METHOD_CALL class pairs only."
+    },
+    "methods": {
+      "observed": 26,
+      "total": 94,
+      "percentage": 27.66,
+      "status": "AVAILABLE",
+      "reason": "Named declared methods only; inherited reference stubs excluded. Exact JVM descriptor or unique owner + method name; ambiguous overloads remain unobserved."
+    },
+    "entry_points": {
+      "observed": 7,
+      "total": 17,
+      "percentage": 41.18,
+      "status": "AVAILABLE",
+      "reason": "Explicit supported method annotations only; inherited/composed routes may be absent."
+    },
+    "domains": {
+      "observed": 3,
+      "total": 5,
+      "percentage": 60.0,
+      "status": "AVAILABLE",
+      "reason": null
+    },
+    "domain_observations": [
+      {
+        "id": "domain-47d9028fd2e3797a",
+        "name": "PetClinicApplication",
+        "observed": 0,
+        "total": 4,
+        "state": "UNOBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.PetClinicApplication",
+          "org.springframework.samples.petclinic.PetClinicRuntimeHints",
+          "org.springframework.samples.petclinic.model.BaseEntity",
+          "org.springframework.samples.petclinic.model.Person"
+        ]
+      },
+      {
+        "id": "domain-23465d579fbf785f",
+        "name": "Named",
+        "observed": 0,
+        "total": 1,
+        "state": "UNOBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.model.NamedEntity"
+        ]
+      },
+      {
+        "id": "domain-c27a2633842a7968",
+        "name": "Owner",
+        "observed": 6,
+        "total": 11,
+        "state": "PARTIALLY_OBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.owner.Owner",
+          "org.springframework.samples.petclinic.owner.Pet",
+          "org.springframework.samples.petclinic.owner.PetType",
+          "org.springframework.samples.petclinic.owner.PetValidator",
+          "org.springframework.samples.petclinic.owner.Visit"
+        ]
+      },
+      {
+        "id": "domain-c8fb47353d19fc72",
+        "name": "System",
+        "observed": 3,
+        "total": 4,
+        "state": "PARTIALLY_OBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.system.CrashController"
+        ]
+      },
+      {
+        "id": "domain-69e89d53232c7967",
+        "name": "Vet",
+        "observed": 2,
+        "total": 5,
+        "state": "PARTIALLY_OBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.vet.Specialty",
+          "org.springframework.samples.petclinic.vet.Vet",
+          "org.springframework.samples.petclinic.vet.Vets"
+        ]
+      }
+    ],
+    "method_mapping_diagnostics": {
+      "UNIQUE_NAME": 45,
+      "AMBIGUOUS": 11
+    },
+    "unresolved_node_count": 9,
+    "missing_parent_count": 0,
+    "note": "Unobserved means not observed in selected sessions, never unused. Domain observation does not establish complete behavior coverage."
+  },
+  "quality": {
+    "duplicate_spans": 0,
+    "conflicting_spans": 0,
+    "declared_match_spans": 190,
+    "unverified_spans": 0,
+    "binding_rejected_spans": 0,
+    "accepted_spans": 190,
+    "dropped_spans": 0,
+    "missing_parents": 0,
+    "invalid_parent_links": 0,
+    "method_mapping": {
+      "UNIQUE_NAME": 45,
+      "AMBIGUOUS": 11
+    },
+    "warnings": [],
+    "scope": [
+      {
+        "session_id": "863157bd-e6fb-4b10-943f-784d49d30551",
+        "binding_mode": "STRICT",
+        "plan_version": "runtime-plan-2",
+        "plan_sha256": "2d995a8921cd262aef14cf8c117eb95baee29be5d915e1c97eef7818fa3ac266"
+      }
+    ],
+    "binding_note": "Artifact identity is declared by the telemetry sender; it is not cryptographic attestation."
+  },
+  "runtime_nodes": 20,
+  "runtime_edges": 18,
+  "evidence_counts": {
+    "STATIC_ONLY": 34,
+    "DYNAMIC_ONLY": 12,
+    "STATIC_AND_DYNAMIC": 6
+  },
+  "session_status": "COMPLETED"
+}

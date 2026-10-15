@@ -1,0 +1,32 @@
+import {test,expect} from '@playwright/test';
+import {signIn} from './security-helper';
+
+test('local AI registration, policy, real assistant and invocation history',async({page})=>{
+  test.skip(process.env.ARCHINTEL_RUN_MODEL_TESTS!=='1','Requires installed local Ollama model.');
+  await signIn(page);await page.goto('/');
+  await page.getByRole('button',{name:'Security & access',exact:true}).click();
+  await page.getByLabel('Provider name',{exact:true}).fill('Browser local model');
+  const registration=page.waitForResponse(r=>r.request().method()==='POST'&&r.url().endsWith('/security/ai/providers'));
+  await page.getByRole('button',{name:'Register local model',exact:true}).click();
+  expect((await registration).status()).toBe(201);
+  await expect(page.getByText('Local model registered. Enable it in workspace policy below.',{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Check connection',exact:true}).click();
+  await expect(page.getByText('Pinned local model available.',{exact:true})).toBeVisible();
+  await page.getByRole('combobox',{name:'Approved model',exact:true}).selectOption({label:'Browser local model / qwen2.5:0.5b'});
+  await page.getByRole('button',{name:'Enable local model policy',exact:true}).click();
+  await expect(page.getByText('Local model policy enabled. The architecture and runtime assistants use this gateway when permitted.',{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Back to analysis',exact:true}).click();
+  await page.getByRole('button',{name:'Explore demo application'}).click();
+  await expect(page.getByRole('heading',{name:'A clearer picture. A smarter next step.'})).toBeVisible({timeout:150000});
+  await page.getByRole('button',{name:'Architecture assistant',exact:true}).click();
+  await page.getByLabel('Ask an architecture question').fill('Where should modernization begin?');
+  await page.getByLabel('Send question').click();
+  await expect(page.getByText('FACTS FROM ANALYSIS')).toBeVisible({timeout:90000});
+  await page.getByText('Sources and limitations',{exact:true}).click();
+  await expect(page.locator('.fine-print').filter({hasText:'Mode: LOCAL_MODEL_ASSISTED.'})).toBeVisible();
+  await page.getByRole('button',{name:'Security & access',exact:true}).click();
+  await expect(page.getByRole('cell',{name:'VALIDATED_CITATIONS',exact:true}).first()).toBeVisible();
+  await page.screenshot({path:'../docs/screenshots/phase2-ai-gateway.png',fullPage:true});
+  await page.getByRole('button',{name:'Disable model policy',exact:true}).click();
+  await expect(page.getByText('Model dispatch disabled. Deterministic evidence remains available.',{exact:true})).toBeVisible();
+});

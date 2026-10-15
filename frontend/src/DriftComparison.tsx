@@ -1,0 +1,26 @@
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { apiBlob } from './api';
+import type { Analysis, AnalysisExport } from './types';
+
+export function DriftComparison({analyses,applicationId}:{analyses:Analysis[];applicationId:string}){
+ const completed=analyses.filter(run=>run.application_id===applicationId&&run.status==='COMPLETED');
+ const [baselineId,setBaseline]=useState('');const [candidateId,setCandidate]=useState('');
+ const baseline=baselineId||completed[0]?.id||'';const candidate=candidateId||completed.at(-1)?.id||'';
+ const left=useQuery({queryKey:['drift-export',baseline],queryFn:async()=>JSON.parse(await (await apiBlob('/analyses/'+baseline+'/export')).text()) as AnalysisExport,enabled:!!baseline});
+ const right=useQuery({queryKey:['drift-export',candidate],queryFn:async()=>JSON.parse(await (await apiBlob('/analyses/'+candidate+'/export')).text()) as AnalysisExport,enabled:!!candidate});
+ const comparison=useMemo(()=>{
+  if(!left.data||!right.data)return null;
+  const a=left.data,b=right.data;const sets=(values:string[])=>new Set(values);
+  const aClasses=sets(a.classes.map(item=>item.id)),bClasses=sets(b.classes.map(item=>item.id));
+  const aEdges=sets(a.edges.map(item=>`${item.source}\u0000${item.target}\u0000${item.dependency_type||''}`)),bEdges=sets(b.edges.map(item=>`${item.source}\u0000${item.target}\u0000${item.dependency_type||''}`));
+  const aDomains=sets(a.domains.map(item=>item.id)),bDomains=sets(b.domains.map(item=>item.id));
+  const delta=(x:number,y:number)=>y-x;
+  return {classes:{added:[...bClasses].filter(id=>!aClasses.has(id)).length,removed:[...aClasses].filter(id=>!bClasses.has(id)).length},edges:{added:[...bEdges].filter(id=>!aEdges.has(id)).length,removed:[...aEdges].filter(id=>!bEdges.has(id)).length},domains:{added:[...bDomains].filter(id=>!aDomains.has(id)).length,removed:[...aDomains].filter(id=>!bDomains.has(id)).length},counts:{classes:delta(a.summary.class_count,b.summary.class_count),dependencies:delta(a.summary.dependency_count,b.summary.dependency_count),issues:delta(a.summary.issue_count,b.summary.issue_count),readiness:Math.round((b.summary.average_readiness-a.summary.average_readiness)*10)/10},versions:{baseline:a.algorithm_version,candidate:b.algorithm_version}};
+ },[left.data,right.data]);
+ if(completed.length<2)return <section className="panel drift-panel"><h2>Baseline drift</h2><p>Complete at least two analyses of this application to compare architecture snapshots.</p></section>;
+ return <section className="panel drift-panel"><div className="panel-heading"><div><h2>Baseline drift and coverage gaps</h2><p>Read-only comparison of two saved static analysis exports. This does not modify either baseline.</p></div></div>
+  <div className="drift-selectors"><label>Baseline<select value={baseline} onChange={event=>setBaseline(event.target.value)}>{completed.map(run=><option key={run.id} value={run.id}>{run.id.slice(0,8)} ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· {new Date(run.created_at).toLocaleString()}</option>)}</select></label><label>Candidate<select value={candidate} onChange={event=>setCandidate(event.target.value)}>{completed.map(run=><option key={run.id} value={run.id}>{run.id.slice(0,8)} ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· {new Date(run.created_at).toLocaleString()}</option>)}</select></label></div>
+  {(left.error||right.error)&&<p role="alert">Unable to compare these saved analysis exports.</p>}{comparison&&<><p>Algorithm versions: {comparison.versions.baseline} to {comparison.versions.candidate}</p><div className="sequence-table"><table><thead><tr><th>Measure</th><th>Baseline</th><th>Candidate</th><th>Change</th></tr></thead><tbody><tr><td>Classes</td><td>{left.data!.summary.class_count}</td><td>{right.data!.summary.class_count}</td><td>+{comparison.classes.added} added / {comparison.classes.removed} removed identities</td></tr><tr><td>Dependency pairs</td><td>{left.data!.summary.dependency_count}</td><td>{right.data!.summary.dependency_count}</td><td>+{comparison.edges.added} added / {comparison.edges.removed} removed typed links</td></tr><tr><td>Candidate domains</td><td>{left.data!.summary.domain_count}</td><td>{right.data!.summary.domain_count}</td><td>+{comparison.domains.added} added / {comparison.domains.removed} removed identities</td></tr><tr><td>Findings</td><td>{left.data!.summary.issue_count}</td><td>{right.data!.summary.issue_count}</td><td>{comparison.counts.issues}{comparison.counts.issues>=0?" increased":" decreased"}</td></tr><tr><td>Average readiness</td><td>{left.data!.summary.average_readiness}</td><td>{right.data!.summary.average_readiness}</td><td>{comparison.counts.readiness}{comparison.counts.readiness>=0?" increased":" decreased"}</td></tr></tbody></table></div><p>Exact identity additions and removals are shown for class, domain, and dependency tuples. Scores and finding totals can change when scanner, algorithm, or rule versions change.</p><h3>Observation coverage</h3><p>Static analyses do not measure workload observation. Open Dynamic analysis to compare the selected baseline with completed runtime sessions; coverage gaps there mean not observed in those sessions, not unused code.</p></>}
+ </section>;
+}

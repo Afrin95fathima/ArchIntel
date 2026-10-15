@@ -1,0 +1,148 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ArchIntel PHASE-3-USER-FLOW</title><style>
+@page { size: A4; margin: 19mm 17mm; }
+body { font: 14px/1.65 Arial, sans-serif; color: #24332e; max-width: 900px; margin: 40px auto; padding: 0 24px; }
+h1 { font-size: 32px; color: #125a43; line-height: 1.2; border-bottom: 3px solid #168561; padding-bottom: 18px; }
+h2 { font-size: 21px; color: #125a43; margin-top: 32px; }
+h3 { font-size: 16px; margin-top: 24px; }
+h1,h2,h3 { break-after: avoid; }
+a { color: #12664c; overflow-wrap: anywhere; }
+pre { background: #eff4f1; padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+code { font-size: 0.9em; background: #eff4f1; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+td,th { padding: 8px; border: 1px solid #d6dfda; text-align: left; overflow-wrap: anywhere; }
+th { background: #eff4f1; }
+tr, img { break-inside: avoid; }
+img { max-width: 100%; }
+blockquote { border-left: 3px solid #168561; padding-left: 15px; }
+.edition { text-transform: uppercase; font-size: 11px; letter-spacing: 1px; color: #63786e; }
+@media print { body { margin: 0; padding: 0; font-size: 11px; max-width: none; } h1 { font-size: 27px; } h2 { font-size: 18px; } pre { font-size: 9px; } table { font-size: 9px; } }
+</style></head><body><div class="edition">ArchIntel · Investor prototype · 5 October 2026</div><h1 id="phase-3-user-flow-runtime-foundation">Phase 3 user flow: runtime foundation</h1>
+<p>Delivered 4 October 2026 for the local Java prototype. Use this alongside the main user manual. Phase 4 has not started.</p>
+<h2 id="what-this-phase-enables">What this phase enables</h2>
+<p>ArchIntel receives real OpenTelemetry Java spans, associates them with a selected static analysis, and shows observed classes, methods, entry points, dependencies and domains. It saves the instrumentation scope and reports incomplete or conflicting telemetry. Static analysis results remain unchanged.</p>
+<p>You do not have to connect an application to inspect a plan or create a session. Receiving traces requires starting an instrumented Java application and exercising its workflows. Creating a session does not launch or modify that application.</p>
+<h2 id="connect-and-observe">Connect and observe</h2>
+<ol>
+<li>Start ArchIntel with <code>Start-ArchIntel.cmd</code>, open http://127.0.0.1:8000 and sign in. Your account needs runtime read/write permission and access to the application's completed static analysis.</li>
+<li>Open <strong>Dynamic analysis</strong>. Choose the application and the static baseline built from the same JAR/WAR you intend to run. Older baselines without method inventory need a fresh static analysis for method coverage and explicit method instrumentation.</li>
+<li>Enter a session name and environment. Choose BOUNDARY for supported annotated classes/entry points; STANDARD also includes cycles and high fan-out classes; DEEP considers all included classes with safe declared method names.</li>
+<li>Optionally enter comma-separated application package prefixes and exclusions. <code>com.example</code> includes that package and its descendants; it does not include <code>com.examples</code>. Exclusions win over inclusions. Prefixes affect explicit method instrumentation; framework auto-instrumentation can still emit other spans.</li>
+<li>Click <strong>Preview instrumentation plan</strong>, then expand it. Review the selected classes/method names, omissions, version and SHA-256. Plans are bounded at 200 classes, 100 method names per class, 3,000 names overall and 24,000 encoded bytes. Changing the form invalidates the preview. Creation computes and saves the same deterministic plan for the submitted configuration.</li>
+<li>Keep <strong>Strict service + artifact declaration</strong> selected unless you are intentionally integrating older telemetry. Strict sessions require the generated <code>service.name</code> and <code>archintel.artifact.sha256</code> resource attributes on every span batch. These are declarations made by the sender, not proof of the running binary.</li>
+<li>Click <strong>Create runtime session</strong>. Copy the generated environment variables into the PowerShell terminal that will start your Java application. Replace the Java-agent and application-JAR paths in the example command with their actual paths. Merge the supplied artifact attribute with any resource attributes you already use. The bearer token is shown only at creation or rotation; do not share screenshots containing it.</li>
+<li>Click <strong>Start</strong>, then launch the Java application from that terminal with the OpenTelemetry Java agent. ArchIntel uses OTLP HTTP/protobuf; it does not expose an OTLP gRPC listener.</li>
+<li>Exercise representative workflows. Watch the session move from WAITING_FOR_AGENT to RUNNING and RECEIVING_DATA. A disconnected indicator means no recently accepted batch; it does not necessarily mean the application stopped.</li>
+<li>Inspect <strong>Coverage</strong>, <strong>Quality</strong>, <strong>Graph</strong>, <strong>Mapping</strong>, <strong>Flows</strong> and <strong>Database</strong>. Select more than one session only when they use the same static baseline. The existing runtime assistant continues through the Phase 2 model gateway when authorized and enabled.</li>
+<li>Stop workload traffic and allow the exporter to flush before clicking <strong>Stop</strong>. A completed report is frozen. Further telemetry is rejected; create another session for additional observations.</li>
+<li>Use <strong>Export evidence</strong> to save the selected report. Archived individual reports remain available after raw span retention expires; expired raw sessions cannot be recombined into a new multi-session report.</li>
+</ol>
+<h2 id="read-the-evidence-correctly">Read the evidence correctly</h2>
+<table>
+<thead>
+<tr>
+<th>Display</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Class coverage</td>
+<td>Static classes identified in received spans</td>
+</tr>
+<tr>
+<td>Method coverage</td>
+<td>Declared method signatures matched by exact JVM descriptor, or a unique owner + method name</td>
+</tr>
+<tr>
+<td>Entry-point coverage</td>
+<td>Observed methods among supported explicit route/listener/scheduler annotations</td>
+</tr>
+<tr>
+<td>Dependency coverage</td>
+<td>Observed distinct directed class pairs among static METHOD_CALL pairs</td>
+</tr>
+<tr>
+<td>Domain coverage</td>
+<td>Domains with at least one observed class; this does not establish full behavior coverage</td>
+</tr>
+<tr>
+<td>Declared matches</td>
+<td>Accepted spans whose service/artifact declarations match the session</td>
+</tr>
+<tr>
+<td>Unverified</td>
+<td>Compatible-mode spans missing a service or artifact identity</td>
+</tr>
+<tr>
+<td>Duplicate</td>
+<td>A trace/span identity already stored in this session; it is not counted twice</td>
+</tr>
+<tr>
+<td>Conflict</td>
+<td>A duplicate identity carrying different sanitized data; the first observation is retained</td>
+</tr>
+<tr>
+<td>Missing parent</td>
+<td>Parent span has not arrived in the selected session; arriving later can repair the graph while active</td>
+</tr>
+<tr>
+<td>Invalid parent link</td>
+<td>A malformed cycle in parent span identities; those links are omitted</td>
+</tr>
+<tr>
+<td>Dropped</td>
+<td>The session's configured span-storage limit was reached</td>
+</tr>
+<tr>
+<td>AMBIGUOUS method mapping</td>
+<td>Multiple overload signatures fit a method name; no overload receives guessed coverage</td>
+</tr>
+</tbody>
+</table>
+<p>Unobserved never means unused. Standard Java-agent method instrumentation may omit descriptors; exact overload coverage remains unavailable for those spans. Java line/branch coverage, inherited/composed route discovery and complete transaction/business-workflow coverage are not claimed.</p>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No traces</td>
+<td>Verify the session is started, the Java process has the generated environment, endpoint is reachable from that process, agent JAR exists, and you exercised a workflow. Inspect its exporter diagnostics.</td>
+</tr>
+<tr>
+<td>HTTP 401</td>
+<td>Use this session's latest bearer token. <strong>New token</strong> revokes the old token; update the Java process configuration and restart it as necessary.</td>
+</tr>
+<tr>
+<td>HTTP 409 on ingestion</td>
+<td>Check session state and service/artifact resource declarations. Any explicit mismatch is rejected even in compatible mode. Fix configuration and send future observations; the rejected batch is not stored.</td>
+</tr>
+<tr>
+<td>HTTP 400</td>
+<td>Check OTLP encoding, IDs, timestamps and batch limits. Malformed payloads are rejected without retaining raw bodies.</td>
+</tr>
+<tr>
+<td>Partial success / dropped count</td>
+<td>The default session cap is 50,000 spans. Create a new bounded observation session; a full session cannot regain capacity by retrying the same dropped spans.</td>
+</tr>
+<tr>
+<td>Missing/ambiguous methods</td>
+<td>Inspect method mapping diagnostics, use the matching static artifact, refresh an old method inventory, and provide descriptors where the instrumentation supports them.</td>
+</tr>
+<tr>
+<td>FAILED after API restart</td>
+<td>Report generation was interrupted. Retry <strong>Stop</strong> while raw evidence is retained. <code>/api/v1/runtime-sessions/{id}/diagnostics</code> explains recovery and retention state.</td>
+</tr>
+<tr>
+<td>Old report has no quality panel</td>
+<td>Historical reports are preserved without fabricating diagnostics. Create a new observation session for the new quality metadata.</td>
+</tr>
+</tbody>
+</table>
+<p>The local single-process prototype does not certify every Java/framework version or production overhead. Review the explicit plan before running against your application.</p>
+<h2 id="demonstrated-result">Demonstrated result</h2>
+<p>The Phase 3 validation ran the pinned Spring PetClinic sample with the real Java agent in an isolated database, collected 190 spans across 83 traces, increased observed classes from 5 to 11, and retained identical reports across API restart. No existing workspace analyses or accounts were changed by that validation. See <a href="PHASE-3-VERIFICATION.md">verification</a> and <a href="phase3-runtime-validation.json">machine-readable evidence</a>.</p></body></html>

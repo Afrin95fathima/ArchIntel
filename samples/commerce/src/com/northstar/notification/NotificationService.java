@@ -1,0 +1,1 @@
+package com.northstar.notification; @org.springframework.stereotype.Service public class NotificationService { private Template template; private Transport transport; public void send() { transport.send(template.render()); } }

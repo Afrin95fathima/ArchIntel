@@ -1,0 +1,1 @@
+package com.northstar.reporting; public class ReportTemplate { private ReportFormatter formatter; public ReportFormatter formatter() { return formatter; } }

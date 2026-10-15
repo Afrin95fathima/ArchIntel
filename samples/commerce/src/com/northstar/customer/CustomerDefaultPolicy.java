@@ -1,0 +1,1 @@
+package com.northstar.customer; public class CustomerDefaultPolicy implements CustomerPolicy { public boolean valid(CustomerEntity entity) { return entity != null; } }

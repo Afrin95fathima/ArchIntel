@@ -1,0 +1,1 @@
+package com.northstar.payment; @jakarta.persistence.Entity public class PaymentEntity { public String id; public String status; }

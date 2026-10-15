@@ -1,0 +1,1 @@
+package com.northstar.inventory; @org.springframework.stereotype.Controller public class InventoryController { private InventoryService service; public InventoryEntity get() { return service.load(); } }

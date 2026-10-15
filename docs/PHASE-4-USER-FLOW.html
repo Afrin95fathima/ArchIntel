@@ -1,0 +1,103 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ArchIntel PHASE-4-USER-FLOW</title><style>
+@page { size: A4; margin: 19mm 17mm; }
+body { font: 14px/1.65 Arial, sans-serif; color: #24332e; max-width: 900px; margin: 40px auto; padding: 0 24px; }
+h1 { font-size: 32px; color: #125a43; line-height: 1.2; border-bottom: 3px solid #168561; padding-bottom: 18px; }
+h2 { font-size: 21px; color: #125a43; margin-top: 32px; }
+h3 { font-size: 16px; margin-top: 24px; }
+h1,h2,h3 { break-after: avoid; }
+a { color: #12664c; overflow-wrap: anywhere; }
+pre { background: #eff4f1; padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+code { font-size: 0.9em; background: #eff4f1; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+td,th { padding: 8px; border: 1px solid #d6dfda; text-align: left; overflow-wrap: anywhere; }
+th { background: #eff4f1; }
+tr, img { break-inside: avoid; }
+img { max-width: 100%; }
+blockquote { border-left: 3px solid #168561; padding-left: 15px; }
+.edition { text-transform: uppercase; font-size: 11px; letter-spacing: 1px; color: #63786e; }
+@media print { body { margin: 0; padding: 0; font-size: 11px; max-width: none; } h1 { font-size: 27px; } h2 { font-size: 18px; } pre { font-size: 9px; } table { font-size: 9px; } }
+</style></head><body><div class="edition">ArchIntel · Investor prototype · 5 October 2026</div><h1 id="phase-4-user-flow-evidence-and-digital-twin">Phase 4 user flow: evidence and digital twin</h1>
+<p>Use <strong>Evidence &amp; digital twin</strong> in ArchIntel. This phase adds immutable architecture versions, canonical evidence/facts, guided runtime investigation and a persistent graph. Existing static/runtime analysis continues to work independently.</p>
+<h2 id="capture-a-version">Capture a version</h2>
+<ol>
+<li>Sign in and open <strong>Evidence &amp; digital twin</strong>. Select the application and a completed static baseline.</li>
+<li>Enter a descriptive version name. Optionally choose a parent version to record lineage.</li>
+<li>Select completed runtime sessions from the same static baseline. Leave the selection empty for a static-only version. A running session cannot be frozen into a version; stop it first in Dynamic analysis. At most ten sessions can be selected.</li>
+<li>Optionally enable <strong>Review domain names and membership</strong>. Give a review reason, edit domain names and assign classes using the selectors. Existing domain IDs stay stable, every class must be assigned once, and no domain can be empty. The UI shows the first 300 classes; the validated API supports the full bounded population. Changing domains creates a new version; it never rewrites the original analysis or recalculates modernization scores.</li>
+<li>Click <strong>Preview architecture version</strong>. Review fact/evidence/node counts and the fingerprint. Changing any form value invalidates the preview.</li>
+<li>Click <strong>Save architecture version</strong>. An identical baseline/session selection/domain review/parent returns the existing version, even if you enter a different display name. The fingerprint identifies the evidence/configuration, not the name.</li>
+<li>Select the saved version using <strong>Architecture version</strong>. The scope panel shows baseline, selected runtime sessions, derivation version and the last graph-projection state.</li>
+</ol>
+<p>An account needs ANALYSIS_WRITE to capture/review versions or update discovery, and ANALYSIS_READ to inspect them. Versions containing runtime evidence also require RUNTIME_READ. Access remains restricted to the account's workspace. Runtime-only permission does not grant access to the combined architecture workspace.</p>
+<h2 id="inspect-facts-and-provenance">Inspect facts and provenance</h2>
+<p>Open <strong>Facts</strong>. Each directed dependency is classified as:</p>
+<ul>
+<li><strong>STATIC_ONLY:</strong> present in bytecode evidence, not observed in the selected runtime graph. This never means unused.</li>
+<li><strong>DYNAMIC_ONLY:</strong> observed at runtime without the corresponding internal static dependency.</li>
+<li><strong>STATIC_AND_DYNAMIC:</strong> supported by both sources.</li>
+</ul>
+<p>Click <strong>Inspect evidence</strong> on a fact. Expand each supporting observation to see collector, timestamp, source/target, captured fields and available span links. Aggregated evidence remains available when raw traces expire. Such span references are explicitly marked EXPIRED_OR_UNAVAILABLE rather than silently pointing to missing data.</p>
+<p>The evidence record timestamp is the version's derivation time. Runtime source observations retain their captured timestamps inside the observation. Class/method identity remains conservative; unsupported or ambiguous mappings are not forced. The displayed evidence confidence describes the adapter's supporting observation, not a calibrated modernization probability.</p>
+<h2 id="plan-guided-runtime-discovery">Plan guided runtime discovery</h2>
+<p>Open <strong>Discovery</strong> to review prioritized suggestions for unobserved entry points, scheduled jobs, message consumers, dependencies, domains and high-risk findings. UNKNOWN means reliable signature-level observation is unavailable, for example after raw retention expiry. Suggestions do not claim to know a complete business workflow.</p>
+<p>Enter a <strong>Discovery update note</strong>, then change an item's status to OPEN, PLANNED, EXERCISED or DISMISSED. Expand Update history to review previous changes. Concurrent changes require a refresh before saving.</p>
+<p><strong>EXERCISED records your workflow progress; it does not increase coverage.</strong> To validate the outcome, create a new runtime session, exercise the intended routes, stop it and capture a successor architecture version. Choose the earlier version as parent. <strong>Compare observations with parent</strong> shows percentage-point differences only when baseline and domain review are compatible. It does not claim that modernization improved or that a particular action caused the change.</p>
+<h2 id="inspect-the-persistent-graph-and-twin">Inspect the persistent graph and twin</h2>
+<p>The graph is a separate authenticated Neo4j service on local port 17687; it is not the temporary scanner graph. Projection normally runs in the background. Use <strong>Rebuild graph projection</strong> to replay the saved canonical data immediately.</p>
+<p>Open <strong>Graph</strong>. A CURRENT result confirms that the stored version digest and projection counts match. The UI displays a bounded sample, and the neighborhood selector follows one hop around a selected node. The graph includes version/application/session references, domains, packages, classes, methods/entry points, external type references, observed resources/flows, evidence, facts and existing findings/cycles.</p>
+<p>Open <strong>Twin</strong> for version scope, reviewed domains, observation coverage and explicit unknowns. Database calls do not prove ownership. Tests, behavioral contracts and modernization execution state are not invented. Static readiness scores and existing finding records remain baseline outputs; Phase 5 assessments are not generated here.</p>
+<p>Use <strong>Export canonical evidence</strong> to download/read the complete bounded version document with evidence and facts. Discovery progress is mutable operational history and is retrieved separately through the discovery API; it does not modify that frozen export.</p>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>State or symptom</th>
+<th>Meaning and action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PENDING</td>
+<td>Version committed; background projection has not completed. Wait or rebuild.</td>
+</tr>
+<tr>
+<td>FAILED</td>
+<td>Projection attempt failed. Canonical facts/evidence remain available. Restore the local graph connection and rebuild.</td>
+</tr>
+<tr>
+<td>APPLIED but graph cannot open</td>
+<td>APPLIED describes the last successful write. The graph query checks its present availability/currentness.</td>
+</tr>
+<tr>
+<td>HTTP 409 stale/incomplete graph</td>
+<td>Rebuild this version. Its canonical records are retained.</td>
+</tr>
+<tr>
+<td>HTTP 503 graph unavailable</td>
+<td>Run the local graph startup command, inspect its logs and retry. Static analysis/evidence do not depend on graph availability.</td>
+</tr>
+<tr>
+<td>Capture rejected for raw retention</td>
+<td>Expired sessions retain individual reports, but cannot be recombined into a new multi-session report. Capture one archived session or select retained raw sessions.</td>
+</tr>
+<tr>
+<td>Method coverage unavailable</td>
+<td>Do not infer signature coverage from aggregate counts. Use a new method inventory and a fresh retained runtime capture.</td>
+</tr>
+<tr>
+<td>Version comparison rejected</td>
+<td>Use the same static baseline and compatible domain-review scope.</td>
+</tr>
+<tr>
+<td>Discovery update conflict</td>
+<td>Refresh; another update changed its revision. Reapply the intended status with a new note.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="local-lifecycle">Local lifecycle</h2>
+<p><code>Start-ArchIntel.cmd</code> starts the configured persistent graph along with the app. <code>Stop-ArchIntel.cmd</code> stops the recorded ArchIntel graph JVM after verifying its identity. Data persists under <code>.data/knowledge-graph</code>; do not delete or share its password key. The key is unrelated to the administrator bootstrap key.</p>
+<p>For a prepared installation, from the repository root:</p>
+<pre><code class="language-powershell">.\.runtime\python\tools\python.exe scripts/knowledge_graph.py start
+.\.runtime\python\tools\python.exe scripts/knowledge_graph.py check
+</code></pre>
+<p>See <a href="PHASE-4-VERIFICATION.md">Phase 4 verification</a> and <a href="PHASE-4-DEVELOPER-GUIDE.md">developer handoff</a>. Phase 5 has not started.</p></body></html>

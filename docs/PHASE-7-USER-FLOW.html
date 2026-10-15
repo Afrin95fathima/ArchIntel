@@ -1,0 +1,73 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ArchIntel PHASE-7-USER-FLOW</title><style>
+@page { size: A4; margin: 19mm 17mm; }
+body { font: 14px/1.65 Arial, sans-serif; color: #24332e; max-width: 900px; margin: 40px auto; padding: 0 24px; }
+h1 { font-size: 32px; color: #125a43; line-height: 1.2; border-bottom: 3px solid #168561; padding-bottom: 18px; }
+h2 { font-size: 21px; color: #125a43; margin-top: 32px; }
+h3 { font-size: 16px; margin-top: 24px; }
+h1,h2,h3 { break-after: avoid; }
+a { color: #12664c; overflow-wrap: anywhere; }
+pre { background: #eff4f1; padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+code { font-size: 0.9em; background: #eff4f1; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+td,th { padding: 8px; border: 1px solid #d6dfda; text-align: left; overflow-wrap: anywhere; }
+th { background: #eff4f1; }
+tr, img { break-inside: avoid; }
+img { max-width: 100%; }
+blockquote { border-left: 3px solid #168561; padding-left: 15px; }
+.edition { text-transform: uppercase; font-size: 11px; letter-spacing: 1px; color: #63786e; }
+@media print { body { margin: 0; padding: 0; font-size: 11px; max-width: none; } h1 { font-size: 27px; } h2 { font-size: 18px; } pre { font-size: 9px; } table { font-size: 9px; } }
+</style></head><body><div class="edition">ArchIntel · Investor prototype · 5 October 2026</div><h1 id="phase-7-user-flow-controlled-modernization">Phase 7 user flow: controlled modernization</h1>
+<p>Phase 7C now offers evidence-grounded source discovery, generated target proposals, an independent approval gate, and a synthetic migration test in an ephemeral in-memory SQLite database. It does not read live databases or execute production migrations. Phase 7B still provides a boundary preview; actual service extraction remains unimplemented. Phase 7A completion gates and Docker-backed dependency scanning remain as recorded in <a href="PHASE-7-VERIFICATION.md">verification</a>.</p>
+<p>The modernization workspace also displays a first-pass microservice decomposition proposal: heuristic domain candidates, dependency direction, static repository/entity signals, evidence confidence, blockers, and whole-system vs one-at-a-time rollout choices. Selecting a candidate is review-only today; generated services and service repositories are not created by this view yet.</p>
+<h2 id="discover-and-test-a-phase-7c-data-modernization-proposal">Discover and test a Phase 7C data modernization proposal</h2>
+<ol>
+<li>Prepare a source task against an approved architecture version. Include the repository's migration/schema files and relevant Java persistence or SQL-access source in the authorized task snapshot. A full target schema and prewritten ownership rules are not prerequisites.</li>
+<li>Open <strong>Data migration</strong> and select <strong>Discover source data architecture</strong>. ArchIntel scans supported SQL DDL, Liquibase XML, Java JPA entities, Spring Data repository methods, and visible SQL query patterns. It shows entities, columns, keys, relationships, read/write paths, evidence paths and hashes, parser coverage, ownership hypotheses, confidence, gaps, and the smallest additional input it needs. Runtime database observations are context only and do not prove table identity.</li>
+<li>Select <strong>Generate target schema and migration proposal</strong>. Choose <strong>Logical schema proposal</strong> to review only, or <strong>Local synthetic SQLite test</strong> if you intend to run the isolated synthetic test. ArchIntel proposes target tables, service assignments where evidence supports them, source-to-target column mappings, type conversions, migration steps, alternatives, risks and unresolved questions. If no schema is discovered, it still returns a proposed empty target and a focused discovery question.</li>
+<li>Inspect evidence, then revise mappings where required. A mapping revision increments its mapping version and invalidates any prior review. Add only explicitly defined supported invariants (<code>ROW_COUNT_EQUAL</code>, <code>UNIQUE</code>, <code>NOT_NULL</code>, <code>FOREIGN_KEY_VALID</code>); unknown tables/columns are rejected.</li>
+<li>A different human with <code>SECURITY_ADMIN</code> and source access reviews the exact current proposal. They must record an ownership decision for every discovered resource, including <code>SHARED</code> when ownership remains shared, and acknowledge every remaining non-hard risk. The decision is stored with its rationale and bound to the resulting plan fingerprint. Approval authorizes <strong>synthetic test execution only</strong>.</li>
+<li>Enter synthetic fixture rows in the test form and select <strong>Run synthetic migration test</strong>. ArchIntel creates source and target tables in an in-memory SQLite database, converts and copies the fixture, then checks counts, key constraints, referential integrity, supported conversions and defined invariants. The database is discarded when the process closes. Raw fixture rows and database connection strings are not persisted. Results are limited to the submitted synthetic fixture and checks shown.</li>
+</ol>
+<p>Proposals are currently generated by deterministic evidence rules; ArchIntel does not claim to infer business meaning or use a generative model in this workflow. Production execution is disabled. There is no live database adapter, production credential flow, cutover action, or backup/restore guarantee. A local <code>PASS</code> does not establish compatibility with Concord, PostgreSQL or another database engine, nor prove full application behavior. A production path requires separately authorized database-specific validation, representative-data authorization, recovery drills and a distinct production approval system.</p>
+<p>If discovery is incomplete, include the smallest missing schema/migration/access-path source identified by the report and rerun discovery. Do not manually invent facts to make the proposal pass.</p>
+<h2 id="preview-an-extraction-boundary">Preview an extraction boundary</h2>
+<ol>
+<li>Open a prepared source task and choose <strong>Extraction plan</strong>.</li>
+<li>Enter a review note and select <strong>Preview extraction boundary</strong>. The preview can run before prerequisites are complete so it can report missing evidence.</li>
+<li>Review the candidate target classes/packages and source paths, incoming/outgoing dependencies, cross-boundary cycles, and blockers.</li>
+<li>Treat unresolved classes, incomplete source snapshots, unreviewed contracts, or missing data-ownership review as blockers. The preview is bound to the selected architecture version and task snapshot and becomes stale if those inputs change.</li>
+</ol>
+<p>This preview does not edit source or run a build. Candidate source paths use package/type filename suffixes and are not verified by a Java parser. Do not treat a clear preview as extraction approval; extraction generation and validation are still pending.</p>
+<h2 id="generate-a-controlled-java-refactor">Generate a controlled Java refactor</h2>
+<ol>
+<li>Include the implementation Java file and the new interface path in the task's allowed files. The interface path must not already exist.</li>
+<li>Open <strong>Patch review</strong> and select the implementation and interface paths.</li>
+<li>Enter a Java interface name and one or more unique public instance method names. Overloaded, missing, static or non-public methods are rejected.</li>
+<li>Select <strong>Generate interface changeset</strong>. ArchIntel runs JavaParser 3.28.2 inside the pinned offline container. It parses one top-level implementation class, creates the interface signatures and adds <code>implements &lt;Interface&gt;</code> to the class.</li>
+<li>Inspect the exact patch and use the existing review/stage/build flow. Generation never stages, merges or deploys code automatically.</li>
+</ol>
+<p>The interface filename must match its public type name and sit beside the implementation. Isolated execution must be enabled in workspace policy. Imported signature types are copied. Generic implementation classes, nested type declarations, static imports, name conflicts and overloaded selections are rejected. The recipe does not rewrite consumers or claim architecture improvement. A human chooses the methods and reviews the output; compile, contract, architecture and security checks remain required.</p>
+<h2 id="scan-the-candidate-for-security-findings">Scan the candidate for security findings</h2>
+<p>After a successful captured candidate build, open <strong>Validation</strong>, enter a note and select <strong>Run Java security scan</strong>. ArchIntel uses a separate, immutable SpotBugs/FindSecBugs image with a server-owned security filter. It records rule identifiers, affected classes and priorities. Any finding fails this conservative gate; missing classes or analysis errors are inconclusive. A failed retry replaces the previous result for validation.</p>
+<p>If the operator has provisioned the Trivy image and databases, the same action also scans packages inside the captured JAR/WAR. No packages identified is inconclusive. Database metadata older than seven days is rejected. This identifies packaged dependencies; it does not establish a complete inventory of dependencies supplied externally at runtime. Complete dependency coverage remains required for final acceptance.</p>
+<p>Run <strong>Compare validation evidence</strong> after the scan. The Java and packaged-dependency gates are separate. A clean report is limited to the scanner's checks and captured artifact; it does not prove the application is secure.</p>
+<h2 id="compare-a-staged-change">Compare a staged change</h2>
+<ol>
+<li>Open <strong>Source tasks</strong>. Prepare a task using the Phase 6 guide and an approved modernization plan.</li>
+<li>Define and review behavioral contracts that reference captured test files and exact JUnit case names.</li>
+<li>Run the baseline build. It must reproduce the analyzed artifact hash; use a reproducible build and the appropriate offline dependency cache.</li>
+<li>Propose a patch, inspect it, approve staging and stage it in the isolated workspace.</li>
+<li>Run the candidate build using the same pinned container image.</li>
+<li>Open <strong>Validation</strong>, enter an operation note and select <strong>Start or refresh architecture re-analysis</strong>. This queues the captured candidate JAR/WAR for the existing static scanner. Older candidate builds without artifact capture must be rebuilt first.</li>
+<li>Allow the scan to finish, then select the same button to finalize the comparison. Inspect added/removed classes, dependencies, cycles and findings. Different scanner versions, algorithms or analysis settings make the comparison inconclusive. A failed scan requires investigation and a new source task; this checkpoint does not automatically retry scans.</li>
+<li>Select <strong>Compare validation evidence</strong> and inspect every gate and contract. <code>PASS</code> applies only to that check. <code>NOT_RUN</code> means required evidence is missing. <code>INCONCLUSIVE</code> means a reliable comparison cannot be made. <code>FAIL</code> requires investigation.</li>
+</ol>
+<p>The comparison uses the latest attempt of each build kind, even when that attempt failed. Changed or deleted contract tests, missing or duplicate exact case names, removed baseline cases, skipped candidate cases, changed source hashes and different build images block passing contract comparison. New candidate cases are allowed, but must pass.</p>
+<p>A comparison becomes <strong>STALE</strong> after its inputs or task state change. Rebuild as needed, then compare again. Repeating an unchanged comparison does not add duplicate history.</p>
+<p>Architecture re-analysis can pass when a completed, comparable scan binds to the latest candidate build and exact staged patch. This means the comparison was performed, not that the architecture improved. Generated-code security remains <code>NOT_RUN</code> and overall status remains <strong>BLOCKED</strong>. Passing tests do not prove complete behavioral equivalence or architecture improvement. There is no final approval, merge or deployment action.</p>
+<h2 id="review-improvement-and-approve-a-candidate">Review improvement and approve a candidate</h2>
+<p>After validation has fresh PASS results for every required gate, open the Validation tab and inspect the measured expected-improvement metric selected from the approved plan decision. The comparison uses the baseline and candidate static evidence; it preserves the baseline class inventory and reports PASS, FAIL, or INCONCLUSIVE. An authorized reviewer can accept only a measured PASS, bound to its exact fingerprint. If any required evidence is missing, stale, incomplete, or fails, candidate publication stays disabled.</p>
+<p>Select <strong>Publish validated candidate version</strong> only after the required gates and impact review pass. This creates a canonical architecture version linked to its parent and the candidate analysis. Then a different authorized security administrator reviews the current evidence and selects <strong>Record final human approval</strong>. Approval is bound to the current validation and gate fingerprints; any change to the candidate or evidence makes the result stale and requires revalidation. These actions approve the reviewed transformation record; ArchIntel does not merge code or deploy it.</p>
+<p>The candidate is stored separately from uploaded application artifacts and does not become the default input for the application's ordinary Analyze action. Its analysis ID is displayed for provenance. Candidate JAR/WAR captures are retained in local task storage, up to 32 MiB per build and the existing 50-build task limit; this checkpoint has no automatic artifact-retention purge.</p>
+<h2 id="recovery">Recovery</h2>
+<p>Existing pause, resume and private-workspace rollback remain available. Rollback restores captured task files; it does not overwrite the original checkout and does not undo database changes. A rolled-back task retains its historical comparison marked stale.</p></body></html>

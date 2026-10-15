@@ -1,0 +1,1 @@
+package com.northstar.customer; @org.springframework.stereotype.Controller public class CustomerController { private CustomerService service; public CustomerEntity get() { return service.load(); } }

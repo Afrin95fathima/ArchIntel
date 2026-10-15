@@ -1,0 +1,1 @@
+package com.northstar.inventory; @org.springframework.stereotype.Service public class InventoryService { private InventoryRepository repository; private InventoryPolicy policy; public InventoryEntity load() { return repository.find(); }  }

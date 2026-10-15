@@ -1,0 +1,234 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ArchIntel PHASE-6-DEVELOPER-GUIDE</title><style>
+@page { size: A4; margin: 19mm 17mm; }
+body { font: 14px/1.65 Arial, sans-serif; color: #24332e; max-width: 900px; margin: 40px auto; padding: 0 24px; }
+h1 { font-size: 32px; color: #125a43; line-height: 1.2; border-bottom: 3px solid #168561; padding-bottom: 18px; }
+h2 { font-size: 21px; color: #125a43; margin-top: 32px; }
+h3 { font-size: 16px; margin-top: 24px; }
+h1,h2,h3 { break-after: avoid; }
+a { color: #12664c; overflow-wrap: anywhere; }
+pre { background: #eff4f1; padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+code { font-size: 0.9em; background: #eff4f1; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+td,th { padding: 8px; border: 1px solid #d6dfda; text-align: left; overflow-wrap: anywhere; }
+th { background: #eff4f1; }
+tr, img { break-inside: avoid; }
+img { max-width: 100%; }
+blockquote { border-left: 3px solid #168561; padding-left: 15px; }
+.edition { text-transform: uppercase; font-size: 11px; letter-spacing: 1px; color: #63786e; }
+@media print { body { margin: 0; padding: 0; font-size: 11px; max-width: none; } h1 { font-size: 27px; } h2 { font-size: 18px; } pre { font-size: 9px; } table { font-size: 9px; } }
+</style></head><body><div class="edition">ArchIntel · Investor prototype · 5 October 2026</div><h1 id="phase-6-developer-handoff">Phase 6 developer handoff</h1>
+<h2 id="delivery-boundary">Delivery boundary</h2>
+<p>This slice implements tenant-owned source tasks, explicit source scope, private Git snapshots, contracts, immutable patch proposals, human staging review, private rollback and a fail-closed local Docker build adapter. Docker Desktop 4.94.0 is configured in Linux/amd64 mode, and a pinned Java 21/Maven image successfully built and tested a controlled fixture with networking disabled. Customer-specific dependency caches, analyzed-artifact reproduction and the broader Phase 6 gates remain unvalidated. Phase 6's exit gate is open.</p>
+<p>The master specification remains authoritative. This slice does <strong>not</strong> complete automatic characterization-test generation, full generated-code SAST/SCA, architecture reanalysis, transformation graph projection, final approval/merge, post-merge revert, distributed task scheduling or the full planned task state machine. These remain explicit work items, not implied completed features. Phase 7 implementation has not started.</p>
+<h2 id="code-and-storage-boundaries">Code and storage boundaries</h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>backend/app/transformation/schemas.py</code></td>
+<td>Strict request schemas, bounded edits, portable paths and filtered metadata</td>
+</tr>
+<tr>
+<td><code>models.py</code> / migration <code>0007</code></td>
+<td>Task, changeset, behavioral-contract and build-attempt records</td>
+</tr>
+<tr>
+<td><code>service.py</code></td>
+<td>Current evidence/plan checks, state transitions, authorization bindings, review and recovery</td>
+</tr>
+<tr>
+<td><code>workspace.py</code></td>
+<td>Private Git setup, SHA manifests, containment/link checks, bounded staging and rollback</td>
+</tr>
+<tr>
+<td><code>sandbox.py</code></td>
+<td>Local Docker CLI only, fixed build recipe, resource flags, bounded tar/XML handling</td>
+</tr>
+<tr>
+<td><code>routes.py</code></td>
+<td>Tenant-scoped API, source read checks and safe error responses</td>
+</tr>
+<tr>
+<td><code>frontend/src/transformation/TaskWorkspace.tsx</code></td>
+<td>Source-task preparation, contracts, patch review, build history and controls</td>
+</tr>
+<tr>
+<td><code>backend/app/access/gateway.py</code></td>
+<td>Existing audited source gateway with an internal bounded-task scope</td>
+</tr>
+</tbody>
+</table>
+<p>Data path: <code>DATA_DIR/transformations/&lt;tenant&gt;/&lt;task-id&gt;/baseline</code> plus <code>worktree</code>. The latter has its own <code>.git</code>; it is not a Git linked worktree attached to the customer's repository. Local Git is used for a pinned private baseline and branch, while reviewed changes are tracked by explicit manifests and immutable changeset documents. Staging means writing approved bytes in that private directory, not merging or committing to customer Git. Source snapshots and changeset content remain in local storage until operator-managed retention removes them. This slice does not add encryption at rest or an automatic source-task purge; protect the data directory with the deployment's filesystem access controls and storage policy.</p>
+<p>Migration <code>0006 -&gt; 0007</code> is additive: <code>transformation_tasks</code>, <code>transformation_changesets</code>, <code>transformation_contracts</code>, <code>transformation_builds</code>. Existing static/runtime/evidence/planning records are not rewritten. Task fingerprints are unique per tenant and include actor, version and normalized request options, including optional request key. Identity-scoped sessions enforce tenancy; related version access also enforces runtime permissions when necessary.</p>
+<h2 id="request-and-authorization-flow">Request and authorization flow</h2>
+<ol>
+<li>Existing authentication, CSRF, permission and durable request-intent audit middleware runs first. Reads require analysis-read; writes require analysis-write. Source-sensitive task endpoints recheck current <code>SOURCE_READ</code>, task policy and explicit repository grants.</li>
+<li>The selected current architecture version, application, registered repository commit and planning proposal are bound into the task. The latest planning review must be <code>APPROVED_PLANNING</code>.</li>
+<li>The source gateway reads literal regular blobs at the registered commit. It enforces path grants/protected paths and task-specific file/byte limits. It records the permitted manifest durably before returning source bytes.</li>
+<li>Source text and patch text pass the existing offline secret/PII/prompt-injection filters. No model call occurs. Raw source does not enter audit records, build logs or general analysis exports.</li>
+<li>Task mutations use the existing process lock and optimistic revisions. The lock is released during container execution and authorization is checked again afterward.</li>
+</ol>
+<p><code>read_context(..., task_scope=True)</code> is an internal service option, not an accepted public context-request field. Existing read-only context budgets and behavior remain unchanged. The gateway rolls back its read transaction before committing its independent audit event. Assign durable mutation results <strong>after</strong> calls through that boundary; otherwise pending ORM changes can be lost.</p>
+<p>Task-list metadata is visible to authorized version readers; full task documents, source and patch details additionally require current source scope. Source reads revalidate the original registered commit and captured file hashes, so removing the original repository or revoking its grant blocks later task access. Administrative recovery after source-access revocation is not yet a separate workflow.</p>
+<h2 id="states-and-approval-semantics">States and approval semantics</h2>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Meaning / allowed progression</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PREPARING</code></td>
+<td>Persisted preparation intent before filesystem work; succeeds to PLANNED or fails</td>
+</tr>
+<tr>
+<td><code>PLANNED</code></td>
+<td>Private baseline prepared; contracts, patch proposals and baseline builds available</td>
+</tr>
+<tr>
+<td><code>READY</code></td>
+<td>Baseline artifact/tests and reviewed critical contracts satisfy preparation gaps</td>
+</tr>
+<tr>
+<td><code>STAGING</code></td>
+<td>Durable staging intent before approved byte writes</td>
+</tr>
+<tr>
+<td><code>STAGED</code></td>
+<td>One reviewed initial patch written privately</td>
+</tr>
+<tr>
+<td><code>BUILDING</code></td>
+<td>A baseline or candidate build attempt is active</td>
+</tr>
+<tr>
+<td><code>VALIDATION_BLOCKED</code></td>
+<td>Staged candidate still lacks final architecture/security acceptance</td>
+</tr>
+<tr>
+<td><code>PAUSED</code></td>
+<td>Progression paused; an existing build must finish before resume/rollback</td>
+</tr>
+<tr>
+<td><code>FAILED</code></td>
+<td>Interrupted or failed preparation; inspect before recheck/retry/rollback</td>
+</tr>
+<tr>
+<td><code>ROLLED_BACK</code></td>
+<td>Private baseline restored; terminal task</td>
+</tr>
+</tbody>
+</table>
+<p>Every event records actor, time, action, revision, note and relevant patch/build identity. Task histories are bounded to 200 events; rollback remains possible at the limit. Changesets and build attempts are limited to 50 each; contracts to 100. This is a single-process prototype: do not run multiple API workers against these tasks. A distributed lease/claim protocol remains future work.</p>
+<p>Patch documents include expected per-file hashes, full replacement contents, evidence IDs, baseline digest, risk and validation requirements. A task supports one initial staged changeset. Risk is a conservative filename/size/deletion heuristic, not semantic vulnerability analysis. Human staging approval binds exact patch hash, reviewer, source grant, current policy revision and 24-hour expiry. HIGH risk requires a different human security administrator. Final transformation approval is unavailable.</p>
+<p>Startup marks PREPARING/STAGING/BUILDING tasks and RUNNING builds failed without automatically executing anything. Before staging, persist the approved before/after hash alternatives. Recovery rollback accepts only those recorded alternatives, rejects unrelated tampering, and never recursively deletes a computed path. Partial writes with unknown hashes require operator inspection.</p>
+<h2 id="build-adapter-and-operator-setup">Build adapter and operator setup</h2>
+<p><code>infra/docker/Dockerfile</code> builds the application. <strong>It does not provide the customer build sandbox.</strong> The separate template is <code>infra/docker/build-sandbox.Dockerfile</code>. The packaged application image is not yet certified to operate this adapter; the current adapter targets the local host-launched API and an explicitly local Docker daemon.</p>
+<p>Prerequisites:</p>
+<ul>
+<li>Local Docker CLI and reachable Linux-container daemon at the configured fixed local pipe/socket. Remote Docker contexts and inherited <code>DOCKER_*</code> values are not used.</li>
+<li>Operator-approved immutable Maven and JDK base-image digests already provisioned locally.</li>
+<li>A reviewed <code>maven-repository/</code> build context containing all dependency and plugin artifacts required by the target. Exclude credentials, settings files, private source and unnecessary cached artifacts. Choose a JDK compatible with the target.</li>
+<li>For the Phase 7 image, also copy the server-owned <code>infra/docker/refactor</code> directory into the context as <code>refactor/</code>. Helper provisioning downloads its pinned JavaParser/build dependencies from Maven Central; do not include customer inputs. Customer builds remain offline at runtime.</li>
+<li>An image with <code>/bin/sh</code>, <code>sleep</code>, <code>cp</code>, Maven and JDK, readable offline repository at <code>/opt/m2</code>, and no image-declared anonymous writable volumes. Test non-root access and Windows bind-mount sharing before acceptance.</li>
+</ul>
+<p>Example operator build from a prepared context (replace both placeholder digests with verified values):</p>
+<pre><code class="language-powershell">docker build --pull=false --build-arg MAVEN_BASE=maven@sha256:&lt;verified-digest&gt; --build-arg JDK_BASE=eclipse-temurin@sha256:&lt;verified-digest&gt; -f C:\path\to\vfunction\infra\docker\build-sandbox.Dockerfile -t archintel-build:local C:\approved-build-context
+docker image inspect archintel-build:local --format '{{.Id}}'
+</code></pre>
+<p>Set <code>BUILD_SANDBOX_IMAGE</code> in the local operator configuration to the returned full <code>sha256:&lt;64 hex&gt;</code> image ID. <code>BUILD_TIMEOUT_SECONDS</code> defaults to 180 and accepts 10..600. Restart the API after changing configuration. Enable workspace source-task/build policies and explicit grants only for the intended users/repository. The current local configuration pins <code>sha256:9847fa2c085e6b1dfc3a7921d16184ee1925c20fc50b50d76fd8433ba8acfd81</code>; it includes the reviewed offline Maven cache captured after the Concord 2.46.1-SNAPSHOT build; rebuild it whenever a target application requires dependencies absent from that cache. The adapter uses <code>/opt/m2/repository</code> read-only and does not copy the cache into <code>/work</code>; <code>/work</code> remains a bounded writable tmpfs for source and build outputs.</p>
+<p>Read-only prerequisite check from the workspace root:</p>
+<pre><code class="language-powershell">.\.runtime\python\tools\python.exe scripts/check_build_sandbox.py
+</code></pre>
+<p>Exit 0 means the local image/daemon prerequisite check passed, <strong>not</strong> that isolation or the customer build passed. Exit 1 means unavailable. Actual execution acceptance is still required.</p>
+<p>The server creates a generated container name with <code>--pull=never</code>, no network, non-root UID/GID 1000, read-only root, all capabilities dropped, no-new-privileges, 256 PIDs, 2 CPUs, 1 GiB memory/no additional swap, no healthcheck and no log driver. Only the task snapshot is bound read-only. Writable tmpfs: <code>/tmp</code> 64 MiB and <code>/work</code> 512 MiB. No customer home, host socket, credentials or checkout is mounted.</p>
+<p>The fixed command copies input and offline Maven cache into <code>/work</code>, then runs:</p>
+<pre><code class="language-text">mvn -o -B -Dmaven.repo.local=/work/.m2 -Dmaven.test.failure.ignore=false -DskipTests=false -Dmaven.test.skip=false package
+</code></pre>
+<p>Customer Maven plugins execute only within this container boundary. Repository wrappers and user-supplied shell commands are never invoked on the host. Docker itself remains a trusted privileged operator dependency; these configuration flags are not proof of resistance to kernel/container escapes. See the primary Docker documentation for <a href="https://docs.docker.com/engine/containers/run/">runtime constraints</a> and <a href="https://docs.docker.com/engine/storage/tmpfs/">tmpfs mounts</a>.</p>
+<p>The adapter bounds captured command output and parses report tar streams from <code>docker exec tar</code> in memory without extracting paths. Surefire XML rejects DTD/entities, nonregular reports and oversize input. Artifact bytes are streamed through <code>docker exec cat</code> with a 32 MiB limit and a regular-file/non-symlink check inside the container. Baseline bytes and raw output are discarded after deriving structured results and SHA-256. Phase 7 candidate builds retain validated archives under task-owned storage for re-analysis; see the Phase 7 developer guide for binding, integrity and retention rules. The container is removed in <code>finally</code>; if the API dies, its fixed 660-second lifetime bounds execution, but stopped-container reconciliation/cleanup still needs an operator. No startup cleanup guarantee is claimed.</p>
+<h2 id="evidence-and-validation-semantics">Evidence and validation semantics</h2>
+<ul>
+<li>Complete snapshot is exact equality between selected file paths and committed file inventory; partial scope cannot build.</li>
+<li>Baseline success requires command success, at least one non-skipped case, no reported failures/errors and exact match to the captured analyzed artifact SHA-256.</li>
+<li>Reviewed critical contracts require passing case-name evidence from the latest passing baseline. Test-file hashes are recorded. This does not verify test assertion quality or prove full business equivalence.</li>
+<li>Candidate PASSED records only the bounded build/test result. Task state remains VALIDATION_BLOCKED. Candidate contract comparison, architecture change measurement and comprehensive generated-code security gates remain open.</li>
+<li>Secret detection uses the existing established <code>detect-secrets</code> detectors plus local filters. This is not a SAST/SCA or dependency-vulnerability scan. Architecture/security/behavior validation fields on changesets remain <code>NOT_RUN</code> until those dedicated validators exist.</li>
+<li>Customer-controlled Maven plugins can affect reports; do not treat their XML as independent behavioral certification. Trusted acceptance fixtures and stronger test provenance remain required.</li>
+</ul>
+<h2 id="api-surface">API surface</h2>
+<p>All paths below use <code>/api/v1</code> and existing session/CSRF conventions.</p>
+<table>
+<thead>
+<tr>
+<th>Method/path</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET <code>/transformation/capabilities</code></td>
+<td>Read local sandbox availability</td>
+</tr>
+<tr>
+<td>POST/GET <code>/architecture-versions/{version}/tasks</code></td>
+<td>Prepare/list version tasks</td>
+</tr>
+<tr>
+<td>GET <code>/transformation/tasks/{task}</code></td>
+<td>Task, history, contracts, changesets, builds and gaps</td>
+</tr>
+<tr>
+<td>GET <code>/transformation/tasks/{task}/source/{path}</code></td>
+<td>Authorized current private-file bytes as UTF-8 JSON</td>
+</tr>
+<tr>
+<td>POST <code>/transformation/tasks/{task}/contracts</code></td>
+<td>Add captured-test behavioral assertion</td>
+</tr>
+<tr>
+<td>POST <code>/transformation/tasks/{task}/contracts/{contract}/review</code></td>
+<td>Immutable human review</td>
+</tr>
+<tr>
+<td>POST <code>/transformation/tasks/{task}/changesets</code></td>
+<td>Propose bounded exact edits</td>
+</tr>
+<tr>
+<td>GET <code>/transformation/tasks/{task}/changesets/{change}</code></td>
+<td>Exact diff and validation status</td>
+</tr>
+<tr>
+<td>POST <code>/transformation/tasks/{task}/changesets/{change}/review</code></td>
+<td>Approve private staging or reject</td>
+</tr>
+<tr>
+<td>POST <code>/transformation/tasks/{task}/changesets/{change}/stage</code></td>
+<td>Apply approved bytes privately</td>
+</tr>
+<tr>
+<td>POST <code>/transformation/tasks/{task}/actions</code></td>
+<td>Pause, resume, recheck or rollback</td>
+</tr>
+<tr>
+<td>POST <code>/transformation/tasks/{task}/builds/{BASELINE\|CANDIDATE}</code></td>
+<td>Synchronous bounded build attempt</td>
+</tr>
+</tbody>
+</table>
+<p>Mutations with revision schemas require <code>expected_revision</code> and a filtered note. Contract addition is append-only and does not require a client revision. API responses can record failed preparation/build attempts successfully: inspect returned state/error fields rather than assuming HTTP 2xx means the operation passed. There is no merge, deployment or autonomous-model-execution endpoint.</p>
+<h2 id="remaining-acceptance-and-development-work">Remaining acceptance and development work</h2>
+<ol>
+<li>Provision the local sandbox and a supported complete source fixture with reproducible artifact and existing tests. Run real baseline/candidate success and failure cases, and verify no host/source writes.</li>
+<li>Exercise no-egress, non-root, readonly mount/root, PID/memory/timeout limits, hostile report handling and cleanup on the actual engine; record image/JDK/Maven versions and measurements.</li>
+<li>Complete the broader Phase 6 contract/characterization, task lineage and established SAST/SCA integrations from the master specification. Tool unavailable must stay NOT_RUN/BLOCKED, never PASS.</li>
+<li>Only after Phase 6's acceptance gate and user verification, continue the controlled Phase 7 refactor, reanalysis/comparison and final approval work.</li>
+</ol>
+<p>Run <code>backend/tests/test_transformation.py</code> for source isolation, authorization, review invalidation, recovery and structured-result tests. The passing build/artifact-gate unit tests mock <code>sandbox.run</code>; they do not replace real container acceptance. PostgreSQL integration uses a temporary schema and controlled source fixture, preserving a staged patch across API restart before rollback. Browser validation exercises real Git/private-file workflows against an isolated application database. See <a href="PHASE-6-VERIFICATION.md">verification</a> for recorded results and limitations.</p></body></html>

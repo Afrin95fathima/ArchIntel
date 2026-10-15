@@ -1,0 +1,1 @@
+package com.northstar.payment; public interface PaymentPolicy { boolean valid(PaymentEntity entity); }

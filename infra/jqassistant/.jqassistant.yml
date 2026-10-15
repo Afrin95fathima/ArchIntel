@@ -1,0 +1,6 @@
+jqassistant:
+  store:
+    uri: file:store
+  scan:
+    reset: false
+    continue-on-error: false

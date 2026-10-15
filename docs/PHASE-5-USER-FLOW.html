@@ -1,0 +1,63 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ArchIntel PHASE-5-USER-FLOW</title><style>
+@page { size: A4; margin: 19mm 17mm; }
+body { font: 14px/1.65 Arial, sans-serif; color: #24332e; max-width: 900px; margin: 40px auto; padding: 0 24px; }
+h1 { font-size: 32px; color: #125a43; line-height: 1.2; border-bottom: 3px solid #168561; padding-bottom: 18px; }
+h2 { font-size: 21px; color: #125a43; margin-top: 32px; }
+h3 { font-size: 16px; margin-top: 24px; }
+h1,h2,h3 { break-after: avoid; }
+a { color: #12664c; overflow-wrap: anywhere; }
+pre { background: #eff4f1; padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; }
+code { font-size: 0.9em; background: #eff4f1; }
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+td,th { padding: 8px; border: 1px solid #d6dfda; text-align: left; overflow-wrap: anywhere; }
+th { background: #eff4f1; }
+tr, img { break-inside: avoid; }
+img { max-width: 100%; }
+blockquote { border-left: 3px solid #168561; padding-left: 15px; }
+.edition { text-transform: uppercase; font-size: 11px; letter-spacing: 1px; color: #63786e; }
+@media print { body { margin: 0; padding: 0; font-size: 11px; max-width: none; } h1 { font-size: 27px; } h2 { font-size: 18px; } pre { font-size: 9px; } table { font-size: 9px; } }
+</style></head><body><div class="edition">ArchIntel · Investor prototype · 5 October 2026</div><h1 id="phase-5-modernization-intelligence">Phase 5: Modernization intelligence</h1>
+<p>Phase 5 turns a captured architecture version into a reviewable modernization proposal. It does not edit source code or execute a modernization wave.</p>
+<h2 id="start">Start</h2>
+<ol>
+<li>Open ArchIntel at <code>http://127.0.0.1:8000</code> and sign in.</li>
+<li>Complete a static analysis. Optionally collect real runtime sessions against that exact baseline.</li>
+<li>In <strong>Evidence &amp; digital twin</strong>, preview and save an architecture version. Review domain membership there if you have validated the candidate boundaries.</li>
+<li>Open <strong>Modernization intelligence</strong>. Select the application and captured architecture version.</li>
+<li>Choose a target strategy and describe the planning objective.</li>
+<li>Click <strong>Preview modernization plan</strong>. Review the proposed decisions and validation result, then <strong>Save modernization plan</strong>.</li>
+</ol>
+<p>Saving the same version, objective, strategy and rules returns the existing proposal. Changing the objective or strategy creates another immutable proposal. Preview does not save a proposal.</p>
+<h2 id="understand-the-results">Understand the results</h2>
+<p>New proposals open on <strong>Decision brief</strong>. It states the selected strategy came from the user, summarizes the captured evidence scope, compares all six strategy options, and surfaces evidence-backed risks, unknowns and questions for the next discovery step. Strategy statuses describe whether current evidence supports review, is conditional, or is insufficient; they are not success probabilities, cost estimates, or a ranking. Finding references include the underlying finding text. No automatic winner is selected.</p>
+<p><strong>Decisions</strong> shows an action and blockers for each domain. <strong>Explain why</strong> traces the action to findings and supporting facts. Fact links open canonical provenance, including retained or expired span references. The export contains all evidence IDs; the UI shows at most 50 fact links per explanation.</p>
+<p><strong>Readiness &amp; confidence</strong> separates architecture suitability from strength of evidence:</p>
+<ul>
+<li>Structural readiness preserves the existing baseline score unless domain membership was reviewed; reviewed domains are recomputed.</li>
+<li>Runtime readiness is unavailable when no mapped outgoing calls support a score.</li>
+<li>Combined readiness uses 60% structural and 40% runtime when runtime is available; otherwise it retains structural readiness.</li>
+<li>Observation gaps lower confidence rather than multiplying readiness by coverage.</li>
+<li>Confidence is an explainable heuristic index, not a probability of modernization success. Behavioral validation and data ownership remain unknown in Phase 5.</li>
+</ul>
+<p>A high readiness score does not approve extraction. Sparse observations do not prove unused classes or independent services.</p>
+<h2 id="targets-and-waves">Targets and waves</h2>
+<p>Supported planning strategies are modular monolith, microservices, hybrid, cloud refactor, Java upgrade and framework upgrade. Modular monolith proposes in-process boundaries. Distributed targets leave deployment and contracts undecided pending review. Cloud and upgrade strategies require a compatibility inventory and receive manual-review decisions; this phase does not claim compatibility analysis.</p>
+<p>Waves put dependency domains before their consumers. Cyclic groups remain together for remediation. Each wave includes readiness, confidence, difficulty, dependencies, prerequisites, blockers and a proposed impact. Impact remains a hypothesis until later source changes are validated.</p>
+<h2 id="review">Review</h2>
+<p>Open <strong>Review</strong>, choose <strong>APPROVED_PLANNING</strong>, <strong>CHANGES_REQUESTED</strong> or <strong>REJECTED</strong>, and provide a note. Review history records the actor, time and revision. If another review was saved, refresh before submitting again.</p>
+<p>Planning approval records agreement with the proposal. It does not authorize code changes, extraction or deployment. To change the strategy or objective, create another proposal. To change boundaries or evidence, capture a new architecture version and generate a new proposal.</p>
+<p>The latest captured version for the application defines current planning context. Older proposals show <strong>SUPERSEDED</strong> and cannot receive new reviews. They remain readable and exportable. The exported proposal is frozen; current context and review history are separate from it.</p>
+<h2 id="graph-and-recovery">Graph and recovery</h2>
+<p><strong>Graph</strong> shows a separate persistent planning graph linking assessments, decisions, findings, fact/evidence references, prerequisites, blockers and waves. It preserves the Phase 4 evidence graph. Select a node or click a relationship to explore a bounded neighborhood.</p>
+<p>If Neo4j is unavailable, the saved proposal, explanations, reviews and exports remain available from PostgreSQL. Restore Neo4j and click <strong>Rebuild planning graph</strong>. The displayed projection status is the last attempt; opening the graph checks current content. Planning projections are retried manually in this release.</p>
+<h2 id="permissions-and-limits">Permissions and limits</h2>
+<ul>
+<li>Reading plans requires <code>ANALYSIS_READ</code>; creation and review require <code>ANALYSIS_WRITE</code>.</li>
+<li>Versions containing runtime evidence additionally require <code>RUNTIME_READ</code>, including explanations and exports.</li>
+<li>No model is invoked by this workflow. The existing AI gateway and user policy remain unchanged.</li>
+<li>Planning supports up to 500 domains and 30,000 dependency facts per captured version, with bounded graph display.</li>
+<li>Missing source/build linkage, behavioral contracts, data ownership and human change approval remain explicit prerequisites. No <strong>EXTRACT_NOW</strong> decision is published by Phase 5.</li>
+</ul>
+<h2 id="suggested-verification">Suggested verification</h2>
+<p>Create a static-only plan: runtime readiness should be <strong>Unavailable</strong>, and observation gaps should be visible. Inspect an explanation and open its fact provenance. Approve the planning proposal, then capture a successor version: the old proposal should become historical and reject further reviews. Confirm the original static report and evidence export remain unchanged.</p>
+<p><img alt="Readiness and confidence workspace" src="screenshots/phase5-modernization.png" /></p></body></html>

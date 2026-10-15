@@ -1,0 +1,55 @@
+{
+  "tables": {
+    "projects": {
+      "rows": 7,
+      "unchanged": true
+    },
+    "applications": {
+      "rows": 7,
+      "unchanged": true
+    },
+    "artifacts": {
+      "rows": 8,
+      "unchanged": true
+    },
+    "analysis_runs": {
+      "rows": 8,
+      "unchanged": true
+    },
+    "runtime_sessions": {
+      "rows": 3,
+      "unchanged": true
+    },
+    "runtime_events": {
+      "rows": 0,
+      "unchanged": true
+    },
+    "security_principals": {
+      "rows": 1,
+      "unchanged": true
+    },
+    "security_policy_revisions": {
+      "rows": 1,
+      "unchanged": true
+    },
+    "ai_providers": {
+      "rows": 0,
+      "unchanged": true
+    }
+  },
+  "migration_before": "0004",
+  "migration_after": "0005",
+  "graph_connection": "authenticated",
+  "ready": {
+    "status": "ready",
+    "dependencies": {
+      "database": "ok",
+      "scanner": "ok"
+    },
+    "database": "PostgreSQL",
+    "graph": "Isolated Neo4j per analysis",
+    "assistant": "Local evidence explanations",
+    "max_upload_mb": 100,
+    "prototype": true
+  }
+}

@@ -1,0 +1,1 @@
+package com.northstar.shared; @org.springframework.stereotype.Repository public class LedgerRepository { public LedgerEntity find() { return new LedgerEntity(); } }

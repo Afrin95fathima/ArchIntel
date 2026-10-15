@@ -1,0 +1,1045 @@
+{
+  "verified_at": "2026-10-05T03:33:57.081931+00:00",
+  "source": "Retained real Phase 3 PetClinic OTel capture, not a new Phase 5 workload",
+  "source_spans": 190,
+  "source_traces": 83,
+  "isolation": "Temporary PostgreSQL schema and test-owned Neo4j scopes",
+  "static_unchanged": true,
+  "canonical_version_unchanged": true,
+  "restart_export_unchanged": true,
+  "restart_review_preserved": true,
+  "restart_graph_unchanged": true,
+  "validation": {
+    "status": "VALIDATED",
+    "validator_version": "proposal-validator-1",
+    "errors": [],
+    "scope": "Reference integrity, arithmetic, dependency order and publication safety. Not behavioral equivalence or empirical calibration."
+  },
+  "assessments": [
+    {
+      "domain_id": "domain-23465d579fbf785f",
+      "domain_name": "Named",
+      "structural_score": 37.0,
+      "structural_components": {
+        "cohesion": 0.0,
+        "decoupling": 0.0,
+        "cycles": 100.0,
+        "database": 60.0
+      },
+      "structural_weights": {
+        "cohesion": 0.25,
+        "decoupling": 0.3,
+        "cycles": 0.25,
+        "database": 0.2
+      },
+      "structural_source": "PRESERVED_BASELINE",
+      "runtime_score": null,
+      "runtime_components": {
+        "cohesion": null,
+        "cycles": 100,
+        "persistence": 50
+      },
+      "runtime_weights": {
+        "cohesion": 0.6,
+        "cycles": 0.25,
+        "persistence": 0.15
+      },
+      "combined_score": 37.0,
+      "readiness_formula": "combined = 0.6 * structural + 0.4 * runtime; unavailable runtime retains structural. Coverage never multiplies readiness.",
+      "confidence_score": 25.0,
+      "confidence_components": {
+        "static_support": 100,
+        "runtime_observation": 0.0,
+        "mapping_quality": 0,
+        "boundary_review": 0,
+        "behavioral_validation": 0,
+        "data_ownership": 0
+      },
+      "confidence_weights": {
+        "static_support": 0.25,
+        "runtime_observation": 0.25,
+        "mapping_quality": 0.15,
+        "boundary_review": 0.15,
+        "behavioral_validation": 0.1,
+        "data_ownership": 0.1
+      },
+      "confidence_label": "LIMITED",
+      "confidence_note": "Heuristic evidence index, not a calibrated probability. Behavioral validation and data ownership remain unknown.",
+      "observation": {
+        "id": "domain-23465d579fbf785f",
+        "name": "Named",
+        "observed": 0,
+        "total": 1,
+        "state": "UNOBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.model.NamedEntity"
+        ]
+      },
+      "evidence_ids": [
+        "0fdd0c97-6f93-531d-8799-d394b95763c7",
+        "0feae90b-6cf7-5a4a-982f-9eae9a1ad463",
+        "55068a2d-faff-55d7-b131-6acc1d38358e",
+        "6e323ffd-edca-5309-8b3a-cc2888f4a93b",
+        "707e9297-ba85-5456-974d-33e1df02a075",
+        "80e02b22-2d2d-5b4e-9c44-3807ac702b59",
+        "98e25b81-5e6b-554c-8c3b-12a2cb94954a",
+        "c22548e5-09c7-5ef9-984d-0918984e3740",
+        "c2e73283-fa58-588b-983a-270764b74fca",
+        "deefd69e-bb53-5609-9842-6ba239274fe5",
+        "ec9bb605-486e-5c59-a8f0-cc7f343cead4"
+      ],
+      "fact_ids": [
+        "2d7d08c8-9690-5fcf-979a-092383b66dce",
+        "546cf563-b700-5a3e-a620-36cf16a5a637",
+        "b3be96b1-3b1b-5060-8706-d71592790c03",
+        "ddda89a8-59f8-55b2-b951-ce29c8a192fd",
+        "fb0324e6-9ce0-5988-af50-e6d91ee819ec"
+      ],
+      "blockers": [
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "BEHAVIORAL_CONTRACTS",
+        "DATA_OWNERSHIP_REVIEW",
+        "HUMAN_CHANGE_APPROVAL",
+        "RUNTIME_OBSERVATION_GAP",
+        "DOMAIN_REVIEW_REQUIRED",
+        "RUNTIME_QUALITY_REVIEW",
+        "CROSS_DOMAIN_CYCLE"
+      ],
+      "difficulty": "HIGH",
+      "expected_impact": "Proposed reduction in boundary risk; no measured improvement until a validated before/after change."
+    },
+    {
+      "domain_id": "domain-47d9028fd2e3797a",
+      "domain_name": "PetClinicApplication",
+      "structural_score": 81.0,
+      "structural_components": {
+        "cohesion": 80.0,
+        "decoupling": 80.0,
+        "cycles": 100.0,
+        "database": 60.0
+      },
+      "structural_weights": {
+        "cohesion": 0.25,
+        "decoupling": 0.3,
+        "cycles": 0.25,
+        "database": 0.2
+      },
+      "structural_source": "PRESERVED_BASELINE",
+      "runtime_score": null,
+      "runtime_components": {
+        "cohesion": null,
+        "cycles": 100,
+        "persistence": 50
+      },
+      "runtime_weights": {
+        "cohesion": 0.6,
+        "cycles": 0.25,
+        "persistence": 0.15
+      },
+      "combined_score": 81.0,
+      "readiness_formula": "combined = 0.6 * structural + 0.4 * runtime; unavailable runtime retains structural. Coverage never multiplies readiness.",
+      "confidence_score": 25.0,
+      "confidence_components": {
+        "static_support": 100,
+        "runtime_observation": 0.0,
+        "mapping_quality": 0,
+        "boundary_review": 0,
+        "behavioral_validation": 0,
+        "data_ownership": 0
+      },
+      "confidence_weights": {
+        "static_support": 0.25,
+        "runtime_observation": 0.25,
+        "mapping_quality": 0.15,
+        "boundary_review": 0.15,
+        "behavioral_validation": 0.1,
+        "data_ownership": 0.1
+      },
+      "confidence_label": "LIMITED",
+      "confidence_note": "Heuristic evidence index, not a calibrated probability. Behavioral validation and data ownership remain unknown.",
+      "observation": {
+        "id": "domain-47d9028fd2e3797a",
+        "name": "PetClinicApplication",
+        "observed": 0,
+        "total": 4,
+        "state": "UNOBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.PetClinicApplication",
+          "org.springframework.samples.petclinic.PetClinicRuntimeHints",
+          "org.springframework.samples.petclinic.model.BaseEntity",
+          "org.springframework.samples.petclinic.model.Person"
+        ]
+      },
+      "evidence_ids": [
+        "0574cb36-a7d2-5c26-99eb-3ec2a1e96b51",
+        "08ec6949-e430-5f72-8b70-958be70215a6",
+        "14afe5c7-ac4b-53ad-82ab-4aab5981defa",
+        "17b4e47c-a8e7-5a7d-ad25-2efa96ca2c14",
+        "2298b088-f93b-5c5b-8a4f-541aa5910d1b",
+        "334eaae5-ef75-5e19-a2a1-82b57ba8e797",
+        "39f5a309-8830-5535-8cad-505e6d6e96e8",
+        "55d719c1-4bc7-5685-bf37-12a2554be8d9",
+        "6792a8e9-dc7a-512c-8498-74d60b1adcf5",
+        "69cc0b9a-564c-597e-9976-88336c518905",
+        "707e9297-ba85-5456-974d-33e1df02a075",
+        "728c6588-68ef-5f25-87d9-4250992306d2",
+        "743a7b78-afc0-51b7-a9c9-5e9ef1f687de",
+        "7ec29058-2c41-596b-ab32-d67c85cf1310",
+        "95594855-9f0f-5efb-b1e0-9baf0b95d1cc",
+        "972ce4b4-fb44-5fc1-b2a1-6f936d2ba9ff",
+        "b5367b38-374a-591d-81fe-23eba002bb70",
+        "bb3cd27f-dc00-57c4-bcb3-7190f071477f",
+        "deefd69e-bb53-5609-9842-6ba239274fe5"
+      ],
+      "fact_ids": [
+        "02ae55b9-c338-5fcd-a6c0-f1ab22e26558",
+        "0745caf7-a002-50b8-b00d-91fa8744c137",
+        "11294878-25a1-510b-ae75-c1c387afdfb0",
+        "2d7d08c8-9690-5fcf-979a-092383b66dce",
+        "383b4f8b-9d6d-5f4d-b890-ab8596e0953a",
+        "3a9ac9c6-46f2-5005-93f4-0bbc34b78bdc",
+        "5e5b47fb-78ac-5b21-aeb6-63d28243b057",
+        "675ad0c7-105f-545c-9ba8-349b17a2f251",
+        "d478d7c9-969f-5da9-9eae-da2087396a5e"
+      ],
+      "blockers": [
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "BEHAVIORAL_CONTRACTS",
+        "DATA_OWNERSHIP_REVIEW",
+        "HUMAN_CHANGE_APPROVAL",
+        "RUNTIME_OBSERVATION_GAP",
+        "DOMAIN_REVIEW_REQUIRED",
+        "RUNTIME_QUALITY_REVIEW",
+        "CROSS_DOMAIN_CYCLE"
+      ],
+      "difficulty": "HIGH",
+      "expected_impact": "Proposed reduction in boundary risk; no measured improvement until a validated before/after change."
+    },
+    {
+      "domain_id": "domain-69e89d53232c7967",
+      "domain_name": "Vet",
+      "structural_score": 73.7,
+      "structural_components": {
+        "cohesion": 66.67,
+        "decoupling": 66.67,
+        "cycles": 100.0,
+        "database": 60.0
+      },
+      "structural_weights": {
+        "cohesion": 0.25,
+        "decoupling": 0.3,
+        "cycles": 0.25,
+        "database": 0.2
+      },
+      "structural_source": "PRESERVED_BASELINE",
+      "runtime_score": 92.5,
+      "runtime_components": {
+        "cohesion": 100.0,
+        "cycles": 100,
+        "persistence": 50
+      },
+      "runtime_weights": {
+        "cohesion": 0.6,
+        "cycles": 0.25,
+        "persistence": 0.15
+      },
+      "combined_score": 81.2,
+      "readiness_formula": "combined = 0.6 * structural + 0.4 * runtime; unavailable runtime retains structural. Coverage never multiplies readiness.",
+      "confidence_score": 35.0,
+      "confidence_components": {
+        "static_support": 100,
+        "runtime_observation": 40.0,
+        "mapping_quality": 0,
+        "boundary_review": 0,
+        "behavioral_validation": 0,
+        "data_ownership": 0
+      },
+      "confidence_weights": {
+        "static_support": 0.25,
+        "runtime_observation": 0.25,
+        "mapping_quality": 0.15,
+        "boundary_review": 0.15,
+        "behavioral_validation": 0.1,
+        "data_ownership": 0.1
+      },
+      "confidence_label": "LIMITED",
+      "confidence_note": "Heuristic evidence index, not a calibrated probability. Behavioral validation and data ownership remain unknown.",
+      "observation": {
+        "id": "domain-69e89d53232c7967",
+        "name": "Vet",
+        "observed": 2,
+        "total": 5,
+        "state": "PARTIALLY_OBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.vet.Specialty",
+          "org.springframework.samples.petclinic.vet.Vet",
+          "org.springframework.samples.petclinic.vet.Vets"
+        ]
+      },
+      "evidence_ids": [
+        "08989f68-238d-57f3-b5d1-e9e4e3d0a107",
+        "0fdd0c97-6f93-531d-8799-d394b95763c7",
+        "1085262c-5323-5679-bcee-d43a1c782d69",
+        "14afe5c7-ac4b-53ad-82ab-4aab5981defa",
+        "327aba6f-408c-56ce-894a-fa9152e23474",
+        "36de92b5-48bb-5d7a-9120-03e95aa29a04",
+        "541b8a2f-a993-527a-baf2-658b1d9de96d",
+        "5b0a8069-0b59-5a33-ab5d-e20262263869",
+        "651fbc6a-23e5-53d1-8d6c-ac91066f01f1",
+        "69cc0b9a-564c-597e-9976-88336c518905",
+        "83799f02-f4ee-572a-a011-d9aefe998a95",
+        "8e826752-9f4a-5bae-ad51-7fde95e59be7",
+        "972ce4b4-fb44-5fc1-b2a1-6f936d2ba9ff",
+        "b736a69d-d3ae-541c-a78a-80b8a7f23139",
+        "b7b61e7a-e5ce-5f6e-bfe6-509c827bd956",
+        "ba8b6780-cddd-511f-b42d-08433593d889",
+        "bb839ce5-dd51-5ffc-bc1b-36961ec3d1fe",
+        "c0a454da-3181-54e1-abda-4f57db50891e",
+        "c22548e5-09c7-5ef9-984d-0918984e3740",
+        "c2e73283-fa58-588b-983a-270764b74fca",
+        "ddb724e9-b6a8-5503-b2b8-adf028cb65e0",
+        "f93962eb-f741-5198-af22-07327a3bbc6a"
+      ],
+      "fact_ids": [
+        "02ae55b9-c338-5fcd-a6c0-f1ab22e26558",
+        "034f00b5-63f7-59cd-aa85-4ccc99812af5",
+        "1287e486-b52a-5b11-9260-17bc04f203fd",
+        "387fe328-5955-54ae-a2e9-e9439a325f39",
+        "3a9ac9c6-46f2-5005-93f4-0bbc34b78bdc",
+        "546cf563-b700-5a3e-a620-36cf16a5a637",
+        "606888d4-f772-5bae-8f86-9499ece64cf8",
+        "a48765e2-0011-5849-9916-99d80aba3e06",
+        "bad379ef-ace6-5fca-8ae6-29945906f16e",
+        "c7cafd75-8700-5795-b878-9bb5119ca100",
+        "ddda89a8-59f8-55b2-b951-ce29c8a192fd",
+        "e67d0b89-b60b-5cbb-b044-50b821f10757"
+      ],
+      "blockers": [
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "BEHAVIORAL_CONTRACTS",
+        "DATA_OWNERSHIP_REVIEW",
+        "HUMAN_CHANGE_APPROVAL",
+        "RUNTIME_OBSERVATION_GAP",
+        "DOMAIN_REVIEW_REQUIRED",
+        "UNRESOLVED_MAPPING",
+        "RUNTIME_QUALITY_REVIEW",
+        "CROSS_DOMAIN_CYCLE"
+      ],
+      "difficulty": "HIGH",
+      "expected_impact": "Proposed reduction in boundary risk; no measured improvement until a validated before/after change."
+    },
+    {
+      "domain_id": "domain-c27a2633842a7968",
+      "domain_name": "Owner",
+      "structural_score": 83.2,
+      "structural_components": {
+        "cohesion": 84.0,
+        "decoupling": 84.0,
+        "cycles": 100.0,
+        "database": 60.0
+      },
+      "structural_weights": {
+        "cohesion": 0.25,
+        "decoupling": 0.3,
+        "cycles": 0.25,
+        "database": 0.2
+      },
+      "structural_source": "PRESERVED_BASELINE",
+      "runtime_score": 92.5,
+      "runtime_components": {
+        "cohesion": 100.0,
+        "cycles": 100,
+        "persistence": 50
+      },
+      "runtime_weights": {
+        "cohesion": 0.6,
+        "cycles": 0.25,
+        "persistence": 0.15
+      },
+      "combined_score": 86.9,
+      "readiness_formula": "combined = 0.6 * structural + 0.4 * runtime; unavailable runtime retains structural. Coverage never multiplies readiness.",
+      "confidence_score": 38.6,
+      "confidence_components": {
+        "static_support": 100,
+        "runtime_observation": 54.55,
+        "mapping_quality": 0,
+        "boundary_review": 0,
+        "behavioral_validation": 0,
+        "data_ownership": 0
+      },
+      "confidence_weights": {
+        "static_support": 0.25,
+        "runtime_observation": 0.25,
+        "mapping_quality": 0.15,
+        "boundary_review": 0.15,
+        "behavioral_validation": 0.1,
+        "data_ownership": 0.1
+      },
+      "confidence_label": "LIMITED",
+      "confidence_note": "Heuristic evidence index, not a calibrated probability. Behavioral validation and data ownership remain unknown.",
+      "observation": {
+        "id": "domain-c27a2633842a7968",
+        "name": "Owner",
+        "observed": 6,
+        "total": 11,
+        "state": "PARTIALLY_OBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.owner.Owner",
+          "org.springframework.samples.petclinic.owner.Pet",
+          "org.springframework.samples.petclinic.owner.PetType",
+          "org.springframework.samples.petclinic.owner.PetValidator",
+          "org.springframework.samples.petclinic.owner.Visit"
+        ]
+      },
+      "evidence_ids": [
+        "03f8ba7a-37c2-5a4c-bcab-44bb2a89f744",
+        "09ed66b4-0676-54bc-ac8a-7f3df8048d1a",
+        "0d1e284f-abee-5f1b-9cc8-28a164dcb203",
+        "0feae90b-6cf7-5a4a-982f-9eae9a1ad463",
+        "1121ddf8-5dd2-50b2-89b6-fb14cf3f92de",
+        "12cb5592-f547-5738-a627-5976dd4843d8",
+        "16f23f29-2bc6-5bcd-bdd1-ed4c96df39a0",
+        "1790eca3-5349-56f7-abbe-7e2cea2ec59e",
+        "1b636b8b-653f-5fa4-a683-b95f6d579164",
+        "23480dd5-5750-5662-b316-1abfcca69086",
+        "27a269ca-143a-5521-a2ed-18cf19f008c1",
+        "304f9158-2486-5d06-adaa-988ab93d08f4",
+        "31bc799a-c0a6-56bc-8a12-ffdda2257984",
+        "39373697-6498-5375-adf4-6af34086b160",
+        "39f5a309-8830-5535-8cad-505e6d6e96e8",
+        "3c1b132f-c749-5ab1-8cf2-b6ffa7e76787",
+        "3c36a40a-ac29-5c27-8160-3a2aac7d71cd",
+        "3f346499-9a33-50c5-8faa-b8ea189dfdb7",
+        "4381ccae-0d7c-5f4c-8b0b-1e81dbbfe6fe",
+        "4fb51c87-cc7e-5084-9266-e19a961290ec",
+        "50431f0d-5e73-5014-9fb5-3f4e406d0433",
+        "55d719c1-4bc7-5685-bf37-12a2554be8d9",
+        "5a60a3a1-1e2f-5568-914a-c2c322cf22ff",
+        "5c8e71f2-2121-5727-946a-39c1140e0958",
+        "5daf9a0f-a7bb-58bb-af71-f07adca0c556",
+        "61ae49bb-6e81-5265-a503-b2fde850189b",
+        "67039e93-70be-576c-9315-0bcbcffbc8bf",
+        "6b215379-54d0-5ad1-a6f2-0877d3546255",
+        "6cda0553-dbc6-5db5-8f59-17138dbef9e0",
+        "6e323ffd-edca-5309-8b3a-cc2888f4a93b",
+        "6ea1a750-ab3c-5b1b-94c9-986ce6aacc9b",
+        "728c6588-68ef-5f25-87d9-4250992306d2",
+        "80e02b22-2d2d-5b4e-9c44-3807ac702b59",
+        "823c9db0-2753-5c3d-bbcd-f1a19c84849f",
+        "84717261-40dc-5b02-bfbc-6252c98ec796",
+        "84ced5c0-d862-5c46-b2f9-d80845e3ebb1",
+        "8f7e9116-4a27-5799-96cf-ce744a40c5a6",
+        "915ba69c-5b7e-5c19-9dd6-b95e71234d41",
+        "95594855-9f0f-5efb-b1e0-9baf0b95d1cc",
+        "99cc432e-44e1-5184-bb2b-731f70dd5577",
+        "9dcf3173-5037-55c9-bb4d-596d1f9d2ed7",
+        "a06a0e17-0f2b-5eca-b1ec-43da11fa5e26",
+        "a76af397-559b-5b57-95a3-7fbb93f5d122",
+        "b4814edf-3eae-5678-853c-6fff8533b49b",
+        "be21755b-566b-5683-9822-31ecae4fc09d",
+        "bffc4e8d-ee69-5a6e-bc65-ce2ffbb25a90",
+        "c0d1ad03-3d2d-5a7a-b8cb-988e4ae8fb9b",
+        "c1e7a9be-96e2-5e0f-94d4-689d75bf048a",
+        "c1fcd5bc-a160-5c7d-b590-1f0fd7020530",
+        "c56d1a64-f7b8-59da-b84d-e4278c487afc",
+        "c8aec416-22e6-51c4-a56a-0c659d9259c6",
+        "c93acd3c-b798-56f7-b159-ce8bf137eff5",
+        "cd104c0c-aa11-5b50-b3d1-f1ec372ef50b",
+        "ce7b47e9-f777-5251-bc8c-2f3e944441cd",
+        "cfb993fe-4ab3-5064-ad3c-b517bef59f31",
+        "d276e0e6-4c90-5aae-9c50-d3d726783338",
+        "d460e678-2d81-58e0-bf76-3675c94e4d83",
+        "d585bb2c-d874-5404-8c7c-078ffbc9abe4",
+        "dc46f626-ad8c-58b2-a07d-f6f275b01d12",
+        "eaccd646-0981-5d39-bb1a-4ead56f9e74a",
+        "ec9bb605-486e-5c59-a8f0-cc7f343cead4",
+        "f292cb27-ecc5-5a9c-8629-4cf2c5bcb9f2",
+        "f4ff342d-bf27-5451-9b3e-5b84ca758303"
+      ],
+      "fact_ids": [
+        "0ad378d8-04be-5879-a47c-cdb9f3aa3a63",
+        "0cc2075c-ebd1-5c0a-8feb-aa12e21171a1",
+        "13e4987a-5798-56bf-8ebd-d466432391eb",
+        "18c53d74-d02f-5962-82db-6f9e208d342f",
+        "270bc073-4193-5a44-8d71-5c70d5a14e5f",
+        "383b4f8b-9d6d-5f4d-b890-ab8596e0953a",
+        "3d4b8f6b-7e88-53d8-b1bb-f5d4a7ec5a66",
+        "41214241-f797-5ec8-a05a-43b29e86ecac",
+        "49da6806-bb06-5fe1-a2d6-aadbed2a1717",
+        "4fe6fb28-04d6-560b-bd15-55323ca8f661",
+        "502ae0c2-d19b-51a7-9d0a-6c6a86327997",
+        "575f315d-68a4-54fc-bae7-ac5ff2b297ba",
+        "5b1df57b-26dc-57a1-9d92-cc9f62df1187",
+        "675ad0c7-105f-545c-9ba8-349b17a2f251",
+        "7242d4b8-aadf-559f-9ee6-a60fd504eadb",
+        "739e72f3-bd89-5dcc-be8c-88a437253ea1",
+        "85086f7f-d0ff-58e7-a1b9-f2a3b1c95bc8",
+        "9082cd81-6e0c-51e7-b08a-bdf5763f7513",
+        "9934f6db-c370-5c62-8cc7-d71cd78b56cc",
+        "a0d6fc3b-45a3-5c36-a7c2-250c116f0656",
+        "a725ecd5-c875-5159-8225-7c7748e17570",
+        "a9f08ca2-cbdf-532d-8edb-402bd7b12fc1",
+        "aa1d0b72-de17-588e-9ac4-27a4293a1448",
+        "ab31cc44-c3b5-55fc-95aa-ae1189a83c32",
+        "b1740493-3783-586f-9112-0e0d6f46ad86",
+        "b3384773-767e-5cb9-a436-3c8d6851b1bf",
+        "b3be96b1-3b1b-5060-8706-d71592790c03",
+        "b62fdc6d-677d-510d-9d43-5c5bc93f1764",
+        "c7e15ca6-172a-594c-b1e4-ad03b6525529",
+        "cd0d1b2e-3fa3-580d-a3b0-85f001db9998",
+        "eb8b5a04-d537-5692-9a5f-8417c65c5ede",
+        "f63180be-ab78-5497-81b0-69dc5a1f7bf3",
+        "fb0324e6-9ce0-5988-af50-e6d91ee819ec"
+      ],
+      "blockers": [
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "BEHAVIORAL_CONTRACTS",
+        "DATA_OWNERSHIP_REVIEW",
+        "HUMAN_CHANGE_APPROVAL",
+        "RUNTIME_OBSERVATION_GAP",
+        "DOMAIN_REVIEW_REQUIRED",
+        "UNRESOLVED_MAPPING",
+        "RUNTIME_QUALITY_REVIEW"
+      ],
+      "difficulty": "MEDIUM",
+      "expected_impact": "Proposed reduction in boundary risk; no measured improvement until a validated before/after change."
+    },
+    {
+      "domain_id": "domain-c8fb47353d19fc72",
+      "domain_name": "System",
+      "structural_score": 77.5,
+      "structural_components": {
+        "cohesion": 50.0,
+        "decoupling": 100.0,
+        "cycles": 100.0,
+        "database": 50.0
+      },
+      "structural_weights": {
+        "cohesion": 0.25,
+        "decoupling": 0.3,
+        "cycles": 0.25,
+        "database": 0.2
+      },
+      "structural_source": "PRESERVED_BASELINE",
+      "runtime_score": null,
+      "runtime_components": {
+        "cohesion": null,
+        "cycles": 100,
+        "persistence": 50
+      },
+      "runtime_weights": {
+        "cohesion": 0.6,
+        "cycles": 0.25,
+        "persistence": 0.15
+      },
+      "combined_score": 77.5,
+      "readiness_formula": "combined = 0.6 * structural + 0.4 * runtime; unavailable runtime retains structural. Coverage never multiplies readiness.",
+      "confidence_score": 43.8,
+      "confidence_components": {
+        "static_support": 100,
+        "runtime_observation": 75.0,
+        "mapping_quality": 0,
+        "boundary_review": 0,
+        "behavioral_validation": 0,
+        "data_ownership": 0
+      },
+      "confidence_weights": {
+        "static_support": 0.25,
+        "runtime_observation": 0.25,
+        "mapping_quality": 0.15,
+        "boundary_review": 0.15,
+        "behavioral_validation": 0.1,
+        "data_ownership": 0.1
+      },
+      "confidence_label": "LIMITED",
+      "confidence_note": "Heuristic evidence index, not a calibrated probability. Behavioral validation and data ownership remain unknown.",
+      "observation": {
+        "id": "domain-c8fb47353d19fc72",
+        "name": "System",
+        "observed": 3,
+        "total": 4,
+        "state": "PARTIALLY_OBSERVED",
+        "unobserved_classes": [
+          "org.springframework.samples.petclinic.system.CrashController"
+        ]
+      },
+      "evidence_ids": [
+        "26fcbd58-1bcb-5bec-821a-37badaedf4bd",
+        "54717d64-9c22-5bcc-82e3-417a836a6cfc",
+        "8bfcacaf-afaf-5eaf-86b2-d6e9c92e7f97",
+        "99cf6658-7805-57f5-bba9-8427bc2acacf",
+        "bb5d0b2e-28e1-58b1-b7f0-86ab255eddbe",
+        "ca1211be-7ce7-501b-94cb-6cde695cfa6a"
+      ],
+      "fact_ids": [
+        "fdc6d160-0b79-5254-aa1e-a53f66829c90"
+      ],
+      "blockers": [
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "BEHAVIORAL_CONTRACTS",
+        "DATA_OWNERSHIP_REVIEW",
+        "HUMAN_CHANGE_APPROVAL",
+        "RUNTIME_OBSERVATION_GAP",
+        "DOMAIN_REVIEW_REQUIRED",
+        "UNRESOLVED_MAPPING",
+        "RUNTIME_QUALITY_REVIEW"
+      ],
+      "difficulty": "MEDIUM",
+      "expected_impact": "Proposed reduction in boundary risk; no measured improvement until a validated before/after change."
+    }
+  ],
+  "decisions": [
+    {
+      "id": "b810966d-5163-5945-aee4-48f2c7317508",
+      "domain_id": "domain-23465d579fbf785f",
+      "kind": "BREAK_CYCLE_FIRST",
+      "finding_ids": [
+        "03b245fe-1696-53b6-9c55-7ea2c4ec9089",
+        "12c32ac0-77b2-59bd-acc1-3db2be2a08e1",
+        "cb6a3ffd-3ee2-57f8-a279-94893b8669f8",
+        "bb4ce256-0e80-52a0-97f8-d89be34ce7c0",
+        "c8f2052e-e10d-5457-8325-24569167dc6f",
+        "aebd0d8e-1cc8-566e-b827-2caebe314a52"
+      ],
+      "evidence_ids": [
+        "0fdd0c97-6f93-531d-8799-d394b95763c7",
+        "0feae90b-6cf7-5a4a-982f-9eae9a1ad463",
+        "55068a2d-faff-55d7-b131-6acc1d38358e",
+        "6e323ffd-edca-5309-8b3a-cc2888f4a93b",
+        "707e9297-ba85-5456-974d-33e1df02a075",
+        "80e02b22-2d2d-5b4e-9c44-3807ac702b59",
+        "98e25b81-5e6b-554c-8c3b-12a2cb94954a",
+        "c22548e5-09c7-5ef9-984d-0918984e3740",
+        "c2e73283-fa58-588b-983a-270764b74fca",
+        "deefd69e-bb53-5609-9842-6ba239274fe5",
+        "ec9bb605-486e-5c59-a8f0-cc7f343cead4"
+      ],
+      "fact_ids": [
+        "2d7d08c8-9690-5fcf-979a-092383b66dce",
+        "546cf563-b700-5a3e-a620-36cf16a5a637",
+        "b3be96b1-3b1b-5060-8706-d71592790c03",
+        "ddda89a8-59f8-55b2-b951-ce29c8a192fd",
+        "fb0324e6-9ce0-5988-af50-e6d91ee819ec"
+      ],
+      "action": "Review and break the evidenced cyclic boundary before separating its members.",
+      "blockers": [
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "BEHAVIORAL_CONTRACTS",
+        "DATA_OWNERSHIP_REVIEW",
+        "HUMAN_CHANGE_APPROVAL",
+        "RUNTIME_OBSERVATION_GAP",
+        "DOMAIN_REVIEW_REQUIRED",
+        "RUNTIME_QUALITY_REVIEW",
+        "CROSS_DOMAIN_CYCLE"
+      ],
+      "prerequisites": [
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "BEHAVIORAL_CONTRACTS",
+        "DATA_OWNERSHIP_REVIEW",
+        "HUMAN_CHANGE_APPROVAL"
+      ],
+      "status": "PROPOSAL",
+      "execution_allowed": false
+    },
+    {
+      "id": "7b31fcca-5821-508d-803f-2b2c84fa930e",
+      "domain_id": "domain-47d9028fd2e3797a",
+      "kind": "BREAK_CYCLE_FIRST",
+      "finding_ids": [
+        "551fe24a-8a60-5c84-9756-f8b624870329",
+        "6a45a468-55d4-5f58-b5fe-568b332c5151",
+        "0a9e67a7-cdb9-5dc6-a371-5f4b68c29049",
+        "d32273d6-22d3-570a-9c45-66814f3df1f4",
+        "e9f09745-a462-5850-8bc6-1613236d95e8"
+      ],
+      "evidence_ids": [
+        "0574cb36-a7d2-5c26-99eb-3ec2a1e96b51",
+        "08ec6949-e430-5f72-8b70-958be70215a6",
+        "14afe5c7-ac4b-53ad-82ab-4aab5981defa",
+        "17b4e47c-a8e7-5a7d-ad25-2efa96ca2c14",
+        "2298b088-f93b-5c5b-8a4f-541aa5910d1b",
+        "334eaae5-ef75-5e19-a2a1-82b57ba8e797",
+        "39f5a309-8830-5535-8cad-505e6d6e96e8",
+        "55d719c1-4bc7-5685-bf37-12a2554be8d9",
+        "6792a8e9-dc7a-512c-8498-74d60b1adcf5",
+        "69cc0b9a-564c-597e-9976-88336c518905",
+        "707e9297-ba85-5456-974d-33e1df02a075",
+        "728c6588-68ef-5f25-87d9-4250992306d2",
+        "743a7b78-afc0-51b7-a9c9-5e9ef1f687de",
+        "7ec29058-2c41-596b-ab32-d67c85cf1310",
+        "95594855-9f0f-5efb-b1e0-9baf0b95d1cc",
+        "972ce4b4-fb44-5fc1-b2a1-6f936d2ba9ff",
+        "b5367b38-374a-591d-81fe-23eba002bb70",
+        "bb3cd27f-dc00-57c4-bcb3-7190f071477f",
+        "deefd69e-bb53-5609-9842-6ba239274fe5"
+      ],
+      "fact_ids": [
+        "02ae55b9-c338-5fcd-a6c0-f1ab22e26558",
+        "0745caf7-a002-50b8-b00d-91fa8744c137",
+        "11294878-25a1-510b-ae75-c1c387afdfb0",
+        "2d7d08c8-9690-5fcf-979a-092383b66dce",
+        "383b4f8b-9d6d-5f4d-b890-ab8596e0953a",
+        "3a9ac9c6-46f2-5005-93f4-0bbc34b78bdc",
+        "5e5b47fb-78ac-5b21-aeb6-63d28243b057",
+        "675ad0c7-105f-545c-9ba8-349b17a2f251",
+        "d478d7c9-969f-5da9-9eae-da2087396a5e"
+      ],
+      "action": "Review and break the evidenced cyclic boundary before separating its members.",
+      "blockers": [
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "BEHAVIORAL_CONTRACTS",
+        "DATA_OWNERSHIP_REVIEW",
+        "HUMAN_CHANGE_APPROVAL",
+        "RUNTIME_OBSERVATION_GAP",
+        "DOMAIN_REVIEW_REQUIRED",
+        "RUNTIME_QUALITY_REVIEW",
+        "CROSS_DOMAIN_CYCLE"
+      ],
+      "prerequisites": [
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "BEHAVIORAL_CONTRACTS",
+        "DATA_OWNERSHIP_REVIEW",
+        "HUMAN_CHANGE_APPROVAL"
+      ],
+      "status": "PROPOSAL",
+      "execution_allowed": false
+    },
+    {
+      "id": "57c0da45-78e8-529a-8c89-8bb08977bade",
+      "domain_id": "domain-69e89d53232c7967",
+      "kind": "BREAK_CYCLE_FIRST",
+      "finding_ids": [
+        "829bc8e5-5e56-5cfe-b5dc-62aa0bbec962",
+        "24386ba6-50aa-565a-9025-6247302c8623",
+        "0381d0e9-e838-5fd1-9e6f-fd0d90c4277a",
+        "6892f9a2-3ce6-54cd-8988-a3a1f4d1a54c",
+        "aa04817e-a97e-53be-95d5-f5470c889f4b",
+        "88c94278-b199-5162-be07-62336596387f"
+      ],
+      "evidence_ids": [
+        "08989f68-238d-57f3-b5d1-e9e4e3d0a107",
+        "0fdd0c97-6f93-531d-8799-d394b95763c7",
+        "1085262c-5323-5679-bcee-d43a1c782d69",
+        "14afe5c7-ac4b-53ad-82ab-4aab5981defa",
+        "327aba6f-408c-56ce-894a-fa9152e23474",
+        "36de92b5-48bb-5d7a-9120-03e95aa29a04",
+        "541b8a2f-a993-527a-baf2-658b1d9de96d",
+        "5b0a8069-0b59-5a33-ab5d-e20262263869",
+        "651fbc6a-23e5-53d1-8d6c-ac91066f01f1",
+        "69cc0b9a-564c-597e-9976-88336c518905",
+        "83799f02-f4ee-572a-a011-d9aefe998a95",
+        "8e826752-9f4a-5bae-ad51-7fde95e59be7",
+        "972ce4b4-fb44-5fc1-b2a1-6f936d2ba9ff",
+        "b736a69d-d3ae-541c-a78a-80b8a7f23139",
+        "b7b61e7a-e5ce-5f6e-bfe6-509c827bd956",
+        "ba8b6780-cddd-511f-b42d-08433593d889",
+        "bb839ce5-dd51-5ffc-bc1b-36961ec3d1fe",
+        "c0a454da-3181-54e1-abda-4f57db50891e",
+        "c22548e5-09c7-5ef9-984d-0918984e3740",
+        "c2e73283-fa58-588b-983a-270764b74fca",
+        "ddb724e9-b6a8-5503-b2b8-adf028cb65e0",
+        "f93962eb-f741-5198-af22-07327a3bbc6a"
+      ],
+      "fact_ids": [
+        "02ae55b9-c338-5fcd-a6c0-f1ab22e26558",
+        "034f00b5-63f7-59cd-aa85-4ccc99812af5",
+        "1287e486-b52a-5b11-9260-17bc04f203fd",
+        "387fe328-5955-54ae-a2e9-e9439a325f39",
+        "3a9ac9c6-46f2-5005-93f4-0bbc34b78bdc",
+        "546cf563-b700-5a3e-a620-36cf16a5a637",
+        "606888d4-f772-5bae-8f86-9499ece64cf8",
+        "a48765e2-0011-5849-9916-99d80aba3e06",
+        "bad379ef-ace6-5fca-8ae6-29945906f16e",
+        "c7cafd75-8700-5795-b878-9bb5119ca100",
+        "ddda89a8-59f8-55b2-b951-ce29c8a192fd",
+        "e67d0b89-b60b-5cbb-b044-50b821f10757"
+      ],
+      "action": "Review and break the evidenced cyclic boundary before separating its members.",
+      "blockers": [
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "BEHAVIORAL_CONTRACTS",
+        "DATA_OWNERSHIP_REVIEW",
+        "HUMAN_CHANGE_APPROVAL",
+        "RUNTIME_OBSERVATION_GAP",
+        "DOMAIN_REVIEW_REQUIRED",
+        "UNRESOLVED_MAPPING",
+        "RUNTIME_QUALITY_REVIEW",
+        "CROSS_DOMAIN_CYCLE"
+      ],
+      "prerequisites": [
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "BEHAVIORAL_CONTRACTS",
+        "DATA_OWNERSHIP_REVIEW",
+        "HUMAN_CHANGE_APPROVAL"
+      ],
+      "status": "PROPOSAL",
+      "execution_allowed": false
+    },
+    {
+      "id": "6bededcd-55ba-57c5-b9fe-1c0ccfe22fda",
+      "domain_id": "domain-c27a2633842a7968",
+      "kind": "COLLECT_MORE_EVIDENCE",
+      "finding_ids": [
+        "aeffb78b-8d34-54ff-b35b-7365e2b3da69",
+        "e0ef157f-4ade-53b4-99cb-7b1345e26db7",
+        "078cbd6e-8ce6-52eb-936c-43998920c1cf",
+        "bae2ed89-5764-54d2-bf3b-6ddfd5e7e458",
+        "27f1e5dc-0231-5bb2-9703-b9e53d6dc091"
+      ],
+      "evidence_ids": [
+        "03f8ba7a-37c2-5a4c-bcab-44bb2a89f744",
+        "09ed66b4-0676-54bc-ac8a-7f3df8048d1a",
+        "0d1e284f-abee-5f1b-9cc8-28a164dcb203",
+        "0feae90b-6cf7-5a4a-982f-9eae9a1ad463",
+        "1121ddf8-5dd2-50b2-89b6-fb14cf3f92de",
+        "12cb5592-f547-5738-a627-5976dd4843d8",
+        "16f23f29-2bc6-5bcd-bdd1-ed4c96df39a0",
+        "1790eca3-5349-56f7-abbe-7e2cea2ec59e",
+        "1b636b8b-653f-5fa4-a683-b95f6d579164",
+        "23480dd5-5750-5662-b316-1abfcca69086",
+        "27a269ca-143a-5521-a2ed-18cf19f008c1",
+        "304f9158-2486-5d06-adaa-988ab93d08f4",
+        "31bc799a-c0a6-56bc-8a12-ffdda2257984",
+        "39373697-6498-5375-adf4-6af34086b160",
+        "39f5a309-8830-5535-8cad-505e6d6e96e8",
+        "3c1b132f-c749-5ab1-8cf2-b6ffa7e76787",
+        "3c36a40a-ac29-5c27-8160-3a2aac7d71cd",
+        "3f346499-9a33-50c5-8faa-b8ea189dfdb7",
+        "4381ccae-0d7c-5f4c-8b0b-1e81dbbfe6fe",
+        "4fb51c87-cc7e-5084-9266-e19a961290ec",
+        "50431f0d-5e73-5014-9fb5-3f4e406d0433",
+        "55d719c1-4bc7-5685-bf37-12a2554be8d9",
+        "5a60a3a1-1e2f-5568-914a-c2c322cf22ff",
+        "5c8e71f2-2121-5727-946a-39c1140e0958",
+        "5daf9a0f-a7bb-58bb-af71-f07adca0c556",
+        "61ae49bb-6e81-5265-a503-b2fde850189b",
+        "67039e93-70be-576c-9315-0bcbcffbc8bf",
+        "6b215379-54d0-5ad1-a6f2-0877d3546255",
+        "6cda0553-dbc6-5db5-8f59-17138dbef9e0",
+        "6e323ffd-edca-5309-8b3a-cc2888f4a93b",
+        "6ea1a750-ab3c-5b1b-94c9-986ce6aacc9b",
+        "728c6588-68ef-5f25-87d9-4250992306d2",
+        "80e02b22-2d2d-5b4e-9c44-3807ac702b59",
+        "823c9db0-2753-5c3d-bbcd-f1a19c84849f",
+        "84717261-40dc-5b02-bfbc-6252c98ec796",
+        "84ced5c0-d862-5c46-b2f9-d80845e3ebb1",
+        "8f7e9116-4a27-5799-96cf-ce744a40c5a6",
+        "915ba69c-5b7e-5c19-9dd6-b95e71234d41",
+        "95594855-9f0f-5efb-b1e0-9baf0b95d1cc",
+        "99cc432e-44e1-5184-bb2b-731f70dd5577",
+        "9dcf3173-5037-55c9-bb4d-596d1f9d2ed7",
+        "a06a0e17-0f2b-5eca-b1ec-43da11fa5e26",
+        "a76af397-559b-5b57-95a3-7fbb93f5d122",
+        "b4814edf-3eae-5678-853c-6fff8533b49b",
+        "be21755b-566b-5683-9822-31ecae4fc09d",
+        "bffc4e8d-ee69-5a6e-bc65-ce2ffbb25a90",
+        "c0d1ad03-3d2d-5a7a-b8cb-988e4ae8fb9b",
+        "c1e7a9be-96e2-5e0f-94d4-689d75bf048a",
+        "c1fcd5bc-a160-5c7d-b590-1f0fd7020530",
+        "c56d1a64-f7b8-59da-b84d-e4278c487afc",
+        "c8aec416-22e6-51c4-a56a-0c659d9259c6",
+        "c93acd3c-b798-56f7-b159-ce8bf137eff5",
+        "cd104c0c-aa11-5b50-b3d1-f1ec372ef50b",
+        "ce7b47e9-f777-5251-bc8c-2f3e944441cd",
+        "cfb993fe-4ab3-5064-ad3c-b517bef59f31",
+        "d276e0e6-4c90-5aae-9c50-d3d726783338",
+        "d460e678-2d81-58e0-bf76-3675c94e4d83",
+        "d585bb2c-d874-5404-8c7c-078ffbc9abe4",
+        "dc46f626-ad8c-58b2-a07d-f6f275b01d12",
+        "eaccd646-0981-5d39-bb1a-4ead56f9e74a",
+        "ec9bb605-486e-5c59-a8f0-cc7f343cead4",
+        "f292cb27-ecc5-5a9c-8629-4cf2c5bcb9f2",
+        "f4ff342d-bf27-5451-9b3e-5b84ca758303"
+      ],
+      "fact_ids": [
+        "0ad378d8-04be-5879-a47c-cdb9f3aa3a63",
+        "0cc2075c-ebd1-5c0a-8feb-aa12e21171a1",
+        "13e4987a-5798-56bf-8ebd-d466432391eb",
+        "18c53d74-d02f-5962-82db-6f9e208d342f",
+        "270bc073-4193-5a44-8d71-5c70d5a14e5f",
+        "383b4f8b-9d6d-5f4d-b890-ab8596e0953a",
+        "3d4b8f6b-7e88-53d8-b1bb-f5d4a7ec5a66",
+        "41214241-f797-5ec8-a05a-43b29e86ecac",
+        "49da6806-bb06-5fe1-a2d6-aadbed2a1717",
+        "4fe6fb28-04d6-560b-bd15-55323ca8f661",
+        "502ae0c2-d19b-51a7-9d0a-6c6a86327997",
+        "575f315d-68a4-54fc-bae7-ac5ff2b297ba",
+        "5b1df57b-26dc-57a1-9d92-cc9f62df1187",
+        "675ad0c7-105f-545c-9ba8-349b17a2f251",
+        "7242d4b8-aadf-559f-9ee6-a60fd504eadb",
+        "739e72f3-bd89-5dcc-be8c-88a437253ea1",
+        "85086f7f-d0ff-58e7-a1b9-f2a3b1c95bc8",
+        "9082cd81-6e0c-51e7-b08a-bdf5763f7513",
+        "9934f6db-c370-5c62-8cc7-d71cd78b56cc",
+        "a0d6fc3b-45a3-5c36-a7c2-250c116f0656",
+        "a725ecd5-c875-5159-8225-7c7748e17570",
+        "a9f08ca2-cbdf-532d-8edb-402bd7b12fc1",
+        "aa1d0b72-de17-588e-9ac4-27a4293a1448",
+        "ab31cc44-c3b5-55fc-95aa-ae1189a83c32",
+        "b1740493-3783-586f-9112-0e0d6f46ad86",
+        "b3384773-767e-5cb9-a436-3c8d6851b1bf",
+        "b3be96b1-3b1b-5060-8706-d71592790c03",
+        "b62fdc6d-677d-510d-9d43-5c5bc93f1764",
+        "c7e15ca6-172a-594c-b1e4-ad03b6525529",
+        "cd0d1b2e-3fa3-580d-a3b0-85f001db9998",
+        "eb8b5a04-d537-5692-9a5f-8417c65c5ede",
+        "f63180be-ab78-5497-81b0-69dc5a1f7bf3",
+        "fb0324e6-9ce0-5988-af50-e6d91ee819ec"
+      ],
+      "action": "Exercise unobserved entry points and capture a successor architecture version.",
+      "blockers": [
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "BEHAVIORAL_CONTRACTS",
+        "DATA_OWNERSHIP_REVIEW",
+        "HUMAN_CHANGE_APPROVAL",
+        "RUNTIME_OBSERVATION_GAP",
+        "DOMAIN_REVIEW_REQUIRED",
+        "UNRESOLVED_MAPPING",
+        "RUNTIME_QUALITY_REVIEW"
+      ],
+      "prerequisites": [
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "BEHAVIORAL_CONTRACTS",
+        "DATA_OWNERSHIP_REVIEW",
+        "HUMAN_CHANGE_APPROVAL"
+      ],
+      "status": "PROPOSAL",
+      "execution_allowed": false
+    },
+    {
+      "id": "d7a93a50-7ba4-5ba6-8a8f-4ab3745eb524",
+      "domain_id": "domain-c8fb47353d19fc72",
+      "kind": "COLLECT_MORE_EVIDENCE",
+      "finding_ids": [
+        "01b4b893-19f2-5c9d-8fbe-64f863005674",
+        "1b3106fe-0f1b-5a17-8318-2f9eee4ae4e7",
+        "bf434c82-4bca-53f6-ae1a-a3d03da1d657",
+        "660caaf3-f60a-5809-afbf-bd75949023ac",
+        "d3fa5ecd-80b0-5863-b638-62c33cd12028"
+      ],
+      "evidence_ids": [
+        "26fcbd58-1bcb-5bec-821a-37badaedf4bd",
+        "54717d64-9c22-5bcc-82e3-417a836a6cfc",
+        "8bfcacaf-afaf-5eaf-86b2-d6e9c92e7f97",
+        "99cf6658-7805-57f5-bba9-8427bc2acacf",
+        "bb5d0b2e-28e1-58b1-b7f0-86ab255eddbe",
+        "ca1211be-7ce7-501b-94cb-6cde695cfa6a"
+      ],
+      "fact_ids": [
+        "fdc6d160-0b79-5254-aa1e-a53f66829c90"
+      ],
+      "action": "Exercise unobserved entry points and capture a successor architecture version.",
+      "blockers": [
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "BEHAVIORAL_CONTRACTS",
+        "DATA_OWNERSHIP_REVIEW",
+        "HUMAN_CHANGE_APPROVAL",
+        "RUNTIME_OBSERVATION_GAP",
+        "DOMAIN_REVIEW_REQUIRED",
+        "UNRESOLVED_MAPPING",
+        "RUNTIME_QUALITY_REVIEW"
+      ],
+      "prerequisites": [
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "BEHAVIORAL_CONTRACTS",
+        "DATA_OWNERSHIP_REVIEW",
+        "HUMAN_CHANGE_APPROVAL"
+      ],
+      "status": "PROPOSAL",
+      "execution_allowed": false
+    }
+  ],
+  "waves": [
+    {
+      "id": "5842ffe2-7e44-57fa-8d1a-21d8aa7fab58",
+      "number": 1,
+      "domains": [
+        "domain-23465d579fbf785f",
+        "domain-47d9028fd2e3797a",
+        "domain-69e89d53232c7967",
+        "domain-c8fb47353d19fc72"
+      ],
+      "dependencies": [],
+      "coupled_groups": [
+        [
+          "domain-23465d579fbf785f",
+          "domain-47d9028fd2e3797a",
+          "domain-69e89d53232c7967"
+        ]
+      ],
+      "reason": "Dependencies precede consumers. Cyclic groups require joint remediation; this is a planning sequence.",
+      "readiness": {
+        "domain-23465d579fbf785f": 37.0,
+        "domain-47d9028fd2e3797a": 81.0,
+        "domain-69e89d53232c7967": 81.2,
+        "domain-c8fb47353d19fc72": 77.5
+      },
+      "confidence": {
+        "domain-23465d579fbf785f": 25.0,
+        "domain-47d9028fd2e3797a": 25.0,
+        "domain-69e89d53232c7967": 35.0,
+        "domain-c8fb47353d19fc72": 43.8
+      },
+      "difficulty": "HIGH",
+      "blockers": [
+        "BEHAVIORAL_CONTRACTS",
+        "CROSS_DOMAIN_CYCLE",
+        "DATA_OWNERSHIP_REVIEW",
+        "DOMAIN_REVIEW_REQUIRED",
+        "HUMAN_CHANGE_APPROVAL",
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "RUNTIME_OBSERVATION_GAP",
+        "RUNTIME_QUALITY_REVIEW",
+        "UNRESOLVED_MAPPING"
+      ],
+      "prerequisites": [
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "BEHAVIORAL_CONTRACTS",
+        "DATA_OWNERSHIP_REVIEW",
+        "HUMAN_CHANGE_APPROVAL"
+      ],
+      "expected_impact": "Hypothesis: clearer module boundaries. Measure only after validated changes.",
+      "execution_allowed": false
+    },
+    {
+      "id": "5d65053d-d4ac-5513-ae9f-6f80326246df",
+      "number": 2,
+      "domains": [
+        "domain-c27a2633842a7968"
+      ],
+      "dependencies": [
+        "domain-23465d579fbf785f",
+        "domain-47d9028fd2e3797a"
+      ],
+      "coupled_groups": [],
+      "reason": "Dependencies precede consumers. Cyclic groups require joint remediation; this is a planning sequence.",
+      "readiness": {
+        "domain-c27a2633842a7968": 86.9
+      },
+      "confidence": {
+        "domain-c27a2633842a7968": 38.6
+      },
+      "difficulty": "MEDIUM",
+      "blockers": [
+        "BEHAVIORAL_CONTRACTS",
+        "DATA_OWNERSHIP_REVIEW",
+        "DOMAIN_REVIEW_REQUIRED",
+        "HUMAN_CHANGE_APPROVAL",
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "RUNTIME_OBSERVATION_GAP",
+        "RUNTIME_QUALITY_REVIEW",
+        "UNRESOLVED_MAPPING"
+      ],
+      "prerequisites": [
+        "PINNED_SOURCE_AND_PASSING_BUILD",
+        "BEHAVIORAL_CONTRACTS",
+        "DATA_OWNERSHIP_REVIEW",
+        "HUMAN_CHANGE_APPROVAL"
+      ],
+      "expected_impact": "Hypothesis: clearer module boundaries. Measure only after validated changes.",
+      "execution_allowed": false
+    }
+  ],
+  "graph_nodes": 213,
+  "graph_edges": 864
+}

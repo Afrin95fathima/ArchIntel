@@ -1,0 +1,39 @@
+{
+  "checked_at": "2026-09-10T16:25:47.389616+00:00",
+  "analysis_id": "0319e2c5-f77a-49bb-84c0-ad74c55319c9",
+  "algorithm_version": "0.2.1",
+  "status": "COMPLETED",
+  "summary": {
+    "class_count": 40,
+    "package_count": 7,
+    "dependency_count": 97,
+    "typed_dependency_count": 116,
+    "external_dependency_count": 108,
+    "domain_count": 7,
+    "issue_count": 14,
+    "class_scc_count": 2,
+    "package_scc_count": 1,
+    "issue_counts": {
+      "CRITICAL": 2,
+      "HIGH": 6,
+      "MEDIUM": 6
+    },
+    "average_readiness": 72.6
+  },
+  "snapshot_sha256": "84f21440160545aafca872a365693c7d688d0704389e0d98ee1dbe872a501e90",
+  "same_snapshot_as_previous_check": true,
+  "resolved_citations": 8,
+  "assistant_mode": "LOCAL_EVIDENCE",
+  "readiness": {
+    "status": "ready",
+    "dependencies": {
+      "database": "ok",
+      "scanner": "ok"
+    },
+    "database": "PostgreSQL",
+    "graph": "Isolated Neo4j per analysis",
+    "assistant": "Local evidence explanations",
+    "max_upload_mb": 100,
+    "prototype": true
+  }
+}

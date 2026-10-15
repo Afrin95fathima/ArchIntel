@@ -1,0 +1,1 @@
+package com.northstar.notification; public class EmailTransport implements Transport { public void send(Message m) {} }
