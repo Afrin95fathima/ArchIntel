@@ -117,6 +117,39 @@ class Settings(BaseSettings):
 
     llm_url: str = ''
     llm_model: str = ''
+    # Insight layer (WP1-WP11). 'jqassistant' is the default scanner; 'bytecode' uses the
+    # built-in class-file reader only (no JDK needed, no annotation-processor or plugin execution).
+    scanner_engine: str = 'jqassistant'
+    bytecode_facts_enabled: bool = True
+    bytecode_facts_max_bytes: int = 48 * 1024 * 1024
+    # Source store for the assistant and AI explanation steps. DENY disables storage entirely.
+    source_store_mode: str = 'ALLOW'
+    source_store_max_bytes_per_class: int = 65536
+    source_store_max_total_bytes: int = 64 * 1024 * 1024
+    # AI explanation layer: OFF (deterministic only), LOCAL_ONLY (policy-approved local Ollama).
+    # External destinations are never used by the insight layer.
+    insight_ai_mode: str = 'LOCAL_ONLY'
+    assistant_max_tool_calls: int = 8
+    assistant_requests_per_hour: int = 120
+    lifecycle_rules_max_age_days: int = 180
+
+    @field_validator('scanner_engine')
+    @classmethod
+    def valid_scanner_engine(cls, value):
+        if value not in ('jqassistant', 'bytecode'): raise ValueError('scanner_engine must be jqassistant or bytecode.')
+        return value
+
+    @field_validator('source_store_mode')
+    @classmethod
+    def valid_source_store(cls, value):
+        if value not in ('ALLOW', 'DENY'): raise ValueError('source_store_mode must be ALLOW or DENY.')
+        return value
+
+    @field_validator('insight_ai_mode')
+    @classmethod
+    def valid_insight_ai(cls, value):
+        if value not in ('OFF', 'LOCAL_ONLY'): raise ValueError('insight_ai_mode must be OFF or LOCAL_ONLY.')
+        return value
     runtime_max_body_bytes: int = 4 * 1024 * 1024
     runtime_max_batch_spans: int = 5000
     runtime_max_session_spans: int = 50000

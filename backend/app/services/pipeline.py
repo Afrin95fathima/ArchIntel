@@ -11,6 +11,8 @@ from app.services.ingestion import ArtifactError, LimitExceeded, validate_archiv
 from app.services.scanner import JQAssistantScanner, ScannerError
 from app.services.engine import analyze
 from app.services.tech_stack import inspect_artifact
+from app.insight.facts import extract as extract_bytecode, bounded_for_snapshot
+from app.insight.scan import BytecodeScanner
 
 logger = logging.getLogger('archintel.pipeline')
 
@@ -19,7 +21,7 @@ class AnalysisWorker:
     def __init__(self, sessions, config):
         self.sessions, self.config = sessions, config
         self.executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix='archintel')
-        self.scanner = JQAssistantScanner(config)
+        self.scanner = BytecodeScanner(config) if getattr(config, 'scanner_engine', 'jqassistant') == 'bytecode' else JQAssistantScanner(config)
 
     def submit(self, analysis_id: str) -> None:
         self.executor.submit(self.run, analysis_id)
@@ -107,6 +109,13 @@ class AnalysisWorker:
             check_job_budget()
             result = analyze(classes, edges, self.config, stage)
             result['tech_inventory'] = inspect_artifact(artifact_path, classes_dir, result)
+            if self.config.bytecode_facts_enabled:
+                stage('BYTECODE_FACTS', 90)
+                internal_names = {c['id'] for c in result['classes']}
+                result['bytecode'] = bounded_for_snapshot(extract_bytecode(classes_dir, owned=internal_names), internal_names,
+                    self.config.bytecode_facts_max_bytes)
+                from app.insight.source_store import capture as capture_sources
+                result['source_store'] = capture_sources(self.config, analysis_id, artifact_path, result)
             result['artifact'] = metadata
             result['scanner'] = dict(name='jQAssistant', version='2.7.0', graph_storage='isolated Neo4j 5', normalized_results='PostgreSQL' if self.config.database_url.startswith('postgresql') else 'SQLite local mode')
             stage('PERSISTING_RESULTS', 94)

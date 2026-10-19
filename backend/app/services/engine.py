@@ -65,4 +65,4 @@ def analyze(classes: list[dict], edges: list[dict], config, stage=lambda *_: Non
             'Cycle samples are bounded; SCC membership is the complete cyclic-cluster finding.'],
         configuration=dict(external_prefixes=config.external_prefixes, max_cycle_length=config.max_cycle_length,
             max_cycles_per_scc=config.max_cycles_per_scc, large_scc_threshold=config.large_scc_threshold,
-            readiness_weights=config.readiness_weights, louvain_seed=42))
+            readiness_weights=config.readiness_weights, louvain_seed=42, application_roots=built['application_roots']))
