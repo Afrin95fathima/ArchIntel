@@ -1,0 +1,34 @@
+{
+ "breadcrumb": [
+  {
+   "id": "system",
+   "label": "Application"
+  }
+ ],
+ "cycle_groups": 3,
+ "debt_findings": 22,
+ "entry_points": 20,
+ "external": 51,
+ "id": "system",
+ "kind": "SYSTEM",
+ "name": "Application",
+ "roles": {
+  "ACTION": 1,
+  "APPLICATION": 1,
+  "COMPONENT": 2,
+  "CONTROLLER": 3,
+  "ENTITY": 2,
+  "FILTER": 1,
+  "MODEL": 1,
+  "REPOSITORY": 1,
+  "SERVICE": 1,
+  "SERVLET": 1,
+  "UNKNOWN": 5
+ },
+ "size": {
+  "classes": 19,
+  "nested_classes": 3,
+  "packages": 6
+ },
+ "summary": "The application has 6 packages and 19 top-level classes; roles: 5 unknown, 3 controller, 2 component, 2 entity, 1 application, 1 action, 1 model, 1 service, 1 repository, 1 filter, 1 servlet. It declares 20 entry points."
+}

@@ -17,8 +17,9 @@ OUT = ROOT / 'frontend' / 'src' / 'insight' / 'fixtures'
 
 def views(name):
     m = model(name)
-    from app.insight import cycles, metrics, debt
-    out = {'lifecycle': lifecycle.evaluate(m, {}, today=None), 'cycles': cycles.analyse(m), 'metrics': metrics.compute(m), 'debt': debt.detect(m)}
+    from app.insight import cycles, metrics, debt, graphview, details
+    out = {'lifecycle': lifecycle.evaluate(m, {}, today=None), 'cycles': cycles.analyse(m), 'metrics': metrics.compute(m), 'debt': debt.detect(m), 'graph': graphview.view(m, 'package', debt=debt.detect(m)),
+        'node': details.node(m, 'org.springframework.samples.petclinic.owner.OwnerController' if 'org.springframework.samples.petclinic.owner.OwnerController' in m.classes else 'system', debt.detect(m))}
     try:
         from app.insight import exports
         out.update(exports.all_views(m))

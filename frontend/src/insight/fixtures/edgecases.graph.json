@@ -1,0 +1,213 @@
+{
+ "edges": [
+  {
+   "edge_types": {
+    "METHOD_CALL": 1,
+    "RETURN_TYPE": 1,
+    "TYPE_REFERENCE": 1
+   },
+   "explanation": "com.fixture.edge.cycle.a depends on com.fixture.edge.cycle.b: method call \u00d71, return type \u00d71, type reference \u00d71.",
+   "id": "com.fixture.edge.cycle.a->com.fixture.edge.cycle.b",
+   "runtime_calls": 0,
+   "source": "com.fixture.edge.cycle.a",
+   "sources": [
+    "static"
+   ],
+   "target": "com.fixture.edge.cycle.b",
+   "weight": 1
+  },
+  {
+   "edge_types": {
+    "FIELD_TYPE": 1,
+    "PARAMETER_TYPE": 1,
+    "RETURN_TYPE": 1
+   },
+   "explanation": "com.fixture.edge.cycle.b depends on com.fixture.edge.cycle.a: field type \u00d71, parameter type \u00d71, return type \u00d71.",
+   "id": "com.fixture.edge.cycle.b->com.fixture.edge.cycle.a",
+   "runtime_calls": 0,
+   "source": "com.fixture.edge.cycle.b",
+   "sources": [
+    "static"
+   ],
+   "target": "com.fixture.edge.cycle.a",
+   "weight": 1
+  },
+  {
+   "edge_types": {
+    "FIELD_TYPE": 2,
+    "GENERIC_TYPE": 1,
+    "METHOD_CALL": 3,
+    "PARAMETER_TYPE": 3,
+    "RETURN_TYPE": 1
+   },
+   "explanation": "com.fixture.edge.web depends on com.fixture.edge.model: field type \u00d72, generic type \u00d71, method call \u00d73, parameter type \u00d73, return type \u00d71.",
+   "id": "com.fixture.edge.web->com.fixture.edge.model",
+   "runtime_calls": 0,
+   "source": "com.fixture.edge.web",
+   "sources": [
+    "static"
+   ],
+   "target": "com.fixture.edge.model",
+   "weight": 4
+  }
+ ],
+ "external": {
+  "categories": [
+   {
+    "category": "JDK_CLASS",
+    "count": 11,
+    "label": "JDK class: part of the Java platform, not of the uploaded artifact."
+   },
+   {
+    "category": "EXTERNAL_LIBRARY",
+    "count": 40,
+    "label": "External library class not in the uploaded artifact (a dependency the application compiles against)."
+   }
+  ],
+  "total": 51
+ },
+ "focus": null,
+ "layers": [
+  {
+   "id": "PRESENTATION",
+   "label": "Presentation (controllers, servlets, filters)"
+  },
+  {
+   "id": "SERVICE",
+   "label": "Services and application logic"
+  },
+  {
+   "id": "DATA_ACCESS",
+   "label": "Data access (repositories, DAOs)"
+  },
+  {
+   "id": "DOMAIN",
+   "label": "Domain model (entities, models)"
+  },
+  {
+   "id": "CONFIGURATION",
+   "label": "Configuration and bootstrap"
+  },
+  {
+   "id": "SUPPORT",
+   "label": "Supporting code (no role evidence)"
+  }
+ ],
+ "level": "package",
+ "meta": {
+  "aggregation": "Classes are aggregated into packages; edge weight = number of distinct class-to-class dependencies between the packages.",
+  "edges_shown": 3,
+  "edges_total": 3,
+  "external": "51 external or unresolved names are grouped in the 'External and unresolved' cluster, not drawn as nodes.",
+  "hidden": [],
+  "nodes_shown": 6,
+  "nodes_total": 6,
+  "runtime": "No runtime session selected: coverage and runtime calls are not shown.",
+  "view": "Packages of the application"
+ },
+ "nodes": [
+  {
+   "debt": "HIGH",
+   "explanation": {
+    "coverage": "No runtime session selected.",
+    "what": "Package com.fixture.edge.cycle.a with 4 top-level classes.",
+    "why_here": "Placed in the supporting code row because 4 of its 4 classes have that role."
+   },
+   "full_name": "com.fixture.edge.cycle.a",
+   "id": "com.fixture.edge.cycle.a",
+   "in_cycle": true,
+   "kind": "PACKAGE",
+   "label": "a",
+   "layer": "SUPPORT",
+   "observed": null,
+   "role": null,
+   "size": 4
+  },
+  {
+   "debt": "HIGH",
+   "explanation": {
+    "coverage": "No runtime session selected.",
+    "what": "Package com.fixture.edge.cycle.b with 1 top-level classes.",
+    "why_here": "Placed in the supporting code row because 1 of its 1 classes have that role."
+   },
+   "full_name": "com.fixture.edge.cycle.b",
+   "id": "com.fixture.edge.cycle.b",
+   "in_cycle": true,
+   "kind": "PACKAGE",
+   "label": "b",
+   "layer": "SUPPORT",
+   "observed": null,
+   "role": null,
+   "size": 1
+  },
+  {
+   "debt": null,
+   "explanation": {
+    "coverage": "No runtime session selected.",
+    "what": "Package com.fixture.edge.jobs with 3 top-level classes.",
+    "why_here": "Placed in the service row because 2 of its 3 classes have that role (others: 1 configuration)."
+   },
+   "full_name": "com.fixture.edge.jobs",
+   "id": "com.fixture.edge.jobs",
+   "in_cycle": false,
+   "kind": "PACKAGE",
+   "label": "jobs",
+   "layer": "SERVICE",
+   "observed": null,
+   "role": null,
+   "size": 3
+  },
+  {
+   "debt": "HIGH",
+   "explanation": {
+    "coverage": "No runtime session selected.",
+    "what": "Package com.fixture.edge.legacy with 2 top-level classes.",
+    "why_here": "Placed in the web/presentation row because 1 of its 2 classes have that role (others: 1 domain model)."
+   },
+   "full_name": "com.fixture.edge.legacy",
+   "id": "com.fixture.edge.legacy",
+   "in_cycle": false,
+   "kind": "PACKAGE",
+   "label": "legacy",
+   "layer": "PRESENTATION",
+   "observed": null,
+   "role": null,
+   "size": 2
+  },
+  {
+   "debt": "MEDIUM",
+   "explanation": {
+    "coverage": "No runtime session selected.",
+    "what": "Package com.fixture.edge.model with 4 top-level classes.",
+    "why_here": "Placed in the domain model row because 2 of its 4 classes have that role (others: 1 service, 1 data access)."
+   },
+   "full_name": "com.fixture.edge.model",
+   "id": "com.fixture.edge.model",
+   "in_cycle": false,
+   "kind": "PACKAGE",
+   "label": "model",
+   "layer": "DOMAIN",
+   "observed": null,
+   "role": null,
+   "size": 4
+  },
+  {
+   "debt": "MEDIUM",
+   "explanation": {
+    "coverage": "No runtime session selected.",
+    "what": "Package com.fixture.edge.web with 5 top-level classes.",
+    "why_here": "Placed in the web/presentation row because 5 of its 5 classes have that role."
+   },
+   "full_name": "com.fixture.edge.web",
+   "id": "com.fixture.edge.web",
+   "in_cycle": false,
+   "kind": "PACKAGE",
+   "label": "web",
+   "layer": "PRESENTATION",
+   "observed": null,
+   "role": null,
+   "size": 5
+  }
+ ],
+ "package": null
+}

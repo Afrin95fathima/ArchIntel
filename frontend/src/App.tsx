@@ -7,7 +7,7 @@ import { Empty, ErrorBox, Loading } from './components';
 import { Workspace, Progress } from './Workspace';
 const Overview=lazy(()=>import('./Overview').then(module=>({default:module.Overview})));
 const ArchitectureBlueprint=lazy(()=>import('./ArchitectureBlueprint').then(module=>({default:module.ArchitectureBlueprint})));
-const GraphExplorer=lazy(()=>import('./GraphExplorer').then(module=>({default:module.GraphExplorer})));
+const ArchitectureExplorer=lazy(()=>import('./insight/Explorer').then(module=>({default:module.ArchitectureExplorer})));
 const Domains=lazy(()=>import('./Insights').then(module=>({default:module.Domains})));
 const Dependencies=lazy(()=>import('./Dependencies').then(module=>({default:module.Dependencies})));
 const Modernization=lazy(()=>import('./Insights').then(module=>({default:module.Modernization})));
@@ -103,7 +103,7 @@ export function App() {
         <div key={selected}>
           {view==='overview'&&<Overview summary={summary.data!} domains={domains.data!.items} assessments={assessments.data!.items} issues={issues.data!.items} analysisId={selected} navigate={setView}/>}
           {view==='architecture'&&<ArchitectureBlueprint analysisId={selected} applicationId={run.application_id} analyses={(analyses.data||[]).filter(row=>row.application_id===run.application_id)} applicationName={app?.name||'Analyzed application'} summary={summary.data!} domains={domains.data!.items}/>}
-          {view==='explorer'&&<GraphExplorer analysisId={selected} domains={domains.data!.items} focusId={focusNode}/>}
+          {view==='explorer'&&<ArchitectureExplorer analysisId={selected} focusId={focusNode}/>}
           {view==='domains'&&<Domains domains={domains.data!.items} assessments={assessments.data!.items} issues={issues.data!.items}/>}
           {view==='issues'&&<TechnicalDebt analysisId={selected}/>}
           {(view==='cycles'||view==='metrics')&&<Dependencies analysisId={selected} cycles={cycles.data!.items} metrics={metrics.data!.items} initialTab={view==='metrics'?'metrics':'cycles'}/>}

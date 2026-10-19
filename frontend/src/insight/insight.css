@@ -72,3 +72,17 @@
 .metric-point.near { fill: var(--state-warning); }
 .metric-point.over { fill: var(--severity-critical); }
 .group-row td { background: var(--neutral-100); }
+.explorer-layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; align-items: start; }
+@media (max-width: 1000px) { .explorer-layout { grid-template-columns: 1fr; } }
+.explorer-canvas-wrap { position: relative; border: 1px solid var(--neutral-200); border-radius: var(--radius-md); background: var(--neutral-0); }
+.explorer-canvas { height: 520px; }
+.explorer-legend, .explorer-what, .why-connected { margin-top: 12px; padding: 10px 14px; border: 1px solid var(--neutral-200); border-radius: var(--radius-md); background: var(--neutral-0); font-size: var(--text-13); }
+.explorer-legend > div > div { margin: 4px 0; }
+.legend-chip { display: inline-block; margin: 0 4px; padding: 0 6px; border: 2px solid var(--neutral-400); border-radius: 4px; }
+.hidden-note { color: var(--state-warning); }
+.node-inspector .summary { line-height: 1.5; }
+.node-inspector .detail-list { list-style: none; margin: 0; padding: 0; }
+.node-inspector .detail-list li { padding: 2px 0; }
+.why-link { margin-left: 6px; padding: 0 6px; border: 1px solid var(--neutral-300); border-radius: 999px; background: none; font-size: 11px; cursor: pointer; }
+.why-connected header { display: flex; justify-content: space-between; gap: 8px; }
+.breadcrumb { font-size: var(--text-12); }

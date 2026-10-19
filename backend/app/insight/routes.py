@@ -126,3 +126,46 @@ def debt_refactoring(analysis_id: str, body: ExplainInput, request: Request, db=
         'analysis:' + analysis_id, set(model.classes), methods)
     return dict(finding_id=finding['id'], deterministic=dict(explanation=finding['explanation'], suggested_action=finding['suggested_action']), ai=ai,
         evidence_ids=[e['id'] for e in evidence])
+
+
+@router.get('/graph', response_model=dict)
+def explained_graph(analysis_id: str, request: Request, level: str = Query('package', pattern='^(package|class)$'), package: str | None = Query(None, max_length=400),
+        focus: str | None = Query(None, max_length=400), min_weight: int = Query(1, ge=1, le=1000), limit: int = Query(400, ge=10, le=400),
+        runtime_session_ids: str | None = Query(None, max_length=400), db=Depends(db_session)):
+    from .graphview import view
+    model = load(analysis_id, request, db, runtime_session_ids)
+    return view(model, level, package, focus, min_weight, limit, _debt(model))
+
+
+@router.get('/unresolved', response_model=dict)
+def external_and_unresolved(analysis_id: str, request: Request, runtime_session_ids: str | None = Query(None, max_length=400), db=Depends(db_session)):
+    from .graphview import unresolved
+    return unresolved(load(analysis_id, request, db, runtime_session_ids))
+
+
+@router.get('/node', response_model=dict)
+def node_detail(analysis_id: str, request: Request, id: str = Query('system', max_length=800), runtime_session_ids: str | None = Query(None, max_length=400), db=Depends(db_session)):
+    from .details import node
+    model = load(analysis_id, request, db, runtime_session_ids)
+    return node(model, id, _debt(model))
+
+
+@router.get('/connection', response_model=dict)
+def connection_detail(analysis_id: str, request: Request, source: str = Query(max_length=400), target: str = Query(max_length=400), runtime_session_ids: str | None = Query(None, max_length=400), db=Depends(db_session)):
+    from .details import connection
+    return connection(load(analysis_id, request, db, runtime_session_ids), source, target)
+
+
+@router.get('/index', response_model=dict)
+def search_index(analysis_id: str, request: Request, runtime_session_ids: str | None = Query(None, max_length=400), db=Depends(db_session)):
+    """Every top-level class with the facets the explorer filters on."""
+    from .cycles import analyse, membership
+    from .graphview import _debt_levels
+    model = load(analysis_id, request, db, runtime_session_ids)
+    cycles = membership(analyse(model))
+    levels = _debt_levels(_debt(model))
+    observed = model.observed_classes
+    rows = [dict(id=fqn, name=fqn.rsplit('.', 1)[-1], package=model.package(fqn), role=model.roles[fqn]['role'], layer=model.roles[fqn]['layer'],
+        in_cycle=fqn in cycles, debt=levels.get(fqn), observed=None if observed is None else fqn in observed)
+        for fqn in sorted(model.classes) if model.owners.get(fqn, fqn) == fqn]
+    return dict(classes=rows, packages=sorted(model.packages), roles=sorted({r['role'] for r in rows}), runtime_included=observed is not None)

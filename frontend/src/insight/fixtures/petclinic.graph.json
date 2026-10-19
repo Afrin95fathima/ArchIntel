@@ -1,0 +1,176 @@
+{
+ "edges": [
+  {
+   "edge_types": {
+    "INHERITANCE": 4,
+    "METHOD_CALL": 4
+   },
+   "explanation": "org.springframework.samples.petclinic.owner depends on org.springframework.samples.petclinic.model: inheritance \u00d74, method call \u00d74.",
+   "id": "org.springframework.samples.petclinic.owner->org.springframework.samples.petclinic.model",
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner",
+   "sources": [
+    "static"
+   ],
+   "target": "org.springframework.samples.petclinic.model",
+   "weight": 4
+  },
+  {
+   "edge_types": {
+    "INHERITANCE": 2,
+    "METHOD_CALL": 2
+   },
+   "explanation": "org.springframework.samples.petclinic.vet depends on org.springframework.samples.petclinic.model: inheritance \u00d72, method call \u00d72.",
+   "id": "org.springframework.samples.petclinic.vet->org.springframework.samples.petclinic.model",
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.vet",
+   "sources": [
+    "static"
+   ],
+   "target": "org.springframework.samples.petclinic.model",
+   "weight": 2
+  }
+ ],
+ "external": {
+  "categories": [
+   {
+    "category": "JDK_CLASS",
+    "count": 22,
+    "label": "JDK class: part of the Java platform, not of the uploaded artifact."
+   },
+   {
+    "category": "EXTERNAL_LIBRARY",
+    "count": 53,
+    "label": "External library class not in the uploaded artifact (a dependency the application compiles against)."
+   }
+  ],
+  "total": 75
+ },
+ "focus": null,
+ "layers": [
+  {
+   "id": "PRESENTATION",
+   "label": "Presentation (controllers, servlets, filters)"
+  },
+  {
+   "id": "SERVICE",
+   "label": "Services and application logic"
+  },
+  {
+   "id": "DATA_ACCESS",
+   "label": "Data access (repositories, DAOs)"
+  },
+  {
+   "id": "DOMAIN",
+   "label": "Domain model (entities, models)"
+  },
+  {
+   "id": "CONFIGURATION",
+   "label": "Configuration and bootstrap"
+  },
+  {
+   "id": "SUPPORT",
+   "label": "Supporting code (no role evidence)"
+  }
+ ],
+ "level": "package",
+ "meta": {
+  "aggregation": "Classes are aggregated into packages; edge weight = number of distinct class-to-class dependencies between the packages.",
+  "edges_shown": 2,
+  "edges_total": 2,
+  "external": "75 external or unresolved names are grouped in the 'External and unresolved' cluster, not drawn as nodes.",
+  "hidden": [],
+  "nodes_shown": 5,
+  "nodes_total": 5,
+  "runtime": "No runtime session selected: coverage and runtime calls are not shown.",
+  "view": "Packages of the application"
+ },
+ "nodes": [
+  {
+   "debt": "MEDIUM",
+   "explanation": {
+    "coverage": "No runtime session selected.",
+    "what": "Package org.springframework.samples.petclinic with 1 top-level classes.",
+    "why_here": "Placed in the configuration row because 1 of its 1 classes have that role."
+   },
+   "full_name": "org.springframework.samples.petclinic",
+   "id": "org.springframework.samples.petclinic",
+   "in_cycle": false,
+   "kind": "PACKAGE",
+   "label": "petclinic",
+   "layer": "CONFIGURATION",
+   "observed": null,
+   "role": null,
+   "size": 1
+  },
+  {
+   "debt": null,
+   "explanation": {
+    "coverage": "No runtime session selected.",
+    "what": "Package org.springframework.samples.petclinic.model with 3 top-level classes.",
+    "why_here": "Placed in the domain model row because 3 of its 3 classes have that role."
+   },
+   "full_name": "org.springframework.samples.petclinic.model",
+   "id": "org.springframework.samples.petclinic.model",
+   "in_cycle": false,
+   "kind": "PACKAGE",
+   "label": "model",
+   "layer": "DOMAIN",
+   "observed": null,
+   "role": null,
+   "size": 3
+  },
+  {
+   "debt": "MEDIUM",
+   "explanation": {
+    "coverage": "No runtime session selected.",
+    "what": "Package org.springframework.samples.petclinic.owner with 11 top-level classes.",
+    "why_here": "Placed in the domain model row because 4 of its 11 classes have that role (others: 3 web/presentation, 2 data access, 2 service)."
+   },
+   "full_name": "org.springframework.samples.petclinic.owner",
+   "id": "org.springframework.samples.petclinic.owner",
+   "in_cycle": false,
+   "kind": "PACKAGE",
+   "label": "owner",
+   "layer": "DOMAIN",
+   "observed": null,
+   "role": null,
+   "size": 11
+  },
+  {
+   "debt": null,
+   "explanation": {
+    "coverage": "No runtime session selected.",
+    "what": "Package org.springframework.samples.petclinic.system with 4 top-level classes.",
+    "why_here": "Placed in the configuration row because 2 of its 4 classes have that role (others: 2 web/presentation)."
+   },
+   "full_name": "org.springframework.samples.petclinic.system",
+   "id": "org.springframework.samples.petclinic.system",
+   "in_cycle": false,
+   "kind": "PACKAGE",
+   "label": "system",
+   "layer": "CONFIGURATION",
+   "observed": null,
+   "role": null,
+   "size": 4
+  },
+  {
+   "debt": "MEDIUM",
+   "explanation": {
+    "coverage": "No runtime session selected.",
+    "what": "Package org.springframework.samples.petclinic.vet with 5 top-level classes.",
+    "why_here": "Placed in the domain model row because 3 of its 5 classes have that role (others: 1 web/presentation, 1 data access)."
+   },
+   "full_name": "org.springframework.samples.petclinic.vet",
+   "id": "org.springframework.samples.petclinic.vet",
+   "in_cycle": false,
+   "kind": "PACKAGE",
+   "label": "vet",
+   "layer": "DOMAIN",
+   "observed": null,
+   "role": null,
+   "size": 5
+  }
+ ],
+ "package": null
+}
