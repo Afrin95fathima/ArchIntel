@@ -43,3 +43,15 @@
 .call-sites { margin: 4px 0 0; padding-left: 18px; font-family: var(--font-mono); font-size: 12px; }
 .muted { color: var(--neutral-600); }
 .fine-print { font-size: var(--text-12); color: var(--neutral-600); }
+.insight-panel { margin: 14px 0; padding: 16px 18px; }
+.insight-panel-head { display: flex; align-items: center; gap: 10px; }
+.insight-panel-head h3 { margin: 0; }
+.cycle-layout { display: grid; grid-template-columns: minmax(260px, 380px) 1fr; gap: 16px; align-items: center; }
+@media (max-width: 760px) { .cycle-layout { grid-template-columns: 1fr; } }
+.cycle-diagram { width: 100%; max-width: 380px; color: var(--neutral-500); }
+.cycle-diagram text { font-size: 11px; fill: var(--neutral-700); font-family: var(--font-ui); }
+.cycle-node rect { fill: var(--neutral-0); stroke: var(--severity-critical); stroke-width: 1.5; }
+.cycle-node { cursor: pointer; }
+.cycle-node:hover rect, .cycle-node:focus rect { fill: #f6e1de; }
+.cycle-node text { font-weight: 600; fill: var(--neutral-900); }
+.cycle-edge.runtime-only { color: var(--state-info); }

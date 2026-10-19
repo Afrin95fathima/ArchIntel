@@ -62,3 +62,27 @@ def lifecycle_migration_note(analysis_id: str, body: ExplainInput, request: Requ
         'analysis:' + analysis_id, known)
     return dict(finding_id=finding['id'], deterministic=dict(alternative=finding['recommended_alternative'], migration_notes=finding['migration_notes'],
         replacement=finding['replacement']), ai=note, evidence_ids=[e['id'] for e in evidence])
+
+
+@router.get('/cycles', response_model=dict)
+def circular_dependencies(analysis_id: str, request: Request, runtime_session_ids: str | None = Query(None, max_length=400), db=Depends(db_session)):
+    from .cycles import analyse
+    model = load(analysis_id, request, db, runtime_session_ids)
+    config = request.app.state.config
+    return analyse(model, config.max_cycle_length, config.max_cycles_per_scc)
+
+
+@router.post('/cycles/explain', response_model=dict)
+def cycle_explanation(analysis_id: str, body: ExplainInput, request: Request, db=Depends(db_session)):
+    """AI may only rephrase one cycle; every sentence must cite loop edges that exist in the analysis."""
+    from app.ai.grounded import explain
+    from .cycles import analyse
+    model = load(analysis_id, request, db)
+    cycle = next((c for g in analyse(model)['groups'] for c in g['cycles'] if c['id'] == body.target_id), None)
+    if not cycle:
+        raise HTTPException(404, 'Cycle not found in this analysis.')
+    evidence = [dict(id='edge:' + e['source'] + '->' + e['target'], text=f"{e['source']} -> {e['target']} ({', '.join(e['edge_types'])}). " +
+        '; '.join(r['text'] for r in e.get('references', [])[:4]) or ', '.join(p['source'] + ' -> ' + p['target'] for p in e.get('class_pairs', [])[:4])) for e in cycle['edges']]
+    ai = explain(request, db, 'CYCLE_EXPLANATION', evidence, 'Explain in plain language why these classes form a loop and what that means for changing them.',
+        'analysis:' + analysis_id, set(model.classes) | set(model.packages))
+    return dict(cycle_id=cycle['id'], deterministic=cycle['explanation'], ai=ai, evidence_ids=[e['id'] for e in evidence])

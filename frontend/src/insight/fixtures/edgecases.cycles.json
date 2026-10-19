@@ -1,0 +1,690 @@
+{
+ "class_group_count": 2,
+ "groups": [
+  {
+   "cut_candidates": [
+    {
+     "against_layering": false,
+     "breaks_whole_group": false,
+     "cycles_broken": 1,
+     "edge_types": {
+      "GENERIC_TYPE": 1
+     },
+     "label": "Suggestion only \u2014 requires human review before changing code.",
+     "rank": 1,
+     "reference_count": 1,
+     "runtime_calls": 0,
+     "source": "com.fixture.edge.cycle.a.Customer",
+     "target": "com.fixture.edge.cycle.a.Order",
+     "why": "appears in 1 of the 3 listed cycles; only 1 code reference to rework; no runtime calls observed (none recorded or no session selected)."
+    },
+    {
+     "against_layering": false,
+     "breaks_whole_group": false,
+     "cycles_broken": 1,
+     "edge_types": {
+      "FIELD_TYPE": 1,
+      "RETURN_TYPE": 1
+     },
+     "label": "Suggestion only \u2014 requires human review before changing code.",
+     "rank": 2,
+     "reference_count": 2,
+     "runtime_calls": 0,
+     "source": "com.fixture.edge.cycle.a.Order",
+     "target": "com.fixture.edge.cycle.a.Customer",
+     "why": "appears in 1 of the 3 listed cycles; only 2 code references to rework; no runtime calls observed (none recorded or no session selected)."
+    },
+    {
+     "against_layering": false,
+     "breaks_whole_group": false,
+     "cycles_broken": 1,
+     "edge_types": {
+      "METHOD_CALL": 1,
+      "RETURN_TYPE": 1,
+      "TYPE_REFERENCE": 1
+     },
+     "label": "Suggestion only \u2014 requires human review before changing code.",
+     "rank": 3,
+     "reference_count": 3,
+     "runtime_calls": 0,
+     "source": "com.fixture.edge.cycle.a.Address",
+     "target": "com.fixture.edge.cycle.a.Region",
+     "why": "appears in 1 of the 3 listed cycles; only 3 code references to rework; no runtime calls observed (none recorded or no session selected)."
+    },
+    {
+     "against_layering": false,
+     "breaks_whole_group": false,
+     "cycles_broken": 1,
+     "edge_types": {
+      "METHOD_CALL": 1,
+      "RETURN_TYPE": 1,
+      "TYPE_REFERENCE": 1
+     },
+     "label": "Suggestion only \u2014 requires human review before changing code.",
+     "rank": 4,
+     "reference_count": 3,
+     "runtime_calls": 0,
+     "source": "com.fixture.edge.cycle.a.Customer",
+     "target": "com.fixture.edge.cycle.a.Address",
+     "why": "appears in 1 of the 3 listed cycles; only 3 code references to rework; no runtime calls observed (none recorded or no session selected)."
+    },
+    {
+     "against_layering": false,
+     "breaks_whole_group": false,
+     "cycles_broken": 1,
+     "edge_types": {
+      "METHOD_CALL": 1,
+      "RETURN_TYPE": 1,
+      "TYPE_REFERENCE": 1
+     },
+     "label": "Suggestion only \u2014 requires human review before changing code.",
+     "rank": 5,
+     "reference_count": 3,
+     "runtime_calls": 0,
+     "source": "com.fixture.edge.cycle.a.Order",
+     "target": "com.fixture.edge.cycle.b.Invoice",
+     "why": "appears in 1 of the 3 listed cycles; only 3 code references to rework; no runtime calls observed (none recorded or no session selected)."
+    }
+   ],
+   "cycle_count_listed": 3,
+   "cycles": [
+    {
+     "edges": [
+      {
+       "dominant_type": "GENERIC_TYPE",
+       "edge_types": {
+        "GENERIC_TYPE": 1
+       },
+       "id": "cycle-edge-c49a7510dcf46616",
+       "reference_count": 1,
+       "references": [
+        {
+         "kind": "GENERIC_TYPE",
+         "line": null,
+         "text": "field Customer.orders uses List<Order>"
+        }
+       ],
+       "runtime_calls": 0,
+       "source": "com.fixture.edge.cycle.a.Customer",
+       "sources": [
+        "static"
+       ],
+       "target": "com.fixture.edge.cycle.a.Order"
+      },
+      {
+       "dominant_type": "FIELD_TYPE",
+       "edge_types": {
+        "FIELD_TYPE": 1,
+        "RETURN_TYPE": 1
+       },
+       "id": "cycle-edge-c7f9bfd27420ab0f",
+       "reference_count": 2,
+       "references": [
+        {
+         "kind": "FIELD_TYPE",
+         "line": null,
+         "text": "field Order.customer has type Customer"
+        },
+        {
+         "kind": "RETURN_TYPE",
+         "line": null,
+         "method": "getCustomer",
+         "text": "Order.getCustomer() returns Customer"
+        }
+       ],
+       "runtime_calls": 0,
+       "source": "com.fixture.edge.cycle.a.Order",
+       "sources": [
+        "static"
+       ],
+       "target": "com.fixture.edge.cycle.a.Customer"
+      }
+     ],
+     "explanation": {
+      "plain": "Customer cannot be changed without also checking Order, because each uses the other: Customer holds a list of Order, and Order holds a Customer.",
+      "technical": "Cycle Customer \u2192 Order \u2192 Customer: field Customer.orders uses List<Order> [GENERIC_TYPE; static]; field Order.customer has type Customer [FIELD_TYPE, RETURN_TYPE; static]."
+     },
+     "id": "cycle-path-c49a7510dcf46616",
+     "members": [
+      "com.fixture.edge.cycle.a.Customer",
+      "com.fixture.edge.cycle.a.Order"
+     ],
+     "size": 2,
+     "sources": [
+      "static"
+     ]
+    },
+    {
+     "edges": [
+      {
+       "dominant_type": "METHOD_CALL",
+       "edge_types": {
+        "METHOD_CALL": 1,
+        "RETURN_TYPE": 1,
+        "TYPE_REFERENCE": 1
+       },
+       "id": "cycle-edge-cbf17a3748d65769",
+       "reference_count": 3,
+       "references": [
+        {
+         "kind": "METHOD_CALL",
+         "line": 14,
+         "method": "invoice",
+         "target_method": "<init>",
+         "text": "Order.invoice() calls Invoice constructor"
+        },
+        {
+         "kind": "RETURN_TYPE",
+         "line": null,
+         "method": "invoice",
+         "text": "Order.invoice() returns Invoice"
+        }
+       ],
+       "runtime_calls": 0,
+       "source": "com.fixture.edge.cycle.a.Order",
+       "sources": [
+        "static"
+       ],
+       "target": "com.fixture.edge.cycle.b.Invoice"
+      },
+      {
+       "dominant_type": "FIELD_TYPE",
+       "edge_types": {
+        "FIELD_TYPE": 1,
+        "PARAMETER_TYPE": 1,
+        "RETURN_TYPE": 1
+       },
+       "id": "cycle-edge-f240042aad33b17f",
+       "reference_count": 3,
+       "references": [
+        {
+         "kind": "FIELD_TYPE",
+         "line": null,
+         "text": "field Invoice.order has type Order"
+        },
+        {
+         "kind": "PARAMETER_TYPE",
+         "line": null,
+         "method": "<init>",
+         "text": "Invoice constructor takes a Order parameter"
+        },
+        {
+         "kind": "RETURN_TYPE",
+         "line": null,
+         "method": "order",
+         "text": "Invoice.order() returns Order"
+        }
+       ],
+       "runtime_calls": 0,
+       "source": "com.fixture.edge.cycle.b.Invoice",
+       "sources": [
+        "static"
+       ],
+       "target": "com.fixture.edge.cycle.a.Order"
+      }
+     ],
+     "explanation": {
+      "plain": "Order cannot be changed without also checking Invoice, because each uses the other: Order uses Invoice, and Invoice holds a Order.",
+      "technical": "Cycle Order \u2192 Invoice \u2192 Order: Order.invoice() calls Invoice constructor [METHOD_CALL, RETURN_TYPE, TYPE_REFERENCE; static]; field Invoice.order has type Order [FIELD_TYPE, PARAMETER_TYPE, RETURN_TYPE; static]."
+     },
+     "id": "cycle-path-cbf17a3748d65769",
+     "members": [
+      "com.fixture.edge.cycle.a.Order",
+      "com.fixture.edge.cycle.b.Invoice"
+     ],
+     "size": 2,
+     "sources": [
+      "static"
+     ]
+    },
+    {
+     "edges": [
+      {
+       "dominant_type": "METHOD_CALL",
+       "edge_types": {
+        "METHOD_CALL": 1,
+        "RETURN_TYPE": 1,
+        "TYPE_REFERENCE": 1
+       },
+       "id": "cycle-edge-59393bae8b8250d6",
+       "reference_count": 3,
+       "references": [
+        {
+         "kind": "METHOD_CALL",
+         "line": 6,
+         "method": "region",
+         "target_method": "<init>",
+         "text": "Address.region() calls Region constructor"
+        },
+        {
+         "kind": "RETURN_TYPE",
+         "line": null,
+         "method": "region",
+         "text": "Address.region() returns Region"
+        }
+       ],
+       "runtime_calls": 0,
+       "source": "com.fixture.edge.cycle.a.Address",
+       "sources": [
+        "static"
+       ],
+       "target": "com.fixture.edge.cycle.a.Region"
+      },
+      {
+       "dominant_type": "METHOD_CALL",
+       "edge_types": {
+        "METHOD_CALL": 1,
+        "RETURN_TYPE": 1,
+        "TYPE_REFERENCE": 1
+       },
+       "id": "cycle-edge-f34ff0bfc19a4056",
+       "reference_count": 3,
+       "references": [
+        {
+         "kind": "METHOD_CALL",
+         "line": 6,
+         "method": "primaryCustomer",
+         "target_method": "<init>",
+         "text": "Region.primaryCustomer() calls Customer constructor"
+        },
+        {
+         "kind": "RETURN_TYPE",
+         "line": null,
+         "method": "primaryCustomer",
+         "text": "Region.primaryCustomer() returns Customer"
+        }
+       ],
+       "runtime_calls": 0,
+       "source": "com.fixture.edge.cycle.a.Region",
+       "sources": [
+        "static"
+       ],
+       "target": "com.fixture.edge.cycle.a.Customer"
+      },
+      {
+       "dominant_type": "METHOD_CALL",
+       "edge_types": {
+        "METHOD_CALL": 1,
+        "RETURN_TYPE": 1,
+        "TYPE_REFERENCE": 1
+       },
+       "id": "cycle-edge-78dd0bfb88e2cefe",
+       "reference_count": 3,
+       "references": [
+        {
+         "kind": "METHOD_CALL",
+         "line": 14,
+         "method": "address",
+         "target_method": "<init>",
+         "text": "Customer.address() calls Address constructor"
+        },
+        {
+         "kind": "RETURN_TYPE",
+         "line": null,
+         "method": "address",
+         "text": "Customer.address() returns Address"
+        }
+       ],
+       "runtime_calls": 0,
+       "source": "com.fixture.edge.cycle.a.Customer",
+       "sources": [
+        "static"
+       ],
+       "target": "com.fixture.edge.cycle.a.Address"
+      }
+     ],
+     "explanation": {
+      "plain": "These 3 classes depend on each other in a loop (Address \u2192 Region \u2192 Customer \u2192 Address). A change to any one of them can force changes in all of them, and none can be reused or tested on its own.",
+      "technical": "Cycle Address \u2192 Region \u2192 Customer \u2192 Address: Address.region() calls Region constructor [METHOD_CALL, RETURN_TYPE, TYPE_REFERENCE; static]; Region.primaryCustomer() calls Customer constructor [METHOD_CALL, RETURN_TYPE, TYPE_REFERENCE; static]; Customer.address() calls Address constructor [METHOD_CALL, RETURN_TYPE, TYPE_REFERENCE; static]."
+     },
+     "id": "cycle-path-8641034ff521e3c1",
+     "members": [
+      "com.fixture.edge.cycle.a.Address",
+      "com.fixture.edge.cycle.a.Region",
+      "com.fixture.edge.cycle.a.Customer"
+     ],
+     "size": 3,
+     "sources": [
+      "static"
+     ]
+    }
+   ],
+   "enumeration_truncated": false,
+   "expected_entity_association": false,
+   "explanation": {
+    "plain": "5 classes are tangled in 3 overlapping loops. Breaking one loop may leave the others; the suggested cuts below show which dependency breaks the most loops.",
+    "technical": "5 classes form one strongly connected component (3 elementary cycles listed), spanning packages com.fixture.edge.cycle.a, com.fixture.edge.cycle.b."
+   },
+   "id": "cycle-group-9094c57d2a4f467b",
+   "internal_edge_count": 7,
+   "layers": [
+    "SUPPORT"
+   ],
+   "level": "CLASS",
+   "max_cycle_length": 8,
+   "members": [
+    "com.fixture.edge.cycle.a.Address",
+    "com.fixture.edge.cycle.a.Customer",
+    "com.fixture.edge.cycle.a.Order",
+    "com.fixture.edge.cycle.a.Region",
+    "com.fixture.edge.cycle.b.Invoice"
+   ],
+   "overlapping": true,
+   "packages": [
+    "com.fixture.edge.cycle.a",
+    "com.fixture.edge.cycle.b"
+   ],
+   "severity": "HIGH",
+   "size": 5
+  },
+  {
+   "cut_candidates": [
+    {
+     "against_layering": true,
+     "breaks_whole_group": true,
+     "cycles_broken": 1,
+     "edge_types": {
+      "METHOD_CALL": 1,
+      "PARAMETER_TYPE": 1
+     },
+     "label": "Suggestion only \u2014 requires human review before changing code.",
+     "rank": 1,
+     "reference_count": 2,
+     "runtime_calls": 0,
+     "source": "com.fixture.edge.legacy.BillingRecord",
+     "target": "com.fixture.edge.legacy.BillingAction",
+     "why": "appears in 1 of the 1 listed cycles; removing it alone breaks every cycle in this group; it points against the layering (domain \u2192 presentation); only 2 code references to rework; no runtime calls observed (none recorded or no session selected)."
+    },
+    {
+     "against_layering": false,
+     "breaks_whole_group": true,
+     "cycles_broken": 1,
+     "edge_types": {
+      "TYPE_REFERENCE": 1
+     },
+     "label": "Suggestion only \u2014 requires human review before changing code.",
+     "rank": 2,
+     "reference_count": 1,
+     "runtime_calls": 0,
+     "source": "com.fixture.edge.legacy.BillingAction",
+     "target": "com.fixture.edge.legacy.BillingRecord",
+     "why": "appears in 1 of the 1 listed cycles; removing it alone breaks every cycle in this group; only 1 code reference to rework; no runtime calls observed (none recorded or no session selected)."
+    }
+   ],
+   "cycle_count_listed": 1,
+   "cycles": [
+    {
+     "edges": [
+      {
+       "dominant_type": "TYPE_REFERENCE",
+       "edge_types": {
+        "TYPE_REFERENCE": 1
+       },
+       "id": "cycle-edge-c1481a7bc6addff4",
+       "reference_count": 1,
+       "references": [
+        {
+         "kind": "TYPE_REFERENCE",
+         "line": 18,
+         "method": "execute",
+         "text": "BillingAction.execute() uses BillingRecord (constant)"
+        }
+       ],
+       "runtime_calls": 0,
+       "source": "com.fixture.edge.legacy.BillingAction",
+       "sources": [
+        "static"
+       ],
+       "target": "com.fixture.edge.legacy.BillingRecord"
+      },
+      {
+       "dominant_type": "METHOD_CALL",
+       "edge_types": {
+        "METHOD_CALL": 1,
+        "PARAMETER_TYPE": 1
+       },
+       "id": "cycle-edge-f98fb0be431d81b6",
+       "reference_count": 2,
+       "references": [
+        {
+         "kind": "METHOD_CALL",
+         "line": 15,
+         "method": "touch",
+         "target_method": "oldApi",
+         "text": "BillingRecord.touch() calls BillingAction.oldApi()"
+        },
+        {
+         "kind": "PARAMETER_TYPE",
+         "line": null,
+         "method": "touch",
+         "text": "BillingRecord.touch() takes a BillingAction parameter"
+        }
+       ],
+       "runtime_calls": 0,
+       "source": "com.fixture.edge.legacy.BillingRecord",
+       "sources": [
+        "static"
+       ],
+       "target": "com.fixture.edge.legacy.BillingAction"
+      }
+     ],
+     "explanation": {
+      "plain": "BillingAction cannot be changed without also checking BillingRecord, because each uses the other: BillingAction works with BillingRecord, and BillingRecord uses BillingAction.",
+      "technical": "Cycle BillingAction \u2192 BillingRecord \u2192 BillingAction: BillingAction.execute() uses BillingRecord (constant) [TYPE_REFERENCE; static]; BillingRecord.touch() calls BillingAction.oldApi() [METHOD_CALL, PARAMETER_TYPE; static]."
+     },
+     "id": "cycle-path-c1481a7bc6addff4",
+     "members": [
+      "com.fixture.edge.legacy.BillingAction",
+      "com.fixture.edge.legacy.BillingRecord"
+     ],
+     "size": 2,
+     "sources": [
+      "static"
+     ]
+    }
+   ],
+   "enumeration_truncated": false,
+   "expected_entity_association": false,
+   "explanation": {
+    "plain": "BillingAction cannot be changed without also checking BillingRecord, because each uses the other: BillingAction works with BillingRecord, and BillingRecord uses BillingAction.",
+    "technical": "2 classes form one strongly connected component (1 elementary cycle listed) and layers domain, presentation."
+   },
+   "id": "cycle-group-d8f6acb51599c75b",
+   "internal_edge_count": 2,
+   "layers": [
+    "DOMAIN",
+    "PRESENTATION"
+   ],
+   "level": "CLASS",
+   "max_cycle_length": 8,
+   "members": [
+    "com.fixture.edge.legacy.BillingAction",
+    "com.fixture.edge.legacy.BillingRecord"
+   ],
+   "overlapping": false,
+   "packages": [
+    "com.fixture.edge.legacy"
+   ],
+   "severity": "HIGH",
+   "size": 2
+  },
+  {
+   "cut_candidates": [
+    {
+     "against_layering": false,
+     "breaks_whole_group": true,
+     "cycles_broken": 1,
+     "edge_types": {
+      "METHOD_CALL": 1,
+      "RETURN_TYPE": 1,
+      "TYPE_REFERENCE": 1
+     },
+     "label": "Suggestion only \u2014 requires human review before changing code.",
+     "rank": 1,
+     "reference_count": 3,
+     "runtime_calls": 0,
+     "source": "com.fixture.edge.cycle.a",
+     "target": "com.fixture.edge.cycle.b",
+     "why": "appears in 1 of the 1 listed cycles; removing it alone breaks every cycle in this group; only 3 code references to rework; no runtime calls observed (none recorded or no session selected)."
+    },
+    {
+     "against_layering": false,
+     "breaks_whole_group": true,
+     "cycles_broken": 1,
+     "edge_types": {
+      "FIELD_TYPE": 1,
+      "PARAMETER_TYPE": 1,
+      "RETURN_TYPE": 1
+     },
+     "label": "Suggestion only \u2014 requires human review before changing code.",
+     "rank": 2,
+     "reference_count": 3,
+     "runtime_calls": 0,
+     "source": "com.fixture.edge.cycle.b",
+     "target": "com.fixture.edge.cycle.a",
+     "why": "appears in 1 of the 1 listed cycles; removing it alone breaks every cycle in this group; only 3 code references to rework; no runtime calls observed (none recorded or no session selected)."
+    }
+   ],
+   "cycle_count_listed": 1,
+   "cycles": [
+    {
+     "edges": [
+      {
+       "class_pair_count": 1,
+       "class_pairs": [
+        {
+         "edge_types": {
+          "METHOD_CALL": 1,
+          "RETURN_TYPE": 1,
+          "TYPE_REFERENCE": 1
+         },
+         "references": [
+          {
+           "kind": "METHOD_CALL",
+           "line": 14,
+           "method": "invoice",
+           "target_method": "<init>",
+           "text": "Order.invoice() calls Invoice constructor"
+          },
+          {
+           "kind": "RETURN_TYPE",
+           "line": null,
+           "method": "invoice",
+           "text": "Order.invoice() returns Invoice"
+          }
+         ],
+         "source": "com.fixture.edge.cycle.a.Order",
+         "target": "com.fixture.edge.cycle.b.Invoice"
+        }
+       ],
+       "dominant_type": "METHOD_CALL",
+       "edge_types": {
+        "METHOD_CALL": 1,
+        "RETURN_TYPE": 1,
+        "TYPE_REFERENCE": 1
+       },
+       "id": "cycle-edge-40635397f94207dc",
+       "reference_count": 3,
+       "runtime_calls": 0,
+       "source": "com.fixture.edge.cycle.a",
+       "sources": [
+        "static"
+       ],
+       "target": "com.fixture.edge.cycle.b"
+      },
+      {
+       "class_pair_count": 1,
+       "class_pairs": [
+        {
+         "edge_types": {
+          "FIELD_TYPE": 1,
+          "PARAMETER_TYPE": 1,
+          "RETURN_TYPE": 1
+         },
+         "references": [
+          {
+           "kind": "FIELD_TYPE",
+           "line": null,
+           "text": "field Invoice.order has type Order"
+          },
+          {
+           "kind": "PARAMETER_TYPE",
+           "line": null,
+           "method": "<init>",
+           "text": "Invoice constructor takes a Order parameter"
+          },
+          {
+           "kind": "RETURN_TYPE",
+           "line": null,
+           "method": "order",
+           "text": "Invoice.order() returns Order"
+          }
+         ],
+         "source": "com.fixture.edge.cycle.b.Invoice",
+         "target": "com.fixture.edge.cycle.a.Order"
+        }
+       ],
+       "dominant_type": "FIELD_TYPE",
+       "edge_types": {
+        "FIELD_TYPE": 1,
+        "PARAMETER_TYPE": 1,
+        "RETURN_TYPE": 1
+       },
+       "id": "cycle-edge-4c4927d51585a77e",
+       "reference_count": 3,
+       "runtime_calls": 0,
+       "source": "com.fixture.edge.cycle.b",
+       "sources": [
+        "static"
+       ],
+       "target": "com.fixture.edge.cycle.a"
+      }
+     ],
+     "explanation": {
+      "plain": "The packages com.fixture.edge.cycle.a, com.fixture.edge.cycle.b depend on each other in a loop, so they cannot be separated into independent modules until one of these dependencies is removed.",
+      "technical": "Package cycle com.fixture.edge.cycle.a \u2192 com.fixture.edge.cycle.b \u2192 com.fixture.edge.cycle.a: com.fixture.edge.cycle.a \u2192 com.fixture.edge.cycle.b via 1 class reference (e.g. Order \u2192 Invoice); com.fixture.edge.cycle.b \u2192 com.fixture.edge.cycle.a via 1 class reference (e.g. Invoice \u2192 Order)."
+     },
+     "id": "cycle-path-40635397f94207dc",
+     "members": [
+      "com.fixture.edge.cycle.a",
+      "com.fixture.edge.cycle.b"
+     ],
+     "size": 2,
+     "sources": [
+      "static"
+     ]
+    }
+   ],
+   "enumeration_truncated": false,
+   "expected_entity_association": false,
+   "explanation": {
+    "plain": "The packages com.fixture.edge.cycle.a, com.fixture.edge.cycle.b depend on each other in a loop, so they cannot be separated into independent modules until one of these dependencies is removed.",
+    "technical": "2 packages form one strongly connected component (1 elementary cycle listed)."
+   },
+   "id": "cycle-group-66b8439024c63fa8",
+   "internal_edge_count": 2,
+   "layers": [],
+   "level": "PACKAGE",
+   "max_cycle_length": 8,
+   "members": [
+    "com.fixture.edge.cycle.a",
+    "com.fixture.edge.cycle.b"
+   ],
+   "overlapping": false,
+   "packages": [
+    "com.fixture.edge.cycle.a",
+    "com.fixture.edge.cycle.b"
+   ],
+   "severity": "HIGH",
+   "size": 2
+  }
+ ],
+ "method": {
+  "algorithm": "Strongly connected components (Tarjan, networkx) on the directed dependency graph; elementary cycles enumerated per component with length <= 8, at most 20 per component.",
+  "nested_classes": "Inner, anonymous and local classes are folded into their top-level class first.",
+  "self_references": "A class or package referring to itself is not a cycle and is excluded."
+ },
+ "nested_or_self_references_ignored": 4,
+ "package_group_count": 1,
+ "runtime_included": false
+}

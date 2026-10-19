@@ -104,7 +104,7 @@ export function App() {
           {view==='explorer'&&<GraphExplorer analysisId={selected} domains={domains.data!.items} focusId={focusNode}/>}
           {view==='domains'&&<Domains domains={domains.data!.items} assessments={assessments.data!.items} issues={issues.data!.items}/>}
           {view==='issues'&&<><Issues issues={issues.data!.items} domains={domains.data!.items}/>{issues.data!.total>500&&<div className="notice">Showing the first 500 findings. Use the paginated API or export for the complete report.</div>}</>}
-          {(view==='cycles'||view==='metrics')&&<Dependencies cycles={cycles.data!.items} metrics={metrics.data!.items} initialTab={view==='metrics'?'metrics':'cycles'}/>}
+          {(view==='cycles'||view==='metrics')&&<Dependencies analysisId={selected} cycles={cycles.data!.items} metrics={metrics.data!.items} initialTab={view==='metrics'?'metrics':'cycles'}/>}
           {view==='lifecycle'&&<TechnologyLifecycle analysisId={selected}/>}
           {view==='assistant'&&<Assistant analysisId={selected} domains={domains.data!.items}/>}
         </div>}</Suspense>

@@ -32,11 +32,16 @@ def detect_issues(classes, graph, class_metrics, package_metrics, thresholds, cy
         if reverse_field_pair and len(affected_domains) == 1:
             expected_associations.append((cycle, affected_domains))
             continue
-        plural = 'class' if cycle['node_count'] == 1 else 'classes'
+        kind = 'classes' if cycle['level'] == 'CLASS' else 'packages'
+        short = lambda name: name.rsplit('.', 1)[-1] if cycle['level'] == 'CLASS' else name
+        sample = cycle['sample_cycles'][0] if cycle['sample_cycles'] else []
+        loop = ' -> '.join(short(n) for n in sample + sample[:1]) if sample else 'not enumerated (group too large)'
+        named = ', '.join(short(n) for n in members[:6]) + (f' and {len(members) - 6} more' if len(members) > 6 else '')
         issues.append(make_issue(cycle['issue_type'], severity, cycle['id'], cycle['level'],
-            f"{cycle['node_count']} {plural} in a cyclic cluster", cycle,
-            'Changes may propagate through this mutually dependent group.',
-            'Inspect the sampled dependencies; break the cycle through a stable interface or reassign responsibilities.',
+            f"{cycle['node_count']} {kind} in a cyclic group: {named}", cycle,
+            f"{named} depend on each other through {cycle['internal_edge_count']} internal dependencies; example loop: {loop}. "
+            f"Spans {len(affected_packages)} package(s) and {len(affected_domains)} candidate domain(s).",
+            f"Open Circular dependencies for the code references behind each step of {loop} and the ranked dependencies to cut.",
             affected_domains))
     for metric in class_metrics:
         name = metric['entity_id']

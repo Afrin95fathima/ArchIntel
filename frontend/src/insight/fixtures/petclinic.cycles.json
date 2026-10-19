@@ -1,0 +1,12 @@
+{
+ "class_group_count": 0,
+ "groups": [],
+ "method": {
+  "algorithm": "Strongly connected components (Tarjan, networkx) on the directed dependency graph; elementary cycles enumerated per component with length <= 8, at most 20 per component.",
+  "nested_classes": "Inner, anonymous and local classes are folded into their top-level class first.",
+  "self_references": "A class or package referring to itself is not a cycle and is excluded."
+ },
+ "nested_or_self_references_ignored": 0,
+ "package_group_count": 0,
+ "runtime_included": false
+}

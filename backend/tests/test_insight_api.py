@@ -53,3 +53,18 @@ def test_ai_off_switch_keeps_deterministic_answer(insight_client, fake_model):
     calls.clear()
     note = insight_client.post(f'/api/v1/analyses/{analysis}/insight/lifecycle/explain', json={'target_id': 'log4j-1'}).json()
     assert note['ai']['reason'] == 'INSIGHT_AI_DISABLED' and not calls
+
+
+def test_cycle_ai_rewrite_must_cite_existing_edges(insight_client, fake_model):
+    _, replies = fake_model
+    analysis, _ = analyse(insight_client, 'edgecases')
+    data = insight_client.get(f'/api/v1/analyses/{analysis}/insight/cycles').json()
+    cycle = next(c for g in data['groups'] for c in g['cycles'] if len(c['members']) == 2 and 'legacy' in c['members'][0])
+    enable_model(insight_client)
+    replies.append(json.dumps({'sentences': [{'text': 'BillingAction and BillingRecord need each other.', 'cite': ['e0', 'e1']},
+        {'text': 'PaymentGateway is also involved.', 'cite': ['e0']}]}))
+    out = insight_client.post(f'/api/v1/analyses/{analysis}/insight/cycles/explain', json={'target_id': cycle['id']}).json()
+    assert out['deterministic'] == cycle['explanation']
+    assert [s['text'] for s in out['ai']['sentences']] == ['BillingAction and BillingRecord need each other.']
+    assert all(c.startswith('edge:') for c in out['ai']['sentences'][0]['citations'])
+    assert out['ai']['dropped'][0]['reason'] == 'UNVERIFIED_IDENTIFIER'
