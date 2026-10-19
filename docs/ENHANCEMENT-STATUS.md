@@ -15,7 +15,7 @@ The same two backend tests fail before and after and were not caused by this wor
 `test_local_setup_diagnostics_…` needs the Windows `.runtime` Java/jQAssistant bundle, and
 `test_context_limit_and_pii_block_policy_send_no_bytes` expects the evidence envelope to exceed 1024 bytes, which it does not here.
 New tests: 11 backend files (≈ 100 tests: reader, roles, routes, lifecycle, cycles, metrics, debt, graph/details, diagrams,
-next tests, extraction audit, assistant, API end-to-end incl. the real Northstar demo jar) and 7 frontend files rendering the
+next tests, extraction audit, assistant, API end-to-end incl. the real Northstar demo jar) and 8 frontend files rendering the
 real backend output for the fixtures.
 
 Assistant evaluation (`backend/tests/evaluation/`, deterministic mode, PetClinic fixture):
