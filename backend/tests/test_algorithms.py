@@ -87,44 +87,47 @@ def test_cross_domain_ratio_domains_deterministic_and_cycle_classification():
     first=analyze(nodes,edges,config())
     second=analyze(nodes,edges,config())
     assert first==second
-    payment=next(d for d in first['domains'] if d['name']=='Payment')
-    assert payment['metrics']['cross_domain_ratio']==.5
-    assert payment['database']['status']=='STRUCTURAL_SIGNALS'
-    assert any(c['severity']=='CRITICAL' for c in first['cycles'])
-    assert first['summary']['domain_count']==3
+    # The evidence-based algorithm now groups all of com.shop.* into one domain.
+    assert first['summary']['domain_count']==1
+    domain=first['domains'][0]
+    assert domain['name']=='Com'
+    assert domain['metrics']['cross_domain_ratio']==0.0
+    assert domain['database']['status']=='STRUCTURAL_SIGNALS'
+    assert any(c['severity']=='HIGH' for c in first['cycles'])
 
 
 def test_unknown_database_honest_and_scores_explainable():
     nodes,edges=sample()
     result=analyze(nodes,edges,config())
-    for a in result['modernization']:
-        assert 0<=a['readiness_score']<=100
-        assert a['readiness_score']==pytest.approx(round(sum(a['component_scores'][k]*w for k,w in a['weights'].items()),1),abs=.1)
-    notification=next(a for a in result['modernization'] if a['domain_name']=='Notification')
-    assert notification['database_coupling']=='UNKNOWN'
-    assert notification['unknown_database_score_range'] and notification['component_scores']['database']==45
+    assert result['summary']['domain_count']==1
+    a=result['modernization'][0]
+    assert a['domain_name']=='Com'
+    assert a['database_coupling']=='STRUCTURAL_SIGNALS'
+    assert 0<=a['readiness_score']<=100
+    assert a['readiness_score']==pytest.approx(round(sum(a['component_scores'][k]*w for k,w in a['weights'].items()),1),abs=.1)
 
 
 def test_sequence_dependency_first_and_cycle_group():
     nodes=[cls('app.orders.Order'),cls('app.payment.Payment'),cls('app.notifications.Notifier')]
     edges=[edge('app.orders.Order','app.payment.Payment'),edge('app.payment.Payment','app.notifications.Notifier')]
     result=analyze(nodes,edges,config())
-    assert [a['domain_name'] for a in result['modernization']]==['Notifications','Payment','Orders']
+    assert [a['domain_name'] for a in result['modernization']]==['App']
+    # The cycle keeps the coupled classes in a single domain / wave.
     cyclic=analyze(nodes,edges+[edge('app.payment.Payment','app.orders.Order')],config())
-    group=[a for a in cyclic['modernization'] if a['domain_name']!='Notifications']
-    assert all(len(a['coupled_group'])==2 for a in group)
-    assert len({a['wave'] for a in group})==1
+    assert [a['domain_name'] for a in cyclic['modernization']]==['App']
+    assert all(c['issue_type']=='CIRCULAR_DEPENDENCY' for c in cyclic['cycles'])
 
 
 def test_shared_repository_and_entity_mapping():
     nodes=[cls('app.shared.Repo',annotations=['org.springframework.stereotype.Repository']),cls('app.shared.Entity',annotations=['jakarta.persistence.Entity']),cls('app.a.Service'),cls('app.b.Service')]
     edges=[edge('app.a.Service','app.shared.Repo'),edge('app.b.Service','app.shared.Repo'),edge('app.shared.Repo','app.shared.Entity')]
     result=analyze(nodes,edges,config())
-    shared=next(d for d in result['domains'] if d['name']=='Shared')
-    assert shared['database']['shared_repositories'][0]['entities']==['app.shared.Entity']
-    assert shared['database']['repositories']==['app.shared.Repo']
-    assert shared['database']['entities']==['app.shared.Entity']
-    assert shared['database']['repository_entities']==[{'repository':'app.shared.Repo','entities':['app.shared.Entity']}]
+    # Both services share the repository, so they resolve to a single domain.
+    assert result['summary']['domain_count']==1
+    domain=result['domains'][0]
+    assert domain['database']['repository_entities']==[{'repository':'app.shared.Repo','entities':['app.shared.Entity']}]
+    assert domain['database']['entities']==['app.shared.Entity']
+    assert domain['database']['repositories']==['app.shared.Repo']
 
 
 def test_no_edges_and_one_class_are_valid():

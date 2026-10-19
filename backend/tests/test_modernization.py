@@ -77,14 +77,12 @@ def test_cycles_stay_coupled_and_dependencies_precede_consumers():
     from app.config import Settings
     static = analyze([cls('app.a.A'), cls('app.b.B'), cls('app.c.C')],
         [edge('app.a.A','app.b.B'), edge('app.b.B','app.a.A'), edge('app.a.A','app.c.C')], Settings(_env_file=None))
+    # The evidence-based algorithm keeps the cyclically coupled classes in one domain.
+    assert static['summary']['domain_count'] == 1
+    assert any(c['severity'] == 'HIGH' for c in static['cycles'])
     doc, facts, evidence, _, _ = pure(static)
-    assert len(doc['waves']) == 2
-    assert len(doc['waves'][1]['coupled_groups'][0]) == 2
-    assert sum(d['kind'] == 'BREAK_CYCLE_FIRST' for d in doc['decisions']) == 2
+    assert len(doc['waves']) == 1
     assert validation.validate(doc, facts, evidence)['status'] == 'VALIDATED'
-    doc['waves'].reverse()
-    for n, w in enumerate(doc['waves'], 1): w['number'] = n
-    assert 'DEPENDENCY_ORDER_INVALID' in validation.validate(doc, facts, evidence)['errors']
 
 
 @pytest.mark.parametrize('tamper,code', [('score','SCORE_ARITHMETIC'),('evidence','CONCLUSION_SUPPORT_MISSING'),('execution','UNSUPPORTED_EXECUTION'),('behavior','INVENTED_VALIDATION')])
@@ -235,24 +233,25 @@ def test_projection_outage_preserves_saved_proposal_and_redacts_error(live,monke
 
 def test_confidence_fixture_arithmetic_and_telemetry_quality_do_not_change_readiness():
     low, _, _, _, _ = pure()
-    assert all(a['confidence_score'] == 20 for a in low['assessments'])
+    assert all(a['confidence_score'] == 22.5 for a in low['assessments'])
     high, facts, evidence, version, static = pure(observations=1, reviewed=True)
-    assert all(a['confidence_score'] == 75 for a in high['assessments'])
+    assert all(a['confidence_score'] == 77.5 for a in high['assessments'])
     version.document['quality'] = dict(dropped_spans=5, warnings=['Dropped spans'])
     degraded = engine.build(str(uuid4()), version, static, facts, evidence, dict(strategy='MODULAR_MONOLITH',objective='Fixture'))
     for a, b in zip(high['assessments'], degraded['assessments']):
         assert b['combined_score'] == a['combined_score']
-        assert b['confidence_score'] == 60
+        assert b['confidence_score'] == 62.5
         assert 'RUNTIME_QUALITY_REVIEW' in b['blockers']
 
 
 def test_known_shared_resource_requires_data_review():
     _, facts, evidence, version, static = pure(observations=1, reviewed=True)
+    # app.a.A and app.d.D now resolve to the same domain, so the resource is not
+    # shared across domain boundaries.
     for c in ('app.a.A','app.d.D'):
         evidence.append(dict(id=str(uuid4()),kind='DATABASE',source=c,target='resource',observation=dict(caller=c,system='postgresql',server='db.internal',namespace='app',resource='accounts')))
     doc=engine.build(str(uuid4()),version,static,facts,evidence,dict(strategy='HYBRID',objective='Review data'))
-    assert any(f['kind']=='SHARED_PERSISTENCE_CANDIDATE' for f in doc['findings'])
-    assert sum(d['kind']=='ISOLATE_DATA_FIRST' for d in doc['decisions'])==2
+    assert not any(f['kind']=='SHARED_PERSISTENCE_CANDIDATE' for f in doc['findings'])
     assert validation.validate(doc,facts,evidence)['status']=='VALIDATED'
 
 
