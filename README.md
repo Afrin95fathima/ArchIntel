@@ -16,6 +16,10 @@ Select **Explore demo application** for the real, pre-analyzed synthetic Northst
 
 The default assistant uses deterministic evidence explanations. Optional local-model evidence selection uses the Phase 2 policy-controlled gateway; no model is required for deterministic analysis. Candidate boundaries and readiness are heuristics, and runtime SQL/traffic remain unknown.
 
+## Evidence-driven insight views
+
+Technology lifecycle, technical debt, architecture metrics, circular dependencies, an explained architecture explorer, HLD/LLD diagrams, suggested next tests and a tool-calling assistant are derived from bytecode facts, runtime evidence and two dated rules files, with a technical and a plain-language explanation for every finding. Everything works without an AI model. See [docs/INSIGHT-REFERENCE.md](docs/INSIGHT-REFERENCE.md), [docs/ENHANCEMENT-STATUS.md](docs/ENHANCEMENT-STATUS.md) and [docs/BUGS-FOUND.md](docs/BUGS-FOUND.md).
+
 ## Documentation
 
 - [Complete user guide: screens, fields, inputs, and outputs](docs/ARCHINTEL-COMPLETE-USER-GUIDE.md)

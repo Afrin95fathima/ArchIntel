@@ -189,3 +189,71 @@ def test_model_sentences_with_invented_numbers_are_removed(insight_client, fake_
     answer = ask(insight_client, analysis, 'Who relies on the owner repository?').json()
     assert [s['text'] for s in answer['sentences']] == ['3 classes depend on OwnerRepository.']
     assert [r['reason'] for r in answer['removed']] == ['UNSUPPORTED_NUMBER'] and answer['removed'][0]['numbers'] == ['99']
+
+
+ENDPOINTS = ['lifecycle', 'cycles', 'metrics', 'debt', 'graph?level=package', 'graph?level=class', 'unresolved', 'node?id=system', 'index', 'tests', 'diagram/hld', 'assistant/tools']
+
+
+def test_every_insight_endpoint_works_on_petclinic_end_to_end(insight_client):
+    analysis, _ = analyse(insight_client, 'petclinic')
+    for path in ENDPOINTS:
+        response = insight_client.get(f'/api/v1/analyses/{analysis}/insight/{path}')
+        assert response.status_code == 200, (path, response.text[:200])
+    lld = insight_client.get(f'/api/v1/analyses/{analysis}/insight/diagram/lld', params={'package': 'org.springframework.samples.petclinic.owner'}).json()
+    assert lld['status'] == 'AVAILABLE' and len(lld['classes']) == 11
+    entry = next(e['id'] for e in lld['entry_points'] if e['text'] == 'POST /owners/new')
+    seq = insight_client.get(f'/api/v1/analyses/{analysis}/insight/diagram/sequence', params={'entry_id': entry}).json()
+    assert seq['origin'] == 'STATIC' and seq['messages']
+    # tenant scoping: another analysis id is simply not found
+    assert insight_client.get('/api/v1/analyses/missing/insight/debt').status_code == 404
+
+
+def test_real_compiled_demo_jar_goes_through_all_views():
+    from pathlib import Path
+    import tempfile
+    from fastapi.testclient import TestClient
+    from app.config import Settings
+    from app.main import create_app
+    from security_helpers import sign_in_owner
+    demo = Path(__file__).resolve().parents[2] / 'samples' / 'northstar-commerce.jar'
+    with tempfile.TemporaryDirectory() as folder:
+        settings = Settings(_env_file=None, database_url='sqlite:///' + folder + '/t.db', data_dir=Path(folder), allowed_hosts=['testserver'], scanner_engine='bytecode')
+        with TestClient(create_app(settings)) as client:
+            sign_in_owner(client)
+            project = client.post('/api/v1/projects', json={'name': 'Demo', 'description': 'x'}).json()
+            app = client.post('/api/v1/applications', json={'project_id': project['id'], 'name': 'Northstar', 'version': '1'}).json()['id']
+            assert client.post(f'/api/v1/applications/{app}/artifact', files={'file': ('n.jar', demo.read_bytes(), 'application/java-archive')}).status_code == 201
+            run = client.post(f'/api/v1/applications/{app}/analysis').json()
+            import time
+            for _ in range(400):
+                state = client.get(f"/api/v1/analyses/{run['id']}").json()
+                if state['status'] in ('COMPLETED', 'FAILED'):
+                    break
+                time.sleep(.05)
+            assert state['status'] == 'COMPLETED', state
+            for path in ENDPOINTS:
+                assert client.get(f"/api/v1/analyses/{run['id']}/insight/{path}").status_code == 200, path
+            assert client.get(f"/api/v1/analyses/{run['id']}/insight/cycles").json()['groups'] is not None
+            answer = ask(client, run['id'], 'How many classes are in the application?').json()
+            assert answer['status'] == 'ANSWERED' and '40' in answer['sentences'][0]['text']
+
+
+def test_source_store_captures_java_entries_and_respects_limits_and_deny(tmp_path):
+    import io, zipfile
+    from app.config import Settings
+    from app.insight.source_store import capture, read
+    result = {'classes': [{'id': 'p.A'}, {'id': 'p.B'}], 'bytecode': {'classes': {}}}
+    archive = tmp_path / 'src.jar'
+    with zipfile.ZipFile(archive, 'w') as z:
+        z.writestr('src/main/java/p/A.java', 'package p; class A {}')
+        z.writestr('src/main/java/p/B.java', 'x' * 100000)                 # over the per-class limit
+        z.writestr('src/main/java/q/Unrelated.java', 'class Unrelated {}')
+        z.writestr('../evil/p/A.java', 'class Evil {}')
+    config = Settings(_env_file=None, data_dir=tmp_path)
+    store = capture(config, 'an1', archive, result)
+    assert store['status'] == 'SOURCE_CAPTURED' and list(store['index']) == ['p.A'] and store['skipped_over_limit'] == 1
+    result['source_store'] = store
+    assert read(config, 'an1', result, 'p.A')['text'] == 'package p; class A {}' and read(config, 'an1', result, 'p.A')['kind'] == 'SOURCE'
+    assert read(config, 'an1', result, 'p.B')['kind'] == 'NOT_AVAILABLE'
+    deny = Settings(_env_file=None, data_dir=tmp_path, source_store_mode='DENY')
+    assert capture(deny, 'an2', archive, result)['status'] == 'DISABLED' and read(deny, 'an1', result, 'p.A')['kind'] == 'DISABLED'
