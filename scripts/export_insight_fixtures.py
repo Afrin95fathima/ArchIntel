@@ -17,8 +17,8 @@ OUT = ROOT / 'frontend' / 'src' / 'insight' / 'fixtures'
 
 def views(name):
     m = model(name)
-    from app.insight import cycles, metrics
-    out = {'lifecycle': lifecycle.evaluate(m, {}, today=None), 'cycles': cycles.analyse(m), 'metrics': metrics.compute(m)}
+    from app.insight import cycles, metrics, debt
+    out = {'lifecycle': lifecycle.evaluate(m, {}, today=None), 'cycles': cycles.analyse(m), 'metrics': metrics.compute(m), 'debt': debt.detect(m)}
     try:
         from app.insight import exports
         out.update(exports.all_views(m))

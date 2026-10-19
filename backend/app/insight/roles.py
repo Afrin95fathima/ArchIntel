@@ -13,6 +13,8 @@ ROLE_LAYER = {
     'CONFIGURATION': 'CONFIGURATION', 'APPLICATION': 'CONFIGURATION',
     'EXCEPTION': 'SUPPORT', 'UTILITY': 'SUPPORT', 'UNKNOWN': 'SUPPORT',
 }
+LAYER_PLAIN = {'PRESENTATION': 'web/presentation', 'SERVICE': 'service', 'DATA_ACCESS': 'data access', 'DOMAIN': 'domain model',
+    'CONFIGURATION': 'configuration', 'SUPPORT': 'supporting code'}
 LAYER_ORDER = ['PRESENTATION', 'SERVICE', 'DATA_ACCESS', 'DOMAIN', 'CONFIGURATION', 'SUPPORT']
 LAYER_LABEL = {
     'PRESENTATION': 'Presentation (controllers, servlets, filters)', 'SERVICE': 'Services and application logic',

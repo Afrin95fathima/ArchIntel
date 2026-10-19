@@ -21,16 +21,6 @@ export function Domains({domains,assessments,issues}: {domains:Domain[];assessme
   </>;
 }
 
-export function Issues({issues,domains}: {issues:Issue[];domains:Domain[]}) {
-  const [severity,setSeverity]=useState(''),[type,setType]=useState(''),[domain,setDomain]=useState(''),[search,setSearch]=useState(''),[open,setOpen]=useState('');
-  const priority:Record<string,number>={CRITICAL:0,HIGH:1,MEDIUM:2,LOW:3};
-  const filtered=issues.filter(i=>(!severity||i.severity===severity)&&(!type||i.issue_type===type)&&(!domain||i.domain_ids.includes(domain))&&(!search||(i.title+' '+i.entity_id+' '+JSON.stringify(i.evidence)).toLowerCase().includes(search.toLowerCase()))).sort((a,b)=>(priority[a.severity]??4)-(priority[b.severity]??4));
-  return <><PageTitle eyebrow="ARCHITECTURAL TECHNICAL DEBT" title="Turn complexity into a focused backlog." description="Investigate the highest-impact structural risks, with the evidence behind every finding."/>
-    <div className="filter-bar"><div className="search-field"><Search size={17}/><input placeholder="Search issues or package - " aria-label="Search issues" value={search} onChange={e=>setSearch(e.target.value)}/></div><select aria-label="Severity" value={severity} onChange={e=>setSeverity(e.target.value)}><option value="">All severities</option>{['CRITICAL','HIGH','MEDIUM','LOW'].map(s=><option key={s}>{s}</option>)}</select><select aria-label="Issue type" value={type} onChange={e=>setType(e.target.value)}><option value="">All issue types</option>{[...new Set(issues.map(i=>i.issue_type))].map(t=><option key={t} value={t}>{human(t)}</option>)}</select><select aria-label="Domain" value={domain} onChange={e=>setDomain(e.target.value)}><option value="">All domains</option>{domains.map(d=><option key={d.id} value={d.id}>{d.name}</option>)}</select></div>
-    <div className="section-heading"><span className="muted">{filtered.length} findings</span><span className="muted">Priority order ? critical first</span></div>
-    <div className="panel issue-list">{filtered.map(i=><div className="issue-item" key={i.id}><button className="issue-row" onClick={()=>setOpen(open===i.id?'':i.id)}><Badge tone={i.severity}>{i.severity}</Badge><div><strong>{i.title}</strong><small>{i.entity_id}</small></div><span className="issue-kind">{human(i.issue_type)}</span><ChevronDown size={17}/></button>{open===i.id&&<div className="issue-detail"><div><h4>Why it matters</h4><p>{i.why_it_matters}</p><h4>Recommended investigation</h4><p>{i.recommendation}</p><small className="mono">Evidence ID: {i.id}</small></div><div><h4>Analysis evidence</h4><pre>{JSON.stringify(i.evidence,null,2)}</pre></div></div>}</div>)}{!filtered.length&&<div className="empty"><h3>No findings match these filters.</h3></div>}</div>
-  </>;
-}
 
 export function Modernization({assessments,confidenceByDomain={}}: {assessments:Assessment[];confidenceByDomain?:Record<string,number>}) {
   const [open,setOpen]=useState('');

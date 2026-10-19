@@ -1,0 +1,670 @@
+{
+ "by_rule": {
+  "DEBT-AGING-FRAMEWORK": 1,
+  "DEBT-ENTITY-IN-CONTROLLER": 8
+ },
+ "counts": {
+  "MEDIUM": 9
+ },
+ "effort_note": "The debt index is a heuristic ordering aid with its inputs shown. It is not a time, cost or currency estimate.",
+ "facts_available": true,
+ "findings": [
+  {
+   "entity_id": "org.springframework.samples.petclinic.PetClinicApplication uses spring-boot",
+   "entity_type": "CLASS",
+   "evidence": [
+    {
+     "kind": "CALL_SITE",
+     "line": null,
+     "text": "PetClinicApplication is annotated @SpringBootApplication"
+    },
+    {
+     "kind": "CALL_SITE",
+     "line": 10,
+     "text": "PetClinicApplication.main() calls SpringApplication.run()"
+    }
+   ],
+   "explanation": {
+    "plain": "PetClinicApplication depends on Spring Boot, which is aging; it will need rework when the technology is replaced.",
+    "technical": "PetClinicApplication uses Spring Boot (aging): org.springframework.boot.SpringApplication, org.springframework.boot.autoconfigure.SpringBootApplication."
+   },
+   "id": "debt-890867a62f846e95",
+   "measured": {
+    "status": "aging",
+    "technology": "Spring Boot"
+   },
+   "node_ids": [
+    "org.springframework.samples.petclinic.PetClinicApplication"
+   ],
+   "package": "org.springframework.samples.petclinic",
+   "reason": "The class uses a technology rated aging (MEDIUM) or end-of-life (HIGH) by the lifecycle rules (WP1).",
+   "related": {
+    "lifecycle_finding_id": "spring-boot"
+   },
+   "rule_id": "DEBT-AGING-FRAMEWORK",
+   "severity": "MEDIUM",
+   "suggested_action": "Move to Spring Boot 4.x (or latest supported 3.5.x as an intermediate step). 2.x -> 3.x requires Java 17 and the javax.* -> jakarta.* namespace change; use the spring-boot-properties-migrator and OpenRewrite Spring Boot recipes.",
+   "threshold": {
+    "status": "current"
+   },
+   "title": "Aging or end-of-life framework usage"
+  },
+  {
+   "entity_id": "org.springframework.samples.petclinic.owner.OwnerController -> org.springframework.samples.petclinic.owner.Owner",
+   "entity_type": "DEPENDENCY",
+   "evidence": [
+    {
+     "kind": "METHOD_CALL",
+     "line": 41,
+     "text": "OwnerController.findOwner() calls Owner constructor"
+    },
+    {
+     "kind": "RETURN_TYPE",
+     "line": null,
+     "text": "OwnerController.findOwner() returns Owner"
+    },
+    {
+     "kind": "TYPE_REFERENCE",
+     "line": 44,
+     "text": "OwnerController.findOwner() uses Owner (checkcast)"
+    },
+    {
+     "kind": "METHOD_CALL",
+     "line": 60,
+     "text": "OwnerController.processCreationForm() calls Owner.getId()"
+    },
+    {
+     "kind": "PARAMETER_TYPE",
+     "line": null,
+     "text": "OwnerController.processCreationForm() takes a Owner parameter"
+    },
+    {
+     "kind": "METHOD_CALL",
+     "line": 71,
+     "text": "OwnerController.processFindForm() calls Owner.getLastName()"
+    }
+   ],
+   "explanation": {
+    "plain": "The web layer in OwnerController works with the database record Owner directly, so changing the database model can break the web pages or API.",
+    "technical": "OwnerController (controller) uses entity Owner directly via GENERIC_TYPE, METHOD_CALL, PARAMETER_TYPE, RETURN_TYPE, TYPE_REFERENCE."
+   },
+   "id": "debt-34dd76e8f7f14ae6",
+   "measured": {
+    "edge_types": {
+     "GENERIC_TYPE": 1,
+     "METHOD_CALL": 1,
+     "PARAMETER_TYPE": 1,
+     "RETURN_TYPE": 1,
+     "TYPE_REFERENCE": 1
+    }
+   },
+   "node_ids": [
+    "org.springframework.samples.petclinic.owner.OwnerController",
+    "org.springframework.samples.petclinic.owner.Owner"
+   ],
+   "package": "org.springframework.samples.petclinic.owner",
+   "reason": "A presentation-layer class uses a persistence entity as a parameter, return type, field or call target.",
+   "related": {},
+   "rule_id": "DEBT-ENTITY-IN-CONTROLLER",
+   "severity": "MEDIUM",
+   "suggested_action": "Map the entity to a request/response model at the controller boundary so the database model can change independently.",
+   "threshold": {
+    "allowed": "request/response models"
+   },
+   "title": "Entity used directly by a controller"
+  },
+  {
+   "entity_id": "org.springframework.samples.petclinic.owner.PetController -> org.springframework.samples.petclinic.owner.Owner",
+   "entity_type": "DEPENDENCY",
+   "evidence": [
+    {
+     "kind": "RETURN_TYPE",
+     "line": null,
+     "text": "PetController.findOwner() returns Owner"
+    },
+    {
+     "kind": "TYPE_REFERENCE",
+     "line": 43,
+     "text": "PetController.findOwner() uses Owner (checkcast)"
+    },
+    {
+     "kind": "METHOD_CALL",
+     "line": 54,
+     "text": "PetController.findPet() calls Owner.getPet()"
+    },
+    {
+     "kind": "TYPE_REFERENCE",
+     "line": 53,
+     "text": "PetController.findPet() uses Owner (checkcast)"
+    },
+    {
+     "kind": "METHOD_CALL",
+     "line": 70,
+     "text": "PetController.initCreationForm() calls Owner.addPet()"
+    },
+    {
+     "kind": "PARAMETER_TYPE",
+     "line": null,
+     "text": "PetController.initCreationForm() takes a Owner parameter"
+    }
+   ],
+   "explanation": {
+    "plain": "The web layer in PetController works with the database record Owner directly, so changing the database model can break the web pages or API.",
+    "technical": "PetController (controller) uses entity Owner directly via METHOD_CALL, PARAMETER_TYPE, RETURN_TYPE, TYPE_REFERENCE."
+   },
+   "id": "debt-bad5809bc168d97a",
+   "measured": {
+    "edge_types": {
+     "METHOD_CALL": 1,
+     "PARAMETER_TYPE": 1,
+     "RETURN_TYPE": 1,
+     "TYPE_REFERENCE": 1
+    }
+   },
+   "node_ids": [
+    "org.springframework.samples.petclinic.owner.PetController",
+    "org.springframework.samples.petclinic.owner.Owner"
+   ],
+   "package": "org.springframework.samples.petclinic.owner",
+   "reason": "A presentation-layer class uses a persistence entity as a parameter, return type, field or call target.",
+   "related": {},
+   "rule_id": "DEBT-ENTITY-IN-CONTROLLER",
+   "severity": "MEDIUM",
+   "suggested_action": "Map the entity to a request/response model at the controller boundary so the database model can change independently.",
+   "threshold": {
+    "allowed": "request/response models"
+   },
+   "title": "Entity used directly by a controller"
+  },
+  {
+   "entity_id": "org.springframework.samples.petclinic.owner.PetController -> org.springframework.samples.petclinic.owner.Pet",
+   "entity_type": "DEPENDENCY",
+   "evidence": [
+    {
+     "kind": "METHOD_CALL",
+     "line": 50,
+     "text": "PetController.findPet() calls Pet constructor"
+    },
+    {
+     "kind": "RETURN_TYPE",
+     "line": null,
+     "text": "PetController.findPet() returns Pet"
+    },
+    {
+     "kind": "METHOD_CALL",
+     "line": 69,
+     "text": "PetController.initCreationForm() calls Pet constructor"
+    },
+    {
+     "kind": "METHOD_CALL",
+     "line": 77,
+     "text": "PetController.processCreationForm() calls Pet.getName()"
+    },
+    {
+     "kind": "METHOD_CALL",
+     "line": 77,
+     "text": "PetController.processCreationForm() calls Pet.isNew()"
+    },
+    {
+     "kind": "METHOD_CALL",
+     "line": 80,
+     "text": "PetController.processCreationForm() calls Pet.getBirthDate()"
+    }
+   ],
+   "explanation": {
+    "plain": "The web layer in PetController works with the database record Pet directly, so changing the database model can break the web pages or API.",
+    "technical": "PetController (controller) uses entity Pet directly via METHOD_CALL, PARAMETER_TYPE, RETURN_TYPE, TYPE_REFERENCE."
+   },
+   "id": "debt-c7d886ae8461a519",
+   "measured": {
+    "edge_types": {
+     "METHOD_CALL": 1,
+     "PARAMETER_TYPE": 1,
+     "RETURN_TYPE": 1,
+     "TYPE_REFERENCE": 1
+    }
+   },
+   "node_ids": [
+    "org.springframework.samples.petclinic.owner.PetController",
+    "org.springframework.samples.petclinic.owner.Pet"
+   ],
+   "package": "org.springframework.samples.petclinic.owner",
+   "reason": "A presentation-layer class uses a persistence entity as a parameter, return type, field or call target.",
+   "related": {},
+   "rule_id": "DEBT-ENTITY-IN-CONTROLLER",
+   "severity": "MEDIUM",
+   "suggested_action": "Map the entity to a request/response model at the controller boundary so the database model can change independently.",
+   "threshold": {
+    "allowed": "request/response models"
+   },
+   "title": "Entity used directly by a controller"
+  },
+  {
+   "entity_id": "org.springframework.samples.petclinic.owner.PetController -> org.springframework.samples.petclinic.owner.PetType",
+   "entity_type": "DEPENDENCY",
+   "evidence": [
+    {
+     "kind": "GENERIC_TYPE",
+     "line": null,
+     "text": "PetController.populatePetTypes() signature uses PetType as a type argument"
+    }
+   ],
+   "explanation": {
+    "plain": "The web layer in PetController works with the database record PetType directly, so changing the database model can break the web pages or API.",
+    "technical": "PetController (controller) uses entity PetType directly via GENERIC_TYPE."
+   },
+   "id": "debt-3ca14fbccc1f24d6",
+   "measured": {
+    "edge_types": {
+     "GENERIC_TYPE": 1
+    }
+   },
+   "node_ids": [
+    "org.springframework.samples.petclinic.owner.PetController",
+    "org.springframework.samples.petclinic.owner.PetType"
+   ],
+   "package": "org.springframework.samples.petclinic.owner",
+   "reason": "A presentation-layer class uses a persistence entity as a parameter, return type, field or call target.",
+   "related": {},
+   "rule_id": "DEBT-ENTITY-IN-CONTROLLER",
+   "severity": "MEDIUM",
+   "suggested_action": "Map the entity to a request/response model at the controller boundary so the database model can change independently.",
+   "threshold": {
+    "allowed": "request/response models"
+   },
+   "title": "Entity used directly by a controller"
+  },
+  {
+   "entity_id": "org.springframework.samples.petclinic.owner.VisitController -> org.springframework.samples.petclinic.owner.Owner",
+   "entity_type": "DEPENDENCY",
+   "evidence": [
+    {
+     "kind": "METHOD_CALL",
+     "line": 35,
+     "text": "VisitController.loadPetWithVisit() calls Owner.getPet()"
+    },
+    {
+     "kind": "TYPE_REFERENCE",
+     "line": 34,
+     "text": "VisitController.loadPetWithVisit() uses Owner (checkcast)"
+    },
+    {
+     "kind": "METHOD_CALL",
+     "line": 54,
+     "text": "VisitController.processNewVisitForm() calls Owner.addVisit()"
+    },
+    {
+     "kind": "PARAMETER_TYPE",
+     "line": null,
+     "text": "VisitController.processNewVisitForm() takes a Owner parameter"
+    }
+   ],
+   "explanation": {
+    "plain": "The web layer in VisitController works with the database record Owner directly, so changing the database model can break the web pages or API.",
+    "technical": "VisitController (controller) uses entity Owner directly via METHOD_CALL, PARAMETER_TYPE, TYPE_REFERENCE."
+   },
+   "id": "debt-9915c71c2910fae1",
+   "measured": {
+    "edge_types": {
+     "METHOD_CALL": 1,
+     "PARAMETER_TYPE": 1,
+     "TYPE_REFERENCE": 1
+    }
+   },
+   "node_ids": [
+    "org.springframework.samples.petclinic.owner.VisitController",
+    "org.springframework.samples.petclinic.owner.Owner"
+   ],
+   "package": "org.springframework.samples.petclinic.owner",
+   "reason": "A presentation-layer class uses a persistence entity as a parameter, return type, field or call target.",
+   "related": {},
+   "rule_id": "DEBT-ENTITY-IN-CONTROLLER",
+   "severity": "MEDIUM",
+   "suggested_action": "Map the entity to a request/response model at the controller boundary so the database model can change independently.",
+   "threshold": {
+    "allowed": "request/response models"
+   },
+   "title": "Entity used directly by a controller"
+  },
+  {
+   "entity_id": "org.springframework.samples.petclinic.owner.VisitController -> org.springframework.samples.petclinic.owner.Pet",
+   "entity_type": "DEPENDENCY",
+   "evidence": [
+    {
+     "kind": "METHOD_CALL",
+     "line": 39,
+     "text": "VisitController.loadPetWithVisit() calls Pet.addVisit()"
+    }
+   ],
+   "explanation": {
+    "plain": "The web layer in VisitController works with the database record Pet directly, so changing the database model can break the web pages or API.",
+    "technical": "VisitController (controller) uses entity Pet directly via METHOD_CALL."
+   },
+   "id": "debt-dd4267e39bbeb0da",
+   "measured": {
+    "edge_types": {
+     "METHOD_CALL": 1
+    }
+   },
+   "node_ids": [
+    "org.springframework.samples.petclinic.owner.VisitController",
+    "org.springframework.samples.petclinic.owner.Pet"
+   ],
+   "package": "org.springframework.samples.petclinic.owner",
+   "reason": "A presentation-layer class uses a persistence entity as a parameter, return type, field or call target.",
+   "related": {},
+   "rule_id": "DEBT-ENTITY-IN-CONTROLLER",
+   "severity": "MEDIUM",
+   "suggested_action": "Map the entity to a request/response model at the controller boundary so the database model can change independently.",
+   "threshold": {
+    "allowed": "request/response models"
+   },
+   "title": "Entity used directly by a controller"
+  },
+  {
+   "entity_id": "org.springframework.samples.petclinic.owner.VisitController -> org.springframework.samples.petclinic.owner.Visit",
+   "entity_type": "DEPENDENCY",
+   "evidence": [
+    {
+     "kind": "METHOD_CALL",
+     "line": 38,
+     "text": "VisitController.loadPetWithVisit() calls Visit constructor"
+    },
+    {
+     "kind": "RETURN_TYPE",
+     "line": null,
+     "text": "VisitController.loadPetWithVisit() returns Visit"
+    },
+    {
+     "kind": "GENERIC_TYPE",
+     "line": null,
+     "text": "VisitController.loadPetWithVisit() signature uses Visit as a type argument"
+    },
+    {
+     "kind": "PARAMETER_TYPE",
+     "line": null,
+     "text": "VisitController.processNewVisitForm() takes a Visit parameter"
+    }
+   ],
+   "explanation": {
+    "plain": "The web layer in VisitController works with the database record Visit directly, so changing the database model can break the web pages or API.",
+    "technical": "VisitController (controller) uses entity Visit directly via GENERIC_TYPE, METHOD_CALL, PARAMETER_TYPE, RETURN_TYPE, TYPE_REFERENCE."
+   },
+   "id": "debt-407b757deefe0bec",
+   "measured": {
+    "edge_types": {
+     "GENERIC_TYPE": 1,
+     "METHOD_CALL": 1,
+     "PARAMETER_TYPE": 1,
+     "RETURN_TYPE": 1,
+     "TYPE_REFERENCE": 1
+    }
+   },
+   "node_ids": [
+    "org.springframework.samples.petclinic.owner.VisitController",
+    "org.springframework.samples.petclinic.owner.Visit"
+   ],
+   "package": "org.springframework.samples.petclinic.owner",
+   "reason": "A presentation-layer class uses a persistence entity as a parameter, return type, field or call target.",
+   "related": {},
+   "rule_id": "DEBT-ENTITY-IN-CONTROLLER",
+   "severity": "MEDIUM",
+   "suggested_action": "Map the entity to a request/response model at the controller boundary so the database model can change independently.",
+   "threshold": {
+    "allowed": "request/response models"
+   },
+   "title": "Entity used directly by a controller"
+  },
+  {
+   "entity_id": "org.springframework.samples.petclinic.vet.VetController -> org.springframework.samples.petclinic.vet.Vet",
+   "entity_type": "DEPENDENCY",
+   "evidence": [
+    {
+     "kind": "GENERIC_TYPE",
+     "line": null,
+     "text": "VetController.addPaginationModel() signature uses Vet as a type argument"
+    },
+    {
+     "kind": "GENERIC_TYPE",
+     "line": null,
+     "text": "VetController.findPaginated() signature uses Vet as a type argument"
+    }
+   ],
+   "explanation": {
+    "plain": "The web layer in VetController works with the database record Vet directly, so changing the database model can break the web pages or API.",
+    "technical": "VetController (controller) uses entity Vet directly via GENERIC_TYPE."
+   },
+   "id": "debt-1a031f612ef5b5be",
+   "measured": {
+    "edge_types": {
+     "GENERIC_TYPE": 1
+    }
+   },
+   "node_ids": [
+    "org.springframework.samples.petclinic.vet.VetController",
+    "org.springframework.samples.petclinic.vet.Vet"
+   ],
+   "package": "org.springframework.samples.petclinic.vet",
+   "reason": "A presentation-layer class uses a persistence entity as a parameter, return type, field or call target.",
+   "related": {},
+   "rule_id": "DEBT-ENTITY-IN-CONTROLLER",
+   "severity": "MEDIUM",
+   "suggested_action": "Map the entity to a request/response model at the controller boundary so the database model can change independently.",
+   "threshold": {
+    "allowed": "request/response models"
+   },
+   "title": "Entity used directly by a controller"
+  }
+ ],
+ "packages": [
+  {
+   "class_count": 11,
+   "counts": {
+    "MEDIUM": 7
+   },
+   "debt_density": 1.27,
+   "debt_index": 14,
+   "formula": "debt index = 3 \u00d7 HIGH + 2 \u00d7 MEDIUM + 1 \u00d7 LOW (+4 \u00d7 CRITICAL, INFO = 0); density = index / classes",
+   "inputs": {
+    "MEDIUM": 7,
+    "classes": 11
+   },
+   "package": "org.springframework.samples.petclinic.owner"
+  },
+  {
+   "class_count": 1,
+   "counts": {
+    "MEDIUM": 1
+   },
+   "debt_density": 2.0,
+   "debt_index": 2,
+   "formula": "debt index = 3 \u00d7 HIGH + 2 \u00d7 MEDIUM + 1 \u00d7 LOW (+4 \u00d7 CRITICAL, INFO = 0); density = index / classes",
+   "inputs": {
+    "MEDIUM": 1,
+    "classes": 1
+   },
+   "package": "org.springframework.samples.petclinic"
+  },
+  {
+   "class_count": 5,
+   "counts": {
+    "MEDIUM": 1
+   },
+   "debt_density": 0.4,
+   "debt_index": 2,
+   "formula": "debt index = 3 \u00d7 HIGH + 2 \u00d7 MEDIUM + 1 \u00d7 LOW (+4 \u00d7 CRITICAL, INFO = 0); density = index / classes",
+   "inputs": {
+    "MEDIUM": 1,
+    "classes": 5
+   },
+   "package": "org.springframework.samples.petclinic.vet"
+  },
+  {
+   "class_count": 3,
+   "counts": {},
+   "debt_density": 0.0,
+   "debt_index": 0,
+   "formula": "debt index = 3 \u00d7 HIGH + 2 \u00d7 MEDIUM + 1 \u00d7 LOW (+4 \u00d7 CRITICAL, INFO = 0); density = index / classes",
+   "inputs": {
+    "classes": 3
+   },
+   "package": "org.springframework.samples.petclinic.model"
+  },
+  {
+   "class_count": 4,
+   "counts": {},
+   "debt_density": 0.0,
+   "debt_index": 0,
+   "formula": "debt index = 3 \u00d7 HIGH + 2 \u00d7 MEDIUM + 1 \u00d7 LOW (+4 \u00d7 CRITICAL, INFO = 0); density = index / classes",
+   "inputs": {
+    "classes": 4
+   },
+   "package": "org.springframework.samples.petclinic.system"
+  }
+ ],
+ "rules": [
+  {
+   "action": "Identify groups of methods that use the same fields and move each group into its own class.",
+   "description": "At least `min_signals` of the listed size/coupling metrics are over their threshold.",
+   "id": "DEBT-GOD-CLASS",
+   "severity": "HIGH",
+   "title": "God class"
+  },
+  {
+   "action": "Introduce a narrower interface for the most common callers, or split responsibilities so fewer classes depend on this one.",
+   "description": "fan-in + fan-out (distinct internal classes) is over the threshold.",
+   "id": "DEBT-HIGH-COUPLING",
+   "severity": "MEDIUM",
+   "title": "High coupling"
+  },
+  {
+   "action": "Open the cycle and review the highest-ranked dependency to cut.",
+   "description": "The class belongs to a cyclic group (strongly connected component) of top-level classes.",
+   "id": "DEBT-CYCLE-MEMBER",
+   "severity": "HIGH",
+   "title": "Cyclic dependency membership"
+  },
+  {
+   "action": "Move the dependency behind a service or interface in an allowed layer.",
+   "description": "A class depends on a class in a layer it may not use according to `layering`.",
+   "id": "DEBT-LAYER-VIOLATION",
+   "severity": "HIGH",
+   "title": "Layer violation"
+  },
+  {
+   "action": "Route the call through the existing service that owns this data, if one exists.",
+   "description": "A presentation class depends directly on data access while the application has a service layer.",
+   "id": "DEBT-LAYER-SKIP",
+   "severity": "LOW",
+   "title": "Controller bypasses the service layer"
+  },
+  {
+   "action": "Extract cohesive blocks of the method into well-named private methods or collaborating classes.",
+   "description": "A method's bytecode size is over the threshold. HotSpot does not JIT-compile methods larger than 8000 bytes of bytecode (HugeMethodLimit).",
+   "id": "DEBT-LARGE-METHOD",
+   "severity": "MEDIUM",
+   "title": "Large method"
+  },
+  {
+   "action": "Replace nested conditionals with early returns, polymorphism or lookup tables, and add tests per branch first.",
+   "description": "Branch instructions + 1 (an approximation of cyclomatic complexity from bytecode) is over the threshold.",
+   "id": "DEBT-COMPLEX-METHOD",
+   "severity": "MEDIUM",
+   "title": "Complex method"
+  },
+  {
+   "action": "Group related dependencies behind a facade or split the class by responsibility.",
+   "description": "Distinct referenced types (internal and external, excluding java.lang) is over the threshold.",
+   "id": "DEBT-TOO-MANY-DEPENDENCIES",
+   "severity": "MEDIUM",
+   "title": "Too many dependencies"
+  },
+  {
+   "action": "Map the entity to a request/response model at the controller boundary so the database model can change independently.",
+   "description": "A presentation-layer class uses a persistence entity as a parameter, return type, field or call target.",
+   "id": "DEBT-ENTITY-IN-CONTROLLER",
+   "severity": "MEDIUM",
+   "title": "Entity used directly by a controller"
+  },
+  {
+   "action": "Move the state into an instance managed by the container, or make it immutable.",
+   "description": "A non-final static field, or a static final collection that is modified, holds shared mutable state.",
+   "id": "DEBT-STATIC-STATE",
+   "severity": "MEDIUM",
+   "title": "Mutable static state"
+  },
+  {
+   "action": "Replace the call with the documented successor API.",
+   "description": "The class calls a member marked @Deprecated in the application, or a JDK member listed as deprecated in lifecycle-rules.yaml.",
+   "id": "DEBT-DEPRECATED-API",
+   "severity": "LOW",
+   "title": "Deprecated API usage"
+  },
+  {
+   "action": "Follow the migration notes on the Technology lifecycle page.",
+   "description": "The class uses a technology rated aging (MEDIUM) or end-of-life (HIGH) by the lifecycle rules (WP1).",
+   "id": "DEBT-AGING-FRAMEWORK",
+   "severity": "MEDIUM",
+   "title": "Aging or end-of-life framework usage"
+  },
+  {
+   "action": "Exercise the entry points listed under Suggested next tests before drawing conclusions.",
+   "description": "No span in the selected runtime sessions mapped to this class. Unobserved does not mean unused.",
+   "id": "DEBT-UNOBSERVED",
+   "severity": "INFO",
+   "title": "Unobserved at runtime"
+  }
+ ],
+ "rules_version": "2026.10.0",
+ "runtime_included": false,
+ "thresholds": {
+  "class.bytecode_size": {
+   "over": 8000,
+   "warn": 3000
+  },
+  "class.complexity": {
+   "over": 120,
+   "warn": 60
+  },
+  "class.dependency_count": {
+   "over": 30,
+   "warn": 20
+  },
+  "class.fan_in": {
+   "over": 25,
+   "warn": 15
+  },
+  "class.fan_out": {
+   "over": 20,
+   "warn": 12
+  },
+  "class.field_count": {
+   "over": 20,
+   "warn": 12
+  },
+  "class.max_method_complexity": {
+   "over": 20,
+   "warn": 10
+  },
+  "class.max_method_size": {
+   "over": 8000,
+   "warn": 1000
+  },
+  "class.method_count": {
+   "over": 35,
+   "warn": 20
+  },
+  "package.Ca": {
+   "over": 40,
+   "warn": 20
+  },
+  "package.Ce": {
+   "over": 40,
+   "warn": 20
+  },
+  "package.D": {
+   "over": 0.7,
+   "warn": 0.5
+  }
+ }
+}

@@ -9,7 +9,6 @@ const Overview=lazy(()=>import('./Overview').then(module=>({default:module.Overv
 const ArchitectureBlueprint=lazy(()=>import('./ArchitectureBlueprint').then(module=>({default:module.ArchitectureBlueprint})));
 const GraphExplorer=lazy(()=>import('./GraphExplorer').then(module=>({default:module.GraphExplorer})));
 const Domains=lazy(()=>import('./Insights').then(module=>({default:module.Domains})));
-const Issues=lazy(()=>import('./Insights').then(module=>({default:module.Issues})));
 const Dependencies=lazy(()=>import('./Dependencies').then(module=>({default:module.Dependencies})));
 const Modernization=lazy(()=>import('./Insights').then(module=>({default:module.Modernization})));
 const Assistant=lazy(()=>import('./Assistant').then(module=>({default:module.Assistant})));
@@ -19,6 +18,7 @@ const EvidenceWorkspace=lazy(()=>import('./evidence/EvidenceWorkspace').then(mod
 const LocalDiagnostics=lazy(()=>import('./LocalDiagnostics').then(module=>({default:module.LocalDiagnostics})));
 const Reports=lazy(()=>import('./Reports').then(module=>({default:module.Reports})));
 const ModernizationHub=lazy(()=>import('./modernization/ModernizationHub').then(module=>({default:module.ModernizationHub})));
+const TechnicalDebt=lazy(()=>import('./insight/TechnicalDebt').then(module=>({default:module.TechnicalDebt})));
 const TechnologyLifecycle=lazy(()=>import('./insight/TechnologyLifecycle').then(module=>({default:module.TechnologyLifecycle})));
 const UIKit=lazy(()=>import('./UIKit').then(module=>({default:module.UIKit})));
 import type { Analysis, Application, Project, Summary, Domain, Assessment, Issue, Metric, Cycle, Items, View } from './types';
@@ -60,6 +60,8 @@ export function App() {
   const assessments=useQuery({queryKey:['modernization',selected],queryFn:()=>api<Items<Assessment>>('/analyses/'+selected+'/modernization'),enabled});
   const issues=useQuery({queryKey:['issues',selected],queryFn:()=>api<Items<Issue>>('/analyses/'+selected+'/issues?limit=500'),enabled});
   const metrics=useQuery({queryKey:['metrics',selected],queryFn:()=>api<Items<Metric>>('/analyses/'+selected+'/metrics'),enabled});
+  const debt=useQuery({queryKey:['insight',selected,'debt'],queryFn:()=>api<{findings:unknown[]}>('/analyses/'+selected+'/insight/debt'),enabled});
+  const debtCount=debt.data?.findings.length;
   const cycles=useQuery({queryKey:['cycles',selected],queryFn:()=>api<Items<Cycle>>('/analyses/'+selected+'/cycles'),enabled});
   useEffect(()=>{if(!selected&&analyses.data?.length)setSelected(analyses.data[0].id);},[analyses.data,selected]);
   useEffect(()=>{if(selected)localStorage.setItem('archintel-analysis',selected);},[selected]);
@@ -81,7 +83,7 @@ export function App() {
   return <div className={'app-shell '+(!sidebar?'collapsed':'')}>
     <aside className="sidebar"><button className="brand" onClick={()=>setView('workspace')} aria-label="ArchIntel applications"><ArchIntelBrand compact={!sidebar}/></button>
       <div className="workspace-label">PORTFOLIO</div><button title="Applications" className={'nav-item '+(view==='workspace'?'active':'')} onClick={()=>setView('workspace')}><FolderKanban size={18}/><span>Applications</span><span className="nav-count">{applications.data?.length||0}</span></button>
-      <nav className="nav-groups">{navigation.map(group=><section className="nav-group" key={group.label}><div className="workspace-label">{group.label}</div>{group.items.map(n=><button title={n.label} aria-label={n.label} key={n.id} className={'nav-item '+(view===n.id?'active':'')} onClick={()=>setView(n.id)}><n.icon size={18}/><span>{n.label}</span>{n.id==='issues'&&summary.data&&<span className="nav-count">{summary.data.issue_count}</span>}</button>)}</section>)}</nav>
+      <nav className="nav-groups">{navigation.map(group=><section className="nav-group" key={group.label}><div className="workspace-label">{group.label}</div>{group.items.map(n=><button title={n.label} aria-label={n.label} key={n.id} className={'nav-item '+(view===n.id?'active':'')} onClick={()=>setView(n.id)}><n.icon size={18}/><span>{n.label}</span>{n.id==='issues'&&debtCount!==undefined&&<span className="nav-count" title="Technical debt findings">{debtCount}</span>}</button>)}</section>)}</nav>
       <div className="sidebar-bottom"><button className={'nav-item '+(view==='diagnostics'?'active':'')} title="Local setup" onClick={()=>setView('diagnostics')}><Wrench size={18}/><span>Local setup</span></button><button className={'nav-item '+(view==='uikit'?'active':'')} title="UI component catalog" onClick={()=>setView('uikit')}><Boxes size={18}/><span>Design system</span></button><button className="nav-item" title="Help and documentation" onClick={()=>setHelp(!help)}><CircleHelp size={18}/><span>Help & documentation</span></button><div className="profile"><span className="profile-mark"><ArchIntelBrand compact/></span><span>ArchIntel workspace<small>Local deployment</small></span></div></div>
     </aside>
     <div className="main-shell"><header className="topbar"><div className="breadcrumbs"><button className="icon-button" aria-label="Toggle sidebar" onClick={()=>setSidebar(!sidebar)}><PanelLeftClose size={18}/></button><span>Workspace</span>{app&&<><span>/</span><span>{app.name}</span></>}<span>/</span><strong>{view==='workspace'?'Applications':view==='runtime'?'Dynamic analysis':view==='architecture'?'Application architecture':view==='evidence'?'Evidence & digital twin':view==='planning'?'Modernization':view==='tasks'?'Source tasks':view==='reports'?'Reports':view==='diagnostics'?'Local setup':view==='uikit'?'Design system':view==='assistant'?'Architecture assistant':view==='explorer'?'Architecture explorer':view==='domains'?'Candidate domains':view==='issues'?'Technical debt':view==='lifecycle'?'Technology lifecycle':view==='cycles'?'Dependencies · Cycles':view==='metrics'?'Dependencies · Metrics':view==='modernization'?'Modernization':'Overview'}</strong></div><div className="top-actions"><button className="command-trigger" onClick={()=>setCommandOpen(true)}><Search size={15}/><span>Search</span><kbd>Ctrl K</kbd></button><span className={'service-status '+(ready.isSuccess?'online':'offline')}><i/>{ready.isSuccess?'Services ready':'Services unavailable'}</span>{view!=='workspace'&&view!=='runtime'&&view!=='evidence'&&view!=='planning'&&view!=='tasks'&&view!=='diagnostics'&&view!=='reports'&&view!=='uikit'&&analyses.data?.length?<select aria-label="Select analysis" value={selected} onChange={e=>select(e.target.value)}>{analyses.data.map(a=><option key={a.id} value={a.id}>{applications.data?.find(x=>x.id===a.application_id)?.name||'Application'} · {a.status.toLowerCase()} · {a.id.slice(0,5)}</option>)}</select>:null}{enabled&&view!=='workspace'&&view!=='runtime'&&view!=='evidence'&&view!=='planning'&&view!=='tasks'&&view!=='diagnostics'&&view!=='reports'&&view!=='uikit'&&<a className="export-button" href={'/api/v1/analyses/'+selected+'/export'}><ArrowDownToLine size={16}/>Export analysis</a>}</div></header>
@@ -103,7 +105,7 @@ export function App() {
           {view==='architecture'&&<ArchitectureBlueprint analysisId={selected} applicationId={run.application_id} analyses={(analyses.data||[]).filter(row=>row.application_id===run.application_id)} applicationName={app?.name||'Analyzed application'} summary={summary.data!} domains={domains.data!.items}/>}
           {view==='explorer'&&<GraphExplorer analysisId={selected} domains={domains.data!.items} focusId={focusNode}/>}
           {view==='domains'&&<Domains domains={domains.data!.items} assessments={assessments.data!.items} issues={issues.data!.items}/>}
-          {view==='issues'&&<><Issues issues={issues.data!.items} domains={domains.data!.items}/>{issues.data!.total>500&&<div className="notice">Showing the first 500 findings. Use the paginated API or export for the complete report.</div>}</>}
+          {view==='issues'&&<TechnicalDebt analysisId={selected}/>}
           {(view==='cycles'||view==='metrics')&&<Dependencies analysisId={selected} cycles={cycles.data!.items} metrics={metrics.data!.items} initialTab={view==='metrics'?'metrics':'cycles'}/>}
           {view==='lifecycle'&&<TechnologyLifecycle analysisId={selected}/>}
           {view==='assistant'&&<Assistant analysisId={selected} domains={domains.data!.items}/>}

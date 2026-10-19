@@ -1,0 +1,1106 @@
+{
+ "by_rule": {
+  "DEBT-AGING-FRAMEWORK": 8,
+  "DEBT-CYCLE-MEMBER": 7,
+  "DEBT-DEPRECATED-API": 1,
+  "DEBT-ENTITY-IN-CONTROLLER": 2,
+  "DEBT-LAYER-SKIP": 1,
+  "DEBT-LAYER-VIOLATION": 1,
+  "DEBT-STATIC-STATE": 2
+ },
+ "counts": {
+  "HIGH": 11,
+  "LOW": 2,
+  "MEDIUM": 9
+ },
+ "effort_note": "The debt index is a heuristic ordering aid with its inputs shown. It is not a time, cost or currency estimate.",
+ "facts_available": true,
+ "findings": [
+  {
+   "entity_id": "com.fixture.edge.legacy.BillingAction uses jdk-removed-ee-modules",
+   "entity_type": "CLASS",
+   "evidence": [
+    {
+     "kind": "CALL_SITE",
+     "line": 18,
+     "text": "BillingAction.execute() calls JAXBContext.newInstance()"
+    }
+   ],
+   "explanation": {
+    "plain": "BillingAction depends on Java EE modules removed from the JDK (JAXB, JAX-WS, JAF, Common Annotations, CORBA), which is end of life; it will need rework when the technology is replaced.",
+    "technical": "BillingAction uses Java EE modules removed from the JDK (JAXB, JAX-WS, JAF, Common Annotations, CORBA) (end-of-life): javax.xml.bind.JAXBContext."
+   },
+   "id": "debt-19906af7d8d89edf",
+   "measured": {
+    "status": "end-of-life",
+    "technology": "Java EE modules removed from the JDK (JAXB, JAX-WS, JAF, Common Annotations, CORBA)"
+   },
+   "node_ids": [
+    "com.fixture.edge.legacy.BillingAction"
+   ],
+   "package": "com.fixture.edge.legacy",
+   "reason": "The class uses a technology rated aging (MEDIUM) or end-of-life (HIGH) by the lifecycle rules (WP1).",
+   "related": {
+    "lifecycle_finding_id": "jdk-removed-ee-modules"
+   },
+   "rule_id": "DEBT-AGING-FRAMEWORK",
+   "severity": "HIGH",
+   "suggested_action": "Move to Jakarta XML Binding (jakarta.xml.bind), Jakarta XML Web Services (jakarta.xml.ws), jakarta.annotation. These APIs were removed from the JDK in Java 11 (JEP 320). Add the Jakarta artifacts explicitly and rename packages; javax.annotation.PostConstruct -> jakarta.annotation.PostConstruct.",
+   "threshold": {
+    "status": "current"
+   },
+   "title": "Aging or end-of-life framework usage"
+  },
+  {
+   "entity_id": "com.fixture.edge.legacy.BillingAction uses log4j-1",
+   "entity_type": "CLASS",
+   "evidence": [
+    {
+     "kind": "CALL_SITE",
+     "line": 14,
+     "text": "BillingAction.execute() calls Logger.info()"
+    },
+    {
+     "kind": "CALL_SITE",
+     "line": 10,
+     "text": "BillingAction static initializer calls Logger.getLogger()"
+    }
+   ],
+   "explanation": {
+    "plain": "BillingAction depends on Apache Log4j 1.x, which is end of life; it will need rework when the technology is replaced.",
+    "technical": "BillingAction uses Apache Log4j 1.x (end-of-life): org.apache.log4j.Logger."
+   },
+   "id": "debt-d64766890935dfb4",
+   "measured": {
+    "status": "end-of-life",
+    "technology": "Apache Log4j 1.x"
+   },
+   "node_ids": [
+    "com.fixture.edge.legacy.BillingAction"
+   ],
+   "package": "com.fixture.edge.legacy",
+   "reason": "The class uses a technology rated aging (MEDIUM) or end-of-life (HIGH) by the lifecycle rules (WP1).",
+   "related": {
+    "lifecycle_finding_id": "log4j-1"
+   },
+   "rule_id": "DEBT-AGING-FRAMEWORK",
+   "severity": "HIGH",
+   "suggested_action": "Move to Log4j 2 (org.apache.logging.log4j) or SLF4J with Logback. Replace org.apache.log4j.Logger with org.slf4j.Logger (LoggerFactory.getLogger) or Log4j 2's LogManager.getLogger; convert log4j.properties to log4j2.xml / logback.xml. The log4j-1.2-api bridge also provides org.apache.log4j classes - check which artifact is on the classpath.",
+   "threshold": {
+    "status": "current"
+   },
+   "title": "Aging or end-of-life framework usage"
+  },
+  {
+   "entity_id": "com.fixture.edge.legacy.BillingAction uses struts-1",
+   "entity_type": "CLASS",
+   "evidence": [
+    {
+     "kind": "CALL_SITE",
+     "line": 8,
+     "text": "BillingAction constructor calls new Action()"
+    },
+    {
+     "kind": "CALL_SITE",
+     "line": null,
+     "text": "BillingAction extends org.apache.struts.action.Action"
+    }
+   ],
+   "explanation": {
+    "plain": "BillingAction depends on Apache Struts 1, which is end of life; it will need rework when the technology is replaced.",
+    "technical": "BillingAction uses Apache Struts 1 (end-of-life): org.apache.struts.action.Action."
+   },
+   "id": "debt-3363bf09f449ca1e",
+   "measured": {
+    "status": "end-of-life",
+    "technology": "Apache Struts 1"
+   },
+   "node_ids": [
+    "com.fixture.edge.legacy.BillingAction"
+   ],
+   "package": "com.fixture.edge.legacy",
+   "reason": "The class uses a technology rated aging (MEDIUM) or end-of-life (HIGH) by the lifecycle rules (WP1).",
+   "related": {
+    "lifecycle_finding_id": "struts-1"
+   },
+   "rule_id": "DEBT-AGING-FRAMEWORK",
+   "severity": "HIGH",
+   "suggested_action": "Move to Spring MVC controllers. Struts 1 reached end of life in April 2013. Migrate each Action to a controller method; ActionForm -> request model with Bean Validation.",
+   "threshold": {
+    "status": "current"
+   },
+   "title": "Aging or end-of-life framework usage"
+  },
+  {
+   "entity_id": "com.fixture.edge.cycle.a.Address",
+   "entity_type": "CLASS",
+   "evidence": [
+    {
+     "kind": "CYCLE",
+     "text": "field Customer.orders uses List<Order>"
+    },
+    {
+     "kind": "CYCLE",
+     "text": "field Order.customer has type Customer"
+    }
+   ],
+   "explanation": {
+    "plain": "Address cannot be changed or reused on its own because it is part of a loop of 5 classes that depend on each other.",
+    "technical": "Address is one of 5 classes in a cyclic group; example loop Customer \u2192 Order \u2192 Customer."
+   },
+   "id": "debt-b16a2b7b6cd70027",
+   "measured": {
+    "cycle_group_size": 5
+   },
+   "node_ids": [
+    "com.fixture.edge.cycle.a.Address"
+   ],
+   "package": "com.fixture.edge.cycle.a",
+   "reason": "The class belongs to a cyclic group (strongly connected component) of top-level classes.",
+   "related": {
+    "cycle_group_id": "cycle-group-9094c57d2a4f467b"
+   },
+   "rule_id": "DEBT-CYCLE-MEMBER",
+   "severity": "HIGH",
+   "suggested_action": "Open the cycle and review the highest-ranked dependency to cut.",
+   "threshold": {
+    "cycle_group_size": 1
+   },
+   "title": "Cyclic dependency membership"
+  },
+  {
+   "entity_id": "com.fixture.edge.cycle.a.Customer",
+   "entity_type": "CLASS",
+   "evidence": [
+    {
+     "kind": "CYCLE",
+     "text": "field Customer.orders uses List<Order>"
+    },
+    {
+     "kind": "CYCLE",
+     "text": "field Order.customer has type Customer"
+    }
+   ],
+   "explanation": {
+    "plain": "Customer cannot be changed or reused on its own because it is part of a loop of 5 classes that depend on each other.",
+    "technical": "Customer is one of 5 classes in a cyclic group; example loop Customer \u2192 Order \u2192 Customer."
+   },
+   "id": "debt-479b9eb9eb752983",
+   "measured": {
+    "cycle_group_size": 5
+   },
+   "node_ids": [
+    "com.fixture.edge.cycle.a.Customer"
+   ],
+   "package": "com.fixture.edge.cycle.a",
+   "reason": "The class belongs to a cyclic group (strongly connected component) of top-level classes.",
+   "related": {
+    "cycle_group_id": "cycle-group-9094c57d2a4f467b"
+   },
+   "rule_id": "DEBT-CYCLE-MEMBER",
+   "severity": "HIGH",
+   "suggested_action": "Open the cycle and review the highest-ranked dependency to cut.",
+   "threshold": {
+    "cycle_group_size": 1
+   },
+   "title": "Cyclic dependency membership"
+  },
+  {
+   "entity_id": "com.fixture.edge.cycle.a.Order",
+   "entity_type": "CLASS",
+   "evidence": [
+    {
+     "kind": "CYCLE",
+     "text": "field Customer.orders uses List<Order>"
+    },
+    {
+     "kind": "CYCLE",
+     "text": "field Order.customer has type Customer"
+    }
+   ],
+   "explanation": {
+    "plain": "Order cannot be changed or reused on its own because it is part of a loop of 5 classes that depend on each other.",
+    "technical": "Order is one of 5 classes in a cyclic group; example loop Customer \u2192 Order \u2192 Customer."
+   },
+   "id": "debt-8374cffffb543050",
+   "measured": {
+    "cycle_group_size": 5
+   },
+   "node_ids": [
+    "com.fixture.edge.cycle.a.Order"
+   ],
+   "package": "com.fixture.edge.cycle.a",
+   "reason": "The class belongs to a cyclic group (strongly connected component) of top-level classes.",
+   "related": {
+    "cycle_group_id": "cycle-group-9094c57d2a4f467b"
+   },
+   "rule_id": "DEBT-CYCLE-MEMBER",
+   "severity": "HIGH",
+   "suggested_action": "Open the cycle and review the highest-ranked dependency to cut.",
+   "threshold": {
+    "cycle_group_size": 1
+   },
+   "title": "Cyclic dependency membership"
+  },
+  {
+   "entity_id": "com.fixture.edge.cycle.a.Region",
+   "entity_type": "CLASS",
+   "evidence": [
+    {
+     "kind": "CYCLE",
+     "text": "field Customer.orders uses List<Order>"
+    },
+    {
+     "kind": "CYCLE",
+     "text": "field Order.customer has type Customer"
+    }
+   ],
+   "explanation": {
+    "plain": "Region cannot be changed or reused on its own because it is part of a loop of 5 classes that depend on each other.",
+    "technical": "Region is one of 5 classes in a cyclic group; example loop Customer \u2192 Order \u2192 Customer."
+   },
+   "id": "debt-482a5f2bdbd40d68",
+   "measured": {
+    "cycle_group_size": 5
+   },
+   "node_ids": [
+    "com.fixture.edge.cycle.a.Region"
+   ],
+   "package": "com.fixture.edge.cycle.a",
+   "reason": "The class belongs to a cyclic group (strongly connected component) of top-level classes.",
+   "related": {
+    "cycle_group_id": "cycle-group-9094c57d2a4f467b"
+   },
+   "rule_id": "DEBT-CYCLE-MEMBER",
+   "severity": "HIGH",
+   "suggested_action": "Open the cycle and review the highest-ranked dependency to cut.",
+   "threshold": {
+    "cycle_group_size": 1
+   },
+   "title": "Cyclic dependency membership"
+  },
+  {
+   "entity_id": "com.fixture.edge.cycle.b.Invoice",
+   "entity_type": "CLASS",
+   "evidence": [
+    {
+     "kind": "CYCLE",
+     "text": "field Customer.orders uses List<Order>"
+    },
+    {
+     "kind": "CYCLE",
+     "text": "field Order.customer has type Customer"
+    }
+   ],
+   "explanation": {
+    "plain": "Invoice cannot be changed or reused on its own because it is part of a loop of 5 classes that depend on each other.",
+    "technical": "Invoice is one of 5 classes in a cyclic group; example loop Customer \u2192 Order \u2192 Customer."
+   },
+   "id": "debt-11dc8f4c01a4bec6",
+   "measured": {
+    "cycle_group_size": 5
+   },
+   "node_ids": [
+    "com.fixture.edge.cycle.b.Invoice"
+   ],
+   "package": "com.fixture.edge.cycle.b",
+   "reason": "The class belongs to a cyclic group (strongly connected component) of top-level classes.",
+   "related": {
+    "cycle_group_id": "cycle-group-9094c57d2a4f467b"
+   },
+   "rule_id": "DEBT-CYCLE-MEMBER",
+   "severity": "HIGH",
+   "suggested_action": "Open the cycle and review the highest-ranked dependency to cut.",
+   "threshold": {
+    "cycle_group_size": 1
+   },
+   "title": "Cyclic dependency membership"
+  },
+  {
+   "entity_id": "com.fixture.edge.legacy.BillingAction",
+   "entity_type": "CLASS",
+   "evidence": [
+    {
+     "kind": "CYCLE",
+     "text": "BillingAction.execute() uses BillingRecord (constant)"
+    },
+    {
+     "kind": "CYCLE",
+     "text": "BillingRecord.touch() calls BillingAction.oldApi()"
+    }
+   ],
+   "explanation": {
+    "plain": "BillingAction cannot be changed or reused on its own because it is part of a loop of 2 classes that depend on each other.",
+    "technical": "BillingAction is one of 2 classes in a cyclic group; example loop BillingAction \u2192 BillingRecord \u2192 BillingAction."
+   },
+   "id": "debt-1788a5f1031c2c6d",
+   "measured": {
+    "cycle_group_size": 2
+   },
+   "node_ids": [
+    "com.fixture.edge.legacy.BillingAction"
+   ],
+   "package": "com.fixture.edge.legacy",
+   "reason": "The class belongs to a cyclic group (strongly connected component) of top-level classes.",
+   "related": {
+    "cycle_group_id": "cycle-group-d8f6acb51599c75b"
+   },
+   "rule_id": "DEBT-CYCLE-MEMBER",
+   "severity": "HIGH",
+   "suggested_action": "Open the cycle and review the highest-ranked dependency to cut.",
+   "threshold": {
+    "cycle_group_size": 1
+   },
+   "title": "Cyclic dependency membership"
+  },
+  {
+   "entity_id": "com.fixture.edge.legacy.BillingRecord",
+   "entity_type": "CLASS",
+   "evidence": [
+    {
+     "kind": "CYCLE",
+     "text": "BillingAction.execute() uses BillingRecord (constant)"
+    },
+    {
+     "kind": "CYCLE",
+     "text": "BillingRecord.touch() calls BillingAction.oldApi()"
+    }
+   ],
+   "explanation": {
+    "plain": "BillingRecord cannot be changed or reused on its own because it is part of a loop of 2 classes that depend on each other.",
+    "technical": "BillingRecord is one of 2 classes in a cyclic group; example loop BillingAction \u2192 BillingRecord \u2192 BillingAction."
+   },
+   "id": "debt-f6b8b893a7ff060e",
+   "measured": {
+    "cycle_group_size": 2
+   },
+   "node_ids": [
+    "com.fixture.edge.legacy.BillingRecord"
+   ],
+   "package": "com.fixture.edge.legacy",
+   "reason": "The class belongs to a cyclic group (strongly connected component) of top-level classes.",
+   "related": {
+    "cycle_group_id": "cycle-group-d8f6acb51599c75b"
+   },
+   "rule_id": "DEBT-CYCLE-MEMBER",
+   "severity": "HIGH",
+   "suggested_action": "Open the cycle and review the highest-ranked dependency to cut.",
+   "threshold": {
+    "cycle_group_size": 1
+   },
+   "title": "Cyclic dependency membership"
+  },
+  {
+   "entity_id": "com.fixture.edge.legacy.BillingRecord -> com.fixture.edge.legacy.BillingAction",
+   "entity_type": "DEPENDENCY",
+   "evidence": [
+    {
+     "kind": "METHOD_CALL",
+     "line": 15,
+     "text": "BillingRecord.touch() calls BillingAction.oldApi()"
+    },
+    {
+     "kind": "PARAMETER_TYPE",
+     "line": null,
+     "text": "BillingRecord.touch() takes a BillingAction parameter"
+    }
+   ],
+   "explanation": {
+    "plain": "BillingRecord belongs to the domain model layer but depends on BillingAction in the web/presentation layer, which turns the intended direction of the architecture around.",
+    "technical": "BillingRecord (entity, domain model layer) depends on BillingAction (action, web/presentation layer) via METHOD_CALL, PARAMETER_TYPE."
+   },
+   "id": "debt-365998bee09051c6",
+   "measured": {
+    "from_layer": "DOMAIN",
+    "to_layer": "PRESENTATION"
+   },
+   "node_ids": [
+    "com.fixture.edge.legacy.BillingRecord",
+    "com.fixture.edge.legacy.BillingAction"
+   ],
+   "package": "com.fixture.edge.legacy",
+   "reason": "A class depends on a class in a layer it may not use according to `layering`.",
+   "related": {},
+   "rule_id": "DEBT-LAYER-VIOLATION",
+   "severity": "HIGH",
+   "suggested_action": "Move the dependency behind a service or interface in an allowed layer.",
+   "threshold": {
+    "allowed_from_DOMAIN": [
+     "DOMAIN",
+     "SUPPORT"
+    ]
+   },
+   "title": "Layer violation"
+  },
+  {
+   "entity_id": "com.fixture.edge.legacy.BillingAction uses commons-lang-2",
+   "entity_type": "CLASS",
+   "evidence": [
+    {
+     "kind": "CALL_SITE",
+     "line": 15,
+     "text": "BillingAction.execute() calls StringUtils.isBlank()"
+    }
+   ],
+   "explanation": {
+    "plain": "BillingAction depends on Apache Commons Lang 2.x, which is aging; it will need rework when the technology is replaced.",
+    "technical": "BillingAction uses Apache Commons Lang 2.x (aging): org.apache.commons.lang.StringUtils."
+   },
+   "id": "debt-1932c308b9fb6c57",
+   "measured": {
+    "status": "aging",
+    "technology": "Apache Commons Lang 2.x"
+   },
+   "node_ids": [
+    "com.fixture.edge.legacy.BillingAction"
+   ],
+   "package": "com.fixture.edge.legacy",
+   "reason": "The class uses a technology rated aging (MEDIUM) or end-of-life (HIGH) by the lifecycle rules (WP1).",
+   "related": {
+    "lifecycle_finding_id": "commons-lang-2"
+   },
+   "rule_id": "DEBT-AGING-FRAMEWORK",
+   "severity": "MEDIUM",
+   "suggested_action": "Move to Apache Commons Lang 3 (org.apache.commons.lang3) or JDK equivalents. Last 2.x release was 2.6 (2011). Most methods exist in lang3 with the same name; StringEscapeUtils moved to commons-text.",
+   "threshold": {
+    "status": "current"
+   },
+   "title": "Aging or end-of-life framework usage"
+  },
+  {
+   "entity_id": "com.fixture.edge.legacy.BillingRecord uses javax-persistence",
+   "entity_type": "CLASS",
+   "evidence": [
+    {
+     "kind": "CALL_SITE",
+     "line": null,
+     "text": "BillingRecord is annotated @Entity"
+    },
+    {
+     "kind": "CALL_SITE",
+     "line": null,
+     "text": "BillingRecord is annotated @Table"
+    },
+    {
+     "kind": "CALL_SITE",
+     "line": null,
+     "text": "field BillingRecord.id is annotated @Id"
+    }
+   ],
+   "explanation": {
+    "plain": "BillingRecord depends on JPA on the javax.persistence namespace, which is aging; it will need rework when the technology is replaced.",
+    "technical": "BillingRecord uses JPA on the javax.persistence namespace (aging): javax.persistence.Entity, javax.persistence.Id, javax.persistence.Table."
+   },
+   "id": "debt-cb0dd17feb262fce",
+   "measured": {
+    "status": "aging",
+    "technology": "JPA on the javax.persistence namespace"
+   },
+   "node_ids": [
+    "com.fixture.edge.legacy.BillingRecord"
+   ],
+   "package": "com.fixture.edge.legacy",
+   "reason": "The class uses a technology rated aging (MEDIUM) or end-of-life (HIGH) by the lifecycle rules (WP1).",
+   "related": {
+    "lifecycle_finding_id": "javax-persistence"
+   },
+   "rule_id": "DEBT-AGING-FRAMEWORK",
+   "severity": "MEDIUM",
+   "suggested_action": "Move to jakarta.persistence (Jakarta Persistence 3.x). Rename imports javax.persistence.* -> jakarta.persistence.*; requires Hibernate 6+ / EclipseLink 3+. The Eclipse Transformer or OpenRewrite 'JavaxMigrationToJakarta' recipe automates the rename.",
+   "threshold": {
+    "status": "current"
+   },
+   "title": "Aging or end-of-life framework usage"
+  },
+  {
+   "entity_id": "com.fixture.edge.web.AuditFilter uses javax-servlet",
+   "entity_type": "CLASS",
+   "evidence": [
+    {
+     "kind": "CALL_SITE",
+     "line": 12,
+     "text": "AuditFilter.doFilter() calls FilterChain.doFilter()"
+    }
+   ],
+   "explanation": {
+    "plain": "AuditFilter depends on Servlet API on the javax.servlet namespace, which is aging; it will need rework when the technology is replaced.",
+    "technical": "AuditFilter uses Servlet API on the javax.servlet namespace (aging): javax.servlet.Filter, javax.servlet.FilterChain, javax.servlet.ServletRequest, javax.servlet.ServletResponse."
+   },
+   "id": "debt-2cd139e0952fe7b6",
+   "measured": {
+    "status": "aging",
+    "technology": "Servlet API on the javax.servlet namespace"
+   },
+   "node_ids": [
+    "com.fixture.edge.web.AuditFilter"
+   ],
+   "package": "com.fixture.edge.web",
+   "reason": "The class uses a technology rated aging (MEDIUM) or end-of-life (HIGH) by the lifecycle rules (WP1).",
+   "related": {
+    "lifecycle_finding_id": "javax-servlet"
+   },
+   "rule_id": "DEBT-AGING-FRAMEWORK",
+   "severity": "MEDIUM",
+   "suggested_action": "Move to jakarta.servlet (Jakarta Servlet 6.x). Rename imports to jakarta.servlet.*; requires Tomcat 10+, Jetty 11+ or Spring Boot 3+.",
+   "threshold": {
+    "status": "current"
+   },
+   "title": "Aging or end-of-life framework usage"
+  },
+  {
+   "entity_id": "com.fixture.edge.web.GreetingResource uses javax-ws-rs",
+   "entity_type": "CLASS",
+   "evidence": [
+    {
+     "kind": "CALL_SITE",
+     "line": null,
+     "text": "GreetingResource is annotated @Path"
+    },
+    {
+     "kind": "CALL_SITE",
+     "line": null,
+     "text": "GreetingResource.hello() is annotated @GET"
+    },
+    {
+     "kind": "CALL_SITE",
+     "line": null,
+     "text": "GreetingResource.hello() is annotated @Path"
+    },
+    {
+     "kind": "CALL_SITE",
+     "line": null,
+     "text": "GreetingResource.post() is annotated @POST"
+    }
+   ],
+   "explanation": {
+    "plain": "GreetingResource depends on JAX-RS on the javax.ws.rs namespace, which is aging; it will need rework when the technology is replaced.",
+    "technical": "GreetingResource uses JAX-RS on the javax.ws.rs namespace (aging): javax.ws.rs.GET, javax.ws.rs.POST, javax.ws.rs.Path."
+   },
+   "id": "debt-54e5b6ac9ccdaa15",
+   "measured": {
+    "status": "aging",
+    "technology": "JAX-RS on the javax.ws.rs namespace"
+   },
+   "node_ids": [
+    "com.fixture.edge.web.GreetingResource"
+   ],
+   "package": "com.fixture.edge.web",
+   "reason": "The class uses a technology rated aging (MEDIUM) or end-of-life (HIGH) by the lifecycle rules (WP1).",
+   "related": {
+    "lifecycle_finding_id": "javax-ws-rs"
+   },
+   "rule_id": "DEBT-AGING-FRAMEWORK",
+   "severity": "MEDIUM",
+   "suggested_action": "Move to jakarta.ws.rs (Jakarta RESTful Web Services 3.x) or Spring MVC. Rename imports to jakarta.ws.rs.*; requires Jersey 3+ / RESTEasy 6+.",
+   "threshold": {
+    "status": "current"
+   },
+   "title": "Aging or end-of-life framework usage"
+  },
+  {
+   "entity_id": "com.fixture.edge.web.LegacyServlet uses javax-servlet",
+   "entity_type": "CLASS",
+   "evidence": [
+    {
+     "kind": "CALL_SITE",
+     "line": null,
+     "text": "LegacyServlet is annotated @WebServlet"
+    },
+    {
+     "kind": "CALL_SITE",
+     "line": 9,
+     "text": "LegacyServlet constructor calls new HttpServlet()"
+    },
+    {
+     "kind": "CALL_SITE",
+     "line": 13,
+     "text": "LegacyServlet.doGet() calls HttpServletResponse.setStatus()"
+    },
+    {
+     "kind": "CALL_SITE",
+     "line": 18,
+     "text": "LegacyServlet.doPost() calls HttpServletResponse.setStatus()"
+    },
+    {
+     "kind": "CALL_SITE",
+     "line": null,
+     "text": "LegacyServlet extends javax.servlet.http.HttpServlet"
+    }
+   ],
+   "explanation": {
+    "plain": "LegacyServlet depends on Servlet API on the javax.servlet namespace, which is aging; it will need rework when the technology is replaced.",
+    "technical": "LegacyServlet uses Servlet API on the javax.servlet namespace (aging): javax.servlet.annotation.WebServlet, javax.servlet.http.HttpServlet, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse."
+   },
+   "id": "debt-52ace166d8d159c8",
+   "measured": {
+    "status": "aging",
+    "technology": "Servlet API on the javax.servlet namespace"
+   },
+   "node_ids": [
+    "com.fixture.edge.web.LegacyServlet"
+   ],
+   "package": "com.fixture.edge.web",
+   "reason": "The class uses a technology rated aging (MEDIUM) or end-of-life (HIGH) by the lifecycle rules (WP1).",
+   "related": {
+    "lifecycle_finding_id": "javax-servlet"
+   },
+   "rule_id": "DEBT-AGING-FRAMEWORK",
+   "severity": "MEDIUM",
+   "suggested_action": "Move to jakarta.servlet (Jakarta Servlet 6.x). Rename imports to jakarta.servlet.*; requires Tomcat 10+, Jetty 11+ or Spring Boot 3+.",
+   "threshold": {
+    "status": "current"
+   },
+   "title": "Aging or end-of-life framework usage"
+  },
+  {
+   "entity_id": "com.fixture.edge.legacy.BillingAction -> com.fixture.edge.legacy.BillingRecord",
+   "entity_type": "DEPENDENCY",
+   "evidence": [
+    {
+     "kind": "TYPE_REFERENCE",
+     "line": 18,
+     "text": "BillingAction.execute() uses BillingRecord (constant)"
+    }
+   ],
+   "explanation": {
+    "plain": "The web layer in BillingAction works with the database record BillingRecord directly, so changing the database model can break the web pages or API.",
+    "technical": "BillingAction (action) uses entity BillingRecord directly via TYPE_REFERENCE."
+   },
+   "id": "debt-dec540b977150a51",
+   "measured": {
+    "edge_types": {
+     "TYPE_REFERENCE": 1
+    }
+   },
+   "node_ids": [
+    "com.fixture.edge.legacy.BillingAction",
+    "com.fixture.edge.legacy.BillingRecord"
+   ],
+   "package": "com.fixture.edge.legacy",
+   "reason": "A presentation-layer class uses a persistence entity as a parameter, return type, field or call target.",
+   "related": {},
+   "rule_id": "DEBT-ENTITY-IN-CONTROLLER",
+   "severity": "MEDIUM",
+   "suggested_action": "Map the entity to a request/response model at the controller boundary so the database model can change independently.",
+   "threshold": {
+    "allowed": "request/response models"
+   },
+   "title": "Entity used directly by a controller"
+  },
+  {
+   "entity_id": "com.fixture.edge.web.OrderAdminController -> com.fixture.edge.model.OrderEntity",
+   "entity_type": "DEPENDENCY",
+   "evidence": [
+    {
+     "kind": "METHOD_CALL",
+     "line": 20,
+     "text": "OrderAdminController.latest() calls OrderEntity.getReference()"
+    }
+   ],
+   "explanation": {
+    "plain": "The web layer in OrderAdminController works with the database record OrderEntity directly, so changing the database model can break the web pages or API.",
+    "technical": "OrderAdminController (controller) uses entity OrderEntity directly via METHOD_CALL."
+   },
+   "id": "debt-86c0ea4b7dbf857b",
+   "measured": {
+    "edge_types": {
+     "METHOD_CALL": 1
+    }
+   },
+   "node_ids": [
+    "com.fixture.edge.web.OrderAdminController",
+    "com.fixture.edge.model.OrderEntity"
+   ],
+   "package": "com.fixture.edge.web",
+   "reason": "A presentation-layer class uses a persistence entity as a parameter, return type, field or call target.",
+   "related": {},
+   "rule_id": "DEBT-ENTITY-IN-CONTROLLER",
+   "severity": "MEDIUM",
+   "suggested_action": "Map the entity to a request/response model at the controller boundary so the database model can change independently.",
+   "threshold": {
+    "allowed": "request/response models"
+   },
+   "title": "Entity used directly by a controller"
+  },
+  {
+   "entity_id": "com.fixture.edge.model.ItemService#CACHE",
+   "entity_type": "FIELD",
+   "evidence": [
+    {
+     "kind": "FIELD",
+     "text": "static final collection ItemService.CACHE (List) is read and a collection mutator is called in delete, save() (likely modified)"
+    }
+   ],
+   "explanation": {
+    "plain": "ItemService keeps shared data in 'CACHE' that every request and thread sees, which causes hard-to-reproduce bugs and blocks running several instances.",
+    "technical": "Static final collection ItemService.CACHE (List) is read and a collection mutator is called in delete, save() (likely modified)."
+   },
+   "id": "debt-4f91e10d32975274",
+   "measured": {
+    "final": true,
+    "static": true
+   },
+   "node_ids": [
+    "com.fixture.edge.model.ItemService"
+   ],
+   "package": "com.fixture.edge.model",
+   "reason": "A non-final static field, or a static final collection that is modified, holds shared mutable state.",
+   "related": {},
+   "rule_id": "DEBT-STATIC-STATE",
+   "severity": "MEDIUM",
+   "suggested_action": "Move the state into an instance managed by the container, or make it immutable.",
+   "threshold": {
+    "allowed": "immutable or instance state"
+   },
+   "title": "Mutable static state"
+  },
+  {
+   "entity_id": "com.fixture.edge.model.ItemService#counter",
+   "entity_type": "FIELD",
+   "evidence": [
+    {
+     "kind": "FIELD",
+     "text": "static non-final field ItemService.counter (int), assigned in save()"
+    }
+   ],
+   "explanation": {
+    "plain": "ItemService keeps shared data in 'counter' that every request and thread sees, which causes hard-to-reproduce bugs and blocks running several instances.",
+    "technical": "Static non-final field ItemService.counter (int), assigned in save()."
+   },
+   "id": "debt-c73a677c174150ba",
+   "measured": {
+    "final": false,
+    "static": true
+   },
+   "node_ids": [
+    "com.fixture.edge.model.ItemService"
+   ],
+   "package": "com.fixture.edge.model",
+   "reason": "A non-final static field, or a static final collection that is modified, holds shared mutable state.",
+   "related": {},
+   "rule_id": "DEBT-STATIC-STATE",
+   "severity": "MEDIUM",
+   "suggested_action": "Move the state into an instance managed by the container, or make it immutable.",
+   "threshold": {
+    "allowed": "immutable or instance state"
+   },
+   "title": "Mutable static state"
+  },
+  {
+   "entity_id": "com.fixture.edge.legacy.BillingRecord",
+   "entity_type": "CLASS",
+   "evidence": [
+    {
+     "kind": "DEPRECATED_INTERNAL",
+     "line": 15,
+     "text": "BillingRecord.touch() calls @Deprecated BillingAction.oldApi()"
+    }
+   ],
+   "explanation": {
+    "plain": "BillingRecord relies on features that their authors have marked as outdated and may remove.",
+    "technical": "BillingRecord has 1 call site(s) to deprecated members."
+   },
+   "id": "debt-4cb8141b037d68cb",
+   "measured": {
+    "deprecated_call_sites": 1
+   },
+   "node_ids": [
+    "com.fixture.edge.legacy.BillingRecord"
+   ],
+   "package": "com.fixture.edge.legacy",
+   "reason": "The class calls a member marked @Deprecated in the application, or a JDK member listed as deprecated in lifecycle-rules.yaml.",
+   "related": {},
+   "rule_id": "DEBT-DEPRECATED-API",
+   "severity": "LOW",
+   "suggested_action": "Replace the call with the documented successor API.",
+   "threshold": {
+    "deprecated_call_sites": 0
+   },
+   "title": "Deprecated API usage"
+  },
+  {
+   "entity_id": "com.fixture.edge.web.OrderAdminController -> com.fixture.edge.model.OrderRepository",
+   "entity_type": "DEPENDENCY",
+   "evidence": [
+    {
+     "kind": "FIELD_TYPE",
+     "line": null,
+     "text": "field OrderAdminController.repository has type OrderRepository"
+    },
+    {
+     "kind": "PARAMETER_TYPE",
+     "line": null,
+     "text": "OrderAdminController constructor takes a OrderRepository parameter"
+    },
+    {
+     "kind": "METHOD_CALL",
+     "line": 19,
+     "text": "OrderAdminController.latest() calls OrderRepository.latest()"
+    }
+   ],
+   "explanation": {
+    "plain": "OrderAdminController reaches directly into OrderRepository, skipping the service layer the application already has.",
+    "technical": "OrderAdminController (controller, web/presentation layer) depends on OrderRepository (repository, data access layer) via FIELD_TYPE, METHOD_CALL, PARAMETER_TYPE."
+   },
+   "id": "debt-cb0db016b009d095",
+   "measured": {
+    "from_layer": "PRESENTATION",
+    "to_layer": "DATA_ACCESS"
+   },
+   "node_ids": [
+    "com.fixture.edge.web.OrderAdminController",
+    "com.fixture.edge.model.OrderRepository"
+   ],
+   "package": "com.fixture.edge.web",
+   "reason": "A presentation class depends directly on data access while the application has a service layer.",
+   "related": {},
+   "rule_id": "DEBT-LAYER-SKIP",
+   "severity": "LOW",
+   "suggested_action": "Route the call through the existing service that owns this data, if one exists.",
+   "threshold": {
+    "allowed_from_PRESENTATION": [
+     "PRESENTATION",
+     "SERVICE",
+     "DATA_ACCESS",
+     "DOMAIN",
+     "SUPPORT"
+    ]
+   },
+   "title": "Controller bypasses the service layer"
+  }
+ ],
+ "packages": [
+  {
+   "class_count": 2,
+   "counts": {
+    "HIGH": 6,
+    "LOW": 1,
+    "MEDIUM": 3
+   },
+   "debt_density": 12.5,
+   "debt_index": 25,
+   "formula": "debt index = 3 \u00d7 HIGH + 2 \u00d7 MEDIUM + 1 \u00d7 LOW (+4 \u00d7 CRITICAL, INFO = 0); density = index / classes",
+   "inputs": {
+    "HIGH": 6,
+    "LOW": 1,
+    "MEDIUM": 3,
+    "classes": 2
+   },
+   "package": "com.fixture.edge.legacy"
+  },
+  {
+   "class_count": 4,
+   "counts": {
+    "HIGH": 4
+   },
+   "debt_density": 3.0,
+   "debt_index": 12,
+   "formula": "debt index = 3 \u00d7 HIGH + 2 \u00d7 MEDIUM + 1 \u00d7 LOW (+4 \u00d7 CRITICAL, INFO = 0); density = index / classes",
+   "inputs": {
+    "HIGH": 4,
+    "classes": 4
+   },
+   "package": "com.fixture.edge.cycle.a"
+  },
+  {
+   "class_count": 5,
+   "counts": {
+    "LOW": 1,
+    "MEDIUM": 4
+   },
+   "debt_density": 1.8,
+   "debt_index": 9,
+   "formula": "debt index = 3 \u00d7 HIGH + 2 \u00d7 MEDIUM + 1 \u00d7 LOW (+4 \u00d7 CRITICAL, INFO = 0); density = index / classes",
+   "inputs": {
+    "LOW": 1,
+    "MEDIUM": 4,
+    "classes": 5
+   },
+   "package": "com.fixture.edge.web"
+  },
+  {
+   "class_count": 4,
+   "counts": {
+    "MEDIUM": 2
+   },
+   "debt_density": 1.0,
+   "debt_index": 4,
+   "formula": "debt index = 3 \u00d7 HIGH + 2 \u00d7 MEDIUM + 1 \u00d7 LOW (+4 \u00d7 CRITICAL, INFO = 0); density = index / classes",
+   "inputs": {
+    "MEDIUM": 2,
+    "classes": 4
+   },
+   "package": "com.fixture.edge.model"
+  },
+  {
+   "class_count": 1,
+   "counts": {
+    "HIGH": 1
+   },
+   "debt_density": 3.0,
+   "debt_index": 3,
+   "formula": "debt index = 3 \u00d7 HIGH + 2 \u00d7 MEDIUM + 1 \u00d7 LOW (+4 \u00d7 CRITICAL, INFO = 0); density = index / classes",
+   "inputs": {
+    "HIGH": 1,
+    "classes": 1
+   },
+   "package": "com.fixture.edge.cycle.b"
+  },
+  {
+   "class_count": 3,
+   "counts": {},
+   "debt_density": 0.0,
+   "debt_index": 0,
+   "formula": "debt index = 3 \u00d7 HIGH + 2 \u00d7 MEDIUM + 1 \u00d7 LOW (+4 \u00d7 CRITICAL, INFO = 0); density = index / classes",
+   "inputs": {
+    "classes": 3
+   },
+   "package": "com.fixture.edge.jobs"
+  }
+ ],
+ "rules": [
+  {
+   "action": "Identify groups of methods that use the same fields and move each group into its own class.",
+   "description": "At least `min_signals` of the listed size/coupling metrics are over their threshold.",
+   "id": "DEBT-GOD-CLASS",
+   "severity": "HIGH",
+   "title": "God class"
+  },
+  {
+   "action": "Introduce a narrower interface for the most common callers, or split responsibilities so fewer classes depend on this one.",
+   "description": "fan-in + fan-out (distinct internal classes) is over the threshold.",
+   "id": "DEBT-HIGH-COUPLING",
+   "severity": "MEDIUM",
+   "title": "High coupling"
+  },
+  {
+   "action": "Open the cycle and review the highest-ranked dependency to cut.",
+   "description": "The class belongs to a cyclic group (strongly connected component) of top-level classes.",
+   "id": "DEBT-CYCLE-MEMBER",
+   "severity": "HIGH",
+   "title": "Cyclic dependency membership"
+  },
+  {
+   "action": "Move the dependency behind a service or interface in an allowed layer.",
+   "description": "A class depends on a class in a layer it may not use according to `layering`.",
+   "id": "DEBT-LAYER-VIOLATION",
+   "severity": "HIGH",
+   "title": "Layer violation"
+  },
+  {
+   "action": "Route the call through the existing service that owns this data, if one exists.",
+   "description": "A presentation class depends directly on data access while the application has a service layer.",
+   "id": "DEBT-LAYER-SKIP",
+   "severity": "LOW",
+   "title": "Controller bypasses the service layer"
+  },
+  {
+   "action": "Extract cohesive blocks of the method into well-named private methods or collaborating classes.",
+   "description": "A method's bytecode size is over the threshold. HotSpot does not JIT-compile methods larger than 8000 bytes of bytecode (HugeMethodLimit).",
+   "id": "DEBT-LARGE-METHOD",
+   "severity": "MEDIUM",
+   "title": "Large method"
+  },
+  {
+   "action": "Replace nested conditionals with early returns, polymorphism or lookup tables, and add tests per branch first.",
+   "description": "Branch instructions + 1 (an approximation of cyclomatic complexity from bytecode) is over the threshold.",
+   "id": "DEBT-COMPLEX-METHOD",
+   "severity": "MEDIUM",
+   "title": "Complex method"
+  },
+  {
+   "action": "Group related dependencies behind a facade or split the class by responsibility.",
+   "description": "Distinct referenced types (internal and external, excluding java.lang) is over the threshold.",
+   "id": "DEBT-TOO-MANY-DEPENDENCIES",
+   "severity": "MEDIUM",
+   "title": "Too many dependencies"
+  },
+  {
+   "action": "Map the entity to a request/response model at the controller boundary so the database model can change independently.",
+   "description": "A presentation-layer class uses a persistence entity as a parameter, return type, field or call target.",
+   "id": "DEBT-ENTITY-IN-CONTROLLER",
+   "severity": "MEDIUM",
+   "title": "Entity used directly by a controller"
+  },
+  {
+   "action": "Move the state into an instance managed by the container, or make it immutable.",
+   "description": "A non-final static field, or a static final collection that is modified, holds shared mutable state.",
+   "id": "DEBT-STATIC-STATE",
+   "severity": "MEDIUM",
+   "title": "Mutable static state"
+  },
+  {
+   "action": "Replace the call with the documented successor API.",
+   "description": "The class calls a member marked @Deprecated in the application, or a JDK member listed as deprecated in lifecycle-rules.yaml.",
+   "id": "DEBT-DEPRECATED-API",
+   "severity": "LOW",
+   "title": "Deprecated API usage"
+  },
+  {
+   "action": "Follow the migration notes on the Technology lifecycle page.",
+   "description": "The class uses a technology rated aging (MEDIUM) or end-of-life (HIGH) by the lifecycle rules (WP1).",
+   "id": "DEBT-AGING-FRAMEWORK",
+   "severity": "MEDIUM",
+   "title": "Aging or end-of-life framework usage"
+  },
+  {
+   "action": "Exercise the entry points listed under Suggested next tests before drawing conclusions.",
+   "description": "No span in the selected runtime sessions mapped to this class. Unobserved does not mean unused.",
+   "id": "DEBT-UNOBSERVED",
+   "severity": "INFO",
+   "title": "Unobserved at runtime"
+  }
+ ],
+ "rules_version": "2026.10.0",
+ "runtime_included": false,
+ "thresholds": {
+  "class.bytecode_size": {
+   "over": 8000,
+   "warn": 3000
+  },
+  "class.complexity": {
+   "over": 120,
+   "warn": 60
+  },
+  "class.dependency_count": {
+   "over": 30,
+   "warn": 20
+  },
+  "class.fan_in": {
+   "over": 25,
+   "warn": 15
+  },
+  "class.fan_out": {
+   "over": 20,
+   "warn": 12
+  },
+  "class.field_count": {
+   "over": 20,
+   "warn": 12
+  },
+  "class.max_method_complexity": {
+   "over": 20,
+   "warn": 10
+  },
+  "class.max_method_size": {
+   "over": 8000,
+   "warn": 1000
+  },
+  "class.method_count": {
+   "over": 35,
+   "warn": 20
+  },
+  "package.Ca": {
+   "over": 40,
+   "warn": 20
+  },
+  "package.Ce": {
+   "over": 40,
+   "warn": 20
+  },
+  "package.D": {
+   "over": 0.7,
+   "warn": 0.5
+  }
+ }
+}

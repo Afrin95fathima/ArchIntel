@@ -92,3 +92,37 @@ def cycle_explanation(analysis_id: str, body: ExplainInput, request: Request, db
 def architecture_metrics(analysis_id: str, request: Request, db=Depends(db_session)):
     from .metrics import compute
     return compute(load(analysis_id, request, db))
+
+
+def _debt(model):
+    from .debt import detect
+    return detect(model)
+
+
+@router.get('/debt', response_model=dict)
+def technical_debt(analysis_id: str, request: Request, runtime_session_ids: str | None = Query(None, max_length=400), db=Depends(db_session)):
+    return _debt(load(analysis_id, request, db, runtime_session_ids))
+
+
+@router.post('/debt/explain', response_model=dict)
+def debt_refactoring(analysis_id: str, body: ExplainInput, request: Request, db=Depends(db_session)):
+    """Optional AI refactoring proposal for one finding. Sentences must cite evidence and name only real methods."""
+    from app.ai.grounded import explain
+    from .source_store import read
+    model = load(analysis_id, request, db)
+    finding = next((f for f in _debt(model)['findings'] if f['id'] == body.target_id), None)
+    if not finding:
+        raise HTTPException(404, 'Debt finding not found in this analysis.')
+    evidence = [dict(id='finding:' + finding['id'], text=f"{finding['title']}: {finding['explanation']['technical']} Suggested action: {finding['suggested_action']}")]
+    evidence += [dict(id=f'evidence:{i}', text=e['text']) for i, e in enumerate(finding['evidence'][:8])]
+    methods = set()
+    for node in finding['node_ids'][:2]:
+        source = read(request.app.state.config, analysis_id, model.result, node, 6000)
+        if source['text']:
+            evidence.append(dict(id='source:' + node, text=f"[{source['kind']}] {source['text']}"))
+        for owner in [node] + model.nested_by_owner.get(node, []):
+            methods |= {m['name'] for m in model.methods_of(owner)}
+    ai = explain(request, db, 'REFACTORING_PROPOSAL', evidence, 'Propose a concrete refactoring for this finding. Name the methods involved as name().',
+        'analysis:' + analysis_id, set(model.classes), methods)
+    return dict(finding_id=finding['id'], deterministic=dict(explanation=finding['explanation'], suggested_action=finding['suggested_action']), ai=ai,
+        evidence_ids=[e['id'] for e in evidence])

@@ -71,3 +71,4 @@
 .metric-point { fill: var(--brand-600); opacity: .8; }
 .metric-point.near { fill: var(--state-warning); }
 .metric-point.over { fill: var(--severity-critical); }
+.group-row td { background: var(--neutral-100); }

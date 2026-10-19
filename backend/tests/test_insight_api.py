@@ -68,3 +68,18 @@ def test_cycle_ai_rewrite_must_cite_existing_edges(insight_client, fake_model):
     assert [s['text'] for s in out['ai']['sentences']] == ['BillingAction and BillingRecord need each other.']
     assert all(c.startswith('edge:') for c in out['ai']['sentences'][0]['citations'])
     assert out['ai']['dropped'][0]['reason'] == 'UNVERIFIED_IDENTIFIER'
+
+
+def test_debt_ai_proposal_drops_invented_methods(insight_client, fake_model):
+    _, replies = fake_model
+    analysis, _ = analyse(insight_client, 'edgecases')
+    debt = insight_client.get(f'/api/v1/analyses/{analysis}/insight/debt').json()
+    finding = next(f for f in debt['findings'] if f['rule_id'] == 'DEBT-STATIC-STATE' and f['entity_id'].endswith('#CACHE'))
+    enable_model(insight_client)
+    replies.append(json.dumps({'sentences': [
+        {'text': 'Move CACHE into an instance field and update save() and delete() to use it.', 'cite': ['e0', 'e1']},
+        {'text': 'Then call flushCache() on shutdown.', 'cite': ['e0']}]}))
+    out = insight_client.post(f'/api/v1/analyses/{analysis}/insight/debt/explain', json={'target_id': finding['id']}).json()
+    assert [s['text'] for s in out['ai']['sentences']] == ['Move CACHE into an instance field and update save() and delete() to use it.']
+    assert out['ai']['dropped'][0]['identifiers'] == ['flushCache()']
+    assert any(e.startswith('source:') for e in out['evidence_ids'])       # bytecode outline was supplied as evidence
