@@ -41,7 +41,7 @@ def test_health_configuration_and_migration(client):
     assert client.get('/api/v1/health').status_code==200
     assert client.get('/api/v1/ready').json()['dependencies']=={'database':'ok','scanner':'ok'}
     with client.app.state.engine.connect() as connection:
-        assert connection.execute(text('SELECT version_num FROM alembic_version')).scalar()=='0009'
+        assert connection.execute(text('SELECT version_num FROM alembic_version')).scalar()=='0010'
     assert client.get('/api/v1/analysis/capabilities').json()['status']=='AVAILABLE'
 
 

@@ -266,3 +266,57 @@ def diagram_sequence(analysis_id: str, request: Request, entry_id: str = Query(m
     if runtime_session_ids:
         flow['note'] = 'No retained trace matched this entry point in the selected sessions, so this is the static call flow. ' + flow['note']
     return flow
+
+
+class ChatInput(BaseModel):
+    question: str = Field(min_length=3, max_length=2000)
+
+
+def _application_of(db, analysis_id):
+    from app import models as m
+    return db.get(m.AnalysisRun, analysis_id).application_id
+
+
+@router.get('/assistant/tools', response_model=dict)
+def assistant_tools(analysis_id: str):
+    from .assistant.tools import CATALOG
+    return dict(tools=CATALOG, read_only=True, note='No tool changes code or data. Any change must go through a Source task, which requires human approval.')
+
+
+@router.post('/assistant/ask', response_model=dict)
+def assistant_ask(analysis_id: str, body: ChatInput, request: Request, runtime_session_ids: str | None = Query(None, max_length=400), db=Depends(db_session)):
+    from .assistant.service import ask
+    model = load(analysis_id, request, db, runtime_session_ids)
+    return ask(request, db, model, analysis_id, _application_of(db, analysis_id), body.question, runtime_session_ids or '')
+
+
+@router.post('/assistant/chat')
+def assistant_chat(analysis_id: str, body: ChatInput, request: Request, runtime_session_ids: str | None = Query(None, max_length=400), db=Depends(db_session)):
+    """Newline-delimited JSON events: start, tool_call, tool_result, sentence, done."""
+    import json
+    from fastapi.responses import StreamingResponse
+    from .assistant.service import turn
+    model = load(analysis_id, request, db, runtime_session_ids)
+    application_id = _application_of(db, analysis_id)
+    events = turn(request, db, model, analysis_id, application_id, body.question, runtime_session_ids or '')
+    first = next(events)            # raises HTTP errors (rate budget, validation) before the stream starts
+
+    def stream():
+        yield json.dumps(first) + '\n'
+        for event in events:
+            yield json.dumps(event, default=str) + '\n'
+    return StreamingResponse(stream(), media_type='application/x-ndjson')
+
+
+@router.get('/assistant/history', response_model=dict)
+def assistant_history(analysis_id: str, request: Request, db=Depends(db_session)):
+    from .assistant.service import history
+    snapshot(db, analysis_id)
+    return dict(messages=history(request, analysis_id))
+
+
+@router.delete('/assistant/history', response_model=dict)
+def assistant_clear(analysis_id: str, request: Request, db=Depends(db_session)):
+    from .assistant.service import clear_history
+    snapshot(db, analysis_id)
+    return dict(deleted=clear_history(request, analysis_id))

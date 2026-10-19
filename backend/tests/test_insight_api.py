@@ -98,3 +98,94 @@ def test_next_test_ai_steps_are_cited_and_method_checked(insight_client, fake_mo
     out = insight_client.post(f'/api/v1/analyses/{analysis}/insight/tests/explain', json={'target_id': visit['id']}).json()
     assert len(out['ai']['sentences']) == 1 and out['ai']['dropped'][0]['identifiers'] == ['validateVisit()']
     assert 'entry:' + visit['id'] == out['ai']['sentences'][0]['citations'][0]
+
+
+def ask(client, analysis, question, **params):
+    return client.post(f'/api/v1/analyses/{analysis}/insight/assistant/ask', json={'question': question}, params=params)
+
+
+def test_assistant_works_without_any_model_and_remembers_the_subject(insight_client):
+    analysis, _ = analyse(insight_client, 'petclinic')
+    first = ask(insight_client, analysis, 'What does OwnerController do?').json()
+    assert first['mode'] == 'LOCAL_EVIDENCE' and first['ai_generated'] is False and 'no model was used' in first['label']
+    assert all(c.split(':')[0] in ('class', 'entry', 'finding') for s in first['sentences'] for c in s['cites'])
+    second = ask(insight_client, analysis, 'What does it depend on?').json()
+    assert second['status'] == 'ANSWERED' and 'OwnerRepository' in second['sentences'][0]['text']
+    history = insight_client.get(f'/api/v1/analyses/{analysis}/insight/assistant/history').json()['messages']
+    assert [m['role'] for m in history] == ['user', 'assistant', 'user', 'assistant'] and history[0]['content'] == 'What does OwnerController do?'
+    assert insight_client.delete(f'/api/v1/analyses/{analysis}/insight/assistant/history').json()['deleted'] == 4
+    assert insight_client.get(f'/api/v1/analyses/{analysis}/insight/assistant/history').json()['messages'] == []
+
+
+def test_assistant_streams_events_and_audits_without_content(insight_client):
+    analysis, _ = analyse(insight_client, 'petclinic')
+    response = insight_client.post(f'/api/v1/analyses/{analysis}/insight/assistant/chat', json={'question': 'Which controller handles POST /owners/new?'})
+    events = [json.loads(line) for line in response.text.splitlines()]
+    assert [e['type'] for e in events][:3] == ['start', 'tool_call', 'tool_result'] and events[-1]['type'] == 'done'
+    assert any(e['type'] == 'sentence' and 'processCreationForm' in e['text'] for e in events)
+    assert response.headers['content-type'].startswith('application/x-ndjson')
+    audit = insight_client.get('/api/v1/security/audit').json()
+    text = json.dumps(audit)
+    assert 'ASSISTANT_QUESTION' in text and 'ASSISTANT_TOOL_CALL' in text and 'processCreationForm' not in text
+
+
+def test_assistant_refuses_code_changes_and_cannot_determine_unknowns(insight_client):
+    analysis, _ = analyse(insight_client, 'petclinic')
+    assert ask(insight_client, analysis, 'Refactor OwnerController please').json()['status'] == 'REFUSED'
+    unknown = ask(insight_client, analysis, 'What does BillingGateway do?').json()
+    assert unknown['status'] == 'CANNOT_DETERMINE' and 'not a class or package' in unknown['sentences'][0]['text']
+    assert ask(insight_client, analysis, 'x').status_code == 422
+
+
+def test_assistant_request_budget(insight_client):
+    analysis, _ = analyse(insight_client, 'petclinic')
+    insight_client.app.state.config.assistant_requests_per_hour = 2
+    assert ask(insight_client, analysis, 'How many classes are there?').status_code == 200
+    assert ask(insight_client, analysis, 'How many classes are there?').status_code == 200
+    blocked = ask(insight_client, analysis, 'How many classes are there?')
+    assert blocked.status_code == 429 and 'budget' in blocked.json()['detail']
+
+
+def test_model_driven_turn_calls_tools_then_answers_with_verified_citations(insight_client, fake_model):
+    calls, replies = fake_model
+    analysis, _ = analyse(insight_client, 'petclinic')
+    enable_model(insight_client)
+    replies.append(json.dumps({'action': 'tool', 'tool': 'get_dependents', 'args': {'name': 'OwnerRepository'}}))
+    replies.append(json.dumps({'action': 'answer', 'sentences': [
+        {'text': 'OwnerController, PetController and VisitController depend on OwnerRepository.', 'cite': ['r0']},
+        {'text': 'PaymentGateway also depends on it.', 'cite': ['r0']},
+        {'text': 'It is used everywhere.', 'cite': ['r9']}]}))
+    answer = ask(insight_client, analysis, 'Who relies on the owner repository?').json()
+    assert answer['mode'] == 'LOCAL_MODEL_ASSISTED' and answer['ai_generated'] is True and 'AI-generated' in answer['label']
+    assert [s['text'] for s in answer['sentences']] == ['OwnerController, PetController and VisitController depend on OwnerRepository.']
+    assert all(insight_client.get(f'/api/v1/analyses/{analysis}/insight/node', params={'id': c.split(':', 1)[1].split('->')[0]}).status_code == 200 for c in answer['sentences'][0]['cites'] if c.startswith(('class:', 'edge:')))
+    assert sorted(r['reason'] for r in answer['removed']) == ['UNCITED_OR_UNKNOWN_CITATION', 'UNKNOWN_IDENTIFIER']
+    assert [c['tool'] for c in answer['tool_calls']] == ['get_dependents']
+    sent = [p for path, p in calls if path == '/api/chat']
+    assert len(sent) == 2 and 'tools' in sent[0]['messages'][1]['content'] and sent[1]['format']['required'] == ['action']
+    audits = json.dumps(insight_client.get('/api/v1/security/audit').json())
+    assert 'ASSISTANT_TOOL_CALL' in audits and 'source": "model' in audits.replace('\\"', '"')
+
+
+def test_model_failures_and_unverifiable_answers_fall_back_to_deterministic(insight_client, fake_model):
+    _, replies = fake_model
+    analysis, _ = analyse(insight_client, 'petclinic')
+    off = ask(insight_client, analysis, 'How many classes are there?').json()          # model not enabled in policy
+    assert off['mode'] == 'LOCAL_EVIDENCE' and off['gateway']['reason'] == 'MODEL_DISABLED'
+    enable_model(insight_client)
+    replies.append(json.dumps({'action': 'answer', 'sentences': [{'text': 'There are 99 classes.', 'cite': ['r0']}]}))
+    fallback = ask(insight_client, analysis, 'How many classes are there?').json()
+    assert fallback['mode'] == 'LOCAL_EVIDENCE' and '24 top-level classes' in fallback['sentences'][0]['text'] and fallback['gateway']['reason'] == 'NO_VERIFIED_SENTENCES'
+    insight_client.app.state.config.insight_ai_mode = 'OFF'
+    assert ask(insight_client, analysis, 'How many classes are there?').json()['gateway']['reason'] == 'INSIGHT_AI_DISABLED'
+
+
+def test_model_sentences_with_invented_numbers_are_removed(insight_client, fake_model):
+    _, replies = fake_model
+    analysis, _ = analyse(insight_client, 'petclinic')
+    enable_model(insight_client)
+    replies.append(json.dumps({'action': 'tool', 'tool': 'get_dependents', 'args': {'name': 'OwnerRepository'}}))
+    replies.append(json.dumps({'action': 'answer', 'sentences': [{'text': '3 classes depend on OwnerRepository.', 'cite': ['r0']}, {'text': '99 classes depend on OwnerRepository.', 'cite': ['r0']}]}))
+    answer = ask(insight_client, analysis, 'Who relies on the owner repository?').json()
+    assert [s['text'] for s in answer['sentences']] == ['3 classes depend on OwnerRepository.']
+    assert [r['reason'] for r in answer['removed']] == ['UNSUPPORTED_NUMBER'] and answer['removed'][0]['numbers'] == ['99']

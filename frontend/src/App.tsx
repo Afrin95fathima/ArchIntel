@@ -13,6 +13,7 @@ const Domains=lazy(()=>import('./Insights').then(module=>({default:module.Domain
 const Dependencies=lazy(()=>import('./Dependencies').then(module=>({default:module.Dependencies})));
 const Modernization=lazy(()=>import('./Insights').then(module=>({default:module.Modernization})));
 const Assistant=lazy(()=>import('./Assistant').then(module=>({default:module.Assistant})));
+const AssistantChat=lazy(()=>import('./insight/AssistantChat').then(module=>({default:module.AssistantChat})));
 const RuntimeAnalysis=lazy(()=>import('./runtime/RuntimeAnalysis').then(module=>({default:module.RuntimeAnalysis})));
 const TaskWorkspace=lazy(()=>import('./transformation/TaskWorkspace').then(module=>({default:module.TaskWorkspace})));
 const EvidenceWorkspace=lazy(()=>import('./evidence/EvidenceWorkspace').then(module=>({default:module.EvidenceWorkspace})));
@@ -109,7 +110,7 @@ export function App() {
           {view==='issues'&&<TechnicalDebt analysisId={selected}/>}
           {(view==='cycles'||view==='metrics')&&<Dependencies analysisId={selected} cycles={cycles.data!.items} metrics={metrics.data!.items} initialTab={view==='metrics'?'metrics':'cycles'}/>}
           {view==='lifecycle'&&<TechnologyLifecycle analysisId={selected}/>}
-          {view==='assistant'&&<Assistant analysisId={selected} domains={domains.data!.items}/>}
+          {view==='assistant'&&<><AssistantChat analysisId={selected} applicationId={run.application_id}/><details className="legacy-assistant"><summary>Modernization questions (readiness, sequence)</summary><Assistant analysisId={selected} domains={domains.data!.items}/></details></>}
         </div>}</Suspense>
       </main><footer className="app-footer"><span><Compass size={13}/> ArchIntel · Architecture & modernization intelligence</span><span>Evidence-backed analysis · Local deployment</span></footer>
     </div>

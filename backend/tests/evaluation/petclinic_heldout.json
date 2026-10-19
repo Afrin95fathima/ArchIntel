@@ -1,0 +1,18 @@
+{
+  "fixture": "petclinic",
+  "note": "Paraphrases written after the main set was frozen. Not used for tuning; the pass rate is reported as measured.",
+  "questions": [
+    {"q": "Who uses VisitController?", "contains": ["No application class depends on VisitController"]},
+    {"q": "Which classes does OwnerController rely on?", "contains": ["OwnerRepository", "Owner"]},
+    {"q": "How big is the codebase?", "contains": ["24 top-level classes"]},
+    {"q": "Is there any cyclic coupling between packages?", "contains": ["No circular dependencies were found"]},
+    {"q": "Which URL lets me add a new pet?", "contains": ["/owners/{ownerId}/pets/new"]},
+    {"q": "Does anything depend on Vets?", "contains": ["VetController"]},
+    {"q": "What is the role of PetValidator?", "contains": ["validator"]},
+    {"q": "Tell me about BaseEntity", "contains": ["entity", "MappedSuperclass"]},
+    {"q": "Which classes are repositories?", "contains": ["OwnerRepository", "PetTypeRepository", "VetRepository"], "absent": ["VetController"]},
+    {"q": "Is anything end-of-life?", "contains": ["Java 17"]},
+    {"q": "Show me the code for PetClinicApplication", "contains": ["bytecode outline"], "has_code": true},
+    {"q": "Can you rewrite the VetController?", "contains": ["cannot change code"], "status": "REFUSED"}
+  ]
+}
