@@ -79,7 +79,7 @@ def build(version,static,runtime,manifest,observed_methods):
     for d in runtime['coverage']['domain_observations']:
         eid=ev('coverage:'+d['id'],'COVERAGE',manifest['analysis_id'],d['id'],d)
         link(eid,identity(version,'domain:'+d['id']),'DESCRIBES')
-        if d['state']!='OBSERVED':discovery.append(dict(kind='DOMAIN',target=identity(version,'domain:'+d['id']),priority=2,gap_state=d['state'],text='Exercise additional entry points in '+d['name']+'.',evidence_ids=[eid]))
+        if d['state']!='OBSERVED':discovery.append(dict(kind='DOMAIN',target=identity(version,'domain:'+d['id']),priority=2,gap_state=d['state'],text=f"{d['name']}: {d['observed']} of {d['total']} classes observed; not yet observed: {', '.join(c.rsplit('.',1)[-1] for c in d['unobserved_classes'][:5])}{'…' if len(d['unobserved_classes'])>5 else ''}. See Dynamic analysis → Next tests.",evidence_ids=[eid]))
     for index,flow in enumerate(runtime.get('flows',[])):
         fid=node('flow:'+str(index),'RuntimeFlow',flow.get('entry_point','Unknown entry'),observation=flow)
         eid=ev('flow:'+str(index),'RUNTIME',manifest['analysis_id'],fid,flow,flow.get('evidence',[]));link(eid,fid,'DESCRIBES');link(root,fid,'CONTAINS')

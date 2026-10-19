@@ -83,3 +83,18 @@ def test_debt_ai_proposal_drops_invented_methods(insight_client, fake_model):
     assert [s['text'] for s in out['ai']['sentences']] == ['Move CACHE into an instance field and update save() and delete() to use it.']
     assert out['ai']['dropped'][0]['identifiers'] == ['flushCache()']
     assert any(e.startswith('source:') for e in out['evidence_ids'])       # bytecode outline was supplied as evidence
+
+
+def test_next_test_ai_steps_are_cited_and_method_checked(insight_client, fake_model):
+    _, replies = fake_model
+    analysis, _ = analyse(insight_client, 'petclinic')
+    tests = insight_client.get(f'/api/v1/analyses/{analysis}/insight/tests').json()
+    assert tests['totals']['open'] == 18
+    visit = next(s for s in tests['suggestions'] if s['entry_point']['description'].startswith('POST /owners/{ownerId}/pets/{petId}/visits/new'))
+    enable_model(insight_client)
+    replies.append(json.dumps({'sentences': [
+        {'text': 'Open an owner, choose a pet, then submit the Add Visit form with an empty description to reach the hasErrors() branch.', 'cite': ['e0']},
+        {'text': 'Then call validateVisit() directly.', 'cite': ['e0']}]}))
+    out = insight_client.post(f'/api/v1/analyses/{analysis}/insight/tests/explain', json={'target_id': visit['id']}).json()
+    assert len(out['ai']['sentences']) == 1 and out['ai']['dropped'][0]['identifiers'] == ['validateVisit()']
+    assert 'entry:' + visit['id'] == out['ai']['sentences'][0]['citations'][0]

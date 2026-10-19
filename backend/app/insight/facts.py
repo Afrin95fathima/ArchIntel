@@ -6,7 +6,7 @@ import re
 
 from .bytecode import (ACC_ABSTRACT, ACC_ANNOTATION, ACC_BRIDGE, ACC_ENUM, ACC_FINAL, ACC_INTERFACE, ACC_PRIVATE,
     ACC_PROTECTED, ACC_PUBLIC, ACC_STATIC, ACC_SYNTHETIC, ACC_VARARGS, ClassFormatError, base_type, parse,
-    parse_method_descriptor, signature_types, descriptor_type)
+    parse_method_descriptor, signature_types, descriptor_type, parameter_names)
 
 SCHEMA = 'bytecode-facts-1'
 MAX_CLASSES = 50000
@@ -45,7 +45,7 @@ def class_facts(data: bytes) -> dict:
                 lambda_impls.append(dict(target, line=site['line']))
         methods.append(dict(
             name=m['name'], descriptor=m['descriptor'], signature=java_signature(m['name'], m['descriptor']),
-            parameters=params, returns=returns, visibility=visibility(m['access']),
+            parameters=params, parameter_names=parameter_names(m, m['descriptor'], bool(m['access'] & ACC_STATIC)), returns=returns, visibility=visibility(m['access']),
             static=bool(m['access'] & ACC_STATIC), abstract=bool(m['access'] & ACC_ABSTRACT),
             synthetic=bool(m['access'] & ACC_SYNTHETIC), bridge=bool(m['access'] & ACC_BRIDGE),
             varargs=bool(m['access'] & ACC_VARARGS), lambda_body=m['name'].startswith('lambda$'),

@@ -1,0 +1,1655 @@
+{
+ "done": [],
+ "limitation": "No runtime session selected: all entry points are listed as suggestions.",
+ "method_level": false,
+ "runtime_included": false,
+ "status": "AVAILABLE",
+ "suggestions": [
+  {
+   "action_steps": [
+    "Make sure: an Owner with ownerId=1 exists in the database; a Pet with petId=1 exists in the database.",
+    "Submit the form or send POST /owners/{ownerId}/pets/{petId}/edit with the fields in the sample request.",
+    "Fill in the required fields: name."
+   ],
+   "edge_cases": [
+    "Leave name empty: the validation error path should run and the form should be shown again.",
+    "Submit invalid data so BindingResult.hasErrors() is true."
+   ],
+   "entry_point": {
+    "description": "POST /owners/{ownerId}/pets/{petId}/edit",
+    "handler": "PetController.processUpdateForm()",
+    "handler_class": "org.springframework.samples.petclinic.owner.PetController",
+    "http_methods": [
+     "POST"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/owners/{ownerId}/pets/{petId}/edit"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@PostMapping{'value': ['/pets/{petId}/edit']} on PetController.processUpdateForm",
+    "class-level @RequestMapping{'value': ['/owners/{ownerId}']}",
+    "reachable methods: 25, classes: 8"
+   ],
+   "exercises": {
+    "classes": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.NamedEntity",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerRepository",
+     "org.springframework.samples.petclinic.owner.Pet",
+     "org.springframework.samples.petclinic.owner.PetController",
+     "org.springframework.samples.petclinic.owner.PetTypeRepository",
+     "org.springframework.samples.petclinic.owner.PetValidator"
+    ],
+    "method_count": 25,
+    "methods": [
+     "BaseEntity constructor",
+     "BaseEntity.getId()",
+     "BaseEntity.isNew()",
+     "NamedEntity constructor",
+     "NamedEntity.getName()",
+     "NamedEntity.setName()",
+     "Owner.addPet()",
+     "Owner.getPet()",
+     "Owner.getPet()",
+     "Owner.getPets()",
+     "OwnerRepository.findById()",
+     "Pet constructor",
+     "Pet.getBirthDate()",
+     "Pet.getType()",
+     "Pet.setBirthDate()",
+     "Pet.setType()",
+     "PetController.findOwner()",
+     "PetController.findPet()",
+     "PetController.initOwnerBinder()",
+     "PetController.initPetBinder()",
+     "PetController.populatePetTypes()",
+     "PetController.processUpdateForm()",
+     "PetController.updatePetDetails()",
+     "PetTypeRepository.findPetTypes()",
+     "PetValidator constructor"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.NamedEntity",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerRepository",
+     "org.springframework.samples.petclinic.owner.Pet",
+     "org.springframework.samples.petclinic.owner.PetController",
+     "org.springframework.samples.petclinic.owner.PetTypeRepository",
+     "org.springframework.samples.petclinic.owner.PetValidator"
+    ],
+    "new_classes": 8,
+    "new_methods": 25,
+    "standalone_new_classes": 8
+   },
+   "id": "entry-e83b16cddc3ef8ea",
+   "preconditions": [
+    "an Owner with ownerId=1 exists in the database",
+    "a Pet with petId=1 exists in the database"
+   ],
+   "rank": 1,
+   "sample_request": {
+    "form_fields": [
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "name",
+      "required": true
+     },
+     {
+      "constraints": [],
+      "example": "2024-01-15",
+      "name": "birthDate",
+      "required": false
+     },
+     {
+      "constraints": [],
+      "example": "example",
+      "name": "type",
+      "required": false
+     }
+    ],
+    "method": "POST",
+    "path": "/owners/1/pets/1/edit",
+    "path_parameters": [
+     {
+      "example": "1",
+      "name": "ownerId",
+      "type": "path variable bound outside the handler (for example by a @ModelAttribute method)"
+     },
+     {
+      "example": "1",
+      "name": "petId",
+      "type": "path variable bound outside the handler (for example by a @ModelAttribute method)"
+     }
+    ],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Send GET /vets.html with the query parameters listed in the sample request."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "GET /vets.html",
+    "handler": "VetController.showVetList()",
+    "handler_class": "org.springframework.samples.petclinic.vet.VetController",
+    "http_methods": [
+     "GET"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/vets.html"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@GetMapping{'value': ['/vets.html']} on VetController.showVetList",
+    "reachable methods: 6, classes: 3"
+   ],
+   "exercises": {
+    "classes": [
+     "org.springframework.samples.petclinic.vet.VetController",
+     "org.springframework.samples.petclinic.vet.VetRepository",
+     "org.springframework.samples.petclinic.vet.Vets"
+    ],
+    "method_count": 6,
+    "methods": [
+     "VetController.addPaginationModel()",
+     "VetController.findPaginated()",
+     "VetController.showVetList()",
+     "VetRepository.findAll()",
+     "Vets constructor",
+     "Vets.getVetList()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "org.springframework.samples.petclinic.vet.VetController",
+     "org.springframework.samples.petclinic.vet.VetRepository",
+     "org.springframework.samples.petclinic.vet.Vets"
+    ],
+    "new_classes": 3,
+    "new_methods": 6,
+    "standalone_new_classes": 3
+   },
+   "id": "entry-5838f71cd825cb97",
+   "preconditions": [],
+   "rank": 2,
+   "sample_request": {
+    "form_fields": [],
+    "method": "GET",
+    "path": "/vets.html",
+    "path_parameters": [],
+    "query_parameters": [
+     {
+      "constraints": [],
+      "default": "1",
+      "example": "1",
+      "name": "page",
+      "required": true,
+      "type": "int"
+     }
+    ]
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Send GET /owners with the query parameters listed in the sample request.",
+    "Fill in the required fields: firstName, lastName, address, city, telephone."
+   ],
+   "edge_cases": [
+    "Leave firstName empty: the validation error path should run and the form should be shown again.",
+    "Leave lastName empty: the validation error path should run and the form should be shown again.",
+    "Leave address empty: the validation error path should run and the form should be shown again.",
+    "Leave city empty: the validation error path should run and the form should be shown again.",
+    "Leave telephone empty: the validation error path should run and the form should be shown again.",
+    "Send telephone that does not satisfy 'must match \\d{10}'."
+   ],
+   "entry_point": {
+    "description": "GET /owners",
+    "handler": "OwnerController.processFindForm()",
+    "handler_class": "org.springframework.samples.petclinic.owner.OwnerController",
+    "http_methods": [
+     "GET"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/owners"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@GetMapping{'value': ['/owners']} on OwnerController.processFindForm",
+    "reachable methods: 12, classes: 5"
+   ],
+   "exercises": {
+    "classes": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.Person",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerController",
+     "org.springframework.samples.petclinic.owner.OwnerRepository"
+    ],
+    "method_count": 12,
+    "methods": [
+     "BaseEntity constructor",
+     "BaseEntity.getId()",
+     "Owner constructor",
+     "OwnerController.addPaginationModel()",
+     "OwnerController.findOwner()",
+     "OwnerController.findPaginatedForOwnersLastName()",
+     "OwnerController.processFindForm()",
+     "OwnerController.setAllowedFields()",
+     "OwnerRepository.findById()",
+     "OwnerRepository.findByLastNameStartingWith()",
+     "Person constructor",
+     "Person.getLastName()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.Person",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerController",
+     "org.springframework.samples.petclinic.owner.OwnerRepository"
+    ],
+    "new_classes": 2,
+    "new_methods": 9,
+    "standalone_new_classes": 5
+   },
+   "id": "entry-4c688754a2412604",
+   "preconditions": [],
+   "rank": 3,
+   "sample_request": {
+    "form_fields": [
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "firstName",
+      "required": true
+     },
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "lastName",
+      "required": true
+     },
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "address",
+      "required": true
+     },
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "city",
+      "required": true
+     },
+     {
+      "constraints": [
+       "must not be blank",
+       "must match \\d{10}"
+      ],
+      "example": "1111111111",
+      "name": "telephone",
+      "required": true
+     }
+    ],
+    "method": "GET",
+    "path": "/owners",
+    "path_parameters": [],
+    "query_parameters": [
+     {
+      "constraints": [],
+      "default": "1",
+      "example": "1",
+      "name": "page",
+      "required": true,
+      "type": "int"
+     }
+    ]
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Make sure: a Pet with petId=1 exists in the database; an Owner with ownerId=1 exists in the database.",
+    "Submit the form or send POST /owners/{ownerId}/pets/{petId}/visits/new with the fields in the sample request.",
+    "Fill in the required fields: description."
+   ],
+   "edge_cases": [
+    "Leave description empty: the validation error path should run and the form should be shown again.",
+    "Use a petId value that does not exist to exercise the not-found path.",
+    "Submit invalid data so BindingResult.hasErrors() is true."
+   ],
+   "entry_point": {
+    "description": "POST /owners/{ownerId}/pets/{petId}/visits/new",
+    "handler": "VisitController.processNewVisitForm()",
+    "handler_class": "org.springframework.samples.petclinic.owner.VisitController",
+    "http_methods": [
+     "POST"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/owners/{ownerId}/pets/{petId}/visits/new"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@PostMapping{'value': ['/owners/{ownerId}/pets/{petId}/visits/new']} on VisitController.processNewVisitForm",
+    "reachable methods: 13, classes: 6"
+   ],
+   "exercises": {
+    "classes": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerRepository",
+     "org.springframework.samples.petclinic.owner.Pet",
+     "org.springframework.samples.petclinic.owner.Visit",
+     "org.springframework.samples.petclinic.owner.VisitController"
+    ],
+    "method_count": 13,
+    "methods": [
+     "BaseEntity constructor",
+     "BaseEntity.getId()",
+     "BaseEntity.isNew()",
+     "Owner.addVisit()",
+     "Owner.getPet()",
+     "Owner.getPets()",
+     "OwnerRepository.findById()",
+     "Pet.addVisit()",
+     "Pet.getVisits()",
+     "Visit constructor",
+     "VisitController.loadPetWithVisit()",
+     "VisitController.processNewVisitForm()",
+     "VisitController.setAllowedFields()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerRepository",
+     "org.springframework.samples.petclinic.owner.Pet",
+     "org.springframework.samples.petclinic.owner.Visit",
+     "org.springframework.samples.petclinic.owner.VisitController"
+    ],
+    "new_classes": 2,
+    "new_methods": 7,
+    "standalone_new_classes": 6
+   },
+   "id": "entry-4f3e9bbb58d78e41",
+   "preconditions": [
+    "a Pet with petId=1 exists in the database",
+    "an Owner with ownerId=1 exists in the database"
+   ],
+   "rank": 4,
+   "sample_request": {
+    "form_fields": [
+     {
+      "constraints": [],
+      "example": "2024-01-15",
+      "name": "date",
+      "required": false
+     },
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "description",
+      "required": true
+     }
+    ],
+    "method": "POST",
+    "path": "/owners/1/pets/1/visits/new",
+    "path_parameters": [
+     {
+      "example": "1",
+      "name": "petId",
+      "type": "int"
+     },
+     {
+      "example": "1",
+      "name": "ownerId",
+      "type": "path variable bound outside the handler (for example by a @ModelAttribute method)"
+     }
+    ],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Run the program from the command line."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "main method: started from the command line",
+    "handler": "PetClinicApplication.main()",
+    "handler_class": "org.springframework.samples.petclinic.PetClinicApplication",
+    "http_methods": [],
+    "kind": "MAIN_METHOD",
+    "paths": [],
+    "trigger": "started from the command line"
+   },
+   "evidence": [
+    "public static void main(String[])",
+    "reachable methods: 1, classes: 1"
+   ],
+   "exercises": {
+    "classes": [
+     "org.springframework.samples.petclinic.PetClinicApplication"
+    ],
+    "method_count": 1,
+    "methods": [
+     "PetClinicApplication.main()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "org.springframework.samples.petclinic.PetClinicApplication"
+    ],
+    "new_classes": 1,
+    "new_methods": 1,
+    "standalone_new_classes": 1
+   },
+   "id": "entry-a3d31deb6e088b86",
+   "preconditions": [],
+   "rank": 5,
+   "sample_request": null,
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Open /oups in the browser or send GET /oups."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "GET /oups",
+    "handler": "CrashController.triggerException()",
+    "handler_class": "org.springframework.samples.petclinic.system.CrashController",
+    "http_methods": [
+     "GET"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/oups"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@GetMapping{'value': ['/oups']} on CrashController.triggerException",
+    "reachable methods: 1, classes: 1"
+   ],
+   "exercises": {
+    "classes": [
+     "org.springframework.samples.petclinic.system.CrashController"
+    ],
+    "method_count": 1,
+    "methods": [
+     "CrashController.triggerException()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "org.springframework.samples.petclinic.system.CrashController"
+    ],
+    "new_classes": 1,
+    "new_methods": 1,
+    "standalone_new_classes": 1
+   },
+   "id": "entry-3b16527bc556cf65",
+   "preconditions": [],
+   "rank": 6,
+   "sample_request": {
+    "form_fields": [],
+    "method": "GET",
+    "path": "/oups",
+    "path_parameters": [],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Open / in the browser or send GET /."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "GET /",
+    "handler": "WelcomeController.welcome()",
+    "handler_class": "org.springframework.samples.petclinic.system.WelcomeController",
+    "http_methods": [
+     "GET"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@GetMapping{'value': ['/']} on WelcomeController.welcome",
+    "reachable methods: 1, classes: 1"
+   ],
+   "exercises": {
+    "classes": [
+     "org.springframework.samples.petclinic.system.WelcomeController"
+    ],
+    "method_count": 1,
+    "methods": [
+     "WelcomeController.welcome()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "org.springframework.samples.petclinic.system.WelcomeController"
+    ],
+    "new_classes": 1,
+    "new_methods": 1,
+    "standalone_new_classes": 1
+   },
+   "id": "entry-06c04fddaa8b03d9",
+   "preconditions": [],
+   "rank": 7,
+   "sample_request": {
+    "form_fields": [],
+    "method": "GET",
+    "path": "/",
+    "path_parameters": [],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Open /vets in the browser or send GET /vets."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "GET /vets",
+    "handler": "VetController.showResourcesVetList()",
+    "handler_class": "org.springframework.samples.petclinic.vet.VetController",
+    "http_methods": [
+     "GET"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/vets"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@GetMapping{'value': ['/vets']} on VetController.showResourcesVetList",
+    "reachable methods: 4, classes: 3"
+   ],
+   "exercises": {
+    "classes": [
+     "org.springframework.samples.petclinic.vet.VetController",
+     "org.springframework.samples.petclinic.vet.VetRepository",
+     "org.springframework.samples.petclinic.vet.Vets"
+    ],
+    "method_count": 4,
+    "methods": [
+     "VetController.showResourcesVetList()",
+     "VetRepository.findAll()",
+     "Vets constructor",
+     "Vets.getVetList()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "org.springframework.samples.petclinic.vet.VetController",
+     "org.springframework.samples.petclinic.vet.VetRepository",
+     "org.springframework.samples.petclinic.vet.Vets"
+    ],
+    "new_classes": 0,
+    "new_methods": 2,
+    "standalone_new_classes": 3
+   },
+   "id": "entry-f52482392f0d0715",
+   "preconditions": [],
+   "rank": 8,
+   "sample_request": {
+    "form_fields": [],
+    "method": "GET",
+    "path": "/vets",
+    "path_parameters": [],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Make sure: an Owner with ownerId=1 exists in the database.",
+    "Submit the form or send POST /owners/{ownerId}/edit with the fields in the sample request.",
+    "Fill in the required fields: firstName, lastName, address, city, telephone."
+   ],
+   "edge_cases": [
+    "Leave firstName empty: the validation error path should run and the form should be shown again.",
+    "Leave lastName empty: the validation error path should run and the form should be shown again.",
+    "Leave address empty: the validation error path should run and the form should be shown again.",
+    "Leave city empty: the validation error path should run and the form should be shown again.",
+    "Leave telephone empty: the validation error path should run and the form should be shown again.",
+    "Send telephone that does not satisfy 'must match \\d{10}'.",
+    "Use a ownerId value that does not exist to exercise the not-found path.",
+    "Submit invalid data so BindingResult.hasErrors() is true."
+   ],
+   "entry_point": {
+    "description": "POST /owners/{ownerId}/edit",
+    "handler": "OwnerController.processUpdateOwnerForm()",
+    "handler_class": "org.springframework.samples.petclinic.owner.OwnerController",
+    "http_methods": [
+     "POST"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/owners/{ownerId}/edit"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@PostMapping{'value': ['/owners/{ownerId}/edit']} on OwnerController.processUpdateOwnerForm",
+    "reachable methods: 9, classes: 5"
+   ],
+   "exercises": {
+    "classes": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.Person",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerController",
+     "org.springframework.samples.petclinic.owner.OwnerRepository"
+    ],
+    "method_count": 9,
+    "methods": [
+     "BaseEntity constructor",
+     "BaseEntity.getId()",
+     "BaseEntity.setId()",
+     "Owner constructor",
+     "OwnerController.findOwner()",
+     "OwnerController.processUpdateOwnerForm()",
+     "OwnerController.setAllowedFields()",
+     "OwnerRepository.findById()",
+     "Person constructor"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.Person",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerController",
+     "org.springframework.samples.petclinic.owner.OwnerRepository"
+    ],
+    "new_classes": 0,
+    "new_methods": 2,
+    "standalone_new_classes": 5
+   },
+   "id": "entry-f3c53bb73330a524",
+   "preconditions": [
+    "an Owner with ownerId=1 exists in the database"
+   ],
+   "rank": 9,
+   "sample_request": {
+    "form_fields": [
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "firstName",
+      "required": true
+     },
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "lastName",
+      "required": true
+     },
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "address",
+      "required": true
+     },
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "city",
+      "required": true
+     },
+     {
+      "constraints": [
+       "must not be blank",
+       "must match \\d{10}"
+      ],
+      "example": "1111111111",
+      "name": "telephone",
+      "required": true
+     }
+    ],
+    "method": "POST",
+    "path": "/owners/1/edit",
+    "path_parameters": [
+     {
+      "example": "1",
+      "name": "ownerId",
+      "type": "int"
+     }
+    ],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Make sure: an Owner with ownerId=1 exists in the database.",
+    "Open /owners/{ownerId}/edit in the browser or send GET /owners/{ownerId}/edit."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "GET /owners/{ownerId}/edit",
+    "handler": "OwnerController.initUpdateOwnerForm()",
+    "handler_class": "org.springframework.samples.petclinic.owner.OwnerController",
+    "http_methods": [
+     "GET"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/owners/{ownerId}/edit"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@GetMapping{'value': ['/owners/{ownerId}/edit']} on OwnerController.initUpdateOwnerForm",
+    "reachable methods: 7, classes: 5"
+   ],
+   "exercises": {
+    "classes": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.Person",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerController",
+     "org.springframework.samples.petclinic.owner.OwnerRepository"
+    ],
+    "method_count": 7,
+    "methods": [
+     "BaseEntity constructor",
+     "Owner constructor",
+     "OwnerController.findOwner()",
+     "OwnerController.initUpdateOwnerForm()",
+     "OwnerController.setAllowedFields()",
+     "OwnerRepository.findById()",
+     "Person constructor"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.Person",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerController",
+     "org.springframework.samples.petclinic.owner.OwnerRepository"
+    ],
+    "new_classes": 0,
+    "new_methods": 1,
+    "standalone_new_classes": 5
+   },
+   "id": "entry-d98964d8f2099bc1",
+   "preconditions": [
+    "an Owner with ownerId=1 exists in the database"
+   ],
+   "rank": 10,
+   "sample_request": {
+    "form_fields": [],
+    "method": "GET",
+    "path": "/owners/1/edit",
+    "path_parameters": [
+     {
+      "example": "1",
+      "name": "ownerId",
+      "type": "path variable bound outside the handler (for example by a @ModelAttribute method)"
+     }
+    ],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Make sure: an Owner with ownerId=1 exists in the database; a Pet with petId=1 exists in the database.",
+    "Open /owners/{ownerId}/pets/{petId}/visits/new in the browser or send GET /owners/{ownerId}/pets/{petId}/visits/new."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "GET /owners/{ownerId}/pets/{petId}/visits/new",
+    "handler": "VisitController.initNewVisitForm()",
+    "handler_class": "org.springframework.samples.petclinic.owner.VisitController",
+    "http_methods": [
+     "GET"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/owners/{ownerId}/pets/{petId}/visits/new"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@GetMapping{'value': ['/owners/{ownerId}/pets/{petId}/visits/new']} on VisitController.initNewVisitForm",
+    "reachable methods: 12, classes: 6"
+   ],
+   "exercises": {
+    "classes": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerRepository",
+     "org.springframework.samples.petclinic.owner.Pet",
+     "org.springframework.samples.petclinic.owner.Visit",
+     "org.springframework.samples.petclinic.owner.VisitController"
+    ],
+    "method_count": 12,
+    "methods": [
+     "BaseEntity constructor",
+     "BaseEntity.getId()",
+     "BaseEntity.isNew()",
+     "Owner.getPet()",
+     "Owner.getPets()",
+     "OwnerRepository.findById()",
+     "Pet.addVisit()",
+     "Pet.getVisits()",
+     "Visit constructor",
+     "VisitController.initNewVisitForm()",
+     "VisitController.loadPetWithVisit()",
+     "VisitController.setAllowedFields()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerRepository",
+     "org.springframework.samples.petclinic.owner.Pet",
+     "org.springframework.samples.petclinic.owner.Visit",
+     "org.springframework.samples.petclinic.owner.VisitController"
+    ],
+    "new_classes": 0,
+    "new_methods": 1,
+    "standalone_new_classes": 6
+   },
+   "id": "entry-cf443ff55e0422ed",
+   "preconditions": [
+    "an Owner with ownerId=1 exists in the database",
+    "a Pet with petId=1 exists in the database"
+   ],
+   "rank": 11,
+   "sample_request": {
+    "form_fields": [],
+    "method": "GET",
+    "path": "/owners/1/pets/1/visits/new",
+    "path_parameters": [
+     {
+      "example": "1",
+      "name": "ownerId",
+      "type": "path variable bound outside the handler (for example by a @ModelAttribute method)"
+     },
+     {
+      "example": "1",
+      "name": "petId",
+      "type": "path variable bound outside the handler (for example by a @ModelAttribute method)"
+     }
+    ],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Open /owners/find in the browser or send GET /owners/find."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "GET /owners/find",
+    "handler": "OwnerController.initFindForm()",
+    "handler_class": "org.springframework.samples.petclinic.owner.OwnerController",
+    "http_methods": [
+     "GET"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/owners/find"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@GetMapping{'value': ['/owners/find']} on OwnerController.initFindForm",
+    "reachable methods: 7, classes: 5"
+   ],
+   "exercises": {
+    "classes": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.Person",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerController",
+     "org.springframework.samples.petclinic.owner.OwnerRepository"
+    ],
+    "method_count": 7,
+    "methods": [
+     "BaseEntity constructor",
+     "Owner constructor",
+     "OwnerController.findOwner()",
+     "OwnerController.initFindForm()",
+     "OwnerController.setAllowedFields()",
+     "OwnerRepository.findById()",
+     "Person constructor"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.Person",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerController",
+     "org.springframework.samples.petclinic.owner.OwnerRepository"
+    ],
+    "new_classes": 0,
+    "new_methods": 1,
+    "standalone_new_classes": 5
+   },
+   "id": "entry-cee5df7967e640bc",
+   "preconditions": [],
+   "rank": 12,
+   "sample_request": {
+    "form_fields": [],
+    "method": "GET",
+    "path": "/owners/find",
+    "path_parameters": [],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Make sure: an Owner with ownerId=1 exists in the database.",
+    "Send GET /owners/{ownerId}/pets/new with the query parameters listed in the sample request.",
+    "Fill in the required fields: firstName, lastName, address, city, telephone."
+   ],
+   "edge_cases": [
+    "Leave firstName empty: the validation error path should run and the form should be shown again.",
+    "Leave lastName empty: the validation error path should run and the form should be shown again.",
+    "Leave address empty: the validation error path should run and the form should be shown again.",
+    "Leave city empty: the validation error path should run and the form should be shown again.",
+    "Leave telephone empty: the validation error path should run and the form should be shown again.",
+    "Send telephone that does not satisfy 'must match \\d{10}'."
+   ],
+   "entry_point": {
+    "description": "GET /owners/{ownerId}/pets/new",
+    "handler": "PetController.initCreationForm()",
+    "handler_class": "org.springframework.samples.petclinic.owner.PetController",
+    "http_methods": [
+     "GET"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/owners/{ownerId}/pets/new"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@GetMapping{'value': ['/pets/new']} on PetController.initCreationForm",
+    "class-level @RequestMapping{'value': ['/owners/{ownerId}']}",
+    "reachable methods: 17, classes: 8"
+   ],
+   "exercises": {
+    "classes": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.NamedEntity",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerRepository",
+     "org.springframework.samples.petclinic.owner.Pet",
+     "org.springframework.samples.petclinic.owner.PetController",
+     "org.springframework.samples.petclinic.owner.PetTypeRepository",
+     "org.springframework.samples.petclinic.owner.PetValidator"
+    ],
+    "method_count": 17,
+    "methods": [
+     "BaseEntity constructor",
+     "BaseEntity.getId()",
+     "BaseEntity.isNew()",
+     "NamedEntity constructor",
+     "Owner.addPet()",
+     "Owner.getPet()",
+     "Owner.getPets()",
+     "OwnerRepository.findById()",
+     "Pet constructor",
+     "PetController.findOwner()",
+     "PetController.findPet()",
+     "PetController.initCreationForm()",
+     "PetController.initOwnerBinder()",
+     "PetController.initPetBinder()",
+     "PetController.populatePetTypes()",
+     "PetTypeRepository.findPetTypes()",
+     "PetValidator constructor"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.NamedEntity",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerRepository",
+     "org.springframework.samples.petclinic.owner.Pet",
+     "org.springframework.samples.petclinic.owner.PetController",
+     "org.springframework.samples.petclinic.owner.PetTypeRepository",
+     "org.springframework.samples.petclinic.owner.PetValidator"
+    ],
+    "new_classes": 0,
+    "new_methods": 1,
+    "standalone_new_classes": 8
+   },
+   "id": "entry-aa9c3dd5c9d5a64d",
+   "preconditions": [
+    "an Owner with ownerId=1 exists in the database"
+   ],
+   "rank": 13,
+   "sample_request": {
+    "form_fields": [
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "firstName",
+      "required": true
+     },
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "lastName",
+      "required": true
+     },
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "address",
+      "required": true
+     },
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "city",
+      "required": true
+     },
+     {
+      "constraints": [
+       "must not be blank",
+       "must match \\d{10}"
+      ],
+      "example": "1111111111",
+      "name": "telephone",
+      "required": true
+     }
+    ],
+    "method": "GET",
+    "path": "/owners/1/pets/new",
+    "path_parameters": [
+     {
+      "example": "1",
+      "name": "ownerId",
+      "type": "path variable bound outside the handler (for example by a @ModelAttribute method)"
+     }
+    ],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Submit the form or send POST /owners/new with the fields in the sample request.",
+    "Fill in the required fields: firstName, lastName, address, city, telephone."
+   ],
+   "edge_cases": [
+    "Leave firstName empty: the validation error path should run and the form should be shown again.",
+    "Leave lastName empty: the validation error path should run and the form should be shown again.",
+    "Leave address empty: the validation error path should run and the form should be shown again.",
+    "Leave city empty: the validation error path should run and the form should be shown again.",
+    "Leave telephone empty: the validation error path should run and the form should be shown again.",
+    "Send telephone that does not satisfy 'must match \\d{10}'.",
+    "Submit invalid data so BindingResult.hasErrors() is true."
+   ],
+   "entry_point": {
+    "description": "POST /owners/new",
+    "handler": "OwnerController.processCreationForm()",
+    "handler_class": "org.springframework.samples.petclinic.owner.OwnerController",
+    "http_methods": [
+     "POST"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/owners/new"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@PostMapping{'value': ['/owners/new']} on OwnerController.processCreationForm",
+    "reachable methods: 8, classes: 5"
+   ],
+   "exercises": {
+    "classes": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.Person",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerController",
+     "org.springframework.samples.petclinic.owner.OwnerRepository"
+    ],
+    "method_count": 8,
+    "methods": [
+     "BaseEntity constructor",
+     "BaseEntity.getId()",
+     "Owner constructor",
+     "OwnerController.findOwner()",
+     "OwnerController.processCreationForm()",
+     "OwnerController.setAllowedFields()",
+     "OwnerRepository.findById()",
+     "Person constructor"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.Person",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerController",
+     "org.springframework.samples.petclinic.owner.OwnerRepository"
+    ],
+    "new_classes": 0,
+    "new_methods": 1,
+    "standalone_new_classes": 5
+   },
+   "id": "entry-9bb5d14da4122803",
+   "preconditions": [],
+   "rank": 14,
+   "sample_request": {
+    "form_fields": [
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "firstName",
+      "required": true
+     },
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "lastName",
+      "required": true
+     },
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "address",
+      "required": true
+     },
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "city",
+      "required": true
+     },
+     {
+      "constraints": [
+       "must not be blank",
+       "must match \\d{10}"
+      ],
+      "example": "1111111111",
+      "name": "telephone",
+      "required": true
+     }
+    ],
+    "method": "POST",
+    "path": "/owners/new",
+    "path_parameters": [],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Open /owners/new in the browser or send GET /owners/new."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "GET /owners/new",
+    "handler": "OwnerController.initCreationForm()",
+    "handler_class": "org.springframework.samples.petclinic.owner.OwnerController",
+    "http_methods": [
+     "GET"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/owners/new"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@GetMapping{'value': ['/owners/new']} on OwnerController.initCreationForm",
+    "reachable methods: 7, classes: 5"
+   ],
+   "exercises": {
+    "classes": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.Person",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerController",
+     "org.springframework.samples.petclinic.owner.OwnerRepository"
+    ],
+    "method_count": 7,
+    "methods": [
+     "BaseEntity constructor",
+     "Owner constructor",
+     "OwnerController.findOwner()",
+     "OwnerController.initCreationForm()",
+     "OwnerController.setAllowedFields()",
+     "OwnerRepository.findById()",
+     "Person constructor"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.Person",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerController",
+     "org.springframework.samples.petclinic.owner.OwnerRepository"
+    ],
+    "new_classes": 0,
+    "new_methods": 1,
+    "standalone_new_classes": 5
+   },
+   "id": "entry-77800b4bbfcdf188",
+   "preconditions": [],
+   "rank": 15,
+   "sample_request": {
+    "form_fields": [],
+    "method": "GET",
+    "path": "/owners/new",
+    "path_parameters": [],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Make sure: an Owner with ownerId=1 exists in the database.",
+    "Open /owners/{ownerId} in the browser or send GET /owners/{ownerId}."
+   ],
+   "edge_cases": [
+    "Use a ownerId value that does not exist to exercise the not-found path."
+   ],
+   "entry_point": {
+    "description": "GET /owners/{ownerId}",
+    "handler": "OwnerController.showOwner()",
+    "handler_class": "org.springframework.samples.petclinic.owner.OwnerController",
+    "http_methods": [
+     "GET"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/owners/{ownerId}"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@GetMapping{'value': ['/owners/{ownerId}']} on OwnerController.showOwner",
+    "reachable methods: 7, classes: 5"
+   ],
+   "exercises": {
+    "classes": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.Person",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerController",
+     "org.springframework.samples.petclinic.owner.OwnerRepository"
+    ],
+    "method_count": 7,
+    "methods": [
+     "BaseEntity constructor",
+     "Owner constructor",
+     "OwnerController.findOwner()",
+     "OwnerController.setAllowedFields()",
+     "OwnerController.showOwner()",
+     "OwnerRepository.findById()",
+     "Person constructor"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.Person",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerController",
+     "org.springframework.samples.petclinic.owner.OwnerRepository"
+    ],
+    "new_classes": 0,
+    "new_methods": 1,
+    "standalone_new_classes": 5
+   },
+   "id": "entry-5a5510d0a7031a9a",
+   "preconditions": [
+    "an Owner with ownerId=1 exists in the database"
+   ],
+   "rank": 16,
+   "sample_request": {
+    "form_fields": [],
+    "method": "GET",
+    "path": "/owners/1",
+    "path_parameters": [
+     {
+      "example": "1",
+      "name": "ownerId",
+      "type": "int"
+     }
+    ],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Make sure: an Owner with ownerId=1 exists in the database.",
+    "Submit the form or send POST /owners/{ownerId}/pets/new with the fields in the sample request.",
+    "Fill in the required fields: name."
+   ],
+   "edge_cases": [
+    "Leave name empty: the validation error path should run and the form should be shown again.",
+    "Submit invalid data so BindingResult.hasErrors() is true."
+   ],
+   "entry_point": {
+    "description": "POST /owners/{ownerId}/pets/new",
+    "handler": "PetController.processCreationForm()",
+    "handler_class": "org.springframework.samples.petclinic.owner.PetController",
+    "http_methods": [
+     "POST"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/owners/{ownerId}/pets/new"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@PostMapping{'value': ['/pets/new']} on PetController.processCreationForm",
+    "class-level @RequestMapping{'value': ['/owners/{ownerId}']}",
+    "reachable methods: 20, classes: 8"
+   ],
+   "exercises": {
+    "classes": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.NamedEntity",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerRepository",
+     "org.springframework.samples.petclinic.owner.Pet",
+     "org.springframework.samples.petclinic.owner.PetController",
+     "org.springframework.samples.petclinic.owner.PetTypeRepository",
+     "org.springframework.samples.petclinic.owner.PetValidator"
+    ],
+    "method_count": 20,
+    "methods": [
+     "BaseEntity constructor",
+     "BaseEntity.getId()",
+     "BaseEntity.isNew()",
+     "NamedEntity constructor",
+     "NamedEntity.getName()",
+     "Owner.addPet()",
+     "Owner.getPet()",
+     "Owner.getPet()",
+     "Owner.getPets()",
+     "OwnerRepository.findById()",
+     "Pet constructor",
+     "Pet.getBirthDate()",
+     "PetController.findOwner()",
+     "PetController.findPet()",
+     "PetController.initOwnerBinder()",
+     "PetController.initPetBinder()",
+     "PetController.populatePetTypes()",
+     "PetController.processCreationForm()",
+     "PetTypeRepository.findPetTypes()",
+     "PetValidator constructor"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.NamedEntity",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerRepository",
+     "org.springframework.samples.petclinic.owner.Pet",
+     "org.springframework.samples.petclinic.owner.PetController",
+     "org.springframework.samples.petclinic.owner.PetTypeRepository",
+     "org.springframework.samples.petclinic.owner.PetValidator"
+    ],
+    "new_classes": 0,
+    "new_methods": 1,
+    "standalone_new_classes": 8
+   },
+   "id": "entry-39277731b26f86e6",
+   "preconditions": [
+    "an Owner with ownerId=1 exists in the database"
+   ],
+   "rank": 17,
+   "sample_request": {
+    "form_fields": [
+     {
+      "constraints": [
+       "must not be blank"
+      ],
+      "example": "example",
+      "name": "name",
+      "required": true
+     },
+     {
+      "constraints": [],
+      "example": "2024-01-15",
+      "name": "birthDate",
+      "required": false
+     },
+     {
+      "constraints": [],
+      "example": "example",
+      "name": "type",
+      "required": false
+     }
+    ],
+    "method": "POST",
+    "path": "/owners/1/pets/new",
+    "path_parameters": [
+     {
+      "example": "1",
+      "name": "ownerId",
+      "type": "path variable bound outside the handler (for example by a @ModelAttribute method)"
+     }
+    ],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Make sure: an Owner with ownerId=1 exists in the database; a Pet with petId=1 exists in the database.",
+    "Open /owners/{ownerId}/pets/{petId}/edit in the browser or send GET /owners/{ownerId}/pets/{petId}/edit."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "GET /owners/{ownerId}/pets/{petId}/edit",
+    "handler": "PetController.initUpdateForm()",
+    "handler_class": "org.springframework.samples.petclinic.owner.PetController",
+    "http_methods": [
+     "GET"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/owners/{ownerId}/pets/{petId}/edit"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@GetMapping{'value': ['/pets/{petId}/edit']} on PetController.initUpdateForm",
+    "class-level @RequestMapping{'value': ['/owners/{ownerId}']}",
+    "reachable methods: 16, classes: 8"
+   ],
+   "exercises": {
+    "classes": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.NamedEntity",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerRepository",
+     "org.springframework.samples.petclinic.owner.Pet",
+     "org.springframework.samples.petclinic.owner.PetController",
+     "org.springframework.samples.petclinic.owner.PetTypeRepository",
+     "org.springframework.samples.petclinic.owner.PetValidator"
+    ],
+    "method_count": 16,
+    "methods": [
+     "BaseEntity constructor",
+     "BaseEntity.getId()",
+     "BaseEntity.isNew()",
+     "NamedEntity constructor",
+     "Owner.getPet()",
+     "Owner.getPets()",
+     "OwnerRepository.findById()",
+     "Pet constructor",
+     "PetController.findOwner()",
+     "PetController.findPet()",
+     "PetController.initOwnerBinder()",
+     "PetController.initPetBinder()",
+     "PetController.initUpdateForm()",
+     "PetController.populatePetTypes()",
+     "PetTypeRepository.findPetTypes()",
+     "PetValidator constructor"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.NamedEntity",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.OwnerRepository",
+     "org.springframework.samples.petclinic.owner.Pet",
+     "org.springframework.samples.petclinic.owner.PetController",
+     "org.springframework.samples.petclinic.owner.PetTypeRepository",
+     "org.springframework.samples.petclinic.owner.PetValidator"
+    ],
+    "new_classes": 0,
+    "new_methods": 1,
+    "standalone_new_classes": 8
+   },
+   "id": "entry-3359a216e6861d1d",
+   "preconditions": [
+    "an Owner with ownerId=1 exists in the database",
+    "a Pet with petId=1 exists in the database"
+   ],
+   "rank": 18,
+   "sample_request": {
+    "form_fields": [],
+    "method": "GET",
+    "path": "/owners/1/pets/1/edit",
+    "path_parameters": [
+     {
+      "example": "1",
+      "name": "ownerId",
+      "type": "path variable bound outside the handler (for example by a @ModelAttribute method)"
+     },
+     {
+      "example": "1",
+      "name": "petId",
+      "type": "path variable bound outside the handler (for example by a @ModelAttribute method)"
+     }
+    ],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  }
+ ],
+ "totals": {
+  "done": 0,
+  "entry_points": 18,
+  "open": 18
+ }
+}

@@ -1,0 +1,1020 @@
+{
+ "done": [],
+ "limitation": "No runtime session selected: all entry points are listed as suggestions.",
+ "method_level": false,
+ "runtime_included": false,
+ "status": "AVAILABLE",
+ "suggestions": [
+  {
+   "action_steps": [
+    "Open /admin/orders/latest in the browser or send GET /admin/orders/latest."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "GET /admin/orders/latest",
+    "handler": "OrderAdminController.latest()",
+    "handler_class": "com.fixture.edge.web.OrderAdminController",
+    "http_methods": [
+     "GET"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/admin/orders/latest"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@GetMapping{'value': ['/admin/orders/latest']} on OrderAdminController.latest",
+    "reachable methods: 4, classes: 3"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.model.OrderEntity",
+     "com.fixture.edge.model.OrderRepository",
+     "com.fixture.edge.web.OrderAdminController"
+    ],
+    "method_count": 4,
+    "methods": [
+     "OrderAdminController.latest()",
+     "OrderEntity constructor",
+     "OrderEntity.getReference()",
+     "OrderRepository.latest()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.model.OrderEntity",
+     "com.fixture.edge.model.OrderRepository",
+     "com.fixture.edge.web.OrderAdminController"
+    ],
+    "new_classes": 3,
+    "new_methods": 4,
+    "standalone_new_classes": 3
+   },
+   "id": "entry-508132b05e7d764f",
+   "preconditions": [],
+   "rank": 1,
+   "sample_request": {
+    "form_fields": [],
+    "method": "GET",
+    "path": "/admin/orders/latest",
+    "path_parameters": [],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Make sure: id=1 refers to existing data.",
+    "Submit the form or send DELETE /api/items/remove/{id} with the fields in the sample request."
+   ],
+   "edge_cases": [
+    "Use a id value that does not exist to exercise the not-found path."
+   ],
+   "entry_point": {
+    "description": "DELETE /api/items/remove/{id}, DELETE /api/items/{id}",
+    "handler": "ItemController.delete()",
+    "handler_class": "com.fixture.edge.web.ItemController",
+    "http_methods": [
+     "DELETE"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/api/items/remove/{id}",
+     "/api/items/{id}"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@DeleteMapping{'value': ['/{id}', '/remove/{id}']} on ItemController.delete",
+    "class-level @RequestMapping{'value': ['/api/items']}",
+    "reachable methods: 3, classes: 3"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.model.Item",
+     "com.fixture.edge.model.ItemService",
+     "com.fixture.edge.web.ItemController"
+    ],
+    "method_count": 3,
+    "methods": [
+     "Item.getId()",
+     "ItemController.delete()",
+     "ItemService.delete()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.model.Item",
+     "com.fixture.edge.model.ItemService",
+     "com.fixture.edge.web.ItemController"
+    ],
+    "new_classes": 3,
+    "new_methods": 3,
+    "standalone_new_classes": 3
+   },
+   "id": "entry-b4b12ed5c7bf4a33",
+   "preconditions": [
+    "id=1 refers to existing data"
+   ],
+   "rank": 2,
+   "sample_request": {
+    "form_fields": [],
+    "method": "DELETE",
+    "path": "/api/items/remove/1",
+    "path_parameters": [
+     {
+      "example": "1",
+      "name": "id",
+      "type": "long"
+     }
+    ],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Run the program from the command line."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "main method: started from the command line",
+    "handler": "CliTool.main()",
+    "handler_class": "com.fixture.edge.jobs.CliTool",
+    "http_methods": [],
+    "kind": "MAIN_METHOD",
+    "paths": [],
+    "trigger": "started from the command line"
+   },
+   "evidence": [
+    "public static void main(String[])",
+    "reachable methods: 3, classes: 2"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.jobs.CliTool",
+     "com.fixture.edge.model.ItemService"
+    ],
+    "method_count": 3,
+    "methods": [
+     "CliTool.main()",
+     "ItemService$1.run()",
+     "ItemService.calculate()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.jobs.CliTool",
+     "com.fixture.edge.model.ItemService"
+    ],
+    "new_classes": 1,
+    "new_methods": 3,
+    "standalone_new_classes": 2
+   },
+   "id": "entry-bb0ad77aa1547dd6",
+   "preconditions": [],
+   "rank": 3,
+   "sample_request": null,
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Send GET to /legacy/report."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "GET /legacy/report",
+    "handler": "LegacyServlet.doGet()",
+    "handler_class": "com.fixture.edge.web.LegacyServlet",
+    "http_methods": [
+     "GET"
+    ],
+    "kind": "SERVLET",
+    "paths": [
+     "/legacy/report"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "LegacyServlet extends HttpServlet and overrides doGet",
+    "reachable methods: 1, classes: 1"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.web.LegacyServlet"
+    ],
+    "method_count": 1,
+    "methods": [
+     "LegacyServlet.doGet()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.web.LegacyServlet"
+    ],
+    "new_classes": 1,
+    "new_methods": 1,
+    "standalone_new_classes": 1
+   },
+   "id": "entry-e4262cda46a83979",
+   "preconditions": [],
+   "rank": 4,
+   "sample_request": {
+    "form_fields": [],
+    "method": "GET",
+    "path": "/legacy/report",
+    "path_parameters": [],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Send ANY to (mapped in struts-config.xml)."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "ANY (mapped in struts-config.xml)",
+    "handler": "BillingAction.execute()",
+    "handler_class": "com.fixture.edge.legacy.BillingAction",
+    "http_methods": [
+     "ANY"
+    ],
+    "kind": "STRUTS_ACTION",
+    "paths": [
+     "(mapped in struts-config.xml)"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "BillingAction extends org.apache.struts.action.Action",
+    "reachable methods: 1, classes: 1"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.legacy.BillingAction"
+    ],
+    "method_count": 1,
+    "methods": [
+     "BillingAction.execute()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.legacy.BillingAction"
+    ],
+    "new_classes": 1,
+    "new_methods": 1,
+    "standalone_new_classes": 1
+   },
+   "id": "entry-ce8cc44678b10ee8",
+   "preconditions": [],
+   "rank": 5,
+   "sample_request": null,
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Wait for the schedule (cron 0 0 * * * *) or trigger the job through its scheduler in a test environment."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "scheduled job: cron 0 0 * * * *",
+    "handler": "ReminderJob.sendReminders()",
+    "handler_class": "com.fixture.edge.jobs.ReminderJob",
+    "http_methods": [],
+    "kind": "SCHEDULED_JOB",
+    "paths": [],
+    "trigger": "cron 0 0 * * * *"
+   },
+   "evidence": [
+    "@Scheduled{'cron': '0 0 * * * *'}",
+    "reachable methods: 1, classes: 1"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.jobs.ReminderJob"
+    ],
+    "method_count": 1,
+    "methods": [
+     "ReminderJob.sendReminders()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.jobs.ReminderJob"
+    ],
+    "new_classes": 1,
+    "new_methods": 1,
+    "standalone_new_classes": 1
+   },
+   "id": "entry-b919c5752bb28958",
+   "preconditions": [],
+   "rank": 6,
+   "sample_request": null,
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Send ANY to (every request matching the filter mapping)."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "ANY (every request matching the filter mapping)",
+    "handler": "AuditFilter.doFilter()",
+    "handler_class": "com.fixture.edge.web.AuditFilter",
+    "http_methods": [
+     "ANY"
+    ],
+    "kind": "SERVLET_FILTER",
+    "paths": [
+     "(every request matching the filter mapping)"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "AuditFilter implements Filter",
+    "reachable methods: 1, classes: 1"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.web.AuditFilter"
+    ],
+    "method_count": 1,
+    "methods": [
+     "AuditFilter.doFilter()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.web.AuditFilter"
+    ],
+    "new_classes": 1,
+    "new_methods": 1,
+    "standalone_new_classes": 1
+   },
+   "id": "entry-b825d9d6c787a12d",
+   "preconditions": [],
+   "rank": 7,
+   "sample_request": null,
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Publish a message to audit so the listener audit() receives it."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "message listener: audit",
+    "handler": "OrderEvents.audit()",
+    "handler_class": "com.fixture.edge.jobs.OrderEvents",
+    "http_methods": [],
+    "kind": "MESSAGE_LISTENER",
+    "paths": [],
+    "trigger": "audit"
+   },
+   "evidence": [
+    "@RabbitListener{'queues': ['audit']}",
+    "reachable methods: 1, classes: 1"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.jobs.OrderEvents"
+    ],
+    "method_count": 1,
+    "methods": [
+     "OrderEvents.audit()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.jobs.OrderEvents"
+    ],
+    "new_classes": 1,
+    "new_methods": 1,
+    "standalone_new_classes": 1
+   },
+   "id": "entry-70bb49eea6444e56",
+   "preconditions": [],
+   "rank": 8,
+   "sample_request": null,
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Submit the form or send POST /jaxrs with the fields in the sample request."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "POST /jaxrs",
+    "handler": "GreetingResource.post()",
+    "handler_class": "com.fixture.edge.web.GreetingResource",
+    "http_methods": [
+     "POST"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/jaxrs"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "JAX-RS @POST on GreetingResource.post",
+    "class @Path('/jaxrs')",
+    "reachable methods: 1, classes: 1"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.web.GreetingResource"
+    ],
+    "method_count": 1,
+    "methods": [
+     "GreetingResource.post()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.web.GreetingResource"
+    ],
+    "new_classes": 1,
+    "new_methods": 1,
+    "standalone_new_classes": 1
+   },
+   "id": "entry-50b21a06179036a2",
+   "preconditions": [],
+   "rank": 9,
+   "sample_request": {
+    "form_fields": [],
+    "method": "POST",
+    "path": "/jaxrs",
+    "path_parameters": [],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Send GET /api/items/search with the query parameters listed in the sample request."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "GET /api/items/search",
+    "handler": "ItemController.search()",
+    "handler_class": "com.fixture.edge.web.ItemController",
+    "http_methods": [
+     "GET"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/api/items/search"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@RequestMapping{'value': ['/search'], 'method': ['RequestMethod.GET']} on ItemController.search",
+    "class-level @RequestMapping{'value': ['/api/items']}",
+    "reachable methods: 3, classes: 2"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.model.ItemService",
+     "com.fixture.edge.web.ItemController"
+    ],
+    "method_count": 3,
+    "methods": [
+     "ItemController.search()",
+     "ItemService$NameOrder constructor",
+     "ItemService.search()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.model.ItemService",
+     "com.fixture.edge.web.ItemController"
+    ],
+    "new_classes": 0,
+    "new_methods": 3,
+    "standalone_new_classes": 2
+   },
+   "id": "entry-a4c471ba65b17fb1",
+   "preconditions": [],
+   "rank": 10,
+   "sample_request": {
+    "form_fields": [],
+    "method": "GET",
+    "path": "/api/items/search",
+    "path_parameters": [],
+    "query_parameters": [
+     {
+      "constraints": [
+       "NotNull",
+       "Size(max=40, min=2)"
+      ],
+      "default": null,
+      "example": "example",
+      "name": "q",
+      "required": true,
+      "type": "java.lang.String"
+     }
+    ]
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Make sure: id=1 refers to existing data.",
+    "Open /api/items/{id} in the browser or send GET /api/items/{id}."
+   ],
+   "edge_cases": [
+    "Use a id value that does not exist to exercise the not-found path."
+   ],
+   "entry_point": {
+    "description": "GET /api/items/{id}",
+    "handler": "ItemController.get()",
+    "handler_class": "com.fixture.edge.web.ItemController",
+    "http_methods": [
+     "GET"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/api/items/{id}"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@GetMapping{'value': ['/{id}']} on ItemController.get",
+    "class-level @RequestMapping{'value': ['/api/items']}",
+    "reachable methods: 2, classes: 2"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.model.ItemService",
+     "com.fixture.edge.web.ItemController"
+    ],
+    "method_count": 2,
+    "methods": [
+     "ItemController.get()",
+     "ItemService.find()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.model.ItemService",
+     "com.fixture.edge.web.ItemController"
+    ],
+    "new_classes": 0,
+    "new_methods": 2,
+    "standalone_new_classes": 2
+   },
+   "id": "entry-ed93115885028c31",
+   "preconditions": [
+    "id=1 refers to existing data"
+   ],
+   "rank": 11,
+   "sample_request": {
+    "form_fields": [],
+    "method": "GET",
+    "path": "/api/items/1",
+    "path_parameters": [
+     {
+      "example": "1",
+      "name": "id",
+      "type": "long"
+     }
+    ],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Submit the form or send POST /api/items with the fields in the sample request."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "POST /api/items",
+    "handler": "ItemController.create()",
+    "handler_class": "com.fixture.edge.web.ItemController",
+    "http_methods": [
+     "POST"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/api/items"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@PostMapping on ItemController.create",
+    "class-level @RequestMapping{'value': ['/api/items']}",
+    "reachable methods: 2, classes: 2"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.model.ItemService",
+     "com.fixture.edge.web.ItemController"
+    ],
+    "method_count": 2,
+    "methods": [
+     "ItemController.create()",
+     "ItemService.save()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.model.ItemService",
+     "com.fixture.edge.web.ItemController"
+    ],
+    "new_classes": 0,
+    "new_methods": 2,
+    "standalone_new_classes": 2
+   },
+   "id": "entry-0d50f6fe2512e6d1",
+   "preconditions": [],
+   "rank": 12,
+   "sample_request": {
+    "form_fields": [],
+    "method": "POST",
+    "path": "/api/items",
+    "path_parameters": [],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Submit the form or send PUT /api/items/bulk with the fields in the sample request."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "PUT /api/items/bulk, PATCH /api/items/bulk",
+    "handler": "ItemController.bulk()",
+    "handler_class": "com.fixture.edge.web.ItemController",
+    "http_methods": [
+     "PUT",
+     "PATCH"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/api/items/bulk"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@RequestMapping{'path': ['/bulk'], 'method': ['RequestMethod.PUT', 'RequestMethod.PATCH']} on ItemController.bulk",
+    "class-level @RequestMapping{'value': ['/api/items']}",
+    "reachable methods: 1, classes: 1"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.web.ItemController"
+    ],
+    "method_count": 1,
+    "methods": [
+     "ItemController.bulk()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.web.ItemController"
+    ],
+    "new_classes": 0,
+    "new_methods": 1,
+    "standalone_new_classes": 1
+   },
+   "id": "entry-e79f91e65a58fd8e",
+   "preconditions": [],
+   "rank": 13,
+   "sample_request": {
+    "form_fields": [],
+    "method": "PUT",
+    "path": "/api/items/bulk",
+    "path_parameters": [],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Submit the form or send ANY /api/items/legacy-any with the fields in the sample request."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "ANY /api/items/legacy-any",
+    "handler": "ItemController.any()",
+    "handler_class": "com.fixture.edge.web.ItemController",
+    "http_methods": [
+     "ANY"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/api/items/legacy-any"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "@RequestMapping{'value': ['/legacy-any']} on ItemController.any",
+    "class-level @RequestMapping{'value': ['/api/items']}",
+    "reachable methods: 1, classes: 1"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.web.ItemController"
+    ],
+    "method_count": 1,
+    "methods": [
+     "ItemController.any()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.web.ItemController"
+    ],
+    "new_classes": 0,
+    "new_methods": 1,
+    "standalone_new_classes": 1
+   },
+   "id": "entry-51ac79b4970734dc",
+   "preconditions": [],
+   "rank": 14,
+   "sample_request": {
+    "form_fields": [],
+    "method": "ANY",
+    "path": "/api/items/legacy-any",
+    "path_parameters": [],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Publish a message to billing.queue so the listener billing() receives it."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "message listener: billing.queue",
+    "handler": "OrderEvents.billing()",
+    "handler_class": "com.fixture.edge.jobs.OrderEvents",
+    "http_methods": [],
+    "kind": "MESSAGE_LISTENER",
+    "paths": [],
+    "trigger": "billing.queue"
+   },
+   "evidence": [
+    "@JmsListener{'destination': 'billing.queue'}",
+    "reachable methods: 1, classes: 1"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.jobs.OrderEvents"
+    ],
+    "method_count": 1,
+    "methods": [
+     "OrderEvents.billing()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.jobs.OrderEvents"
+    ],
+    "new_classes": 0,
+    "new_methods": 1,
+    "standalone_new_classes": 1
+   },
+   "id": "entry-3e1470fd02eb4895",
+   "preconditions": [],
+   "rank": 15,
+   "sample_request": null,
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Send POST to /legacy/report."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "POST /legacy/report",
+    "handler": "LegacyServlet.doPost()",
+    "handler_class": "com.fixture.edge.web.LegacyServlet",
+    "http_methods": [
+     "POST"
+    ],
+    "kind": "SERVLET",
+    "paths": [
+     "/legacy/report"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "LegacyServlet extends HttpServlet and overrides doPost",
+    "reachable methods: 1, classes: 1"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.web.LegacyServlet"
+    ],
+    "method_count": 1,
+    "methods": [
+     "LegacyServlet.doPost()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.web.LegacyServlet"
+    ],
+    "new_classes": 0,
+    "new_methods": 1,
+    "standalone_new_classes": 1
+   },
+   "id": "entry-24b9baca8a48c5b1",
+   "preconditions": [],
+   "rank": 16,
+   "sample_request": {
+    "form_fields": [],
+    "method": "POST",
+    "path": "/legacy/report",
+    "path_parameters": [],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Cause the application to publish a java.lang.String event."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "event listener: application event of type java.lang.String",
+    "handler": "OrderEvents.onStarted()",
+    "handler_class": "com.fixture.edge.jobs.OrderEvents",
+    "http_methods": [],
+    "kind": "EVENT_LISTENER",
+    "paths": [],
+    "trigger": "application event of type java.lang.String"
+   },
+   "evidence": [
+    "@EventListener",
+    "reachable methods: 1, classes: 1"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.jobs.OrderEvents"
+    ],
+    "method_count": 1,
+    "methods": [
+     "OrderEvents.onStarted()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.jobs.OrderEvents"
+    ],
+    "new_classes": 0,
+    "new_methods": 1,
+    "standalone_new_classes": 1
+   },
+   "id": "entry-23434a615ee479ed",
+   "preconditions": [],
+   "rank": 17,
+   "sample_request": null,
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Publish a message to orders so the listener consume() receives it."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "message listener: orders",
+    "handler": "OrderEvents.consume()",
+    "handler_class": "com.fixture.edge.jobs.OrderEvents",
+    "http_methods": [],
+    "kind": "MESSAGE_LISTENER",
+    "paths": [],
+    "trigger": "orders"
+   },
+   "evidence": [
+    "@KafkaListener{'topics': ['orders']}",
+    "reachable methods: 1, classes: 1"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.jobs.OrderEvents"
+    ],
+    "method_count": 1,
+    "methods": [
+     "OrderEvents.consume()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.jobs.OrderEvents"
+    ],
+    "new_classes": 0,
+    "new_methods": 1,
+    "standalone_new_classes": 1
+   },
+   "id": "entry-1fdb9b5acd435045",
+   "preconditions": [],
+   "rank": 18,
+   "sample_request": null,
+   "status": "NO_RUNTIME_SESSION"
+  },
+  {
+   "action_steps": [
+    "Open /jaxrs/hello in the browser or send GET /jaxrs/hello."
+   ],
+   "edge_cases": [],
+   "entry_point": {
+    "description": "GET /jaxrs/hello",
+    "handler": "GreetingResource.hello()",
+    "handler_class": "com.fixture.edge.web.GreetingResource",
+    "http_methods": [
+     "GET"
+    ],
+    "kind": "HTTP_ENDPOINT",
+    "paths": [
+     "/jaxrs/hello"
+    ],
+    "trigger": null
+   },
+   "evidence": [
+    "JAX-RS @GET on GreetingResource.hello",
+    "class @Path('/jaxrs')",
+    "reachable methods: 1, classes: 1"
+   ],
+   "exercises": {
+    "classes": [
+     "com.fixture.edge.web.GreetingResource"
+    ],
+    "method_count": 1,
+    "methods": [
+     "GreetingResource.hello()"
+    ],
+    "truncated": false
+   },
+   "expected_gain": {
+    "basis": "Upper bound from static reachability (class-hierarchy analysis) minus what the selected sessions already observed; no session selected, so everything reachable counts as new; counted after higher-ranked suggestions.",
+    "class_names": [
+     "com.fixture.edge.web.GreetingResource"
+    ],
+    "new_classes": 0,
+    "new_methods": 1,
+    "standalone_new_classes": 1
+   },
+   "id": "entry-1ad279728084944b",
+   "preconditions": [],
+   "rank": 19,
+   "sample_request": {
+    "form_fields": [],
+    "method": "GET",
+    "path": "/jaxrs/hello",
+    "path_parameters": [],
+    "query_parameters": []
+   },
+   "status": "NO_RUNTIME_SESSION"
+  }
+ ],
+ "totals": {
+  "done": 0,
+  "entry_points": 19,
+  "open": 19
+ }
+}

@@ -211,7 +211,7 @@ The session list displays name/environment, state, agent status, received trace/
 | Tab | What it shows and controls |
 |---|---|
 | Coverage | Observed/total/percentage for classes, entry points, methods, dependencies, and domains. Select a tile to filter/search/page exact observed/unobserved items. Coverage means seen in selected sessions only. |
-| Quality | Accepted, duplicate, conflicting, dropped, unverified, and unmapped telemetry; method mapping and session binding details. Use these counts to assess evidence quality. |
+| Coverage → Evidence quality | Accepted, duplicate, conflicting, dropped, unverified, and unmapped telemetry; method mapping and session binding details. Use these counts to assess evidence quality. |
 | Graph | Unified, runtime-only, or static graph; choose domains/packages/classes. Select an edge to inspect call counts and sanitized evidence references. |
 | Mapping | Runtime identities compared to static identities, with resolution state and supporting evidence. |
 | Flows | Observed request groups by entry route, trace count, errors, participating classes, and average entry duration. This is not a complete execution order. |

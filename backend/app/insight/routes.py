@@ -20,7 +20,28 @@ def runtime_evidence(db, request: Request, analysis_id: str, session_ids: str | 
         sessions = [service.get_session(db, identity) for identity in sorted(set(session_ids.split(',')))[:20]]
         if any(s.analysis_id != analysis_id for s in sessions):
             raise HTTPException(404, 'Selected runtime session does not belong to this analysis.')
-        return service.result(db, sessions, request.app.state.config), ','.join(sorted(s.id + ':' + str(s.span_count) for s in sessions))
+        result = service.result(db, sessions, request.app.state.config)
+        result['observed_methods'] = _observed_methods(db, sessions, request.app.state.config, snapshot(db, analysis_id))
+        return result, ','.join(sorted(s.id + ':' + str(s.span_count) for s in sessions))
+
+
+def _observed_methods(db, sessions, config, static):
+    """Handler-level observations from retained spans; None when raw spans were purged or are incomplete."""
+    from sqlalchemy import select
+    from app.runtime.models import RuntimeEvent
+    from app.services.runtime.mapping import map_class
+    if any(s.settings.get('events_purged') for s in sessions):
+        return None
+    events = list(db.scalars(select(RuntimeEvent.data).where(RuntimeEvent.session_id.in_([s.id for s in sessions]))))
+    if sessions and not events and any(s.span_count for s in sessions):
+        return None
+    classes = {c['id']: c for c in static['classes']}
+    pairs = set()
+    for event in events:
+        owner = map_class(event.get('class_name'), classes)['static_id']
+        if owner and event.get('method_name'):
+            pairs.add((owner, event['method_name']))
+    return sorted(pairs)
 
 
 def load(analysis_id: str, request: Request, db, runtime_session_ids: str | None = None):
@@ -94,6 +115,17 @@ def architecture_metrics(analysis_id: str, request: Request, db=Depends(db_sessi
     return compute(load(analysis_id, request, db))
 
 
+def _method_names(model, classes) -> set[str]:
+    """Names an explanation may mention: methods declared by, or invoked from, the classes it was given."""
+    names = set()
+    for cls in classes:
+        for owner in [cls] + model.nested_by_owner.get(cls, []):
+            for method in model.methods_of(owner):
+                names.add(method['name'])
+                names |= {site['name'] for site in method.get('invokes', [])}
+    return names
+
+
 def _debt(model):
     from .debt import detect
     return detect(model)
@@ -120,8 +152,7 @@ def debt_refactoring(analysis_id: str, body: ExplainInput, request: Request, db=
         source = read(request.app.state.config, analysis_id, model.result, node, 6000)
         if source['text']:
             evidence.append(dict(id='source:' + node, text=f"[{source['kind']}] {source['text']}"))
-        for owner in [node] + model.nested_by_owner.get(node, []):
-            methods |= {m['name'] for m in model.methods_of(owner)}
+        methods |= _method_names(model, [node])
     ai = explain(request, db, 'REFACTORING_PROPOSAL', evidence, 'Propose a concrete refactoring for this finding. Name the methods involved as name().',
         'analysis:' + analysis_id, set(model.classes), methods)
     return dict(finding_id=finding['id'], deterministic=dict(explanation=finding['explanation'], suggested_action=finding['suggested_action']), ai=ai,
@@ -169,3 +200,33 @@ def search_index(analysis_id: str, request: Request, runtime_session_ids: str | 
         in_cycle=fqn in cycles, debt=levels.get(fqn), observed=None if observed is None else fqn in observed)
         for fqn in sorted(model.classes) if model.owners.get(fqn, fqn) == fqn]
     return dict(classes=rows, packages=sorted(model.packages), roles=sorted({r['role'] for r in rows}), runtime_included=observed is not None)
+
+
+@router.get('/tests', response_model=dict)
+def next_tests(analysis_id: str, request: Request, runtime_session_ids: str | None = Query(None, max_length=400), db=Depends(db_session)):
+    from .test_suggestions import build
+    return build(load(analysis_id, request, db, runtime_session_ids))
+
+
+@router.post('/tests/explain', response_model=dict)
+def next_test_steps(analysis_id: str, body: ExplainInput, request: Request, runtime_session_ids: str | None = Query(None, max_length=400), db=Depends(db_session)):
+    """Optional AI: write the human steps and edge cases from the handler and service code it reads."""
+    from app.ai.grounded import explain
+    from .source_store import read
+    from .test_suggestions import build
+    model = load(analysis_id, request, db, runtime_session_ids)
+    suggestion = next((s for s in build(model)['suggestions'] if s['id'] == body.target_id), None)
+    if not suggestion:
+        raise HTTPException(404, 'Suggestion not found; it may already be observed.')
+    entry = suggestion['entry_point']
+    evidence = [dict(id='entry:' + suggestion['id'], text=f"{entry['description']} handled by {entry['handler']}. Steps: {' '.join(suggestion['action_steps'])} "
+        f"Fields: {', '.join(f['name'] + (' required' if f['required'] else '') + ' ' + '/'.join(f['constraints']) for f in suggestion['sample_request']['form_fields']) if suggestion['sample_request'] else 'n/a'}")]
+    methods = set()
+    for cls in [entry['handler_class']] + [c for c in suggestion['exercises']['classes'] if c != entry['handler_class'] and model.roles.get(c, {}).get('role') in ('SERVICE', 'REPOSITORY')][:2]:
+        source = read(request.app.state.config, analysis_id, model.result, cls, 5000)
+        if source['text']:
+            evidence.append(dict(id='source:' + cls, text=f"[{source['kind']}] " + source['text']))
+        methods |= _method_names(model, [cls])
+    ai = explain(request, db, 'TEST_STEPS', evidence, 'Write the exact user steps and 2-4 edge cases (invalid input, error paths) for this test. Name methods as name().',
+        'analysis:' + analysis_id, set(model.classes), methods)
+    return dict(suggestion_id=suggestion['id'], ai=ai, evidence_ids=[e['id'] for e in evidence])

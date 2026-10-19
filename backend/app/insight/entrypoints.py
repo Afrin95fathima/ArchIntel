@@ -67,6 +67,8 @@ def parameters(method: dict, facts: dict) -> list[dict]:
         framework = type_name.startswith(FRAMEWORK_PARAMS)
         if binding is None and not framework and type_name in facts:
             binding = 'form'           # Spring binds an unannotated application type as a form/model attribute.
+        declared = (method.get('parameter_names') or [])
+        name = name or (declared[index] if index < len(declared) else None)
         out.append(dict(index=index, type=type_name, binding=binding or ('framework' if framework else 'unbound'),
             name=name, required=required, default=default, constraints=constraints))
     return out

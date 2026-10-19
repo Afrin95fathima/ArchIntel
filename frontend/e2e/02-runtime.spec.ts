@@ -29,7 +29,6 @@ test('runtime plan, strict telemetry, quality, graphs and frozen export',async({
   const data={resourceSpans:[{resource:{attributes:attributes({'service.name':created.agent.environment.OTEL_SERVICE_NAME,'archintel.artifact.sha256':created.agent.environment.OTEL_RESOURCE_ATTRIBUTES.split('=')[1]})},scopeSpans:[{spans}]}]};
   for(let i=0;i<2;i++)expect((await page.request.post(url+'/v1/traces',{headers,data})).ok()).toBeTruthy();
   await expect(row.getByRole('cell',{name:'RUNNING',exact:true})).toBeVisible({timeout:15000});
-  await page.getByRole('button',{name:'Quality',exact:true}).click();
   await expect(page.getByText('1 accepted spans · 1 duplicates · 0 conflicts · 0 dropped')).toBeVisible({timeout:20000});
   await expect(page.getByText('binding rejected spans: 1',{exact:true})).toBeVisible();
   await page.screenshot({path:'../docs/screenshots/phase3-runtime-quality.png',fullPage:true});

@@ -182,7 +182,7 @@ def unified_coverage_details(application_id:str,request:Request,
                     package_name=cls.get('package_name'),domain_name=domain_name(identity),
                     observed_spans=event_counts.get(identity,0) if raw_available else None,annotations=cls.get('annotations',[]),
                     evidence=(mappings.get(identity) or {}).get('evidence',[]),evidence_refs=class_refs.get(identity,[])[:20],
-                    suggestion=None if seen else 'Exercise a representative request or background workflow that should reach this class, then confirm its class identity appears in a trace.'))
+                    suggestion=None))
         elif kind in ('methods','entry_points'):
             inventory_available=method_inventory_available
             if not inventory_available or not raw_available:
@@ -204,7 +204,7 @@ def unified_coverage_details(application_id:str,request:Request,
                             class_name=class_id,domain_name=domain_name(class_id),package_name=cls.get('package_name'),
                             annotations=method.get('annotations',[]),state='OBSERVED' if seen is True else 'NOT_OBSERVED' if seen is False else 'UNKNOWN',
                             observed_spans=method_counts.get(identity,0) if raw_available else None,evidence_refs=method_refs.get(identity,[]),
-                            suggestion=('Exercise the route, message handler, or scheduled trigger declared by this entry point, then inspect the resulting trace.' if kind=='entry_points' else 'Exercise a representative flow that should call this method, then inspect the trace.') if seen is not True else None))
+                            suggestion=None))
             else:
                 for class_id,cls in classes.items():
                     for method in cls.get('methods',[]):
@@ -230,7 +230,7 @@ def unified_coverage_details(application_id:str,request:Request,
                     name=pair[0]+' -> '+pair[1],state='OBSERVED' if seen else 'NOT_OBSERVED',
                     source_domain=domain_name(pair[0]),target_domain=domain_name(pair[1]),
                     observed_calls=observed_calls.get(pair,0),dependency_type='METHOD_CALL',evidence_refs=dependency_refs.get(pair,[]),
-                    suggestion=None if seen else 'Exercise a flow that should invoke this statically declared call, then inspect the trace.'))
+                    suggestion=None))
         else:
             domain_observed={d['id']:{c for c in d['classes'] if c in observed_classes} for d in static['domains']}
             for identity,domain in domains.items():
@@ -239,7 +239,7 @@ def unified_coverage_details(application_id:str,request:Request,
                     observation_state='ALL_CLASSES_OBSERVED' if seen==set(members) else 'PARTIALLY_OBSERVED' if seen else 'NOT_OBSERVED',
                     observed=len(seen),total=len(members),observed_classes=sorted(seen),
                     unobserved_classes=sorted(set(members)-seen),
-                    suggestion=None if len(seen)==len(members) else 'Exercise representative entry points for this domain; start with the listed unobserved classes.'))
+                    suggestion=None))
 
         if state!='ALL': items=[item for item in items if item['state']==state]
         if q:

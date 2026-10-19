@@ -195,6 +195,12 @@ class ClassFile:
                 out['source_file'] = self.utf8(body.u2())
             elif name == 'Exceptions' and scope == 'method':
                 out['exceptions'] = [internal_to_dotted(self.class_name(body.u2())) for _ in range(body.u2())]
+            elif name == 'MethodParameters' and scope == 'method':
+                names = []
+                for _ in range(body.u1()):
+                    index, _flags = body.u2(), body.u2()
+                    names.append(self.utf8(index) if index else None)
+                out['method_parameters'] = names
             elif name == 'Code' and scope == 'method':
                 out.update(self._code(body))
             elif name == 'InnerClasses' and scope == 'class':
@@ -256,12 +262,18 @@ class ClassFile:
         for _ in range(r.u2()):                          # exception table
             r.take(8)
         lines: list[tuple[int, int]] = []
+        local_vars: dict[int, str] = {}
         for _ in range(r.u2()):
             name, length = self.utf8(r.u2()), r.u4()
             body = _Reader(r.take(length))
             if name == 'LineNumberTable':
                 lines = sorted((body.u2(), body.u2()) for _ in range(body.u2()))
-        return dict(code_length=len(code), **self._walk(code, lines))
+            elif name == 'LocalVariableTable':
+                for _ in range(body.u2()):
+                    start, _length, var, _desc, slot = body.u2(), body.u2(), self.utf8(body.u2()), body.u2(), body.u2()
+                    if start == 0:
+                        local_vars[slot] = self.utf8(_desc) and var
+        return dict(code_length=len(code), local_vars=local_vars, **self._walk(code, lines))
 
     def _walk(self, code: bytes, lines: list[tuple[int, int]]) -> dict:
         def line_at(pc: int):
@@ -340,3 +352,19 @@ def parse(data: bytes) -> ClassFile:
         return ClassFile(data)
     except (struct.error, IndexError, TypeError, UnicodeError) as error:
         raise ClassFormatError('malformed class file') from error
+
+
+def parameter_names(method: dict, descriptor: str, static: bool) -> list[str | None]:
+    """Parameter names from MethodParameters (-parameters) or, failing that, the LocalVariableTable (-g)."""
+    count = len(parse_method_descriptor(descriptor)[0])
+    names = method.get('method_parameters')
+    if names and len(names) == count:
+        return names
+    local = method.get('local_vars') or {}
+    if not local:
+        return [None] * count
+    out, slot = [], 0 if static else 1
+    for token in _DESC_TYPE.findall(re.fullmatch(r'\((.*)\).+', descriptor).group(1)):
+        out.append(local.get(slot))
+        slot += 2 if token in ('J', 'D') else 1
+    return out

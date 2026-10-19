@@ -199,6 +199,13 @@ class InsightModel:
         return {n['static_id'] for n in self.runtime.get('runtime_graph', {}).get('nodes', []) if n.get('static_id')}
 
     @cached_property
+    def observed_methods(self) -> set[tuple[str, str]] | None:
+        """(static class, method name) pairs seen in span-level evidence; None when only class-level data exists."""
+        if not self.runtime or self.runtime.get('observed_methods') is None:
+            return None
+        return {(c, m) for c, m in self.runtime['observed_methods']}
+
+    @cached_property
     def runtime_calls(self) -> dict[tuple[str, str], int]:
         if not self.runtime:
             return {}

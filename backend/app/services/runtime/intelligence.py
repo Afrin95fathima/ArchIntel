@@ -75,6 +75,7 @@ def derive(static, runtime, coverage, events, structural_weight, weights=None):
             component_scores=components,component_weights=weights,
             structural_weight=structural_weight,evidence={'coverage_domain_id':identity,'runtime_edge_ids':[e['id'] for e in runtime['edges'] if nodes[e['source']].get('domain_id')==identity]},
             sequence_note='Static dependency-first order retained; runtime evidence adds review blockers, not automatic extraction approval.'))
-    recommendations = [dict(kind='SUGGESTED_SCENARIO',domain_id=d['id'],text=f"Exercise an additional entry point in {d['name']} and inspect its traces.",
-        evidence={'unobserved_classes':d['unobserved_classes'][:30]},note='Structural suggestion; no business workflow is inferred with certainty.') for d in coverage['domain_observations'] if d['state']!='OBSERVED']
+    # Generic "exercise another entry point" text was removed: specific, ranked suggestions come from
+    # app.insight.test_suggestions (route, parameters, constraints, reachable classes).
+    recommendations = []
     return dict(database=list(database.values()),flows=list(flows.values()),modernization=assessments,recommendations=recommendations)
