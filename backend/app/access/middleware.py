@@ -30,7 +30,8 @@ def permission(path, method):
     if path.startswith('/api/v1/security/') or path == '/api/v1/runtime/retention/purge':
         return 'SECURITY_ADMIN'
     runtime = '/runtime-sessions' in path or '/architecture/unified' in path
-    read = method in ('GET', 'HEAD') or path.endswith('/assistant/query') or ('/modernization/' in path and path.endswith('/explain'))
+    read = method in ('GET', 'HEAD') or path.endswith('/assistant/query') or ('/modernization/' in path and path.endswith('/explain')) \
+        or ('/insight/' in path and (path.endswith('/explain') or path.endswith('/assistant/chat')))
     return ('RUNTIME_' if runtime else 'ANALYSIS_') + ('READ' if read else 'WRITE')
 
 

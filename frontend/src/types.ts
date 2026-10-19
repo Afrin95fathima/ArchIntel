@@ -12,4 +12,4 @@ export interface GraphNode { id: string; name?: string; fqn?: string; simple_nam
 export interface GraphData { nodes: GraphNode[]; edges: {id: string; source: string; target: string; weight?: number; dependency_type?: string}[]; total_nodes: number; total_edges: number; truncated: boolean }
 export interface Answer { answer: string; facts: {id: string; kind: string; text: string}[]; recommendations: string[]; sources: {id: string; kind: string}[]; mode: string; limitations: string[] }
 export interface Items<T> { items: T[]; total: number }
-export type View = 'workspace' | 'overview' | 'architecture' | 'explorer' | 'domains' | 'issues' | 'cycles' | 'metrics' | 'modernization' | 'assistant' | 'runtime' | 'evidence' | 'planning' | 'tasks' | 'diagnostics' | 'reports' | 'uikit';
+export type View = 'workspace' | 'lifecycle' | 'overview' | 'architecture' | 'explorer' | 'domains' | 'issues' | 'cycles' | 'metrics' | 'modernization' | 'assistant' | 'runtime' | 'evidence' | 'planning' | 'tasks' | 'diagnostics' | 'reports' | 'uikit';

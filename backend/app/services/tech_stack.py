@@ -99,9 +99,10 @@ def inspect_artifact(path: Path, classes_dir: Path, static: dict) -> dict:
         build_tools=build_tools,frameworks=frameworks,dependencies=all_deps,bundled_libraries=parsed_jars[:1000],
         dependency_inventory_status='EXACT_AND_PARTIAL' if all_deps else 'ARCHIVE_FILENAMES_ONLY' if parsed_jars else 'NOT_FOUND',
         namespace_usage=dict(javax_count=len(javax_types),jakarta_count=len(jakarta_types),javax_examples=javax_types[:20],jakarta_examples=jakarta_types[:20]),
-        compatibility=dict(java_lifecycle='NOT_CHECKED',framework_lifecycle='NOT_CHECKED',deprecated_apis='NOT_CHECKED',
-            vulnerability_advisories='NOT_CHECKED',reason='No versioned offline lifecycle/advisory dataset or authorized OSV connection is configured.'),
+        # Filled by app.insight.lifecycle.compatibility_summary in the pipeline from the dated rules file.
+        compatibility=dict(java_lifecycle='PENDING_RULE_EVALUATION',framework_lifecycle='PENDING_RULE_EVALUATION',deprecated_apis='SEE_TECHNICAL_DEBT_RULE_DEPRECATED_API',
+            vulnerability_advisories='OUT_OF_SCOPE',reason='Lifecycle status is evaluated against app/insight/rules/lifecycle-rules.yaml; vulnerability advisories are not assessed.'),
         limitations=['Maven property and parent-managed versions may be unresolved in the artifact metadata.',
             'Project ZIP files containing only target/classes may not include build descriptors or dependency versions.',
             'Bundled library filenames are not a complete dependency lockfile.',
-            'Java/framework end-of-life, deprecated API and vulnerability status are not checked without a configured authoritative dataset.'])
+            'End-of-life status comes from a dated rules file and is only as current as its review date; vulnerability advisories are not assessed.'])

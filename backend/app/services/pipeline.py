@@ -108,14 +108,19 @@ class AnalysisWorker:
                 raise LimitExceeded('max_packages_per_scan',self.config.max_packages_per_scan,len(packages),'Split the artifact by module or ask your administrator to raise max_packages_per_scan.')
             check_job_budget()
             result = analyze(classes, edges, self.config, stage)
-            result['tech_inventory'] = inspect_artifact(artifact_path, classes_dir, result)
             if self.config.bytecode_facts_enabled:
-                stage('BYTECODE_FACTS', 90)
+                stage('BYTECODE_FACTS', 88)
                 internal_names = {c['id'] for c in result['classes']}
                 result['bytecode'] = bounded_for_snapshot(extract_bytecode(classes_dir, owned=internal_names), internal_names,
                     self.config.bytecode_facts_max_bytes)
                 from app.insight.source_store import capture as capture_sources
                 result['source_store'] = capture_sources(self.config, analysis_id, artifact_path, result)
+            result['tech_inventory'] = inspect_artifact(artifact_path, classes_dir, result)
+            from app.insight.lifecycle import evaluate as evaluate_lifecycle, compatibility_summary
+            from app.insight.model import InsightModel
+            lifecycle_result = evaluate_lifecycle(InsightModel(analysis_id, result), result['tech_inventory'])
+            result['tech_inventory']['compatibility'] = compatibility_summary(lifecycle_result)
+            result['tech_inventory']['lifecycle_rules'] = lifecycle_result['rules']
             result['artifact'] = metadata
             result['scanner'] = dict(name='jQAssistant', version='2.7.0', graph_storage='isolated Neo4j 5', normalized_results='PostgreSQL' if self.config.database_url.startswith('postgresql') else 'SQLite local mode')
             stage('PERSISTING_RESULTS', 94)

@@ -1,0 +1,269 @@
+# ArchIntel technology lifecycle rules.
+#
+# Format (see docs/INSIGHT-REFERENCE.md#lifecycle-rules):
+#   rules_version  : release of this file (YYYY.MM.patch)
+#   reviewed       : date every rule was last checked against its source
+#   max_age_days   : after this many days since `reviewed`, the UI shows a stale-rules warning
+#   rules[].match  : how a technology is found
+#       packages     - package prefixes used by application bytecode (class references and call sites)
+#       artifacts    - Maven groupId:artifactId from archive metadata or bundled jar names (artifactId only)
+#       java_target  - true: the rule is evaluated per class-file major version
+#   rules[].versions: ordered; first matching `range` wins. Range syntax: comma-separated
+#       comparisons (<, <=, >, >=, ==) on dotted numeric versions, e.g. ">=3.0,<3.5".
+#       `status` is one of end-of-life | aging | current.
+#   rules[].status  : status used when the technology is found but no version is determinable.
+#
+# Status meanings: "end-of-life" = the maintainer has ended public support or removed the API;
+# "aging" = still usable but superseded, deprecated, or in maintenance-only mode;
+# "current" = actively supported. These are lifecycle labels, NOT vulnerability findings.
+# Dates below were compiled on the review date from the linked sources; re-verify before relying on them.
+schema_version: 1
+rules_version: 2026.10.0
+reviewed: 2026-10-19
+max_age_days: 180
+rules:
+  - id: java-class-target
+    technology: Java bytecode target level
+    category: platform
+    match: {java_target: true}
+    source: https://www.oracle.com/java/technologies/java-se-support-roadmap.html
+    versions:
+      - {range: "<8", status: end-of-life, note: "Java 7 and earlier: public and premier support ended (Java 7 extended support ended July 2022)."}
+      - {range: "==8", status: aging, note: "Java 8 LTS: Oracle premier support ended March 2022; extended support only. Many current frameworks (Spring Boot 3+, Jakarta EE 10) require Java 17+."}
+      - {range: ">8,<11", status: end-of-life, note: "Non-LTS release; support ended when the next release shipped."}
+      - {range: "==11", status: aging, note: "Java 11 LTS: premier support ended September 2023; extended support only."}
+      - {range: ">11,<17", status: end-of-life, note: "Non-LTS release; support ended when the next release shipped."}
+      - {range: "==17", status: aging, note: "Java 17 LTS: Oracle premier support ended September 2026; vendor builds (e.g. Eclipse Temurin) remain maintained. Plan the move to 21 or 25."}
+      - {range: ">17,<21", status: end-of-life, note: "Non-LTS release; support ended when the next release shipped."}
+      - {range: "==21", status: current, note: "Java 21 LTS: premier support until September 2028."}
+      - {range: ">21,<25", status: end-of-life, note: "Non-LTS release; support ended when the next release shipped."}
+      - {range: ">=25", status: current, note: "Java 25 LTS or newer."}
+    alternative: Java 21 or Java 25 (LTS)
+    migration_notes: "Recompile with --release 21; check removed JDK APIs (JAXB, JAX-WS, CORBA, javax.annotation removed in 11; Security Manager disabled in 24) and update build plugins."
+    effort: medium
+
+  - id: spring-boot
+    technology: Spring Boot
+    category: framework
+    match: {artifacts: ["org.springframework.boot:spring-boot", "spring-boot"], packages: ["org.springframework.boot."]}
+    source: https://spring.io/projects/spring-boot#support
+    status: aging
+    versions:
+      - {range: "<2.7", status: end-of-life, note: "Open-source support ended before November 2023."}
+      - {range: ">=2.7,<3.0", status: end-of-life, note: "2.7.x open-source support ended November 2023 (commercial support only). Uses javax.* namespace."}
+      - {range: ">=3.0,<3.5", status: end-of-life, note: "3.0-3.4 open-source support has ended."}
+      - {range: ">=3.5,<4.0", status: aging, note: "3.5.x is the last 3.x line; open-source support ended June 2026. Commercial support continues."}
+      - {range: ">=4.0", status: current, note: "Spring Boot 4.x."}
+    alternative: Spring Boot 4.x (or latest supported 3.5.x as an intermediate step)
+    migration_notes: "2.x -> 3.x requires Java 17 and the javax.* -> jakarta.* namespace change; use the spring-boot-properties-migrator and OpenRewrite Spring Boot recipes."
+    effort: high
+
+  - id: spring-framework
+    technology: Spring Framework
+    category: framework
+    match: {artifacts: ["org.springframework:spring-core", "spring-core", "spring-context", "spring-webmvc"]}
+    source: https://spring.io/projects/spring-framework#support
+    status: aging
+    versions:
+      - {range: "<5.3", status: end-of-life, note: "Spring Framework 5.2 and earlier: support ended."}
+      - {range: ">=5.3,<6.0", status: end-of-life, note: "5.3.x open-source support ended August 2024."}
+      - {range: ">=6.0,<6.2", status: end-of-life, note: "6.0/6.1 open-source support has ended."}
+      - {range: ">=6.2,<7.0", status: aging, note: "6.2.x open-source support ended June 2026."}
+      - {range: ">=7.0", status: current, note: "Spring Framework 7.x."}
+    alternative: Spring Framework 7.x (via Spring Boot 4)
+    migration_notes: "6.x requires Java 17 and jakarta.*; review removed APIs in the Spring Framework upgrade guide."
+    effort: high
+
+  - id: javax-persistence
+    technology: JPA on the javax.persistence namespace
+    category: namespace
+    match: {packages: ["javax.persistence."], artifacts: ["javax.persistence:javax.persistence-api", "javax.persistence-api", "hibernate-jpa-2.1-api"]}
+    source: https://jakarta.ee/specifications/persistence/
+    status: aging
+    alternative: jakarta.persistence (Jakarta Persistence 3.x)
+    replacement: {from: "javax.persistence", to: "jakarta.persistence"}
+    migration_notes: "Rename imports javax.persistence.* -> jakarta.persistence.*; requires Hibernate 6+ / EclipseLink 3+. The Eclipse Transformer or OpenRewrite 'JavaxMigrationToJakarta' recipe automates the rename."
+    effort: medium
+
+  - id: javax-servlet
+    technology: Servlet API on the javax.servlet namespace
+    category: namespace
+    match: {packages: ["javax.servlet."], artifacts: ["javax.servlet:javax.servlet-api", "javax.servlet-api", "servlet-api"]}
+    source: https://jakarta.ee/specifications/servlet/
+    status: aging
+    alternative: jakarta.servlet (Jakarta Servlet 6.x)
+    replacement: {from: "javax.servlet", to: "jakarta.servlet"}
+    migration_notes: "Rename imports to jakarta.servlet.*; requires Tomcat 10+, Jetty 11+ or Spring Boot 3+."
+    effort: medium
+
+  - id: javax-validation
+    technology: Bean Validation on the javax.validation namespace
+    category: namespace
+    match: {packages: ["javax.validation."], artifacts: ["javax.validation:validation-api", "validation-api"]}
+    source: https://jakarta.ee/specifications/bean-validation/
+    status: aging
+    alternative: jakarta.validation (Jakarta Validation 3.x)
+    replacement: {from: "javax.validation", to: "jakarta.validation"}
+    migration_notes: "Rename imports to jakarta.validation.*; use Hibernate Validator 8+."
+    effort: low
+
+  - id: javax-ws-rs
+    technology: JAX-RS on the javax.ws.rs namespace
+    category: namespace
+    match: {packages: ["javax.ws.rs."], artifacts: ["javax.ws.rs:javax.ws.rs-api", "javax.ws.rs-api", "jsr311-api"]}
+    source: https://jakarta.ee/specifications/restful-ws/
+    status: aging
+    alternative: jakarta.ws.rs (Jakarta RESTful Web Services 3.x) or Spring MVC
+    replacement: {from: "javax.ws.rs", to: "jakarta.ws.rs"}
+    migration_notes: "Rename imports to jakarta.ws.rs.*; requires Jersey 3+ / RESTEasy 6+."
+    effort: medium
+
+  - id: javax-faces
+    technology: JavaServer Faces (javax.faces)
+    category: framework
+    match: {packages: ["javax.faces."], artifacts: ["javax.faces:javax.faces-api", "jsf-api", "jsf-impl"]}
+    source: https://jakarta.ee/specifications/faces/
+    status: aging
+    alternative: Jakarta Faces 4.x (jakarta.faces) or a modern web front end
+    replacement: {from: "javax.faces", to: "jakarta.faces"}
+    migration_notes: "Rename to jakarta.faces.*; Managed Beans (@ManagedBean) were removed in Faces 4 - use CDI @Named."
+    effort: high
+
+  - id: javax-jms-ejb-transaction
+    technology: Java EE APIs on javax.* (EJB, JMS, JTA, CDI, Mail)
+    category: namespace
+    match: {packages: ["javax.ejb.", "javax.jms.", "javax.transaction.", "javax.inject.", "javax.enterprise.", "javax.mail."]}
+    source: https://jakarta.ee/release/10/
+    status: aging
+    alternative: Jakarta EE 10+ (jakarta.* namespace)
+    replacement: {from: "javax.", to: "jakarta."}
+    migration_notes: "Each javax.<api> package moves to jakarta.<api>; note javax.transaction.xa stays in the JDK."
+    effort: medium
+
+  - id: jdk-removed-ee-modules
+    technology: Java EE modules removed from the JDK (JAXB, JAX-WS, JAF, Common Annotations, CORBA)
+    category: platform
+    match: {packages: ["javax.xml.bind.", "javax.xml.ws.", "javax.jws.", "javax.activation.", "javax.annotation.PostConstruct", "javax.annotation.PreDestroy", "javax.annotation.Resource", "org.omg.", "javax.rmi.CORBA."]}
+    source: https://openjdk.org/jeps/320
+    status: end-of-life
+    alternative: Jakarta XML Binding (jakarta.xml.bind), Jakarta XML Web Services (jakarta.xml.ws), jakarta.annotation
+    migration_notes: "These APIs were removed from the JDK in Java 11 (JEP 320). Add the Jakarta artifacts explicitly and rename packages; javax.annotation.PostConstruct -> jakarta.annotation.PostConstruct."
+    effort: medium
+
+  - id: log4j-1
+    technology: Apache Log4j 1.x
+    category: library
+    match: {packages: ["org.apache.log4j."], artifacts: ["log4j:log4j", "log4j"]}
+    source: https://logging.apache.org/log4j/1.x/
+    status: end-of-life
+    versions:
+      - {range: "<2.0", status: end-of-life, note: "Log4j 1.x reached end of life in August 2015 and receives no fixes."}
+    alternative: Log4j 2 (org.apache.logging.log4j) or SLF4J with Logback
+    migration_notes: "Replace org.apache.log4j.Logger with org.slf4j.Logger (LoggerFactory.getLogger) or Log4j 2's LogManager.getLogger; convert log4j.properties to log4j2.xml / logback.xml. The log4j-1.2-api bridge also provides org.apache.log4j classes - check which artifact is on the classpath."
+    effort: low
+
+  - id: commons-lang-2
+    technology: Apache Commons Lang 2.x
+    category: library
+    match: {packages: ["org.apache.commons.lang."], artifacts: ["commons-lang:commons-lang", "commons-lang"]}
+    source: https://commons.apache.org/proper/commons-lang/
+    status: aging
+    alternative: Apache Commons Lang 3 (org.apache.commons.lang3) or JDK equivalents
+    replacement: {from: "org.apache.commons.lang", to: "org.apache.commons.lang3"}
+    migration_notes: "Last 2.x release was 2.6 (2011). Most methods exist in lang3 with the same name; StringEscapeUtils moved to commons-text."
+    effort: low
+
+  - id: commons-collections-3
+    technology: Apache Commons Collections 3.x
+    category: library
+    match: {packages: ["org.apache.commons.collections."], artifacts: ["commons-collections:commons-collections", "commons-collections"]}
+    source: https://commons.apache.org/proper/commons-collections/
+    status: aging
+    alternative: Apache Commons Collections 4 (org.apache.commons.collections4) or java.util
+    replacement: {from: "org.apache.commons.collections", to: "org.apache.commons.collections4"}
+    migration_notes: "Collections 4 is generic and uses a new package; many uses can be replaced by java.util streams."
+    effort: low
+
+  - id: commons-httpclient-3
+    technology: Commons HttpClient 3.x
+    category: library
+    match: {packages: ["org.apache.commons.httpclient."], artifacts: ["commons-httpclient:commons-httpclient", "commons-httpclient"]}
+    source: https://hc.apache.org/httpclient-legacy/
+    status: end-of-life
+    alternative: Apache HttpClient 5 or java.net.http.HttpClient
+    migration_notes: "Commons HttpClient 3 is end of life (superseded in 2007-2011). The API differs; wrap calls behind one adapter class first."
+    effort: medium
+
+  - id: struts-1
+    technology: Apache Struts 1
+    category: framework
+    match: {packages: ["org.apache.struts."], artifacts: ["struts:struts", "org.apache.struts:struts-core", "struts-core", "struts"]}
+    source: https://struts.apache.org/struts1eol-announcement.html
+    status: end-of-life
+    alternative: Spring MVC controllers
+    migration_notes: "Struts 1 reached end of life in April 2013. Migrate each Action to a controller method; ActionForm -> request model with Bean Validation."
+    effort: high
+
+  - id: jackson-1
+    technology: Jackson 1.x (org.codehaus.jackson)
+    category: library
+    match: {packages: ["org.codehaus.jackson."], artifacts: ["org.codehaus.jackson:jackson-mapper-asl", "jackson-mapper-asl", "jackson-core-asl"]}
+    source: https://github.com/FasterXML/jackson-1
+    status: end-of-life
+    alternative: Jackson 2.x (com.fasterxml.jackson)
+    replacement: {from: "org.codehaus.jackson", to: "com.fasterxml.jackson"}
+    migration_notes: "Package and some annotation names changed; ObjectMapper API is similar."
+    effort: low
+
+  - id: joda-time
+    technology: Joda-Time
+    category: library
+    match: {packages: ["org.joda.time."], artifacts: ["joda-time:joda-time", "joda-time"]}
+    source: https://www.joda.org/joda-time/
+    status: aging
+    alternative: java.time (JSR-310)
+    replacement: {from: "org.joda.time", to: "java.time"}
+    migration_notes: "The Joda-Time project asks users to migrate to java.time. DateTime -> ZonedDateTime/OffsetDateTime, LocalDate -> java.time.LocalDate."
+    effort: medium
+
+  - id: hibernate-orm
+    technology: Hibernate ORM
+    category: framework
+    match: {artifacts: ["org.hibernate:hibernate-core", "org.hibernate.orm:hibernate-core", "hibernate-core"], packages: ["org.hibernate."]}
+    source: https://hibernate.org/orm/releases/
+    status: aging
+    versions:
+      - {range: "<5.6", status: end-of-life, note: "Hibernate ORM before 5.6 is no longer maintained."}
+      - {range: ">=5.6,<6.0", status: aging, note: "5.6 is the last javax.persistence line; community maintenance has ended."}
+      - {range: ">=6.0,<6.6", status: end-of-life, note: "Older 6.x minors are superseded and no longer maintained."}
+      - {range: ">=6.6", status: current, note: "Maintained 6.6+/7.x line."}
+    alternative: Hibernate ORM 6.6+ / 7.x (jakarta.persistence)
+    migration_notes: "Hibernate 6 uses jakarta.persistence and changed HQL/type handling; follow the 6.0 migration guide."
+    effort: high
+
+  - id: sun-internal-apis
+    technology: JDK internal sun.* / com.sun.* APIs
+    category: platform
+    match: {packages: ["sun.misc.", "sun.reflect.", "com.sun.image.codec.", "sun.security."]}
+    source: https://openjdk.org/jeps/260
+    status: end-of-life
+    alternative: Supported JDK APIs (e.g. java.util.Base64 for sun.misc.BASE64Encoder, VarHandle for Unsafe)
+    migration_notes: "Internal APIs are encapsulated since Java 9/16 (JEP 260, JEP 403) and several were removed. Replace with the supported equivalents."
+    effort: medium
+
+# Member-level deprecations in the JDK used by the WP4 "deprecated API usage" rule.
+deprecated_members:
+  source: https://docs.oracle.com/en/java/javase/21/docs/api/deprecated-list.html
+  members:
+    - {owner: java.lang.Thread, name: stop, note: "Thread.stop is deprecated for removal and throws UnsupportedOperationException since Java 20."}
+    - {owner: java.lang.Thread, name: suspend, note: "Deprecated for removal."}
+    - {owner: java.lang.Thread, name: resume, note: "Deprecated for removal."}
+    - {owner: java.lang.Runtime, name: runFinalization, note: "Finalization is deprecated for removal (JEP 421)."}
+    - {owner: java.lang.System, name: runFinalization, note: "Finalization is deprecated for removal (JEP 421)."}
+    - {owner: java.lang.Integer, name: "<init>", note: "new Integer(...) is deprecated for removal; use Integer.valueOf."}
+    - {owner: java.lang.Long, name: "<init>", note: "new Long(...) is deprecated for removal; use Long.valueOf."}
+    - {owner: java.lang.Boolean, name: "<init>", note: "new Boolean(...) is deprecated for removal; use Boolean.valueOf."}
+    - {owner: java.lang.Double, name: "<init>", note: "new Double(...) is deprecated for removal; use Double.valueOf."}
+    - {owner: java.util.Date, name: getYear, note: "Deprecated since 1.1; use java.time."}
+    - {owner: java.util.Observable, name: "*", note: "java.util.Observable is deprecated since Java 9."}
+    - {owner: java.lang.SecurityManager, name: "*", note: "The Security Manager is deprecated for removal and disabled since Java 24 (JEP 486)."}

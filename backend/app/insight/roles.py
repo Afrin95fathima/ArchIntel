@@ -73,6 +73,15 @@ def short(name: str) -> str:
     return name.rsplit('.', 1)[-1]
 
 
+def method_label(owner: str, name: str) -> str:
+    """Readable member reference: Owner.addPet(), Owner constructor, Owner static initializer."""
+    if name == '<init>':
+        return f'{short(owner)} constructor'
+    if name == '<clinit>':
+        return f'{short(owner)} static initializer'
+    return f'{short(owner)}.{name}()'
+
+
 def supertypes(fqn: str, facts: dict, classes: dict) -> list[str]:
     """All supertypes reachable through internal classes (external supertypes are terminal)."""
     seen, stack, out = set(), [fqn], []

@@ -38,7 +38,7 @@ export function GraphCanvas({data,domains,onNode,onDrill,compact=false,cycleNode
   return <div className={'graph-canvas-wrap '+(compact?'compact':'')}><div className="graph-canvas" ref={container}/><button className="graph-fit" onClick={()=>instance.current?.fit(undefined,40)} aria-label="Fit graph"><Maximize2 size={16}/></button>{data.nodes.length===0&&<div className="graph-empty">No nodes in this selection.</div>}</div>;
 }
 
-export function GraphExplorer({analysisId,domains}: {analysisId:string;domains:Domain[]}) {
+export function GraphExplorer({analysisId,domains}: {analysisId:string;domains:Domain[];focusId?:string}) {
   const [level,setLevel]=useState('domains');
   const [domain,setDomain]=useState('');
   const [packageName,setPackage]=useState('');

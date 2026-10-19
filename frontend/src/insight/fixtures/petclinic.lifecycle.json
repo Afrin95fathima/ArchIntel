@@ -1,0 +1,321 @@
+{
+ "findings": [
+  {
+   "affected_class_count": 24,
+   "affected_classes": [
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.PetClinicApplication",
+     "package": "org.springframework.samples.petclinic"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.model.BaseEntity",
+     "package": "org.springframework.samples.petclinic.model"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.model.NamedEntity",
+     "package": "org.springframework.samples.petclinic.model"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.model.Person",
+     "package": "org.springframework.samples.petclinic.model"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.owner.Owner",
+     "package": "org.springframework.samples.petclinic.owner"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "package": "org.springframework.samples.petclinic.owner"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerRepository",
+     "package": "org.springframework.samples.petclinic.owner"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.owner.Pet",
+     "package": "org.springframework.samples.petclinic.owner"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.owner.PetController",
+     "package": "org.springframework.samples.petclinic.owner"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.owner.PetType",
+     "package": "org.springframework.samples.petclinic.owner"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+     "package": "org.springframework.samples.petclinic.owner"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.owner.PetTypeRepository",
+     "package": "org.springframework.samples.petclinic.owner"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.owner.PetValidator",
+     "package": "org.springframework.samples.petclinic.owner"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.owner.Visit",
+     "package": "org.springframework.samples.petclinic.owner"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.owner.VisitController",
+     "package": "org.springframework.samples.petclinic.owner"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.system.CacheConfiguration",
+     "package": "org.springframework.samples.petclinic.system"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.system.CrashController",
+     "package": "org.springframework.samples.petclinic.system"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.system.WebConfiguration",
+     "package": "org.springframework.samples.petclinic.system"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.system.WelcomeController",
+     "package": "org.springframework.samples.petclinic.system"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.vet.Specialty",
+     "package": "org.springframework.samples.petclinic.vet"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.vet.Vet",
+     "package": "org.springframework.samples.petclinic.vet"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.vet.VetController",
+     "package": "org.springframework.samples.petclinic.vet"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.vet.VetRepository",
+     "package": "org.springframework.samples.petclinic.vet"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "org.springframework.samples.petclinic.vet.Vets",
+     "package": "org.springframework.samples.petclinic.vet"
+    }
+   ],
+   "affected_truncated": false,
+   "call_site_count": 0,
+   "category": "platform",
+   "effort_hint": "medium",
+   "effort_index": {
+    "formula": "effort weight (low=1, medium=2, high=3) x max(affected classes, 1)",
+    "inputs": {
+     "affected_classes": 24,
+     "effort_weight": 2
+    },
+    "label": "Heuristic index for ordering work, not a time or cost estimate.",
+    "value": 48
+   },
+   "evidence": [
+    {
+     "kind": "BYTECODE",
+     "text": "class-file major version 61 (Java 17) in 24 classes"
+    }
+   ],
+   "explanation": {
+    "plain": "Java bytecode target level still works but has been superseded and will become harder to support. 24 classes in this application use it.",
+    "technical": "Rule java-class-target: Java bytecode target level Java 17 -> aging (range ==17). Java 17 LTS: Oracle premier support ended September 2026; vendor builds (e.g. Eclipse Temurin) remain maintained. Plan the move to 21 or 25."
+   },
+   "id": "java-class-target:17",
+   "matched_range": "==17",
+   "migration_notes": "Recompile with --release 21; check removed JDK APIs (JAXB, JAX-WS, CORBA, javax.annotation removed in 11; Security Manager disabled in 24) and update build plugins.",
+   "recommended_alternative": "Java 21 or Java 25 (LTS)",
+   "replacement": null,
+   "rule_id": "java-class-target",
+   "source_url": "https://www.oracle.com/java/technologies/java-se-support-roadmap.html",
+   "status": "aging",
+   "status_note": "Java 17 LTS: Oracle premier support ended September 2026; vendor builds (e.g. Eclipse Temurin) remain maintained. Plan the move to 21 or 25.",
+   "technology": "Java bytecode target level",
+   "version_found": "Java 17",
+   "version_reason": null
+  },
+  {
+   "affected_class_count": 1,
+   "affected_classes": [
+    {
+     "api_count": 2,
+     "apis": [
+      "org.springframework.boot.SpringApplication",
+      "org.springframework.boot.autoconfigure.SpringBootApplication"
+     ],
+     "call_site_count": 2,
+     "call_sites": [
+      {
+       "line": null,
+       "text": "PetClinicApplication is annotated @SpringBootApplication",
+       "where": "PetClinicApplication"
+      },
+      {
+       "api": "org.springframework.boot.SpringApplication.run",
+       "line": 10,
+       "text": "PetClinicApplication.main() calls SpringApplication.run()",
+       "where": "PetClinicApplication.main"
+      }
+     ],
+     "class_name": "org.springframework.samples.petclinic.PetClinicApplication",
+     "edge_types": [
+      "ANNOTATION",
+      "METHOD_CALL"
+     ],
+     "package": "org.springframework.samples.petclinic"
+    }
+   ],
+   "affected_truncated": false,
+   "call_site_count": 2,
+   "category": "framework",
+   "effort_hint": "high",
+   "effort_index": {
+    "formula": "effort weight (low=1, medium=2, high=3) x max(affected classes, 1)",
+    "inputs": {
+     "affected_classes": 1,
+     "effort_weight": 3
+    },
+    "label": "Heuristic index for ordering work, not a time or cost estimate.",
+    "value": 3
+   },
+   "evidence": [
+    {
+     "kind": "BYTECODE",
+     "text": "1 application classes reference org.springframework.boot.* with 2 code references"
+    }
+   ],
+   "explanation": {
+    "plain": "Spring Boot still works but has been superseded and will become harder to support. 1 class in this application use it.",
+    "technical": "Rule spring-boot: Spring Boot -> aging. Version not determinable from the artifact; status shown is the rule default for any version."
+   },
+   "id": "spring-boot",
+   "matched_range": null,
+   "migration_notes": "2.x -> 3.x requires Java 17 and the javax.* -> jakarta.* namespace change; use the spring-boot-properties-migrator and OpenRewrite Spring Boot recipes.",
+   "recommended_alternative": "Spring Boot 4.x (or latest supported 3.5.x as an intermediate step)",
+   "replacement": null,
+   "rule_id": "spring-boot",
+   "source_url": "https://spring.io/projects/spring-boot#support",
+   "status": "aging",
+   "status_note": "Version not determinable from the artifact; status shown is the rule default for any version.",
+   "technology": "Spring Boot",
+   "version_found": null,
+   "version_reason": "found by package usage in bytecode; no dependency version is recorded in the artifact metadata"
+  }
+ ],
+ "inputs": {
+  "bytecode_facts": true,
+  "dependency_inventory_status": "NOT_AVAILABLE",
+  "dependency_rows": 0
+ },
+ "label": "Lifecycle status (end-of-life / aging / current) from the rules file. This is not a vulnerability assessment.",
+ "limitations": [],
+ "rules": {
+  "age_days": 0,
+  "max_age_days": 180,
+  "reviewed": "2026-10-19",
+  "rules_version": "2026.10.0",
+  "stale": false,
+  "warning": null
+ },
+ "summary": {
+  "aging": 2
+ }
+}

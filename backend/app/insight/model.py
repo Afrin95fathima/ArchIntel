@@ -13,7 +13,7 @@ from threading import Lock
 from .bytecode import base_type
 from .callgraph import CallGraph, method_key
 from .entrypoints import detect
-from .roles import classify, short
+from .roles import classify, method_label, short
 
 NOT_AVAILABLE_FACTS = ('Bytecode facts are not available for this analysis: it was produced before bytecode facts were '
     'recorded. Run a new analysis of the same artifact to enable this view.')
@@ -126,33 +126,32 @@ class InsightModel:
                 elif targets & set(field['generic_types']):
                     out.append(dict(kind='GENERIC_TYPE', text=f'field {where}.{field["name"]} uses {short(field["type"])}<{", ".join(short(t) for t in sorted(targets & set(field["generic_types"])))}>', line=None))
             for method in info.get('methods', []):
-                label = f'{where}.{method["name"]}'
+                label = method_label(name, method['name'])
                 for site in method.get('invokes', []):
                     if site['owner'] in targets:
-                        callee = 'constructor' if site['name'] == '<init>' else site['name'] + '()'
-                        out.append(dict(kind='METHOD_CALL', text=f'{label}() calls {short(site["owner"])}.{callee}', line=site.get('line'),
+                        out.append(dict(kind='METHOD_CALL', text=f'{label} calls {method_label(site["owner"], site["name"])}', line=site.get('line'),
                             method=method['name'], target_method=site['name']))
                 if method['synthetic'] or method['bridge']:
                     continue
                 for index, param in enumerate(method['parameters']):
                     if base_type(param) in targets:
-                        out.append(dict(kind='PARAMETER_TYPE', text=f'{label}() takes a {short(param)} parameter', line=None, method=method['name']))
+                        out.append(dict(kind='PARAMETER_TYPE', text=f'{label} takes a {short(param)} parameter', line=None, method=method['name']))
                 if base_type(method['returns']) in targets:
-                    out.append(dict(kind='RETURN_TYPE', text=f'{label}() returns {short(method["returns"])}', line=None, method=method['name']))
+                    out.append(dict(kind='RETURN_TYPE', text=f'{label} returns {short(method["returns"])}', line=None, method=method['name']))
                 for exception in method.get('exceptions', []):
                     if exception in targets:
-                        out.append(dict(kind='EXCEPTION', text=f'{label}() declares throws {short(exception)}', line=None, method=method['name']))
+                        out.append(dict(kind='EXCEPTION', text=f'{label} declares throws {short(exception)}', line=None, method=method['name']))
                 for site in method.get('field_access', []):
                     if site['owner'] in targets:
-                        out.append(dict(kind='FIELD_ACCESS', text=f'{label}() reads/writes {short(site["owner"])}.{site["name"]}', line=site.get('line'), method=method['name']))
+                        out.append(dict(kind='FIELD_ACCESS', text=f'{label} reads/writes {short(site["owner"])}.{site["name"]}', line=site.get('line'), method=method['name']))
                 for site in method.get('type_refs', []):
                     if site['type'] in targets and site['kind'] != 'new':
-                        out.append(dict(kind='TYPE_REFERENCE', text=f'{label}() uses {short(site["type"])} ({site["kind"]})', line=site.get('line'), method=method['name']))
+                        out.append(dict(kind='TYPE_REFERENCE', text=f'{label} uses {short(site["type"])} ({site["kind"]})', line=site.get('line'), method=method['name']))
                 if targets & set(method.get('generic_types', [])):
-                    out.append(dict(kind='GENERIC_TYPE', text=f'{label}() signature uses {", ".join(short(t) for t in sorted(targets & set(method["generic_types"])))} as a type argument', line=None, method=method['name']))
+                    out.append(dict(kind='GENERIC_TYPE', text=f'{label} signature uses {", ".join(short(t) for t in sorted(targets & set(method["generic_types"])))} as a type argument', line=None, method=method['name']))
                 for annotation in method.get('annotations', []):
                     if annotation['type'] in targets:
-                        out.append(dict(kind='ANNOTATION', text=f'{label}() is annotated @{short(annotation["type"])}', line=None, method=method['name']))
+                        out.append(dict(kind='ANNOTATION', text=f'{label} is annotated @{short(annotation["type"])}', line=None, method=method['name']))
         unique, seen = [], set()
         for item in out:
             key = (item['kind'], item['text'])

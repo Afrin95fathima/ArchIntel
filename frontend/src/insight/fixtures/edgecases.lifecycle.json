@@ -1,0 +1,740 @@
+{
+ "findings": [
+  {
+   "affected_class_count": 1,
+   "affected_classes": [
+    {
+     "api_count": 1,
+     "apis": [
+      "org.apache.log4j.Logger"
+     ],
+     "call_site_count": 2,
+     "call_sites": [
+      {
+       "api": "org.apache.log4j.Logger.info",
+       "line": 14,
+       "text": "BillingAction.execute() calls Logger.info()",
+       "where": "BillingAction.execute"
+      },
+      {
+       "api": "org.apache.log4j.Logger.getLogger",
+       "line": 10,
+       "text": "BillingAction static initializer calls Logger.getLogger()",
+       "where": "BillingAction.<clinit>"
+      }
+     ],
+     "class_name": "com.fixture.edge.legacy.BillingAction",
+     "edge_types": [
+      "FIELD_TYPE",
+      "METHOD_CALL"
+     ],
+     "package": "com.fixture.edge.legacy"
+    }
+   ],
+   "affected_truncated": false,
+   "call_site_count": 2,
+   "category": "library",
+   "effort_hint": "low",
+   "effort_index": {
+    "formula": "effort weight (low=1, medium=2, high=3) x max(affected classes, 1)",
+    "inputs": {
+     "affected_classes": 1,
+     "effort_weight": 1
+    },
+    "label": "Heuristic index for ordering work, not a time or cost estimate.",
+    "value": 1
+   },
+   "evidence": [
+    {
+     "kind": "BYTECODE",
+     "text": "1 application classes reference org.apache.log4j.* with 2 code references"
+    }
+   ],
+   "explanation": {
+    "plain": "Apache Log4j 1.x is no longer supported by its maintainers. 1 class in this application use it.",
+    "technical": "Rule log4j-1: Apache Log4j 1.x -> end-of-life. Version not determinable from the artifact; status shown is the rule default for any version."
+   },
+   "id": "log4j-1",
+   "matched_range": null,
+   "migration_notes": "Replace org.apache.log4j.Logger with org.slf4j.Logger (LoggerFactory.getLogger) or Log4j 2's LogManager.getLogger; convert log4j.properties to log4j2.xml / logback.xml. The log4j-1.2-api bridge also provides org.apache.log4j classes - check which artifact is on the classpath.",
+   "recommended_alternative": "Log4j 2 (org.apache.logging.log4j) or SLF4J with Logback",
+   "replacement": null,
+   "rule_id": "log4j-1",
+   "source_url": "https://logging.apache.org/log4j/1.x/",
+   "status": "end-of-life",
+   "status_note": "Version not determinable from the artifact; status shown is the rule default for any version.",
+   "technology": "Apache Log4j 1.x",
+   "version_found": null,
+   "version_reason": "found by package usage in bytecode; no dependency version is recorded in the artifact metadata"
+  },
+  {
+   "affected_class_count": 1,
+   "affected_classes": [
+    {
+     "api_count": 1,
+     "apis": [
+      "org.apache.struts.action.Action"
+     ],
+     "call_site_count": 2,
+     "call_sites": [
+      {
+       "api": "org.apache.struts.action.Action.<init>",
+       "line": 8,
+       "text": "BillingAction constructor calls new Action()",
+       "where": "BillingAction.<init>"
+      },
+      {
+       "line": null,
+       "text": "BillingAction extends org.apache.struts.action.Action",
+       "where": "BillingAction"
+      }
+     ],
+     "class_name": "com.fixture.edge.legacy.BillingAction",
+     "edge_types": [
+      "INHERITANCE",
+      "METHOD_CALL"
+     ],
+     "package": "com.fixture.edge.legacy"
+    }
+   ],
+   "affected_truncated": false,
+   "call_site_count": 2,
+   "category": "framework",
+   "effort_hint": "high",
+   "effort_index": {
+    "formula": "effort weight (low=1, medium=2, high=3) x max(affected classes, 1)",
+    "inputs": {
+     "affected_classes": 1,
+     "effort_weight": 3
+    },
+    "label": "Heuristic index for ordering work, not a time or cost estimate.",
+    "value": 3
+   },
+   "evidence": [
+    {
+     "kind": "BYTECODE",
+     "text": "1 application classes reference org.apache.struts.* with 2 code references"
+    }
+   ],
+   "explanation": {
+    "plain": "Apache Struts 1 is no longer supported by its maintainers. 1 class in this application use it.",
+    "technical": "Rule struts-1: Apache Struts 1 -> end-of-life."
+   },
+   "id": "struts-1",
+   "matched_range": null,
+   "migration_notes": "Struts 1 reached end of life in April 2013. Migrate each Action to a controller method; ActionForm -> request model with Bean Validation.",
+   "recommended_alternative": "Spring MVC controllers",
+   "replacement": null,
+   "rule_id": "struts-1",
+   "source_url": "https://struts.apache.org/struts1eol-announcement.html",
+   "status": "end-of-life",
+   "status_note": null,
+   "technology": "Apache Struts 1",
+   "version_found": null,
+   "version_reason": "found by package usage in bytecode; no dependency version is recorded in the artifact metadata"
+  },
+  {
+   "affected_class_count": 1,
+   "affected_classes": [
+    {
+     "api_count": 1,
+     "apis": [
+      "javax.xml.bind.JAXBContext"
+     ],
+     "call_site_count": 1,
+     "call_sites": [
+      {
+       "api": "javax.xml.bind.JAXBContext.newInstance",
+       "line": 18,
+       "text": "BillingAction.execute() calls JAXBContext.newInstance()",
+       "where": "BillingAction.execute"
+      }
+     ],
+     "class_name": "com.fixture.edge.legacy.BillingAction",
+     "edge_types": [
+      "METHOD_CALL"
+     ],
+     "package": "com.fixture.edge.legacy"
+    }
+   ],
+   "affected_truncated": false,
+   "call_site_count": 1,
+   "category": "platform",
+   "effort_hint": "medium",
+   "effort_index": {
+    "formula": "effort weight (low=1, medium=2, high=3) x max(affected classes, 1)",
+    "inputs": {
+     "affected_classes": 1,
+     "effort_weight": 2
+    },
+    "label": "Heuristic index for ordering work, not a time or cost estimate.",
+    "value": 2
+   },
+   "evidence": [
+    {
+     "kind": "BYTECODE",
+     "text": "1 application classes reference javax.xml.bind., javax.xml.ws., javax.jws., javax.activation.* with 1 code references"
+    }
+   ],
+   "explanation": {
+    "plain": "Java EE modules removed from the JDK (JAXB, JAX-WS, JAF, Common Annotations, CORBA) is no longer supported by its maintainers. 1 class in this application use it.",
+    "technical": "Rule jdk-removed-ee-modules: Java EE modules removed from the JDK (JAXB, JAX-WS, JAF, Common Annotations, CORBA) -> end-of-life."
+   },
+   "id": "jdk-removed-ee-modules",
+   "matched_range": null,
+   "migration_notes": "These APIs were removed from the JDK in Java 11 (JEP 320). Add the Jakarta artifacts explicitly and rename packages; javax.annotation.PostConstruct -> jakarta.annotation.PostConstruct.",
+   "recommended_alternative": "Jakarta XML Binding (jakarta.xml.bind), Jakarta XML Web Services (jakarta.xml.ws), jakarta.annotation",
+   "replacement": null,
+   "rule_id": "jdk-removed-ee-modules",
+   "source_url": "https://openjdk.org/jeps/320",
+   "status": "end-of-life",
+   "status_note": null,
+   "technology": "Java EE modules removed from the JDK (JAXB, JAX-WS, JAF, Common Annotations, CORBA)",
+   "version_found": null,
+   "version_reason": "found by package usage in bytecode; no dependency version is recorded in the artifact metadata"
+  },
+  {
+   "affected_class_count": 19,
+   "affected_classes": [
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.cycle.a.Address",
+     "package": "com.fixture.edge.cycle.a"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.cycle.a.Customer",
+     "package": "com.fixture.edge.cycle.a"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.cycle.a.Order",
+     "package": "com.fixture.edge.cycle.a"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.cycle.a.Region",
+     "package": "com.fixture.edge.cycle.a"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.cycle.b.Invoice",
+     "package": "com.fixture.edge.cycle.b"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.jobs.CliTool",
+     "package": "com.fixture.edge.jobs"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.jobs.OrderEvents",
+     "package": "com.fixture.edge.jobs"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.jobs.ReminderJob",
+     "package": "com.fixture.edge.jobs"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.legacy.BillingAction",
+     "package": "com.fixture.edge.legacy"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.legacy.BillingRecord",
+     "package": "com.fixture.edge.legacy"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.model.Item",
+     "package": "com.fixture.edge.model"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.model.ItemService",
+     "package": "com.fixture.edge.model"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.model.OrderEntity",
+     "package": "com.fixture.edge.model"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.model.OrderRepository",
+     "package": "com.fixture.edge.model"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.web.AuditFilter",
+     "package": "com.fixture.edge.web"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.web.GreetingResource",
+     "package": "com.fixture.edge.web"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.web.ItemController",
+     "package": "com.fixture.edge.web"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.web.LegacyServlet",
+     "package": "com.fixture.edge.web"
+    },
+    {
+     "api_count": 0,
+     "apis": [],
+     "call_site_count": 0,
+     "call_sites": [],
+     "class_name": "com.fixture.edge.web.OrderAdminController",
+     "package": "com.fixture.edge.web"
+    }
+   ],
+   "affected_truncated": false,
+   "call_site_count": 0,
+   "category": "platform",
+   "effort_hint": "medium",
+   "effort_index": {
+    "formula": "effort weight (low=1, medium=2, high=3) x max(affected classes, 1)",
+    "inputs": {
+     "affected_classes": 19,
+     "effort_weight": 2
+    },
+    "label": "Heuristic index for ordering work, not a time or cost estimate.",
+    "value": 38
+   },
+   "evidence": [
+    {
+     "kind": "BYTECODE",
+     "text": "class-file major version 61 (Java 17) in 19 classes"
+    }
+   ],
+   "explanation": {
+    "plain": "Java bytecode target level still works but has been superseded and will become harder to support. 19 classes in this application use it.",
+    "technical": "Rule java-class-target: Java bytecode target level Java 17 -> aging (range ==17). Java 17 LTS: Oracle premier support ended September 2026; vendor builds (e.g. Eclipse Temurin) remain maintained. Plan the move to 21 or 25."
+   },
+   "id": "java-class-target:17",
+   "matched_range": "==17",
+   "migration_notes": "Recompile with --release 21; check removed JDK APIs (JAXB, JAX-WS, CORBA, javax.annotation removed in 11; Security Manager disabled in 24) and update build plugins.",
+   "recommended_alternative": "Java 21 or Java 25 (LTS)",
+   "replacement": null,
+   "rule_id": "java-class-target",
+   "source_url": "https://www.oracle.com/java/technologies/java-se-support-roadmap.html",
+   "status": "aging",
+   "status_note": "Java 17 LTS: Oracle premier support ended September 2026; vendor builds (e.g. Eclipse Temurin) remain maintained. Plan the move to 21 or 25.",
+   "technology": "Java bytecode target level",
+   "version_found": "Java 17",
+   "version_reason": null
+  },
+  {
+   "affected_class_count": 2,
+   "affected_classes": [
+    {
+     "api_count": 4,
+     "apis": [
+      "javax.servlet.annotation.WebServlet",
+      "javax.servlet.http.HttpServlet",
+      "javax.servlet.http.HttpServletRequest",
+      "javax.servlet.http.HttpServletResponse"
+     ],
+     "call_site_count": 5,
+     "call_sites": [
+      {
+       "line": null,
+       "text": "LegacyServlet is annotated @WebServlet",
+       "where": "LegacyServlet"
+      },
+      {
+       "api": "javax.servlet.http.HttpServlet.<init>",
+       "line": 9,
+       "text": "LegacyServlet constructor calls new HttpServlet()",
+       "where": "LegacyServlet.<init>"
+      },
+      {
+       "api": "javax.servlet.http.HttpServletResponse.setStatus",
+       "line": 13,
+       "text": "LegacyServlet.doGet() calls HttpServletResponse.setStatus()",
+       "where": "LegacyServlet.doGet"
+      },
+      {
+       "api": "javax.servlet.http.HttpServletResponse.setStatus",
+       "line": 18,
+       "text": "LegacyServlet.doPost() calls HttpServletResponse.setStatus()",
+       "where": "LegacyServlet.doPost"
+      },
+      {
+       "line": null,
+       "text": "LegacyServlet extends javax.servlet.http.HttpServlet",
+       "where": "LegacyServlet"
+      }
+     ],
+     "class_name": "com.fixture.edge.web.LegacyServlet",
+     "edge_types": [
+      "ANNOTATION",
+      "INHERITANCE",
+      "METHOD_CALL",
+      "PARAMETER_TYPE"
+     ],
+     "package": "com.fixture.edge.web"
+    },
+    {
+     "api_count": 4,
+     "apis": [
+      "javax.servlet.Filter",
+      "javax.servlet.FilterChain",
+      "javax.servlet.ServletRequest",
+      "javax.servlet.ServletResponse"
+     ],
+     "call_site_count": 1,
+     "call_sites": [
+      {
+       "api": "javax.servlet.FilterChain.doFilter",
+       "line": 12,
+       "text": "AuditFilter.doFilter() calls FilterChain.doFilter()",
+       "where": "AuditFilter.doFilter"
+      }
+     ],
+     "class_name": "com.fixture.edge.web.AuditFilter",
+     "edge_types": [
+      "INTERFACE",
+      "METHOD_CALL",
+      "PARAMETER_TYPE"
+     ],
+     "package": "com.fixture.edge.web"
+    }
+   ],
+   "affected_truncated": false,
+   "call_site_count": 6,
+   "category": "namespace",
+   "effort_hint": "medium",
+   "effort_index": {
+    "formula": "effort weight (low=1, medium=2, high=3) x max(affected classes, 1)",
+    "inputs": {
+     "affected_classes": 2,
+     "effort_weight": 2
+    },
+    "label": "Heuristic index for ordering work, not a time or cost estimate.",
+    "value": 4
+   },
+   "evidence": [
+    {
+     "kind": "BYTECODE",
+     "text": "2 application classes reference javax.servlet.* with 6 code references"
+    }
+   ],
+   "explanation": {
+    "plain": "Servlet API on the javax.servlet namespace still works but has been superseded and will become harder to support. 2 classes in this application use it.",
+    "technical": "Rule javax-servlet: Servlet API on the javax.servlet namespace -> aging."
+   },
+   "id": "javax-servlet",
+   "matched_range": null,
+   "migration_notes": "Rename imports to jakarta.servlet.*; requires Tomcat 10+, Jetty 11+ or Spring Boot 3+.",
+   "recommended_alternative": "jakarta.servlet (Jakarta Servlet 6.x)",
+   "replacement": {
+    "from": "javax.servlet",
+    "to": "jakarta.servlet"
+   },
+   "rule_id": "javax-servlet",
+   "source_url": "https://jakarta.ee/specifications/servlet/",
+   "status": "aging",
+   "status_note": null,
+   "technology": "Servlet API on the javax.servlet namespace",
+   "version_found": null,
+   "version_reason": "found by package usage in bytecode; no dependency version is recorded in the artifact metadata"
+  },
+  {
+   "affected_class_count": 1,
+   "affected_classes": [
+    {
+     "api_count": 1,
+     "apis": [
+      "org.apache.commons.lang.StringUtils"
+     ],
+     "call_site_count": 1,
+     "call_sites": [
+      {
+       "api": "org.apache.commons.lang.StringUtils.isBlank",
+       "line": 15,
+       "text": "BillingAction.execute() calls StringUtils.isBlank()",
+       "where": "BillingAction.execute"
+      }
+     ],
+     "class_name": "com.fixture.edge.legacy.BillingAction",
+     "edge_types": [
+      "METHOD_CALL"
+     ],
+     "package": "com.fixture.edge.legacy"
+    }
+   ],
+   "affected_truncated": false,
+   "call_site_count": 1,
+   "category": "library",
+   "effort_hint": "low",
+   "effort_index": {
+    "formula": "effort weight (low=1, medium=2, high=3) x max(affected classes, 1)",
+    "inputs": {
+     "affected_classes": 1,
+     "effort_weight": 1
+    },
+    "label": "Heuristic index for ordering work, not a time or cost estimate.",
+    "value": 1
+   },
+   "evidence": [
+    {
+     "kind": "BYTECODE",
+     "text": "1 application classes reference org.apache.commons.lang.* with 1 code references"
+    }
+   ],
+   "explanation": {
+    "plain": "Apache Commons Lang 2.x still works but has been superseded and will become harder to support. 1 class in this application use it.",
+    "technical": "Rule commons-lang-2: Apache Commons Lang 2.x -> aging."
+   },
+   "id": "commons-lang-2",
+   "matched_range": null,
+   "migration_notes": "Last 2.x release was 2.6 (2011). Most methods exist in lang3 with the same name; StringEscapeUtils moved to commons-text.",
+   "recommended_alternative": "Apache Commons Lang 3 (org.apache.commons.lang3) or JDK equivalents",
+   "replacement": {
+    "from": "org.apache.commons.lang",
+    "to": "org.apache.commons.lang3"
+   },
+   "rule_id": "commons-lang-2",
+   "source_url": "https://commons.apache.org/proper/commons-lang/",
+   "status": "aging",
+   "status_note": null,
+   "technology": "Apache Commons Lang 2.x",
+   "version_found": null,
+   "version_reason": "found by package usage in bytecode; no dependency version is recorded in the artifact metadata"
+  },
+  {
+   "affected_class_count": 1,
+   "affected_classes": [
+    {
+     "api_count": 3,
+     "apis": [
+      "javax.ws.rs.GET",
+      "javax.ws.rs.POST",
+      "javax.ws.rs.Path"
+     ],
+     "call_site_count": 4,
+     "call_sites": [
+      {
+       "line": null,
+       "text": "GreetingResource is annotated @Path",
+       "where": "GreetingResource"
+      },
+      {
+       "line": null,
+       "text": "GreetingResource.hello() is annotated @GET",
+       "where": "GreetingResource.hello"
+      },
+      {
+       "line": null,
+       "text": "GreetingResource.hello() is annotated @Path",
+       "where": "GreetingResource.hello"
+      },
+      {
+       "line": null,
+       "text": "GreetingResource.post() is annotated @POST",
+       "where": "GreetingResource.post"
+      }
+     ],
+     "class_name": "com.fixture.edge.web.GreetingResource",
+     "edge_types": [
+      "ANNOTATION"
+     ],
+     "package": "com.fixture.edge.web"
+    }
+   ],
+   "affected_truncated": false,
+   "call_site_count": 4,
+   "category": "namespace",
+   "effort_hint": "medium",
+   "effort_index": {
+    "formula": "effort weight (low=1, medium=2, high=3) x max(affected classes, 1)",
+    "inputs": {
+     "affected_classes": 1,
+     "effort_weight": 2
+    },
+    "label": "Heuristic index for ordering work, not a time or cost estimate.",
+    "value": 2
+   },
+   "evidence": [
+    {
+     "kind": "BYTECODE",
+     "text": "1 application classes reference javax.ws.rs.* with 4 code references"
+    }
+   ],
+   "explanation": {
+    "plain": "JAX-RS on the javax.ws.rs namespace still works but has been superseded and will become harder to support. 1 class in this application use it.",
+    "technical": "Rule javax-ws-rs: JAX-RS on the javax.ws.rs namespace -> aging."
+   },
+   "id": "javax-ws-rs",
+   "matched_range": null,
+   "migration_notes": "Rename imports to jakarta.ws.rs.*; requires Jersey 3+ / RESTEasy 6+.",
+   "recommended_alternative": "jakarta.ws.rs (Jakarta RESTful Web Services 3.x) or Spring MVC",
+   "replacement": {
+    "from": "javax.ws.rs",
+    "to": "jakarta.ws.rs"
+   },
+   "rule_id": "javax-ws-rs",
+   "source_url": "https://jakarta.ee/specifications/restful-ws/",
+   "status": "aging",
+   "status_note": null,
+   "technology": "JAX-RS on the javax.ws.rs namespace",
+   "version_found": null,
+   "version_reason": "found by package usage in bytecode; no dependency version is recorded in the artifact metadata"
+  },
+  {
+   "affected_class_count": 1,
+   "affected_classes": [
+    {
+     "api_count": 3,
+     "apis": [
+      "javax.persistence.Entity",
+      "javax.persistence.Id",
+      "javax.persistence.Table"
+     ],
+     "call_site_count": 3,
+     "call_sites": [
+      {
+       "line": null,
+       "text": "BillingRecord is annotated @Entity",
+       "where": "BillingRecord"
+      },
+      {
+       "line": null,
+       "text": "BillingRecord is annotated @Table",
+       "where": "BillingRecord"
+      },
+      {
+       "line": null,
+       "text": "field BillingRecord.id is annotated @Id",
+       "where": "BillingRecord.id"
+      }
+     ],
+     "class_name": "com.fixture.edge.legacy.BillingRecord",
+     "edge_types": [
+      "ANNOTATION"
+     ],
+     "package": "com.fixture.edge.legacy"
+    }
+   ],
+   "affected_truncated": false,
+   "call_site_count": 3,
+   "category": "namespace",
+   "effort_hint": "medium",
+   "effort_index": {
+    "formula": "effort weight (low=1, medium=2, high=3) x max(affected classes, 1)",
+    "inputs": {
+     "affected_classes": 1,
+     "effort_weight": 2
+    },
+    "label": "Heuristic index for ordering work, not a time or cost estimate.",
+    "value": 2
+   },
+   "evidence": [
+    {
+     "kind": "BYTECODE",
+     "text": "1 application classes reference javax.persistence.* with 3 code references"
+    }
+   ],
+   "explanation": {
+    "plain": "JPA on the javax.persistence namespace still works but has been superseded and will become harder to support. 1 class in this application use it.",
+    "technical": "Rule javax-persistence: JPA on the javax.persistence namespace -> aging."
+   },
+   "id": "javax-persistence",
+   "matched_range": null,
+   "migration_notes": "Rename imports javax.persistence.* -> jakarta.persistence.*; requires Hibernate 6+ / EclipseLink 3+. The Eclipse Transformer or OpenRewrite 'JavaxMigrationToJakarta' recipe automates the rename.",
+   "recommended_alternative": "jakarta.persistence (Jakarta Persistence 3.x)",
+   "replacement": {
+    "from": "javax.persistence",
+    "to": "jakarta.persistence"
+   },
+   "rule_id": "javax-persistence",
+   "source_url": "https://jakarta.ee/specifications/persistence/",
+   "status": "aging",
+   "status_note": null,
+   "technology": "JPA on the javax.persistence namespace",
+   "version_found": null,
+   "version_reason": "found by package usage in bytecode; no dependency version is recorded in the artifact metadata"
+  }
+ ],
+ "inputs": {
+  "bytecode_facts": true,
+  "dependency_inventory_status": "NOT_AVAILABLE",
+  "dependency_rows": 0
+ },
+ "label": "Lifecycle status (end-of-life / aging / current) from the rules file. This is not a vulnerability assessment.",
+ "limitations": [],
+ "rules": {
+  "age_days": 0,
+  "max_age_days": 180,
+  "reviewed": "2026-10-19",
+  "rules_version": "2026.10.0",
+  "stale": false,
+  "warning": null
+ },
+ "summary": {
+  "aging": 5,
+  "end-of-life": 3
+ }
+}

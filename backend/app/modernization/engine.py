@@ -279,7 +279,10 @@ def build(assessment_id, version, static, facts, evidence, options):
                 reason = f"Framework inventory found {', '.join(x.get('name')+' '+','.join(x.get('versions',[])) for x in frameworks) or 'partial framework metadata'}; compatibility and target version still need review." if has_inventory else 'Framework inventory is unavailable.'
             else:
                 reason = 'The architecture inventory is available, but target cloud platform, deployment constraints and cost objectives were not supplied.'
-            unknowns = ['Lifecycle/EOL and vulnerability advisories are NOT_CHECKED.', 'Target version/platform and dependency compatibility require authoritative review.']
+            compat = inventory.get('compatibility', {})
+            lifecycle_state = (f"Lifecycle rules: Java {compat.get('java_lifecycle')}, frameworks {compat.get('framework_lifecycle')} (see Technology lifecycle)."
+                if compat.get('java_lifecycle') not in (None, 'NOT_CHECKED') else 'Lifecycle status is not available for this analysis; run a new analysis to evaluate lifecycle rules.')
+            unknowns = [lifecycle_state, 'Vulnerability advisories are out of scope for lifecycle rules.', 'Target version/platform and dependency compatibility require authoritative review.']
             refs = []
         elif candidate == 'MODULAR_MONOLITH':
             status = 'CONDITIONAL' if boundary_gaps else 'EVIDENCE_SUPPORTS_REVIEW'
