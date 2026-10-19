@@ -1,0 +1,406 @@
+{
+ "edges": [
+  {
+   "against_layering": false,
+   "class_pairs": 1,
+   "explanation": "1 class-to-class dependencies from data access to database (e.g. OrderRepository); no runtime session selected.",
+   "id": "layer:DATA_ACCESS->external:DATABASE",
+   "label": "1 dependencies",
+   "observed": false,
+   "references": 1,
+   "runtime_calls": 0,
+   "samples": [
+    "OrderRepository"
+   ],
+   "source": "layer:DATA_ACCESS",
+   "target": "external:DATABASE"
+  },
+  {
+   "against_layering": false,
+   "class_pairs": 1,
+   "explanation": "1 class-to-class dependencies from data access to domain model (e.g. OrderRepository \u2192 OrderEntity); no runtime session selected.",
+   "id": "layer:DATA_ACCESS->layer:DOMAIN",
+   "label": "1 dependencies",
+   "observed": false,
+   "references": 3,
+   "runtime_calls": 0,
+   "samples": [
+    "OrderRepository \u2192 OrderEntity"
+   ],
+   "source": "layer:DATA_ACCESS",
+   "target": "layer:DOMAIN"
+  },
+  {
+   "against_layering": false,
+   "class_pairs": 2,
+   "explanation": "2 class-to-class dependencies from domain model to database (e.g. BillingRecord, OrderEntity); no runtime session selected.",
+   "id": "layer:DOMAIN->external:DATABASE",
+   "label": "2 dependencies",
+   "observed": false,
+   "references": 2,
+   "runtime_calls": 0,
+   "samples": [
+    "BillingRecord",
+    "OrderEntity"
+   ],
+   "source": "layer:DOMAIN",
+   "target": "external:DATABASE"
+  },
+  {
+   "against_layering": true,
+   "class_pairs": 1,
+   "explanation": "1 class-to-class dependencies from domain model to web/presentation (e.g. BillingRecord \u2192 BillingAction); no runtime session selected.",
+   "id": "layer:DOMAIN->layer:PRESENTATION",
+   "label": "1 dependencies",
+   "observed": false,
+   "references": 2,
+   "runtime_calls": 0,
+   "samples": [
+    "BillingRecord \u2192 BillingAction"
+   ],
+   "source": "layer:DOMAIN",
+   "target": "layer:PRESENTATION"
+  },
+  {
+   "against_layering": false,
+   "class_pairs": 1,
+   "explanation": "1 class-to-class dependencies from web/presentation to data access (e.g. OrderAdminController \u2192 OrderRepository); no runtime session selected.",
+   "id": "layer:PRESENTATION->layer:DATA_ACCESS",
+   "label": "1 dependencies",
+   "observed": false,
+   "references": 3,
+   "runtime_calls": 0,
+   "samples": [
+    "OrderAdminController \u2192 OrderRepository"
+   ],
+   "source": "layer:PRESENTATION",
+   "target": "layer:DATA_ACCESS"
+  },
+  {
+   "against_layering": false,
+   "class_pairs": 3,
+   "explanation": "3 class-to-class dependencies from web/presentation to domain model (e.g. BillingAction \u2192 BillingRecord, ItemController \u2192 Item, OrderAdminController \u2192 OrderEntity); no runtime session selected.",
+   "id": "layer:PRESENTATION->layer:DOMAIN",
+   "label": "3 dependencies",
+   "observed": false,
+   "references": 5,
+   "runtime_calls": 0,
+   "samples": [
+    "BillingAction \u2192 BillingRecord",
+    "ItemController \u2192 Item",
+    "OrderAdminController \u2192 OrderEntity"
+   ],
+   "source": "layer:PRESENTATION",
+   "target": "layer:DOMAIN"
+  },
+  {
+   "against_layering": false,
+   "class_pairs": 1,
+   "explanation": "1 class-to-class dependencies from web/presentation to service (e.g. ItemController \u2192 ItemService); no runtime session selected.",
+   "id": "layer:PRESENTATION->layer:SERVICE",
+   "label": "1 dependencies",
+   "observed": false,
+   "references": 3,
+   "runtime_calls": 0,
+   "samples": [
+    "ItemController \u2192 ItemService"
+   ],
+   "source": "layer:PRESENTATION",
+   "target": "layer:SERVICE"
+  },
+  {
+   "against_layering": false,
+   "class_pairs": 1,
+   "explanation": "1 class-to-class dependencies from service to message broker (e.g. OrderEvents); no runtime session selected.",
+   "id": "layer:SERVICE->external:MESSAGE_BROKER",
+   "label": "1 dependencies",
+   "observed": false,
+   "references": 1,
+   "runtime_calls": 0,
+   "samples": [
+    "OrderEvents"
+   ],
+   "source": "layer:SERVICE",
+   "target": "external:MESSAGE_BROKER"
+  },
+  {
+   "against_layering": false,
+   "class_pairs": 1,
+   "explanation": "1 class-to-class dependencies from service to domain model (e.g. ItemService \u2192 Item); no runtime session selected.",
+   "id": "layer:SERVICE->layer:DOMAIN",
+   "label": "1 dependencies",
+   "observed": false,
+   "references": 9,
+   "runtime_calls": 0,
+   "samples": [
+    "ItemService \u2192 Item"
+   ],
+   "source": "layer:SERVICE",
+   "target": "layer:DOMAIN"
+  }
+ ],
+ "entry_points": [
+  {
+   "count": 1,
+   "examples": [
+    "event listener: application event of type java.lang.String"
+   ],
+   "id": "entries:EVENT_LISTENER",
+   "kind": "EVENT_LISTENER",
+   "label": "event listener"
+  },
+  {
+   "count": 9,
+   "examples": [
+    "GET /jaxrs/hello",
+    "POST /jaxrs",
+    "GET /api/items/{id}"
+   ],
+   "id": "entries:HTTP_ENDPOINT",
+   "kind": "HTTP_ENDPOINT",
+   "label": "http endpoint"
+  },
+  {
+   "count": 1,
+   "examples": [
+    "main method: started from the command line"
+   ],
+   "id": "entries:MAIN_METHOD",
+   "kind": "MAIN_METHOD",
+   "label": "main method"
+  },
+  {
+   "count": 3,
+   "examples": [
+    "message listener: orders",
+    "message listener: billing.queue",
+    "message listener: audit"
+   ],
+   "id": "entries:MESSAGE_LISTENER",
+   "kind": "MESSAGE_LISTENER",
+   "label": "message listener"
+  },
+  {
+   "count": 1,
+   "examples": [
+    "scheduled job: cron 0 0 * * * *"
+   ],
+   "id": "entries:SCHEDULED_JOB",
+   "kind": "SCHEDULED_JOB",
+   "label": "scheduled job"
+  },
+  {
+   "count": 2,
+   "examples": [
+    "GET /legacy/report",
+    "POST /legacy/report"
+   ],
+   "id": "entries:SERVLET",
+   "kind": "SERVLET",
+   "label": "servlet"
+  },
+  {
+   "count": 1,
+   "examples": [
+    "ANY (every request matching the filter mapping)"
+   ],
+   "id": "entries:SERVLET_FILTER",
+   "kind": "SERVLET_FILTER",
+   "label": "servlet filter"
+  },
+  {
+   "count": 1,
+   "examples": [
+    "ANY (mapped in struts-config.xml)"
+   ],
+   "id": "entries:STRUTS_ACTION",
+   "kind": "STRUTS_ACTION",
+   "label": "struts action"
+  }
+ ],
+ "externals": [
+  {
+   "by_layer": {
+    "DATA_ACCESS": 1,
+    "DOMAIN": 2
+   },
+   "class_count": 3,
+   "evidence": [
+    "BillingRecord references Entity, Id, Table",
+    "OrderEntity references Entity",
+    "3 classes with role evidence (repository/entity)"
+   ],
+   "id": "external:DATABASE",
+   "key": "DATABASE",
+   "label": "Database",
+   "plain": "A database the application reads and writes through JPA/JDBC.",
+   "runtime_calls": 0,
+   "runtime_resources": [],
+   "types": [
+    "jakarta.persistence.Entity",
+    "javax.persistence.Entity",
+    "javax.persistence.Id",
+    "javax.persistence.Table"
+   ]
+  },
+  {
+   "by_layer": {
+    "SERVICE": 1
+   },
+   "class_count": 1,
+   "evidence": [
+    "OrderEvents references RabbitListener, JmsListener, KafkaListener"
+   ],
+   "id": "external:MESSAGE_BROKER",
+   "key": "MESSAGE_BROKER",
+   "label": "Message broker",
+   "plain": "A message broker the application publishes to or consumes from.",
+   "runtime_calls": 0,
+   "runtime_resources": [],
+   "types": [
+    "org.springframework.amqp.rabbit.annotation.RabbitListener",
+    "org.springframework.jms.annotation.JmsListener",
+    "org.springframework.kafka.annotation.KafkaListener"
+   ]
+  }
+ ],
+ "how_to_read": [
+  "Each wide box is an architecture layer; its class count and role mix come from annotations and type hierarchy, not from package names alone.",
+  "Boxes at the top are where requests, messages and timers enter the application; boxes at the bottom are external systems detected from library use.",
+  "An arrow points from the layer that depends to the layer it depends on; the label counts distinct class-to-class dependencies.",
+  "Solid green arrows were also observed at runtime (call counts shown); dashed grey arrows exist in the code only. Red arrows point against the layering and deserve review.",
+  "Click a box or arrow for its detail; \u201cExpand\u201d shows the packages inside a layer. The diagram never draws individual classes at this level."
+ ],
+ "layers": [
+  {
+   "class_count": 6,
+   "id": "layer:PRESENTATION",
+   "label": "Presentation (controllers, servlets, filters)",
+   "layer": "PRESENTATION",
+   "package_count": 2,
+   "packages": [
+    {
+     "count": 5,
+     "id": "com.fixture.edge.web"
+    },
+    {
+     "count": 1,
+     "id": "com.fixture.edge.legacy"
+    }
+   ],
+   "plain": "web/presentation",
+   "roles": {
+    "ACTION": 1,
+    "CONTROLLER": 3,
+    "FILTER": 1,
+    "SERVLET": 1
+   }
+  },
+  {
+   "class_count": 3,
+   "id": "layer:SERVICE",
+   "label": "Services and application logic",
+   "layer": "SERVICE",
+   "package_count": 2,
+   "packages": [
+    {
+     "count": 2,
+     "id": "com.fixture.edge.jobs"
+    },
+    {
+     "count": 1,
+     "id": "com.fixture.edge.model"
+    }
+   ],
+   "plain": "service",
+   "roles": {
+    "COMPONENT": 2,
+    "SERVICE": 1
+   }
+  },
+  {
+   "class_count": 1,
+   "id": "layer:DATA_ACCESS",
+   "label": "Data access (repositories, DAOs)",
+   "layer": "DATA_ACCESS",
+   "package_count": 1,
+   "packages": [
+    {
+     "count": 1,
+     "id": "com.fixture.edge.model"
+    }
+   ],
+   "plain": "data access",
+   "roles": {
+    "REPOSITORY": 1
+   }
+  },
+  {
+   "class_count": 3,
+   "id": "layer:DOMAIN",
+   "label": "Domain model (entities, models)",
+   "layer": "DOMAIN",
+   "package_count": 2,
+   "packages": [
+    {
+     "count": 2,
+     "id": "com.fixture.edge.model"
+    },
+    {
+     "count": 1,
+     "id": "com.fixture.edge.legacy"
+    }
+   ],
+   "plain": "domain model",
+   "roles": {
+    "ENTITY": 2,
+    "MODEL": 1
+   }
+  },
+  {
+   "class_count": 1,
+   "id": "layer:CONFIGURATION",
+   "label": "Configuration and bootstrap",
+   "layer": "CONFIGURATION",
+   "package_count": 1,
+   "packages": [
+    {
+     "count": 1,
+     "id": "com.fixture.edge.jobs"
+    }
+   ],
+   "plain": "configuration",
+   "roles": {
+    "APPLICATION": 1
+   }
+  },
+  {
+   "class_count": 5,
+   "id": "layer:SUPPORT",
+   "label": "Supporting code (no role evidence)",
+   "layer": "SUPPORT",
+   "package_count": 2,
+   "packages": [
+    {
+     "count": 4,
+     "id": "com.fixture.edge.cycle.a"
+    },
+    {
+     "count": 1,
+     "id": "com.fixture.edge.cycle.b"
+    }
+   ],
+   "plain": "supporting code",
+   "roles": {
+    "UNKNOWN": 5
+   }
+  }
+ ],
+ "level": "HLD",
+ "limitations": [
+  "Layer assignment depends on role evidence; classes without evidence are listed under \u201cSupporting code\u201d.",
+  "External systems are inferred from library references, not from configuration or network traffic."
+ ],
+ "runtime_included": false,
+ "status": "AVAILABLE"
+}

@@ -7,6 +7,7 @@ import { Empty, ErrorBox, Loading } from './components';
 import { Workspace, Progress } from './Workspace';
 const Overview=lazy(()=>import('./Overview').then(module=>({default:module.Overview})));
 const ArchitectureBlueprint=lazy(()=>import('./ArchitectureBlueprint').then(module=>({default:module.ArchitectureBlueprint})));
+const ApplicationArchitecture=lazy(()=>import('./diagram/ApplicationArchitecture').then(module=>({default:module.ApplicationArchitecture})));
 const ArchitectureExplorer=lazy(()=>import('./insight/Explorer').then(module=>({default:module.ArchitectureExplorer})));
 const Domains=lazy(()=>import('./Insights').then(module=>({default:module.Domains})));
 const Dependencies=lazy(()=>import('./Dependencies').then(module=>({default:module.Dependencies})));
@@ -102,7 +103,7 @@ export function App() {
         dataError?<ErrorBox error={dataError}/>:!loaded?<Loading/>:
         <div key={selected}>
           {view==='overview'&&<Overview summary={summary.data!} domains={domains.data!.items} assessments={assessments.data!.items} issues={issues.data!.items} analysisId={selected} navigate={setView}/>}
-          {view==='architecture'&&<ArchitectureBlueprint analysisId={selected} applicationId={run.application_id} analyses={(analyses.data||[]).filter(row=>row.application_id===run.application_id)} applicationName={app?.name||'Analyzed application'} summary={summary.data!} domains={domains.data!.items}/>}
+          {view==='architecture'&&<ApplicationArchitecture analysisId={selected} onOpen={id=>{setFocusNode(id);setView('explorer');}} blueprint={<ArchitectureBlueprint analysisId={selected} applicationId={run.application_id} analyses={(analyses.data||[]).filter(row=>row.application_id===run.application_id)} applicationName={app?.name||'Analyzed application'} summary={summary.data!} domains={domains.data!.items}/>}/>}
           {view==='explorer'&&<ArchitectureExplorer analysisId={selected} focusId={focusNode}/>}
           {view==='domains'&&<Domains domains={domains.data!.items} assessments={assessments.data!.items} issues={issues.data!.items}/>}
           {view==='issues'&&<TechnicalDebt analysisId={selected}/>}

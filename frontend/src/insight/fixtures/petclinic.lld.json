@@ -1,0 +1,591 @@
+{
+ "classes": [
+  {
+   "entry_points": [],
+   "id": "org.springframework.samples.petclinic.owner.Owner",
+   "layer": "DOMAIN",
+   "methods": 14,
+   "name": "Owner",
+   "observed": null,
+   "reason": "annotated @jakarta.persistence.Entity",
+   "role": "ENTITY",
+   "table": "owners"
+  },
+  {
+   "entry_points": [
+    {
+     "id": "entry-77800b4bbfcdf188",
+     "method": "initCreationForm",
+     "text": "GET /owners/new"
+    },
+    {
+     "id": "entry-9bb5d14da4122803",
+     "method": "processCreationForm",
+     "text": "POST /owners/new"
+    },
+    {
+     "id": "entry-cee5df7967e640bc",
+     "method": "initFindForm",
+     "text": "GET /owners/find"
+    },
+    {
+     "id": "entry-4c688754a2412604",
+     "method": "processFindForm",
+     "text": "GET /owners"
+    },
+    {
+     "id": "entry-d98964d8f2099bc1",
+     "method": "initUpdateOwnerForm",
+     "text": "GET /owners/{ownerId}/edit"
+    },
+    {
+     "id": "entry-f3c53bb73330a524",
+     "method": "processUpdateOwnerForm",
+     "text": "POST /owners/{ownerId}/edit"
+    },
+    {
+     "id": "entry-5a5510d0a7031a9a",
+     "method": "showOwner",
+     "text": "GET /owners/{ownerId}"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.owner.OwnerController",
+   "layer": "PRESENTATION",
+   "methods": 12,
+   "name": "OwnerController",
+   "observed": null,
+   "reason": "annotated @org.springframework.stereotype.Controller",
+   "role": "CONTROLLER",
+   "table": null
+  },
+  {
+   "entry_points": [],
+   "id": "org.springframework.samples.petclinic.owner.OwnerRepository",
+   "layer": "DATA_ACCESS",
+   "methods": 2,
+   "name": "OwnerRepository",
+   "observed": null,
+   "reason": "implements org.springframework.data.jpa.repository.JpaRepository",
+   "role": "REPOSITORY",
+   "table": null
+  },
+  {
+   "entry_points": [],
+   "id": "org.springframework.samples.petclinic.owner.Pet",
+   "layer": "DOMAIN",
+   "methods": 7,
+   "name": "Pet",
+   "observed": null,
+   "reason": "annotated @jakarta.persistence.Entity",
+   "role": "ENTITY",
+   "table": "pets"
+  },
+  {
+   "entry_points": [
+    {
+     "id": "entry-aa9c3dd5c9d5a64d",
+     "method": "initCreationForm",
+     "text": "GET /owners/{ownerId}/pets/new"
+    },
+    {
+     "id": "entry-39277731b26f86e6",
+     "method": "processCreationForm",
+     "text": "POST /owners/{ownerId}/pets/new"
+    },
+    {
+     "id": "entry-3359a216e6861d1d",
+     "method": "initUpdateForm",
+     "text": "GET /owners/{ownerId}/pets/{petId}/edit"
+    },
+    {
+     "id": "entry-e83b16cddc3ef8ea",
+     "method": "processUpdateForm",
+     "text": "POST /owners/{ownerId}/pets/{petId}/edit"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.owner.PetController",
+   "layer": "PRESENTATION",
+   "methods": 11,
+   "name": "PetController",
+   "observed": null,
+   "reason": "annotated @org.springframework.stereotype.Controller",
+   "role": "CONTROLLER",
+   "table": null
+  },
+  {
+   "entry_points": [],
+   "id": "org.springframework.samples.petclinic.owner.PetType",
+   "layer": "DOMAIN",
+   "methods": 1,
+   "name": "PetType",
+   "observed": null,
+   "reason": "annotated @jakarta.persistence.Entity",
+   "role": "ENTITY",
+   "table": "types"
+  },
+  {
+   "entry_points": [],
+   "id": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+   "layer": "SERVICE",
+   "methods": 3,
+   "name": "PetTypeFormatter",
+   "observed": null,
+   "reason": "annotated @org.springframework.stereotype.Component",
+   "role": "COMPONENT",
+   "table": null
+  },
+  {
+   "entry_points": [],
+   "id": "org.springframework.samples.petclinic.owner.PetTypeRepository",
+   "layer": "DATA_ACCESS",
+   "methods": 1,
+   "name": "PetTypeRepository",
+   "observed": null,
+   "reason": "implements org.springframework.data.jpa.repository.JpaRepository",
+   "role": "REPOSITORY",
+   "table": null
+  },
+  {
+   "entry_points": [],
+   "id": "org.springframework.samples.petclinic.owner.PetValidator",
+   "layer": "SERVICE",
+   "methods": 3,
+   "name": "PetValidator",
+   "observed": null,
+   "reason": "implements org.springframework.validation.Validator",
+   "role": "VALIDATOR",
+   "table": null
+  },
+  {
+   "entry_points": [],
+   "id": "org.springframework.samples.petclinic.owner.Visit",
+   "layer": "DOMAIN",
+   "methods": 5,
+   "name": "Visit",
+   "observed": null,
+   "reason": "annotated @jakarta.persistence.Entity",
+   "role": "ENTITY",
+   "table": "visits"
+  },
+  {
+   "entry_points": [
+    {
+     "id": "entry-cf443ff55e0422ed",
+     "method": "initNewVisitForm",
+     "text": "GET /owners/{ownerId}/pets/{petId}/visits/new"
+    },
+    {
+     "id": "entry-4f3e9bbb58d78e41",
+     "method": "processNewVisitForm",
+     "text": "POST /owners/{ownerId}/pets/{petId}/visits/new"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.owner.VisitController",
+   "layer": "PRESENTATION",
+   "methods": 5,
+   "name": "VisitController",
+   "observed": null,
+   "reason": "annotated @org.springframework.stereotype.Controller",
+   "role": "CONTROLLER",
+   "table": null
+  }
+ ],
+ "edges": [
+  {
+   "edge_types": {
+    "GENERIC_TYPE": 1,
+    "METHOD_CALL": 1,
+    "PARAMETER_TYPE": 1,
+    "RETURN_TYPE": 1,
+    "TYPE_REFERENCE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.Owner->org.springframework.samples.petclinic.owner.Pet",
+   "label": "generic type \u00d71, method call \u00d71, parameter type \u00d71, return type \u00d71, type reference \u00d71",
+   "observed": false,
+   "references": 5,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.Owner",
+   "target": "org.springframework.samples.petclinic.owner.Pet"
+  },
+  {
+   "edge_types": {
+    "PARAMETER_TYPE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.Owner->org.springframework.samples.petclinic.owner.Visit",
+   "label": "parameter type \u00d71",
+   "observed": false,
+   "references": 1,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.Owner",
+   "target": "org.springframework.samples.petclinic.owner.Visit"
+  },
+  {
+   "edge_types": {
+    "GENERIC_TYPE": 1,
+    "METHOD_CALL": 1,
+    "PARAMETER_TYPE": 1,
+    "RETURN_TYPE": 1,
+    "TYPE_REFERENCE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.OwnerController->org.springframework.samples.petclinic.owner.Owner",
+   "label": "generic type \u00d71, method call \u00d71, parameter type \u00d71, return type \u00d71, type reference \u00d71",
+   "observed": false,
+   "references": 5,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.OwnerController",
+   "target": "org.springframework.samples.petclinic.owner.Owner"
+  },
+  {
+   "edge_types": {
+    "FIELD_TYPE": 1,
+    "METHOD_CALL": 1,
+    "PARAMETER_TYPE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.OwnerController->org.springframework.samples.petclinic.owner.OwnerRepository",
+   "label": "field type \u00d71, method call \u00d71, parameter type \u00d71",
+   "observed": false,
+   "references": 3,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.OwnerController",
+   "target": "org.springframework.samples.petclinic.owner.OwnerRepository"
+  },
+  {
+   "edge_types": {
+    "GENERIC_TYPE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.OwnerRepository->org.springframework.samples.petclinic.owner.Owner",
+   "label": "generic type \u00d71",
+   "observed": false,
+   "references": 1,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.OwnerRepository",
+   "target": "org.springframework.samples.petclinic.owner.Owner"
+  },
+  {
+   "edge_types": {
+    "FIELD_TYPE": 1,
+    "PARAMETER_TYPE": 1,
+    "RETURN_TYPE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.Pet->org.springframework.samples.petclinic.owner.PetType",
+   "label": "field type \u00d71, parameter type \u00d71, return type \u00d71",
+   "observed": false,
+   "references": 3,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.Pet",
+   "target": "org.springframework.samples.petclinic.owner.PetType"
+  },
+  {
+   "edge_types": {
+    "GENERIC_TYPE": 1,
+    "PARAMETER_TYPE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.Pet->org.springframework.samples.petclinic.owner.Visit",
+   "label": "generic type \u00d71, parameter type \u00d71",
+   "observed": false,
+   "references": 2,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.Pet",
+   "target": "org.springframework.samples.petclinic.owner.Visit"
+  },
+  {
+   "edge_types": {
+    "METHOD_CALL": 1,
+    "PARAMETER_TYPE": 1,
+    "RETURN_TYPE": 1,
+    "TYPE_REFERENCE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.PetController->org.springframework.samples.petclinic.owner.Owner",
+   "label": "method call \u00d71, parameter type \u00d71, return type \u00d71, type reference \u00d71",
+   "observed": false,
+   "references": 4,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.PetController",
+   "target": "org.springframework.samples.petclinic.owner.Owner"
+  },
+  {
+   "edge_types": {
+    "FIELD_TYPE": 1,
+    "METHOD_CALL": 1,
+    "PARAMETER_TYPE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.PetController->org.springframework.samples.petclinic.owner.OwnerRepository",
+   "label": "field type \u00d71, method call \u00d71, parameter type \u00d71",
+   "observed": false,
+   "references": 3,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.PetController",
+   "target": "org.springframework.samples.petclinic.owner.OwnerRepository"
+  },
+  {
+   "edge_types": {
+    "METHOD_CALL": 1,
+    "PARAMETER_TYPE": 1,
+    "RETURN_TYPE": 1,
+    "TYPE_REFERENCE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.PetController->org.springframework.samples.petclinic.owner.Pet",
+   "label": "method call \u00d71, parameter type \u00d71, return type \u00d71, type reference \u00d71",
+   "observed": false,
+   "references": 4,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.PetController",
+   "target": "org.springframework.samples.petclinic.owner.Pet"
+  },
+  {
+   "edge_types": {
+    "GENERIC_TYPE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.PetController->org.springframework.samples.petclinic.owner.PetType",
+   "label": "generic type \u00d71",
+   "observed": false,
+   "references": 1,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.PetController",
+   "target": "org.springframework.samples.petclinic.owner.PetType"
+  },
+  {
+   "edge_types": {
+    "FIELD_TYPE": 1,
+    "METHOD_CALL": 1,
+    "PARAMETER_TYPE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.PetController->org.springframework.samples.petclinic.owner.PetTypeRepository",
+   "label": "field type \u00d71, method call \u00d71, parameter type \u00d71",
+   "observed": false,
+   "references": 3,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.PetController",
+   "target": "org.springframework.samples.petclinic.owner.PetTypeRepository"
+  },
+  {
+   "edge_types": {
+    "METHOD_CALL": 1,
+    "TYPE_REFERENCE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.PetController->org.springframework.samples.petclinic.owner.PetValidator",
+   "label": "method call \u00d71, type reference \u00d71",
+   "observed": false,
+   "references": 2,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.PetController",
+   "target": "org.springframework.samples.petclinic.owner.PetValidator"
+  },
+  {
+   "edge_types": {
+    "GENERIC_TYPE": 1,
+    "METHOD_CALL": 1,
+    "PARAMETER_TYPE": 1,
+    "RETURN_TYPE": 1,
+    "TYPE_REFERENCE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.PetTypeFormatter->org.springframework.samples.petclinic.owner.PetType",
+   "label": "generic type \u00d71, method call \u00d71, parameter type \u00d71, return type \u00d71, type reference \u00d71",
+   "observed": false,
+   "references": 5,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+   "target": "org.springframework.samples.petclinic.owner.PetType"
+  },
+  {
+   "edge_types": {
+    "FIELD_TYPE": 1,
+    "METHOD_CALL": 1,
+    "PARAMETER_TYPE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.PetTypeFormatter->org.springframework.samples.petclinic.owner.PetTypeRepository",
+   "label": "field type \u00d71, method call \u00d71, parameter type \u00d71",
+   "observed": false,
+   "references": 3,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+   "target": "org.springframework.samples.petclinic.owner.PetTypeRepository"
+  },
+  {
+   "edge_types": {
+    "GENERIC_TYPE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.PetTypeRepository->org.springframework.samples.petclinic.owner.PetType",
+   "label": "generic type \u00d71",
+   "observed": false,
+   "references": 1,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.PetTypeRepository",
+   "target": "org.springframework.samples.petclinic.owner.PetType"
+  },
+  {
+   "edge_types": {
+    "METHOD_CALL": 1,
+    "TYPE_REFERENCE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.PetValidator->org.springframework.samples.petclinic.owner.Pet",
+   "label": "method call \u00d71, type reference \u00d71",
+   "observed": false,
+   "references": 2,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.PetValidator",
+   "target": "org.springframework.samples.petclinic.owner.Pet"
+  },
+  {
+   "edge_types": {
+    "METHOD_CALL": 1,
+    "PARAMETER_TYPE": 1,
+    "TYPE_REFERENCE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.VisitController->org.springframework.samples.petclinic.owner.Owner",
+   "label": "method call \u00d71, parameter type \u00d71, type reference \u00d71",
+   "observed": false,
+   "references": 3,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.VisitController",
+   "target": "org.springframework.samples.petclinic.owner.Owner"
+  },
+  {
+   "edge_types": {
+    "FIELD_TYPE": 1,
+    "METHOD_CALL": 1,
+    "PARAMETER_TYPE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.VisitController->org.springframework.samples.petclinic.owner.OwnerRepository",
+   "label": "field type \u00d71, method call \u00d71, parameter type \u00d71",
+   "observed": false,
+   "references": 3,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.VisitController",
+   "target": "org.springframework.samples.petclinic.owner.OwnerRepository"
+  },
+  {
+   "edge_types": {
+    "METHOD_CALL": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.VisitController->org.springframework.samples.petclinic.owner.Pet",
+   "label": "method call \u00d71",
+   "observed": false,
+   "references": 1,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.VisitController",
+   "target": "org.springframework.samples.petclinic.owner.Pet"
+  },
+  {
+   "edge_types": {
+    "GENERIC_TYPE": 1,
+    "METHOD_CALL": 1,
+    "PARAMETER_TYPE": 1,
+    "RETURN_TYPE": 1,
+    "TYPE_REFERENCE": 1
+   },
+   "id": "org.springframework.samples.petclinic.owner.VisitController->org.springframework.samples.petclinic.owner.Visit",
+   "label": "generic type \u00d71, method call \u00d71, parameter type \u00d71, return type \u00d71, type reference \u00d71",
+   "observed": false,
+   "references": 5,
+   "runtime_calls": 0,
+   "source": "org.springframework.samples.petclinic.owner.VisitController",
+   "target": "org.springframework.samples.petclinic.owner.Visit"
+  }
+ ],
+ "entry_points": [
+  {
+   "handler": "OwnerController.initCreationForm()",
+   "id": "entry-77800b4bbfcdf188",
+   "text": "GET /owners/new"
+  },
+  {
+   "handler": "OwnerController.processCreationForm()",
+   "id": "entry-9bb5d14da4122803",
+   "text": "POST /owners/new"
+  },
+  {
+   "handler": "OwnerController.initFindForm()",
+   "id": "entry-cee5df7967e640bc",
+   "text": "GET /owners/find"
+  },
+  {
+   "handler": "OwnerController.processFindForm()",
+   "id": "entry-4c688754a2412604",
+   "text": "GET /owners"
+  },
+  {
+   "handler": "OwnerController.initUpdateOwnerForm()",
+   "id": "entry-d98964d8f2099bc1",
+   "text": "GET /owners/{ownerId}/edit"
+  },
+  {
+   "handler": "OwnerController.processUpdateOwnerForm()",
+   "id": "entry-f3c53bb73330a524",
+   "text": "POST /owners/{ownerId}/edit"
+  },
+  {
+   "handler": "OwnerController.showOwner()",
+   "id": "entry-5a5510d0a7031a9a",
+   "text": "GET /owners/{ownerId}"
+  },
+  {
+   "handler": "PetController.initCreationForm()",
+   "id": "entry-aa9c3dd5c9d5a64d",
+   "text": "GET /owners/{ownerId}/pets/new"
+  },
+  {
+   "handler": "PetController.processCreationForm()",
+   "id": "entry-39277731b26f86e6",
+   "text": "POST /owners/{ownerId}/pets/new"
+  },
+  {
+   "handler": "PetController.initUpdateForm()",
+   "id": "entry-3359a216e6861d1d",
+   "text": "GET /owners/{ownerId}/pets/{petId}/edit"
+  },
+  {
+   "handler": "PetController.processUpdateForm()",
+   "id": "entry-e83b16cddc3ef8ea",
+   "text": "POST /owners/{ownerId}/pets/{petId}/edit"
+  },
+  {
+   "handler": "VisitController.initNewVisitForm()",
+   "id": "entry-cf443ff55e0422ed",
+   "text": "GET /owners/{ownerId}/pets/{petId}/visits/new"
+  },
+  {
+   "handler": "VisitController.processNewVisitForm()",
+   "id": "entry-4f3e9bbb58d78e41",
+   "text": "POST /owners/{ownerId}/pets/{petId}/visits/new"
+  }
+ ],
+ "how_to_read": [
+  "Boxes are the top-level classes of this package, placed by architecture layer; nested classes are folded into their owner.",
+  "Entries inside a box are the methods that start work (routes, listeners, jobs). Arrows point from dependent to dependency; the label lists typed references.",
+  "Solid green arrows were observed at runtime; dashed arrows are static only. Table names come from @Table annotations (static) and from database spans (runtime)."
+ ],
+ "level": "LLD",
+ "limitations": [
+  "Database tables are only known where entities carry @Table(name=\u2026) or runtime database spans exist."
+ ],
+ "package": "org.springframework.samples.petclinic.owner",
+ "runtime_tables": [],
+ "status": "AVAILABLE",
+ "tables": [
+  {
+   "entity": "org.springframework.samples.petclinic.owner.Owner",
+   "id": "table:owners",
+   "source": "STATIC @Table annotation",
+   "table": "owners"
+  },
+  {
+   "entity": "org.springframework.samples.petclinic.owner.Pet",
+   "id": "table:pets",
+   "source": "STATIC @Table annotation",
+   "table": "pets"
+  },
+  {
+   "entity": "org.springframework.samples.petclinic.owner.PetType",
+   "id": "table:types",
+   "source": "STATIC @Table annotation",
+   "table": "types"
+  },
+  {
+   "entity": "org.springframework.samples.petclinic.owner.Visit",
+   "id": "table:visits",
+   "source": "STATIC @Table annotation",
+   "table": "visits"
+  }
+ ]
+}

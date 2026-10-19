@@ -1,0 +1,42 @@
+.diagram-viewer { border: 1px solid var(--neutral-200); border-radius: var(--radius-md); background: #fff; }
+.diagram-tools { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-bottom: 1px solid var(--neutral-200); }
+.diagram-tools button { padding: 3px 9px; border: 1px solid var(--neutral-300); border-radius: var(--radius-sm); background: var(--neutral-0); font: inherit; font-size: var(--text-12); cursor: pointer; }
+.diagram-tools button.secondary { color: var(--neutral-600); }
+.diagram-tools-spacer { flex: 1; }
+.diagram-svg { display: block; width: 100%; height: auto; max-height: 78vh; cursor: grab; touch-action: none; }
+.diagram-viewer .fine-print { margin: 4px 10px 8px; }
+.diagram-error { margin: 6px 10px; color: var(--severity-critical); }
+.diagram-svg text { font-family: var(--font-ui); font-size: 12px; fill: #26332c; }
+.diagram-svg .box { fill: #fff; stroke: #7d8a82; stroke-width: 1.5; }
+.diagram-svg .box.layer { fill: #f2f6f3; }
+.diagram-svg .box.entry { fill: #e8f0fa; stroke: #5579ad; }
+.diagram-svg .box.external { fill: #f7efe1; stroke: #aa8551; }
+.diagram-svg .box.unobserved { stroke-dasharray: 5 3; }
+.diagram-svg .box-title { font-weight: 600; font-size: 13px; }
+.diagram-svg .box-sub, .diagram-svg .edge-label { font-size: 11px; fill: #55645b; }
+.diagram-svg .diagram-caption { font-size: 11px; fill: #55645b; text-transform: uppercase; letter-spacing: .05em; }
+.diagram-svg .expand-link, .diagram-svg .entry-text { fill: #2d634b; cursor: pointer; font-size: 11px; text-decoration: underline; }
+.diagram-svg .edge { fill: none; stroke: #8a9a90; }
+.diagram-svg .edge.observed { stroke: #2d634b; }
+.diagram-svg .edge.static { stroke-dasharray: 6 4; }
+.diagram-svg .edge.reverse { stroke: #af584e; }
+.diagram-svg .edge-hit { fill: none; stroke: transparent; stroke-width: 14; }
+.diagram-svg .diagram-hit, .diagram-svg .diagram-box, .diagram-svg .chip { cursor: pointer; }
+.diagram-svg .diagram-box:hover .box, .diagram-svg .diagram-box.selected .box { stroke: #2d634b; stroke-width: 2.5; }
+.diagram-svg .diagram-hit:hover .edge { stroke-width: 4; }
+.diagram-svg .chip rect { fill: #fff; stroke: #b7c4bb; }
+.diagram-svg .chip text { font-size: 11px; }
+.diagram-svg .db-table rect { fill: #f7efe1; stroke: #aa8551; }
+.diagram-svg .lifeline { stroke: #b7c4bb; stroke-dasharray: 4 4; }
+.diagram-svg .seq-arrow { stroke: #445; stroke-width: 1.5; }
+.diagram-svg .seq-arrow.observed { stroke: #2d634b; }
+.diagram-svg .seq-arrow.static { stroke-dasharray: 6 4; }
+.diagram-svg .seq-arrow.reverse { stroke: #af584e; }
+.legend-list { list-style: none; margin: 6px 0 0; padding: 0; }
+.legend-list li { margin: 4px 0; }
+.legend-list .edge { fill: none; stroke-width: 2; stroke: #8a9a90; }
+.legend-list .edge.observed { stroke: #2d634b; }
+.legend-list .edge.static { stroke-dasharray: 5 3; }
+.legend-list .edge.reverse { stroke: #af584e; }
+.layer-chip { background: #f2f6f3; border-radius: 4px; }
+.ext-chip { background: #f7efe1; border-radius: 10px; }

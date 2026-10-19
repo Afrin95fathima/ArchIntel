@@ -1,0 +1,131 @@
+{
+ "classes": [
+  {
+   "entry_points": [],
+   "id": "com.fixture.edge.cycle.a.Address",
+   "layer": "SUPPORT",
+   "methods": 2,
+   "name": "Address",
+   "observed": null,
+   "reason": "no role annotation, framework supertype, entry method or naming convention found",
+   "role": "UNKNOWN",
+   "table": null
+  },
+  {
+   "entry_points": [],
+   "id": "com.fixture.edge.cycle.a.Customer",
+   "layer": "SUPPORT",
+   "methods": 3,
+   "name": "Customer",
+   "observed": null,
+   "reason": "no role annotation, framework supertype, entry method or naming convention found",
+   "role": "UNKNOWN",
+   "table": null
+  },
+  {
+   "entry_points": [],
+   "id": "com.fixture.edge.cycle.a.Order",
+   "layer": "SUPPORT",
+   "methods": 5,
+   "name": "Order",
+   "observed": null,
+   "reason": "no role annotation, framework supertype, entry method or naming convention found",
+   "role": "UNKNOWN",
+   "table": null
+  },
+  {
+   "entry_points": [],
+   "id": "com.fixture.edge.cycle.a.Region",
+   "layer": "SUPPORT",
+   "methods": 2,
+   "name": "Region",
+   "observed": null,
+   "reason": "no role annotation, framework supertype, entry method or naming convention found",
+   "role": "UNKNOWN",
+   "table": null
+  }
+ ],
+ "edges": [
+  {
+   "edge_types": {
+    "METHOD_CALL": 1,
+    "RETURN_TYPE": 1,
+    "TYPE_REFERENCE": 1
+   },
+   "id": "com.fixture.edge.cycle.a.Address->com.fixture.edge.cycle.a.Region",
+   "label": "method call \u00d71, return type \u00d71, type reference \u00d71",
+   "observed": false,
+   "references": 3,
+   "runtime_calls": 0,
+   "source": "com.fixture.edge.cycle.a.Address",
+   "target": "com.fixture.edge.cycle.a.Region"
+  },
+  {
+   "edge_types": {
+    "METHOD_CALL": 1,
+    "RETURN_TYPE": 1,
+    "TYPE_REFERENCE": 1
+   },
+   "id": "com.fixture.edge.cycle.a.Customer->com.fixture.edge.cycle.a.Address",
+   "label": "method call \u00d71, return type \u00d71, type reference \u00d71",
+   "observed": false,
+   "references": 3,
+   "runtime_calls": 0,
+   "source": "com.fixture.edge.cycle.a.Customer",
+   "target": "com.fixture.edge.cycle.a.Address"
+  },
+  {
+   "edge_types": {
+    "GENERIC_TYPE": 1
+   },
+   "id": "com.fixture.edge.cycle.a.Customer->com.fixture.edge.cycle.a.Order",
+   "label": "generic type \u00d71",
+   "observed": false,
+   "references": 1,
+   "runtime_calls": 0,
+   "source": "com.fixture.edge.cycle.a.Customer",
+   "target": "com.fixture.edge.cycle.a.Order"
+  },
+  {
+   "edge_types": {
+    "FIELD_TYPE": 1,
+    "RETURN_TYPE": 1
+   },
+   "id": "com.fixture.edge.cycle.a.Order->com.fixture.edge.cycle.a.Customer",
+   "label": "field type \u00d71, return type \u00d71",
+   "observed": false,
+   "references": 2,
+   "runtime_calls": 0,
+   "source": "com.fixture.edge.cycle.a.Order",
+   "target": "com.fixture.edge.cycle.a.Customer"
+  },
+  {
+   "edge_types": {
+    "METHOD_CALL": 1,
+    "RETURN_TYPE": 1,
+    "TYPE_REFERENCE": 1
+   },
+   "id": "com.fixture.edge.cycle.a.Region->com.fixture.edge.cycle.a.Customer",
+   "label": "method call \u00d71, return type \u00d71, type reference \u00d71",
+   "observed": false,
+   "references": 3,
+   "runtime_calls": 0,
+   "source": "com.fixture.edge.cycle.a.Region",
+   "target": "com.fixture.edge.cycle.a.Customer"
+  }
+ ],
+ "entry_points": [],
+ "how_to_read": [
+  "Boxes are the top-level classes of this package, placed by architecture layer; nested classes are folded into their owner.",
+  "Entries inside a box are the methods that start work (routes, listeners, jobs). Arrows point from dependent to dependency; the label lists typed references.",
+  "Solid green arrows were observed at runtime; dashed arrows are static only. Table names come from @Table annotations (static) and from database spans (runtime)."
+ ],
+ "level": "LLD",
+ "limitations": [
+  "Database tables are only known where entities carry @Table(name=\u2026) or runtime database spans exist."
+ ],
+ "package": "com.fixture.edge.cycle.a",
+ "runtime_tables": [],
+ "status": "AVAILABLE",
+ "tables": []
+}

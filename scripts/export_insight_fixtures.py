@@ -15,10 +15,12 @@ from app.insight import lifecycle  # noqa: E402
 OUT = ROOT / 'frontend' / 'src' / 'insight' / 'fixtures'
 
 
-def views(name):
+def views(name):  # noqa: C901
     m = model(name)
-    from app.insight import cycles, metrics, debt, graphview, details, test_suggestions
-    out = {'lifecycle': lifecycle.evaluate(m, {}, today=None), 'cycles': cycles.analyse(m), 'metrics': metrics.compute(m), 'debt': debt.detect(m), 'tests': test_suggestions.build(m), 'graph': graphview.view(m, 'package', debt=debt.detect(m)),
+    from app.insight import cycles, metrics, debt, graphview, details, test_suggestions, diagrams
+    out = {'lifecycle': lifecycle.evaluate(m, {}, today=None), 'cycles': cycles.analyse(m), 'metrics': metrics.compute(m), 'debt': debt.detect(m), 'tests': test_suggestions.build(m), 'hld': diagrams.hld(m),
+        'lld': diagrams.lld(m, 'org.springframework.samples.petclinic.owner' if name == 'petclinic' else 'com.fixture.edge.cycle.a'),
+        'sequence': diagrams.sequence_static(m, next(e['id'] for e in m.entry_points['items'] if e['handler_method'] in ('processNewVisitForm', 'create'))), 'graph': graphview.view(m, 'package', debt=debt.detect(m)),
         'node': details.node(m, 'org.springframework.samples.petclinic.owner.OwnerController' if 'org.springframework.samples.petclinic.owner.OwnerController' in m.classes else 'system', debt.detect(m))}
     try:
         from app.insight import exports

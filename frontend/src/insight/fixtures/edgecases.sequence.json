@@ -1,0 +1,30 @@
+{
+ "entry": "POST /api/items",
+ "messages": [
+  {
+   "inherited_from_library": false,
+   "kind": "virtual",
+   "label": "save()",
+   "line": 36,
+   "order": 1,
+   "origin": "static",
+   "source": "com.fixture.edge.web.ItemController",
+   "target": "com.fixture.edge.model.ItemService"
+  }
+ ],
+ "note": "Built from bytecode call sites in source order (depth \u2264 4, \u2264 40 messages). It shows what the code can do, not what was observed; library calls are omitted.",
+ "origin": "STATIC",
+ "participants": [
+  {
+   "id": "com.fixture.edge.web.ItemController",
+   "label": "ItemController",
+   "role": "CONTROLLER"
+  },
+  {
+   "id": "com.fixture.edge.model.ItemService",
+   "label": "ItemService",
+   "role": "SERVICE"
+  }
+ ],
+ "status": "AVAILABLE"
+}

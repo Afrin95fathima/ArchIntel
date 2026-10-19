@@ -1,0 +1,340 @@
+{
+ "edges": [
+  {
+   "against_layering": false,
+   "class_pairs": 3,
+   "explanation": "3 class-to-class dependencies from data access to database (e.g. OwnerRepository, PetTypeRepository, VetRepository); no runtime session selected.",
+   "id": "layer:DATA_ACCESS->external:DATABASE",
+   "label": "3 dependencies",
+   "observed": false,
+   "references": 3,
+   "runtime_calls": 0,
+   "samples": [
+    "OwnerRepository",
+    "PetTypeRepository",
+    "VetRepository"
+   ],
+   "source": "layer:DATA_ACCESS",
+   "target": "external:DATABASE"
+  },
+  {
+   "against_layering": false,
+   "class_pairs": 3,
+   "explanation": "3 class-to-class dependencies from data access to domain model (e.g. OwnerRepository \u2192 Owner, PetTypeRepository \u2192 PetType, VetRepository \u2192 Vet); no runtime session selected.",
+   "id": "layer:DATA_ACCESS->layer:DOMAIN",
+   "label": "3 dependencies",
+   "observed": false,
+   "references": 3,
+   "runtime_calls": 0,
+   "samples": [
+    "OwnerRepository \u2192 Owner",
+    "PetTypeRepository \u2192 PetType",
+    "VetRepository \u2192 Vet"
+   ],
+   "source": "layer:DATA_ACCESS",
+   "target": "layer:DOMAIN"
+  },
+  {
+   "against_layering": false,
+   "class_pairs": 9,
+   "explanation": "9 class-to-class dependencies from domain model to database (e.g. BaseEntity, NamedEntity, Person); no runtime session selected.",
+   "id": "layer:DOMAIN->external:DATABASE",
+   "label": "9 dependencies",
+   "observed": false,
+   "references": 9,
+   "runtime_calls": 0,
+   "samples": [
+    "BaseEntity",
+    "NamedEntity",
+    "Person"
+   ],
+   "source": "layer:DOMAIN",
+   "target": "external:DATABASE"
+  },
+  {
+   "against_layering": false,
+   "class_pairs": 2,
+   "explanation": "2 class-to-class dependencies from web/presentation to database (e.g. OwnerController, VetController); no runtime session selected.",
+   "id": "layer:PRESENTATION->external:DATABASE",
+   "label": "2 dependencies",
+   "observed": false,
+   "references": 2,
+   "runtime_calls": 0,
+   "samples": [
+    "OwnerController",
+    "VetController"
+   ],
+   "source": "layer:PRESENTATION",
+   "target": "external:DATABASE"
+  },
+  {
+   "against_layering": false,
+   "class_pairs": 5,
+   "explanation": "5 class-to-class dependencies from web/presentation to data access (e.g. OwnerController \u2192 OwnerRepository, PetController \u2192 OwnerRepository, PetController \u2192 PetTypeRepository); no runtime session selected.",
+   "id": "layer:PRESENTATION->layer:DATA_ACCESS",
+   "label": "5 dependencies",
+   "observed": false,
+   "references": 15,
+   "runtime_calls": 0,
+   "samples": [
+    "OwnerController \u2192 OwnerRepository",
+    "PetController \u2192 OwnerRepository",
+    "PetController \u2192 PetTypeRepository"
+   ],
+   "source": "layer:PRESENTATION",
+   "target": "layer:DATA_ACCESS"
+  },
+  {
+   "against_layering": false,
+   "class_pairs": 9,
+   "explanation": "9 class-to-class dependencies from web/presentation to domain model (e.g. OwnerController \u2192 Owner, PetController \u2192 Owner, PetController \u2192 Pet); no runtime session selected.",
+   "id": "layer:PRESENTATION->layer:DOMAIN",
+   "label": "9 dependencies",
+   "observed": false,
+   "references": 27,
+   "runtime_calls": 0,
+   "samples": [
+    "OwnerController \u2192 Owner",
+    "PetController \u2192 Owner",
+    "PetController \u2192 Pet"
+   ],
+   "source": "layer:PRESENTATION",
+   "target": "layer:DOMAIN"
+  },
+  {
+   "against_layering": false,
+   "class_pairs": 1,
+   "explanation": "1 class-to-class dependencies from web/presentation to service (e.g. PetController \u2192 PetValidator); no runtime session selected.",
+   "id": "layer:PRESENTATION->layer:SERVICE",
+   "label": "1 dependencies",
+   "observed": false,
+   "references": 2,
+   "runtime_calls": 0,
+   "samples": [
+    "PetController \u2192 PetValidator"
+   ],
+   "source": "layer:PRESENTATION",
+   "target": "layer:SERVICE"
+  },
+  {
+   "against_layering": false,
+   "class_pairs": 1,
+   "explanation": "1 class-to-class dependencies from service to data access (e.g. PetTypeFormatter \u2192 PetTypeRepository); no runtime session selected.",
+   "id": "layer:SERVICE->layer:DATA_ACCESS",
+   "label": "1 dependencies",
+   "observed": false,
+   "references": 3,
+   "runtime_calls": 0,
+   "samples": [
+    "PetTypeFormatter \u2192 PetTypeRepository"
+   ],
+   "source": "layer:SERVICE",
+   "target": "layer:DATA_ACCESS"
+  },
+  {
+   "against_layering": false,
+   "class_pairs": 2,
+   "explanation": "2 class-to-class dependencies from service to domain model (e.g. PetTypeFormatter \u2192 PetType, PetValidator \u2192 Pet); no runtime session selected.",
+   "id": "layer:SERVICE->layer:DOMAIN",
+   "label": "2 dependencies",
+   "observed": false,
+   "references": 7,
+   "runtime_calls": 0,
+   "samples": [
+    "PetTypeFormatter \u2192 PetType",
+    "PetValidator \u2192 Pet"
+   ],
+   "source": "layer:SERVICE",
+   "target": "layer:DOMAIN"
+  }
+ ],
+ "entry_points": [
+  {
+   "count": 17,
+   "examples": [
+    "GET /owners/new",
+    "POST /owners/new",
+    "GET /owners/find"
+   ],
+   "id": "entries:HTTP_ENDPOINT",
+   "kind": "HTTP_ENDPOINT",
+   "label": "http endpoint"
+  },
+  {
+   "count": 1,
+   "examples": [
+    "main method: started from the command line"
+   ],
+   "id": "entries:MAIN_METHOD",
+   "kind": "MAIN_METHOD",
+   "label": "main method"
+  }
+ ],
+ "externals": [
+  {
+   "by_layer": {
+    "DATA_ACCESS": 3,
+    "DOMAIN": 9,
+    "PRESENTATION": 2
+   },
+   "class_count": 14,
+   "evidence": [
+    "BaseEntity references GeneratedValue, Id, MappedSuperclass",
+    "NamedEntity references Column, MappedSuperclass",
+    "Person references Column, MappedSuperclass",
+    "Owner references Column, Entity, JoinColumn",
+    "OwnerController references Page, PageRequest",
+    "OwnerRepository references Page, Pageable, JpaRepository",
+    "12 classes with role evidence (repository/entity)"
+   ],
+   "id": "external:DATABASE",
+   "key": "DATABASE",
+   "label": "Database",
+   "plain": "A database the application reads and writes through JPA/JDBC.",
+   "runtime_calls": 0,
+   "runtime_resources": [],
+   "types": [
+    "jakarta.persistence.Column",
+    "jakarta.persistence.Entity",
+    "jakarta.persistence.GeneratedValue",
+    "jakarta.persistence.Id",
+    "jakarta.persistence.JoinColumn",
+    "jakarta.persistence.JoinTable",
+    "jakarta.persistence.ManyToMany",
+    "jakarta.persistence.ManyToOne",
+    "jakarta.persistence.MappedSuperclass",
+    "jakarta.persistence.OneToMany",
+    "jakarta.persistence.OrderBy",
+    "jakarta.persistence.Table"
+   ]
+  }
+ ],
+ "how_to_read": [
+  "Each wide box is an architecture layer; its class count and role mix come from annotations and type hierarchy, not from package names alone.",
+  "Boxes at the top are where requests, messages and timers enter the application; boxes at the bottom are external systems detected from library use.",
+  "An arrow points from the layer that depends to the layer it depends on; the label counts distinct class-to-class dependencies.",
+  "Solid green arrows were also observed at runtime (call counts shown); dashed grey arrows exist in the code only. Red arrows point against the layering and deserve review.",
+  "Click a box or arrow for its detail; \u201cExpand\u201d shows the packages inside a layer. The diagram never draws individual classes at this level."
+ ],
+ "layers": [
+  {
+   "class_count": 6,
+   "id": "layer:PRESENTATION",
+   "label": "Presentation (controllers, servlets, filters)",
+   "layer": "PRESENTATION",
+   "package_count": 3,
+   "packages": [
+    {
+     "count": 3,
+     "id": "org.springframework.samples.petclinic.owner"
+    },
+    {
+     "count": 2,
+     "id": "org.springframework.samples.petclinic.system"
+    },
+    {
+     "count": 1,
+     "id": "org.springframework.samples.petclinic.vet"
+    }
+   ],
+   "plain": "web/presentation",
+   "roles": {
+    "CONTROLLER": 6
+   }
+  },
+  {
+   "class_count": 2,
+   "id": "layer:SERVICE",
+   "label": "Services and application logic",
+   "layer": "SERVICE",
+   "package_count": 1,
+   "packages": [
+    {
+     "count": 2,
+     "id": "org.springframework.samples.petclinic.owner"
+    }
+   ],
+   "plain": "service",
+   "roles": {
+    "COMPONENT": 1,
+    "VALIDATOR": 1
+   }
+  },
+  {
+   "class_count": 3,
+   "id": "layer:DATA_ACCESS",
+   "label": "Data access (repositories, DAOs)",
+   "layer": "DATA_ACCESS",
+   "package_count": 2,
+   "packages": [
+    {
+     "count": 2,
+     "id": "org.springframework.samples.petclinic.owner"
+    },
+    {
+     "count": 1,
+     "id": "org.springframework.samples.petclinic.vet"
+    }
+   ],
+   "plain": "data access",
+   "roles": {
+    "REPOSITORY": 3
+   }
+  },
+  {
+   "class_count": 10,
+   "id": "layer:DOMAIN",
+   "label": "Domain model (entities, models)",
+   "layer": "DOMAIN",
+   "package_count": 3,
+   "packages": [
+    {
+     "count": 4,
+     "id": "org.springframework.samples.petclinic.owner"
+    },
+    {
+     "count": 3,
+     "id": "org.springframework.samples.petclinic.model"
+    },
+    {
+     "count": 3,
+     "id": "org.springframework.samples.petclinic.vet"
+    }
+   ],
+   "plain": "domain model",
+   "roles": {
+    "ENTITY": 9,
+    "MODEL": 1
+   }
+  },
+  {
+   "class_count": 3,
+   "id": "layer:CONFIGURATION",
+   "label": "Configuration and bootstrap",
+   "layer": "CONFIGURATION",
+   "package_count": 2,
+   "packages": [
+    {
+     "count": 2,
+     "id": "org.springframework.samples.petclinic.system"
+    },
+    {
+     "count": 1,
+     "id": "org.springframework.samples.petclinic"
+    }
+   ],
+   "plain": "configuration",
+   "roles": {
+    "APPLICATION": 1,
+    "CONFIGURATION": 2
+   }
+  }
+ ],
+ "level": "HLD",
+ "limitations": [
+  "Layer assignment depends on role evidence; classes without evidence are listed under \u201cSupporting code\u201d.",
+  "External systems are inferred from library references, not from configuration or network traffic."
+ ],
+ "runtime_included": false,
+ "status": "AVAILABLE"
+}

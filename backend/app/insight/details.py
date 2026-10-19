@@ -71,6 +71,12 @@ def _summary(kind, name, role, size_text, deps, dependents, cycles, entries, deb
 
 def node(model, identity: str, debt: dict) -> dict:
     """identity: '' or 'system' | package name | class fqn | 'Class#method(desc)'."""
+    if identity.startswith('layer:'):
+        from .diagrams import layer_detail
+        return layer_detail(model, identity, debt)
+    if identity.startswith('external:'):
+        from .diagrams import external_detail
+        return external_detail(model, identity)
     cycles = analyse_cycles(model)
     lifecycle = evaluate_lifecycle(model, model.result.get('tech_inventory'))
     entries = model.entry_points['items']
@@ -168,7 +174,19 @@ def _method(model, identity, debt, entries):
 
 
 def connection(model, source: str, target: str) -> dict:
-    """The concrete class-to-class references behind a class or package edge."""
+    """The concrete class-to-class references behind a class, package, layer or external-system edge."""
+    if source.startswith('layer:') or target.startswith('layer:') or target.startswith('external:'):
+        from .diagrams import layer_of, externals
+        pairs = []
+        if target.startswith('external:'):
+            system = externals(model).get(target.split(':', 1)[1], {})
+            members = [c for c in system.get('classes', []) if layer_of(model, c) == source.split(':', 1)[1]]
+            return dict(level='EXTERNAL', source=source, target=target, pair_count=len(members), pairs=[dict(source=c, target=target, edge_types={}, references=[dict(kind='LIBRARY_REFERENCE', text=f"{short(c)} uses library types of this system", line=None)]) for c in members[:40]],
+                explanation=f"{len(members)} classes in the {source.split(':', 1)[1].lower().replace('_', ' ')} layer use {system.get('label', 'this system')}.")
+        a, b = source.split(':', 1)[1], target.split(':', 1)[1]
+        pairs = sorted((s, t) for (s, t) in model.owner_edges if layer_of(model, s) == a and layer_of(model, t) == b)
+        return dict(level='LAYER', source=source, target=target, pair_count=len(pairs), pairs=[dict(source=s, target=t, edge_types=dict(model.owner_edges[(s, t)]),
+            references=model.references(s, t, limit=3)) for s, t in pairs[:40]], explanation=f"{len(pairs)} class-to-class dependencies from the {a.lower().replace('_', ' ')} layer to the {b.lower().replace('_', ' ')} layer.")
     if source in model.packages and source not in model.classes:
         pairs = sorted((s, t) for (s, t) in model.owner_edges if model.package(s) == source and model.package(t) == target)
         return dict(level='PACKAGE', source=source, target=target, pair_count=len(pairs), pairs=[dict(source=s, target=t,

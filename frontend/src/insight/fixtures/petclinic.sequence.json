@@ -1,0 +1,115 @@
+{
+ "entry": "POST /owners/{ownerId}/pets/{petId}/visits/new",
+ "messages": [
+  {
+   "inherited_from_library": false,
+   "kind": "virtual",
+   "label": "addVisit()",
+   "line": 54,
+   "order": 1,
+   "origin": "static",
+   "source": "org.springframework.samples.petclinic.owner.VisitController",
+   "target": "org.springframework.samples.petclinic.owner.Owner"
+  },
+  {
+   "inherited_from_library": false,
+   "kind": "virtual",
+   "label": "getPet()",
+   "line": 109,
+   "order": 2,
+   "origin": "static",
+   "source": "org.springframework.samples.petclinic.owner.Owner",
+   "target": "org.springframework.samples.petclinic.owner.Owner"
+  },
+  {
+   "inherited_from_library": false,
+   "kind": "virtual",
+   "label": "getPets()",
+   "line": 77,
+   "order": 3,
+   "origin": "static",
+   "source": "org.springframework.samples.petclinic.owner.Owner",
+   "target": "org.springframework.samples.petclinic.owner.Owner"
+  },
+  {
+   "inherited_from_library": false,
+   "kind": "virtual",
+   "label": "isNew()",
+   "line": 78,
+   "order": 4,
+   "origin": "static",
+   "source": "org.springframework.samples.petclinic.owner.Owner",
+   "target": "org.springframework.samples.petclinic.owner.Pet"
+  },
+  {
+   "inherited_from_library": false,
+   "kind": "virtual",
+   "label": "getId()",
+   "line": 79,
+   "order": 5,
+   "origin": "static",
+   "source": "org.springframework.samples.petclinic.owner.Owner",
+   "target": "org.springframework.samples.petclinic.owner.Pet"
+  },
+  {
+   "inherited_from_library": false,
+   "kind": "virtual",
+   "label": "addVisit()",
+   "line": 113,
+   "order": 6,
+   "origin": "static",
+   "source": "org.springframework.samples.petclinic.owner.Owner",
+   "target": "org.springframework.samples.petclinic.owner.Pet"
+  },
+  {
+   "inherited_from_library": false,
+   "kind": "virtual",
+   "label": "getVisits()",
+   "line": 55,
+   "order": 7,
+   "origin": "static",
+   "source": "org.springframework.samples.petclinic.owner.Pet",
+   "target": "org.springframework.samples.petclinic.owner.Pet"
+  },
+  {
+   "inherited_from_library": true,
+   "kind": "interface",
+   "label": "save()",
+   "line": 55,
+   "order": 8,
+   "origin": "static",
+   "source": "org.springframework.samples.petclinic.owner.VisitController",
+   "target": "org.springframework.samples.petclinic.owner.OwnerRepository"
+  }
+ ],
+ "note": "Built from bytecode call sites in source order (depth \u2264 4, \u2264 40 messages). It shows what the code can do, not what was observed; library calls are omitted.",
+ "origin": "STATIC",
+ "participants": [
+  {
+   "id": "org.springframework.samples.petclinic.owner.VisitController",
+   "label": "VisitController",
+   "role": "CONTROLLER"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.owner.Owner",
+   "label": "Owner",
+   "role": "ENTITY"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.owner.Pet",
+   "label": "Pet",
+   "role": "ENTITY"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.model.BaseEntity",
+   "label": "BaseEntity",
+   "role": "ENTITY"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.owner.OwnerRepository",
+   "label": "OwnerRepository",
+   "role": "REPOSITORY"
+  }
+ ],
+ "status": "AVAILABLE"
+}

@@ -230,3 +230,39 @@ def next_test_steps(analysis_id: str, body: ExplainInput, request: Request, runt
     ai = explain(request, db, 'TEST_STEPS', evidence, 'Write the exact user steps and 2-4 edge cases (invalid input, error paths) for this test. Name methods as name().',
         'analysis:' + analysis_id, set(model.classes), methods)
     return dict(suggestion_id=suggestion['id'], ai=ai, evidence_ids=[e['id'] for e in evidence])
+
+
+@router.get('/diagram/hld', response_model=dict)
+def diagram_hld(analysis_id: str, request: Request, runtime_session_ids: str | None = Query(None, max_length=400), db=Depends(db_session)):
+    from .diagrams import hld
+    return hld(load(analysis_id, request, db, runtime_session_ids))
+
+
+@router.get('/diagram/lld', response_model=dict)
+def diagram_lld(analysis_id: str, request: Request, package: str = Query(max_length=400), runtime_session_ids: str | None = Query(None, max_length=400), db=Depends(db_session)):
+    from .diagrams import lld
+    return lld(load(analysis_id, request, db, runtime_session_ids), package)
+
+
+@router.get('/diagram/sequence', response_model=dict)
+def diagram_sequence(analysis_id: str, request: Request, entry_id: str = Query(max_length=400), runtime_session_ids: str | None = Query(None, max_length=400), db=Depends(db_session)):
+    """Runtime trace when a matching one is retained; otherwise the static call flow, labelled as such."""
+    from sqlalchemy import select
+    from app.runtime.models import RuntimeEvent
+    from .diagrams import sequence_runtime, sequence_static
+    model = load(analysis_id, request, db, runtime_session_ids)
+    entry = next((e for e in model.entry_points['items'] if e['id'] == entry_id), None)
+    if not entry:
+        raise HTTPException(404, 'Entry point not found in this analysis.')
+    if runtime_session_ids and entry['kind'] == 'HTTP_ENDPOINT':
+        ids = sorted(set(runtime_session_ids.split(',')))[:20]
+        events = list(db.scalars(select(RuntimeEvent.data).where(RuntimeEvent.session_id.in_(ids))))
+        for verb in entry['http_methods'] or [None]:
+            for path in entry['paths']:
+                flow = sequence_runtime(events, model, None if verb == 'ANY' else verb, path)
+                if flow['status'] == 'AVAILABLE':
+                    return flow
+    flow = sequence_static(model, entry_id)
+    if runtime_session_ids:
+        flow['note'] = 'No retained trace matched this entry point in the selected sessions, so this is the static call flow. ' + flow['note']
+    return flow
