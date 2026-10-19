@@ -1,0 +1,4418 @@
+{
+ "classes": [
+  {
+   "id": "org.springframework.samples.petclinic.PetClinicApplication",
+   "layer": "CONFIGURATION",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 13
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 2
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "org.springframework.boot.SpringApplication",
+      "org.springframework.boot.autoconfigure.SpringBootApplication"
+     ],
+     "value": 2
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "main"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "main"
+     ],
+     "value": 8
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "<init>",
+      "main"
+     ],
+     "value": 2
+    }
+   },
+   "name": "PetClinicApplication",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic",
+   "role": "APPLICATION"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.model.BaseEntity",
+   "layer": "DOMAIN",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 29
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 5
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 4,
+     "inputs": [
+      "jakarta.persistence.GeneratedValue",
+      "jakarta.persistence.Id",
+      "jakarta.persistence.MappedSuperclass",
+      "java.io.Serializable"
+     ],
+     "value": 4
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 3,
+     "inputs": [
+      "org.springframework.samples.petclinic.model.NamedEntity",
+      "org.springframework.samples.petclinic.model.Person",
+      "org.springframework.samples.petclinic.owner.Visit"
+     ],
+     "value": 3
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "id"
+     ],
+     "value": 1
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "isNew"
+     ],
+     "value": 2
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "isNew"
+     ],
+     "value": 13
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 4,
+     "inputs": [
+      "<init>",
+      "getId",
+      "isNew",
+      "setId"
+     ],
+     "value": 4
+    }
+   },
+   "name": "BaseEntity",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.model",
+   "role": "ENTITY"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.model.NamedEntity",
+   "layer": "DOMAIN",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 21
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 4
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 4,
+     "inputs": [
+      "jakarta.persistence.Column",
+      "jakarta.persistence.MappedSuperclass",
+      "jakarta.validation.constraints.NotBlank",
+      "org.springframework.samples.petclinic.model.BaseEntity"
+     ],
+     "value": 4
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 3,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.Pet",
+      "org.springframework.samples.petclinic.owner.PetType",
+      "org.springframework.samples.petclinic.vet.Specialty"
+     ],
+     "value": 3
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "org.springframework.samples.petclinic.model.BaseEntity"
+     ],
+     "value": 1
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "name"
+     ],
+     "value": 1
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "toString"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "setName"
+     ],
+     "value": 6
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 4,
+     "inputs": [
+      "<init>",
+      "getName",
+      "setName",
+      "toString"
+     ],
+     "value": 4
+    }
+   },
+   "name": "NamedEntity",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.model",
+   "role": "ENTITY"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.model.Person",
+   "layer": "DOMAIN",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 27
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 5
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 4,
+     "inputs": [
+      "jakarta.persistence.Column",
+      "jakarta.persistence.MappedSuperclass",
+      "jakarta.validation.constraints.NotBlank",
+      "org.springframework.samples.petclinic.model.BaseEntity"
+     ],
+     "value": 4
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 2,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.Owner",
+      "org.springframework.samples.petclinic.vet.Vet"
+     ],
+     "value": 2
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "org.springframework.samples.petclinic.model.BaseEntity"
+     ],
+     "value": 1
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 2,
+     "inputs": [
+      "firstName",
+      "lastName"
+     ],
+     "value": 2
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "setLastName"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "setLastName"
+     ],
+     "value": 6
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 5,
+     "inputs": [
+      "<init>",
+      "getFirstName",
+      "getLastName",
+      "setFirstName",
+      "setLastName"
+     ],
+     "value": 5
+    }
+   },
+   "name": "Person",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.model",
+   "role": "ENTITY"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.owner.Owner",
+   "layer": "DOMAIN",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 275
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 25
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 14,
+     "inputs": [
+      "jakarta.persistence.Column",
+      "jakarta.persistence.Entity",
+      "jakarta.persistence.JoinColumn",
+      "jakarta.persistence.OneToMany",
+      "jakarta.persistence.OrderBy",
+      "jakarta.persistence.Table",
+      "jakarta.validation.constraints.NotBlank",
+      "jakarta.validation.constraints.Pattern",
+      "java.util.ArrayList",
+      "java.util.Iterator",
+      "java.util.List",
+      "org.springframework.samples.petclinic.model.Person",
+      "org.springframework.samples.petclinic.owner.Pet",
+      "org.springframework.samples.petclinic.owner.Visit"
+     ],
+     "value": 14
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 4,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.OwnerController",
+      "org.springframework.samples.petclinic.owner.OwnerRepository",
+      "org.springframework.samples.petclinic.owner.PetController",
+      "org.springframework.samples.petclinic.owner.VisitController"
+     ],
+     "value": 4
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 3,
+     "inputs": [
+      "org.springframework.samples.petclinic.model.Person",
+      "org.springframework.samples.petclinic.owner.Pet",
+      "org.springframework.samples.petclinic.owner.Visit"
+     ],
+     "value": 3
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 4,
+     "inputs": [
+      "address",
+      "city",
+      "pets",
+      "telephone"
+     ],
+     "value": 4
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "getPet"
+     ],
+     "value": 6
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "getPet"
+     ],
+     "value": 71
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 14,
+     "inputs": [
+      "<init>",
+      "addPet",
+      "addVisit",
+      "getAddress",
+      "getCity",
+      "getPet",
+      "getPet",
+      "getPet",
+      "getPets",
+      "getTelephone",
+      "setAddress",
+      "setCity",
+      "setTelephone",
+      "toString"
+     ],
+     "value": 14
+    }
+   },
+   "name": "Owner",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.owner",
+   "role": "ENTITY"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.owner.OwnerController",
+   "layer": "PRESENTATION",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 471
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 19
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 20,
+     "inputs": [
+      "jakarta.validation.Valid",
+      "java.util.Iterator",
+      "java.util.List",
+      "java.util.Optional",
+      "org.springframework.data.domain.Page",
+      "org.springframework.data.domain.PageRequest",
+      "org.springframework.samples.petclinic.owner.Owner",
+      "org.springframework.samples.petclinic.owner.OwnerRepository",
+      "org.springframework.stereotype.Controller",
+      "org.springframework.ui.Model",
+      "org.springframework.validation.BindingResult",
+      "org.springframework.web.bind.WebDataBinder",
+      "org.springframework.web.bind.annotation.GetMapping",
+      "org.springframework.web.bind.annotation.InitBinder",
+      "org.springframework.web.bind.annotation.ModelAttribute",
+      "org.springframework.web.bind.annotation.PathVariable",
+      "org.springframework.web.bind.annotation.PostMapping",
+      "org.springframework.web.bind.annotation.RequestParam",
+      "org.springframework.web.servlet.ModelAndView",
+      "org.springframework.web.servlet.mvc.support.RedirectAttributes"
+     ],
+     "value": 20
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 2,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.Owner",
+      "org.springframework.samples.petclinic.owner.OwnerRepository"
+     ],
+     "value": 2
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 2,
+     "inputs": [
+      "VIEWS_OWNER_CREATE_OR_UPDATE_FORM",
+      "owners"
+     ],
+     "value": 2
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "processFindForm"
+     ],
+     "value": 4
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "processFindForm"
+     ],
+     "value": 107
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 12,
+     "inputs": [
+      "<init>",
+      "addPaginationModel",
+      "findOwner",
+      "findPaginatedForOwnersLastName",
+      "initCreationForm",
+      "initFindForm",
+      "initUpdateOwnerForm",
+      "processCreationForm",
+      "processFindForm",
+      "processUpdateOwnerForm",
+      "setAllowedFields",
+      "showOwner"
+     ],
+     "value": 12
+    }
+   },
+   "name": "OwnerController",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.owner",
+   "role": "CONTROLLER"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.owner.OwnerRepository",
+   "layer": "DATA_ACCESS",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 0
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 0
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 5,
+     "inputs": [
+      "java.util.Optional",
+      "org.springframework.data.domain.Page",
+      "org.springframework.data.domain.Pageable",
+      "org.springframework.data.jpa.repository.JpaRepository",
+      "org.springframework.samples.petclinic.owner.Owner"
+     ],
+     "value": 5
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 3,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.OwnerController",
+      "org.springframework.samples.petclinic.owner.PetController",
+      "org.springframework.samples.petclinic.owner.VisitController"
+     ],
+     "value": 3
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.Owner"
+     ],
+     "value": 1
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "value": 0
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "findByLastNameStartingWith"
+     ],
+     "value": 0
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "findById",
+      "findByLastNameStartingWith"
+     ],
+     "value": 2
+    }
+   },
+   "name": "OwnerRepository",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.owner",
+   "role": "REPOSITORY"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.owner.Pet",
+   "layer": "DOMAIN",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 55
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 7
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 15,
+     "inputs": [
+      "jakarta.persistence.Column",
+      "jakarta.persistence.Entity",
+      "jakarta.persistence.JoinColumn",
+      "jakarta.persistence.ManyToOne",
+      "jakarta.persistence.OneToMany",
+      "jakarta.persistence.OrderBy",
+      "jakarta.persistence.Table",
+      "java.time.LocalDate",
+      "java.util.Collection",
+      "java.util.LinkedHashSet",
+      "java.util.Set",
+      "org.springframework.format.annotation.DateTimeFormat",
+      "org.springframework.samples.petclinic.model.NamedEntity",
+      "org.springframework.samples.petclinic.owner.PetType",
+      "org.springframework.samples.petclinic.owner.Visit"
+     ],
+     "value": 15
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 4,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.Owner",
+      "org.springframework.samples.petclinic.owner.PetController",
+      "org.springframework.samples.petclinic.owner.PetValidator",
+      "org.springframework.samples.petclinic.owner.VisitController"
+     ],
+     "value": 4
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 3,
+     "inputs": [
+      "org.springframework.samples.petclinic.model.NamedEntity",
+      "org.springframework.samples.petclinic.owner.PetType",
+      "org.springframework.samples.petclinic.owner.Visit"
+     ],
+     "value": 3
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 3,
+     "inputs": [
+      "birthDate",
+      "type",
+      "visits"
+     ],
+     "value": 3
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "setType"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "<init>"
+     ],
+     "value": 16
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 7,
+     "inputs": [
+      "<init>",
+      "addVisit",
+      "getBirthDate",
+      "getType",
+      "getVisits",
+      "setBirthDate",
+      "setType"
+     ],
+     "value": 7
+    }
+   },
+   "name": "Pet",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.owner",
+   "role": "ENTITY"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.owner.PetController",
+   "layer": "PRESENTATION",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 454
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 25
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "near",
+      "warn": 20
+     },
+     "input_count": 22,
+     "inputs": [
+      "jakarta.validation.Valid",
+      "java.time.LocalDate",
+      "java.util.Collection",
+      "java.util.Optional",
+      "org.springframework.samples.petclinic.owner.Owner",
+      "org.springframework.samples.petclinic.owner.OwnerRepository",
+      "org.springframework.samples.petclinic.owner.Pet",
+      "org.springframework.samples.petclinic.owner.PetType",
+      "org.springframework.samples.petclinic.owner.PetTypeRepository",
+      "org.springframework.samples.petclinic.owner.PetValidator",
+      "org.springframework.stereotype.Controller",
+      "org.springframework.ui.ModelMap",
+      "org.springframework.util.StringUtils",
+      "org.springframework.validation.BindingResult",
+      "org.springframework.web.bind.WebDataBinder",
+      "org.springframework.web.bind.annotation.GetMapping",
+      "org.springframework.web.bind.annotation.InitBinder",
+      "org.springframework.web.bind.annotation.ModelAttribute",
+      "org.springframework.web.bind.annotation.PathVariable",
+      "org.springframework.web.bind.annotation.PostMapping",
+      "org.springframework.web.bind.annotation.RequestMapping",
+      "org.springframework.web.servlet.mvc.support.RedirectAttributes"
+     ],
+     "value": 22
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 6,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.Owner",
+      "org.springframework.samples.petclinic.owner.OwnerRepository",
+      "org.springframework.samples.petclinic.owner.Pet",
+      "org.springframework.samples.petclinic.owner.PetType",
+      "org.springframework.samples.petclinic.owner.PetTypeRepository",
+      "org.springframework.samples.petclinic.owner.PetValidator"
+     ],
+     "value": 6
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 3,
+     "inputs": [
+      "VIEWS_PETS_CREATE_OR_UPDATE_FORM",
+      "owners",
+      "types"
+     ],
+     "value": 3
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "processUpdateForm"
+     ],
+     "value": 7
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "processUpdateForm"
+     ],
+     "value": 124
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 11,
+     "inputs": [
+      "<init>",
+      "findOwner",
+      "findPet",
+      "initCreationForm",
+      "initOwnerBinder",
+      "initPetBinder",
+      "initUpdateForm",
+      "populatePetTypes",
+      "processCreationForm",
+      "processUpdateForm",
+      "updatePetDetails"
+     ],
+     "value": 11
+    }
+   },
+   "name": "PetController",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.owner",
+   "role": "CONTROLLER"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.owner.PetType",
+   "layer": "DOMAIN",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 5
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 1
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 3,
+     "inputs": [
+      "jakarta.persistence.Entity",
+      "jakarta.persistence.Table",
+      "org.springframework.samples.petclinic.model.NamedEntity"
+     ],
+     "value": 3
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 4,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.Pet",
+      "org.springframework.samples.petclinic.owner.PetController",
+      "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+      "org.springframework.samples.petclinic.owner.PetTypeRepository"
+     ],
+     "value": 4
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "org.springframework.samples.petclinic.model.NamedEntity"
+     ],
+     "value": 1
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "<init>"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "<init>"
+     ],
+     "value": 5
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 1,
+     "inputs": [
+      "<init>"
+     ],
+     "value": 1
+    }
+   },
+   "name": "PetType",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.owner",
+   "role": "ENTITY"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+   "layer": "SERVICE",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 99
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 6
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 8,
+     "inputs": [
+      "java.text.ParseException",
+      "java.util.Collection",
+      "java.util.Iterator",
+      "java.util.Locale",
+      "org.springframework.format.Formatter",
+      "org.springframework.samples.petclinic.owner.PetType",
+      "org.springframework.samples.petclinic.owner.PetTypeRepository",
+      "org.springframework.stereotype.Component"
+     ],
+     "value": 8
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 2,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.PetType",
+      "org.springframework.samples.petclinic.owner.PetTypeRepository"
+     ],
+     "value": 2
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "types"
+     ],
+     "value": 1
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "parse"
+     ],
+     "value": 3
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "parse"
+     ],
+     "value": 73
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 3,
+     "inputs": [
+      "<init>",
+      "parse",
+      "print"
+     ],
+     "value": 3
+    }
+   },
+   "name": "PetTypeFormatter",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.owner",
+   "role": "COMPONENT"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.owner.PetTypeRepository",
+   "layer": "DATA_ACCESS",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 0
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 0
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 4,
+     "inputs": [
+      "java.util.List",
+      "org.springframework.data.jpa.repository.JpaRepository",
+      "org.springframework.data.jpa.repository.Query",
+      "org.springframework.samples.petclinic.owner.PetType"
+     ],
+     "value": 4
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 2,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.PetController",
+      "org.springframework.samples.petclinic.owner.PetTypeFormatter"
+     ],
+     "value": 2
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.PetType"
+     ],
+     "value": 1
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "value": 0
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "findPetTypes"
+     ],
+     "value": 0
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 1,
+     "inputs": [
+      "findPetTypes"
+     ],
+     "value": 1
+    }
+   },
+   "name": "PetTypeRepository",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.owner",
+   "role": "REPOSITORY"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.owner.PetValidator",
+   "layer": "SERVICE",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 89
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 7
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 4,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.Pet",
+      "org.springframework.util.StringUtils",
+      "org.springframework.validation.Errors",
+      "org.springframework.validation.Validator"
+     ],
+     "value": 4
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 1,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.PetController"
+     ],
+     "value": 1
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.Pet"
+     ],
+     "value": 1
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "REQUIRED"
+     ],
+     "value": 1
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "validate"
+     ],
+     "value": 5
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "validate"
+     ],
+     "value": 77
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 3,
+     "inputs": [
+      "<init>",
+      "supports",
+      "validate"
+     ],
+     "value": 3
+    }
+   },
+   "name": "PetValidator",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.owner",
+   "role": "VALIDATOR"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.owner.Visit",
+   "layer": "DOMAIN",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 34
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 5
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 7,
+     "inputs": [
+      "jakarta.persistence.Column",
+      "jakarta.persistence.Entity",
+      "jakarta.persistence.Table",
+      "jakarta.validation.constraints.NotBlank",
+      "java.time.LocalDate",
+      "org.springframework.format.annotation.DateTimeFormat",
+      "org.springframework.samples.petclinic.model.BaseEntity"
+     ],
+     "value": 7
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 3,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.Owner",
+      "org.springframework.samples.petclinic.owner.Pet",
+      "org.springframework.samples.petclinic.owner.VisitController"
+     ],
+     "value": 3
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "org.springframework.samples.petclinic.model.BaseEntity"
+     ],
+     "value": 1
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 2,
+     "inputs": [
+      "date",
+      "description"
+     ],
+     "value": 2
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "setDescription"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "<init>"
+     ],
+     "value": 12
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 5,
+     "inputs": [
+      "<init>",
+      "getDate",
+      "getDescription",
+      "setDate",
+      "setDescription"
+     ],
+     "value": 5
+    }
+   },
+   "name": "Visit",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.owner",
+   "role": "ENTITY"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.owner.VisitController",
+   "layer": "PRESENTATION",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 158
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 6
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 16,
+     "inputs": [
+      "jakarta.validation.Valid",
+      "java.util.Map",
+      "java.util.Optional",
+      "org.springframework.samples.petclinic.owner.Owner",
+      "org.springframework.samples.petclinic.owner.OwnerRepository",
+      "org.springframework.samples.petclinic.owner.Pet",
+      "org.springframework.samples.petclinic.owner.Visit",
+      "org.springframework.stereotype.Controller",
+      "org.springframework.validation.BindingResult",
+      "org.springframework.web.bind.WebDataBinder",
+      "org.springframework.web.bind.annotation.GetMapping",
+      "org.springframework.web.bind.annotation.InitBinder",
+      "org.springframework.web.bind.annotation.ModelAttribute",
+      "org.springframework.web.bind.annotation.PathVariable",
+      "org.springframework.web.bind.annotation.PostMapping",
+      "org.springframework.web.servlet.mvc.support.RedirectAttributes"
+     ],
+     "value": 16
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 4,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.Owner",
+      "org.springframework.samples.petclinic.owner.OwnerRepository",
+      "org.springframework.samples.petclinic.owner.Pet",
+      "org.springframework.samples.petclinic.owner.Visit"
+     ],
+     "value": 4
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "owners"
+     ],
+     "value": 1
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "processNewVisitForm"
+     ],
+     "value": 2
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "loadPetWithVisit"
+     ],
+     "value": 83
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 5,
+     "inputs": [
+      "<init>",
+      "initNewVisitForm",
+      "loadPetWithVisit",
+      "processNewVisitForm",
+      "setAllowedFields"
+     ],
+     "value": 5
+    }
+   },
+   "name": "VisitController",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.owner",
+   "role": "CONTROLLER"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.system.CacheConfiguration",
+   "layer": "CONFIGURATION",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 15
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 3
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 3,
+     "inputs": [
+      "org.springframework.cache.annotation.EnableCaching",
+      "org.springframework.context.annotation.Bean",
+      "org.springframework.context.annotation.Configuration"
+     ],
+     "value": 3
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "petclinicCacheConfigurationCustomizer"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "petclinicCacheConfigurationCustomizer"
+     ],
+     "value": 7
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 3,
+     "inputs": [
+      "<init>",
+      "cacheConfiguration",
+      "petclinicCacheConfigurationCustomizer"
+     ],
+     "value": 3
+    }
+   },
+   "name": "CacheConfiguration",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.system",
+   "role": "CONFIGURATION"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.system.CrashController",
+   "layer": "PRESENTATION",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 15
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 2
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "org.springframework.stereotype.Controller",
+      "org.springframework.web.bind.annotation.GetMapping"
+     ],
+     "value": 2
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "triggerException"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "triggerException"
+     ],
+     "value": 10
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "<init>",
+      "triggerException"
+     ],
+     "value": 2
+    }
+   },
+   "name": "CrashController",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.system",
+   "role": "CONTROLLER"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.system.WebConfiguration",
+   "layer": "CONFIGURATION",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 22
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 3
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 4,
+     "inputs": [
+      "org.springframework.context.annotation.Bean",
+      "org.springframework.context.annotation.Configuration",
+      "org.springframework.web.servlet.config.annotation.InterceptorRegistry",
+      "org.springframework.web.servlet.config.annotation.WebMvcConfigurer"
+     ],
+     "value": 4
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "localeChangeInterceptor"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "addInterceptors"
+     ],
+     "value": 9
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 3,
+     "inputs": [
+      "<init>",
+      "addInterceptors",
+      "localeChangeInterceptor"
+     ],
+     "value": 3
+    }
+   },
+   "name": "WebConfiguration",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.system",
+   "role": "CONFIGURATION"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.system.WelcomeController",
+   "layer": "PRESENTATION",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 8
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 2
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "org.springframework.stereotype.Controller",
+      "org.springframework.web.bind.annotation.GetMapping"
+     ],
+     "value": 2
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "welcome"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "<init>"
+     ],
+     "value": 5
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "<init>",
+      "welcome"
+     ],
+     "value": 2
+    }
+   },
+   "name": "WelcomeController",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.system",
+   "role": "CONTROLLER"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.vet.Specialty",
+   "layer": "DOMAIN",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 5
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 1
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 3,
+     "inputs": [
+      "jakarta.persistence.Entity",
+      "jakarta.persistence.Table",
+      "org.springframework.samples.petclinic.model.NamedEntity"
+     ],
+     "value": 3
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 1,
+     "inputs": [
+      "org.springframework.samples.petclinic.vet.Vet"
+     ],
+     "value": 1
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "org.springframework.samples.petclinic.model.NamedEntity"
+     ],
+     "value": 1
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "<init>"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "<init>"
+     ],
+     "value": 5
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 1,
+     "inputs": [
+      "<init>"
+     ],
+     "value": 1
+    }
+   },
+   "name": "Specialty",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.vet",
+   "role": "ENTITY"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.vet.Vet",
+   "layer": "DOMAIN",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 78
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 6
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 12,
+     "inputs": [
+      "jakarta.persistence.Entity",
+      "jakarta.persistence.JoinTable",
+      "jakarta.persistence.ManyToMany",
+      "jakarta.persistence.Table",
+      "jakarta.xml.bind.annotation.XmlElement",
+      "java.util.ArrayList",
+      "java.util.Collections",
+      "java.util.HashSet",
+      "java.util.List",
+      "java.util.Set",
+      "org.springframework.samples.petclinic.model.Person",
+      "org.springframework.samples.petclinic.vet.Specialty"
+     ],
+     "value": 12
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 3,
+     "inputs": [
+      "org.springframework.samples.petclinic.vet.VetController",
+      "org.springframework.samples.petclinic.vet.VetRepository",
+      "org.springframework.samples.petclinic.vet.Vets"
+     ],
+     "value": 3
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 2,
+     "inputs": [
+      "org.springframework.samples.petclinic.model.Person",
+      "org.springframework.samples.petclinic.vet.Specialty"
+     ],
+     "value": 2
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "specialties"
+     ],
+     "value": 1
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "getSpecialtiesInternal"
+     ],
+     "value": 2
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "getSpecialties"
+     ],
+     "value": 28
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 5,
+     "inputs": [
+      "<init>",
+      "addSpecialty",
+      "getNrOfSpecialties",
+      "getSpecialties",
+      "getSpecialtiesInternal"
+     ],
+     "value": 5
+    }
+   },
+   "name": "Vet",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.vet",
+   "role": "ENTITY"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.vet.VetController",
+   "layer": "PRESENTATION",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 172
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 5
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 11,
+     "inputs": [
+      "java.util.List",
+      "org.springframework.data.domain.Page",
+      "org.springframework.data.domain.PageRequest",
+      "org.springframework.samples.petclinic.vet.Vet",
+      "org.springframework.samples.petclinic.vet.VetRepository",
+      "org.springframework.samples.petclinic.vet.Vets",
+      "org.springframework.stereotype.Controller",
+      "org.springframework.ui.Model",
+      "org.springframework.web.bind.annotation.GetMapping",
+      "org.springframework.web.bind.annotation.RequestParam",
+      "org.springframework.web.bind.annotation.ResponseBody"
+     ],
+     "value": 11
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 3,
+     "inputs": [
+      "org.springframework.samples.petclinic.vet.Vet",
+      "org.springframework.samples.petclinic.vet.VetRepository",
+      "org.springframework.samples.petclinic.vet.Vets"
+     ],
+     "value": 3
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "vetRepository"
+     ],
+     "value": 1
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "showVetList"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "addPaginationModel"
+     ],
+     "value": 71
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 5,
+     "inputs": [
+      "<init>",
+      "addPaginationModel",
+      "findPaginated",
+      "showResourcesVetList",
+      "showVetList"
+     ],
+     "value": 5
+    }
+   },
+   "name": "VetController",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.vet",
+   "role": "CONTROLLER"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.vet.VetRepository",
+   "layer": "DATA_ACCESS",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 0
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 0
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 7,
+     "inputs": [
+      "java.util.Collection",
+      "org.springframework.cache.annotation.Cacheable",
+      "org.springframework.data.domain.Page",
+      "org.springframework.data.domain.Pageable",
+      "org.springframework.data.repository.Repository",
+      "org.springframework.samples.petclinic.vet.Vet",
+      "org.springframework.transaction.annotation.Transactional"
+     ],
+     "value": 7
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 1,
+     "inputs": [
+      "org.springframework.samples.petclinic.vet.VetController"
+     ],
+     "value": 1
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "org.springframework.samples.petclinic.vet.Vet"
+     ],
+     "value": 1
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "value": 0
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "findAll"
+     ],
+     "value": 0
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "findAll",
+      "findAll"
+     ],
+     "value": 2
+    }
+   },
+   "name": "VetRepository",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.vet",
+   "role": "REPOSITORY"
+  },
+  {
+   "id": "org.springframework.samples.petclinic.vet.Vets",
+   "layer": "DOMAIN",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 28
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 3
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 5,
+     "inputs": [
+      "jakarta.xml.bind.annotation.XmlElement",
+      "jakarta.xml.bind.annotation.XmlRootElement",
+      "java.util.ArrayList",
+      "java.util.List",
+      "org.springframework.samples.petclinic.vet.Vet"
+     ],
+     "value": 5
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 1,
+     "inputs": [
+      "org.springframework.samples.petclinic.vet.VetController"
+     ],
+     "value": 1
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "org.springframework.samples.petclinic.vet.Vet"
+     ],
+     "value": 1
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "vets"
+     ],
+     "value": 1
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "getVetList"
+     ],
+     "value": 2
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "getVetList"
+     ],
+     "value": 23
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "<init>",
+      "getVetList"
+     ],
+     "value": 2
+    }
+   },
+   "name": "Vets",
+   "nested_classes": [],
+   "package": "org.springframework.samples.petclinic.vet",
+   "role": "MODEL"
+  }
+ ],
+ "counting": "24 top-level classes; 0 nested, anonymous or local classes folded into their owners.",
+ "definitions": {
+  "class.bytecode_size": {
+   "formula": "sum of Code attribute lengths of its methods (bytes)",
+   "label": "Bytecode size",
+   "plain": "How much compiled code the class has; a rough size measure independent of formatting.",
+   "threshold": {
+    "over": 8000,
+    "warn": 3000
+   }
+  },
+  "class.complexity": {
+   "formula": "sum over methods of (conditional branch instructions + switch cases + 1)",
+   "label": "Bytecode complexity",
+   "plain": "How many decision points the class has in total; approximates cyclomatic complexity from bytecode.",
+   "threshold": {
+    "over": 120,
+    "warn": 60
+   }
+  },
+  "class.cycle_groups": {
+   "formula": "number of cyclic groups (SCCs) containing C",
+   "label": "Cycle groups",
+   "plain": "Whether this class is part of a dependency loop.",
+   "threshold": null
+  },
+  "class.dependency_count": {
+   "formula": "|{referenced types, internal and external, excluding java.lang.*}|",
+   "label": "Distinct dependencies",
+   "plain": "How many different types this class needs to compile.",
+   "threshold": {
+    "over": 30,
+    "warn": 20
+   }
+  },
+  "class.fan_in": {
+   "formula": "|{internal classes that depend on C}|",
+   "label": "Fan-in",
+   "plain": "How many other classes rely on this class. High fan-in means a change here can affect many places.",
+   "threshold": {
+    "over": 25,
+    "warn": 15
+   }
+  },
+  "class.fan_out": {
+   "formula": "|{internal classes C depends on}|",
+   "label": "Fan-out",
+   "plain": "How many other classes this class relies on. High fan-out means it breaks when any of them changes.",
+   "threshold": {
+    "over": 20,
+    "warn": 12
+   }
+  },
+  "class.field_count": {
+   "formula": "declared fields excluding synthetic fields",
+   "label": "Fields",
+   "plain": "How much state the class keeps.",
+   "threshold": {
+    "over": 20,
+    "warn": 12
+   }
+  },
+  "class.layer_violations": {
+   "formula": "|{dependencies from C to a layer C may not use}|",
+   "label": "Layer violations",
+   "plain": "How many times this class reaches into a layer it should not use.",
+   "threshold": null
+  },
+  "class.max_method_complexity": {
+   "formula": "max over methods of (conditional branches + switch cases + 1)",
+   "label": "Most complex method",
+   "plain": "How many paths its most complicated method has; each path needs its own test.",
+   "threshold": {
+    "over": 20,
+    "warn": 10
+   }
+  },
+  "class.max_method_size": {
+   "formula": "max Code attribute length over its methods (bytes)",
+   "label": "Largest method",
+   "plain": "The size of its biggest method. Very large methods are hard to read and test.",
+   "threshold": {
+    "over": 8000,
+    "warn": 1000
+   }
+  },
+  "class.method_count": {
+   "formula": "declared methods excluding synthetic, bridge and lambda methods",
+   "label": "Methods",
+   "plain": "How much behaviour the class contains.",
+   "threshold": {
+    "over": 35,
+    "warn": 20
+   }
+  },
+  "package.A": {
+   "formula": "(abstract classes + interfaces) / classes in P",
+   "label": "Abstractness (A)",
+   "plain": "Share of the package that is interfaces or abstract classes.",
+   "threshold": null
+  },
+  "package.Ca": {
+   "formula": "|{classes outside P that depend on a class in P}|",
+   "label": "Afferent coupling (Ca)",
+   "plain": "How many outside classes rely on this package.",
+   "threshold": {
+    "over": 40,
+    "warn": 20
+   }
+  },
+  "package.Ce": {
+   "formula": "|{classes outside P that a class in P depends on}|",
+   "label": "Efferent coupling (Ce)",
+   "plain": "How many outside classes this package relies on.",
+   "threshold": {
+    "over": 40,
+    "warn": 20
+   }
+  },
+  "package.D": {
+   "formula": "|A + I - 1|",
+   "label": "Distance from main sequence (D)",
+   "plain": "0 is balanced. Near 1 means either rigid concrete code that many rely on, or unused abstractions.",
+   "threshold": {
+    "over": 0.7,
+    "warn": 0.5
+   }
+  },
+  "package.I": {
+   "formula": "Ce / (Ca + Ce); 0 when Ca + Ce = 0",
+   "label": "Instability (I)",
+   "plain": "0 means many others rely on it and it relies on little (hard to change); 1 means the opposite (easy to change).",
+   "threshold": null
+  },
+  "package.bytecode_size": {
+   "formula": "sum of class bytecode sizes in P",
+   "label": "Bytecode size",
+   "plain": "Total compiled code in the package.",
+   "threshold": null
+  },
+  "package.class_count": {
+   "formula": "top-level classes in P",
+   "label": "Classes",
+   "plain": "Size of the package.",
+   "threshold": null
+  },
+  "package.cycle_groups": {
+   "formula": "package-level cyclic groups containing P + class-level groups with a member in P",
+   "label": "Cycle groups",
+   "plain": "How many dependency loops touch this package.",
+   "threshold": null
+  },
+  "package.largest_cycle": {
+   "formula": "max size of a class-level cyclic group with a member in P",
+   "label": "Largest cycle group",
+   "plain": "Size of the biggest loop touching this package.",
+   "threshold": null
+  },
+  "package.layer_violations": {
+   "formula": "sum of class layer violations in P",
+   "label": "Layer violations",
+   "plain": "How often code in this package reaches into a forbidden layer.",
+   "threshold": null
+  }
+ },
+ "facts_available": true,
+ "packages": [
+  {
+   "class_count": 1,
+   "id": "org.springframework.samples.petclinic",
+   "isolated": true,
+   "metrics": {
+    "package.A": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0.0
+    },
+    "package.Ca": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.Ce": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.D": {
+     "indicator": {
+      "over": 0.7,
+      "state": "unknown",
+      "warn": 0.5
+     },
+     "note": "Not meaningful: the package has no internal dependencies in either direction.",
+     "value": null
+    },
+    "package.I": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0.0
+    },
+    "package.bytecode_size": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 13
+    },
+    "package.class_count": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 1,
+     "inputs": [
+      "org.springframework.samples.petclinic.PetClinicApplication"
+     ],
+     "value": 1
+    },
+    "package.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.largest_cycle": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0
+    },
+    "package.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0
+    }
+   },
+   "name": "org.springframework.samples.petclinic"
+  },
+  {
+   "class_count": 3,
+   "id": "org.springframework.samples.petclinic.model",
+   "isolated": false,
+   "metrics": {
+    "package.A": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0.0
+    },
+    "package.Ca": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 6,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.Owner",
+      "org.springframework.samples.petclinic.owner.Pet",
+      "org.springframework.samples.petclinic.owner.PetType",
+      "org.springframework.samples.petclinic.owner.Visit",
+      "org.springframework.samples.petclinic.vet.Specialty",
+      "org.springframework.samples.petclinic.vet.Vet"
+     ],
+     "value": 6
+    },
+    "package.Ce": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.D": {
+     "indicator": {
+      "over": 0.7,
+      "state": "over",
+      "warn": 0.5
+     },
+     "value": 1.0
+    },
+    "package.I": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0.0
+    },
+    "package.bytecode_size": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 77
+    },
+    "package.class_count": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 3,
+     "inputs": [
+      "org.springframework.samples.petclinic.model.BaseEntity",
+      "org.springframework.samples.petclinic.model.NamedEntity",
+      "org.springframework.samples.petclinic.model.Person"
+     ],
+     "value": 3
+    },
+    "package.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.largest_cycle": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0
+    },
+    "package.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0
+    }
+   },
+   "name": "org.springframework.samples.petclinic.model"
+  },
+  {
+   "class_count": 11,
+   "id": "org.springframework.samples.petclinic.owner",
+   "isolated": false,
+   "metrics": {
+    "package.A": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 2,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.OwnerRepository",
+      "org.springframework.samples.petclinic.owner.PetTypeRepository"
+     ],
+     "value": 0.1818
+    },
+    "package.Ca": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.Ce": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 3,
+     "inputs": [
+      "org.springframework.samples.petclinic.model.BaseEntity",
+      "org.springframework.samples.petclinic.model.NamedEntity",
+      "org.springframework.samples.petclinic.model.Person"
+     ],
+     "value": 3
+    },
+    "package.D": {
+     "indicator": {
+      "over": 0.7,
+      "state": "ok",
+      "warn": 0.5
+     },
+     "value": 0.1818
+    },
+    "package.I": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 1.0
+    },
+    "package.bytecode_size": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 1640
+    },
+    "package.class_count": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 11,
+     "inputs": [
+      "org.springframework.samples.petclinic.owner.Owner",
+      "org.springframework.samples.petclinic.owner.OwnerController",
+      "org.springframework.samples.petclinic.owner.OwnerRepository",
+      "org.springframework.samples.petclinic.owner.Pet",
+      "org.springframework.samples.petclinic.owner.PetController",
+      "org.springframework.samples.petclinic.owner.PetType",
+      "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+      "org.springframework.samples.petclinic.owner.PetTypeRepository",
+      "org.springframework.samples.petclinic.owner.PetValidator",
+      "org.springframework.samples.petclinic.owner.Visit",
+      "org.springframework.samples.petclinic.owner.VisitController"
+     ],
+     "value": 11
+    },
+    "package.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.largest_cycle": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0
+    },
+    "package.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0
+    }
+   },
+   "name": "org.springframework.samples.petclinic.owner"
+  },
+  {
+   "class_count": 4,
+   "id": "org.springframework.samples.petclinic.system",
+   "isolated": true,
+   "metrics": {
+    "package.A": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0.0
+    },
+    "package.Ca": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.Ce": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.D": {
+     "indicator": {
+      "over": 0.7,
+      "state": "unknown",
+      "warn": 0.5
+     },
+     "note": "Not meaningful: the package has no internal dependencies in either direction.",
+     "value": null
+    },
+    "package.I": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0.0
+    },
+    "package.bytecode_size": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 60
+    },
+    "package.class_count": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 4,
+     "inputs": [
+      "org.springframework.samples.petclinic.system.CacheConfiguration",
+      "org.springframework.samples.petclinic.system.CrashController",
+      "org.springframework.samples.petclinic.system.WebConfiguration",
+      "org.springframework.samples.petclinic.system.WelcomeController"
+     ],
+     "value": 4
+    },
+    "package.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.largest_cycle": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0
+    },
+    "package.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0
+    }
+   },
+   "name": "org.springframework.samples.petclinic.system"
+  },
+  {
+   "class_count": 5,
+   "id": "org.springframework.samples.petclinic.vet",
+   "isolated": false,
+   "metrics": {
+    "package.A": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 1,
+     "inputs": [
+      "org.springframework.samples.petclinic.vet.VetRepository"
+     ],
+     "value": 0.2
+    },
+    "package.Ca": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.Ce": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "org.springframework.samples.petclinic.model.NamedEntity",
+      "org.springframework.samples.petclinic.model.Person"
+     ],
+     "value": 2
+    },
+    "package.D": {
+     "indicator": {
+      "over": 0.7,
+      "state": "ok",
+      "warn": 0.5
+     },
+     "value": 0.2
+    },
+    "package.I": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 1.0
+    },
+    "package.bytecode_size": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 283
+    },
+    "package.class_count": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 5,
+     "inputs": [
+      "org.springframework.samples.petclinic.vet.Specialty",
+      "org.springframework.samples.petclinic.vet.Vet",
+      "org.springframework.samples.petclinic.vet.VetController",
+      "org.springframework.samples.petclinic.vet.VetRepository",
+      "org.springframework.samples.petclinic.vet.Vets"
+     ],
+     "value": 5
+    },
+    "package.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.largest_cycle": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0
+    },
+    "package.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0
+    }
+   },
+   "name": "org.springframework.samples.petclinic.vet"
+  }
+ ],
+ "rules_version": "2026.10.0",
+ "worst": {
+  "class.bytecode_size": [
+   {
+    "id": "org.springframework.samples.petclinic.owner.OwnerController",
+    "state": "ok",
+    "value": 471
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.PetController",
+    "state": "ok",
+    "value": 454
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.Owner",
+    "state": "ok",
+    "value": 275
+   },
+   {
+    "id": "org.springframework.samples.petclinic.vet.VetController",
+    "state": "ok",
+    "value": 172
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.VisitController",
+    "state": "ok",
+    "value": 158
+   }
+  ],
+  "class.complexity": [
+   {
+    "id": "org.springframework.samples.petclinic.owner.Owner",
+    "state": "ok",
+    "value": 25
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.PetController",
+    "state": "ok",
+    "value": 25
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.OwnerController",
+    "state": "ok",
+    "value": 19
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.Pet",
+    "state": "ok",
+    "value": 7
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.PetValidator",
+    "state": "ok",
+    "value": 7
+   }
+  ],
+  "class.cycle_groups": [],
+  "class.dependency_count": [
+   {
+    "id": "org.springframework.samples.petclinic.owner.PetController",
+    "state": "near",
+    "value": 22
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.OwnerController",
+    "state": "ok",
+    "value": 20
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.VisitController",
+    "state": "ok",
+    "value": 16
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.Pet",
+    "state": "ok",
+    "value": 15
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.Owner",
+    "state": "ok",
+    "value": 14
+   }
+  ],
+  "class.fan_in": [
+   {
+    "id": "org.springframework.samples.petclinic.owner.Owner",
+    "state": "ok",
+    "value": 4
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.Pet",
+    "state": "ok",
+    "value": 4
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.PetType",
+    "state": "ok",
+    "value": 4
+   },
+   {
+    "id": "org.springframework.samples.petclinic.model.BaseEntity",
+    "state": "ok",
+    "value": 3
+   },
+   {
+    "id": "org.springframework.samples.petclinic.model.NamedEntity",
+    "state": "ok",
+    "value": 3
+   }
+  ],
+  "class.fan_out": [
+   {
+    "id": "org.springframework.samples.petclinic.owner.PetController",
+    "state": "ok",
+    "value": 6
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.VisitController",
+    "state": "ok",
+    "value": 4
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.Owner",
+    "state": "ok",
+    "value": 3
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.Pet",
+    "state": "ok",
+    "value": 3
+   },
+   {
+    "id": "org.springframework.samples.petclinic.vet.VetController",
+    "state": "ok",
+    "value": 3
+   }
+  ],
+  "class.field_count": [
+   {
+    "id": "org.springframework.samples.petclinic.owner.Owner",
+    "state": "ok",
+    "value": 4
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.Pet",
+    "state": "ok",
+    "value": 3
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.PetController",
+    "state": "ok",
+    "value": 3
+   },
+   {
+    "id": "org.springframework.samples.petclinic.model.Person",
+    "state": "ok",
+    "value": 2
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.OwnerController",
+    "state": "ok",
+    "value": 2
+   }
+  ],
+  "class.layer_violations": [],
+  "class.max_method_complexity": [
+   {
+    "id": "org.springframework.samples.petclinic.owner.PetController",
+    "state": "ok",
+    "value": 7
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.Owner",
+    "state": "ok",
+    "value": 6
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.PetValidator",
+    "state": "ok",
+    "value": 5
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.OwnerController",
+    "state": "ok",
+    "value": 4
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+    "state": "ok",
+    "value": 3
+   }
+  ],
+  "class.max_method_size": [
+   {
+    "id": "org.springframework.samples.petclinic.owner.PetController",
+    "state": "ok",
+    "value": 124
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.OwnerController",
+    "state": "ok",
+    "value": 107
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.VisitController",
+    "state": "ok",
+    "value": 83
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.PetValidator",
+    "state": "ok",
+    "value": 77
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+    "state": "ok",
+    "value": 73
+   }
+  ],
+  "class.method_count": [
+   {
+    "id": "org.springframework.samples.petclinic.owner.Owner",
+    "state": "ok",
+    "value": 14
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.OwnerController",
+    "state": "ok",
+    "value": 12
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.PetController",
+    "state": "ok",
+    "value": 11
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner.Pet",
+    "state": "ok",
+    "value": 7
+   },
+   {
+    "id": "org.springframework.samples.petclinic.model.Person",
+    "state": "ok",
+    "value": 5
+   }
+  ],
+  "package.A": [
+   {
+    "id": "org.springframework.samples.petclinic.vet",
+    "state": "info",
+    "value": 0.2
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner",
+    "state": "info",
+    "value": 0.1818
+   }
+  ],
+  "package.Ca": [
+   {
+    "id": "org.springframework.samples.petclinic.model",
+    "state": "ok",
+    "value": 6
+   }
+  ],
+  "package.Ce": [
+   {
+    "id": "org.springframework.samples.petclinic.owner",
+    "state": "ok",
+    "value": 3
+   },
+   {
+    "id": "org.springframework.samples.petclinic.vet",
+    "state": "ok",
+    "value": 2
+   }
+  ],
+  "package.D": [
+   {
+    "id": "org.springframework.samples.petclinic.model",
+    "state": "over",
+    "value": 1.0
+   },
+   {
+    "id": "org.springframework.samples.petclinic.vet",
+    "state": "ok",
+    "value": 0.2
+   },
+   {
+    "id": "org.springframework.samples.petclinic.owner",
+    "state": "ok",
+    "value": 0.1818
+   }
+  ],
+  "package.I": [
+   {
+    "id": "org.springframework.samples.petclinic.owner",
+    "state": "info",
+    "value": 1.0
+   },
+   {
+    "id": "org.springframework.samples.petclinic.vet",
+    "state": "info",
+    "value": 1.0
+   }
+  ],
+  "package.bytecode_size": [
+   {
+    "id": "org.springframework.samples.petclinic.owner",
+    "state": "info",
+    "value": 1640
+   },
+   {
+    "id": "org.springframework.samples.petclinic.vet",
+    "state": "info",
+    "value": 283
+   },
+   {
+    "id": "org.springframework.samples.petclinic.model",
+    "state": "info",
+    "value": 77
+   },
+   {
+    "id": "org.springframework.samples.petclinic.system",
+    "state": "info",
+    "value": 60
+   },
+   {
+    "id": "org.springframework.samples.petclinic",
+    "state": "info",
+    "value": 13
+   }
+  ],
+  "package.class_count": [
+   {
+    "id": "org.springframework.samples.petclinic.owner",
+    "state": "info",
+    "value": 11
+   },
+   {
+    "id": "org.springframework.samples.petclinic.vet",
+    "state": "info",
+    "value": 5
+   },
+   {
+    "id": "org.springframework.samples.petclinic.system",
+    "state": "info",
+    "value": 4
+   },
+   {
+    "id": "org.springframework.samples.petclinic.model",
+    "state": "info",
+    "value": 3
+   },
+   {
+    "id": "org.springframework.samples.petclinic",
+    "state": "info",
+    "value": 1
+   }
+  ],
+  "package.cycle_groups": [],
+  "package.largest_cycle": [],
+  "package.layer_violations": []
+ }
+}

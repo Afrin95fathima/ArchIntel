@@ -86,3 +86,9 @@ def cycle_explanation(analysis_id: str, body: ExplainInput, request: Request, db
     ai = explain(request, db, 'CYCLE_EXPLANATION', evidence, 'Explain in plain language why these classes form a loop and what that means for changing them.',
         'analysis:' + analysis_id, set(model.classes) | set(model.packages))
     return dict(cycle_id=cycle['id'], deterministic=cycle['explanation'], ai=ai, evidence_ids=[e['id'] for e in evidence])
+
+
+@router.get('/metrics', response_model=dict)
+def architecture_metrics(analysis_id: str, request: Request, db=Depends(db_session)):
+    from .metrics import compute
+    return compute(load(analysis_id, request, db))

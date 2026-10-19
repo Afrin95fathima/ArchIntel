@@ -1,0 +1,3797 @@
+{
+ "classes": [
+  {
+   "id": "com.fixture.edge.cycle.a.Address",
+   "layer": "SUPPORT",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 13
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 2
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 1,
+     "inputs": [
+      "cycle-group-9094c57d2a4f467b"
+     ],
+     "value": 1
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.cycle.a.Region"
+     ],
+     "value": 1
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.cycle.a.Customer"
+     ],
+     "value": 1
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.cycle.a.Region"
+     ],
+     "value": 1
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "region"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "region"
+     ],
+     "value": 8
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "<init>",
+      "region"
+     ],
+     "value": 2
+    }
+   },
+   "name": "Address",
+   "nested_classes": [],
+   "package": "com.fixture.edge.cycle.a",
+   "role": "UNKNOWN"
+  },
+  {
+   "id": "com.fixture.edge.cycle.a.Customer",
+   "layer": "SUPPORT",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 23
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 3
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 1,
+     "inputs": [
+      "cycle-group-9094c57d2a4f467b"
+     ],
+     "value": 1
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 3,
+     "inputs": [
+      "com.fixture.edge.cycle.a.Address",
+      "com.fixture.edge.cycle.a.Order",
+      "java.util.List"
+     ],
+     "value": 3
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 2,
+     "inputs": [
+      "com.fixture.edge.cycle.a.Order",
+      "com.fixture.edge.cycle.a.Region"
+     ],
+     "value": 2
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 2,
+     "inputs": [
+      "com.fixture.edge.cycle.a.Address",
+      "com.fixture.edge.cycle.a.Order"
+     ],
+     "value": 2
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "orders"
+     ],
+     "value": 1
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "orderCount"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "orderCount"
+     ],
+     "value": 10
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 3,
+     "inputs": [
+      "<init>",
+      "address",
+      "orderCount"
+     ],
+     "value": 3
+    }
+   },
+   "name": "Customer",
+   "nested_classes": [],
+   "package": "com.fixture.edge.cycle.a",
+   "role": "UNKNOWN"
+  },
+  {
+   "id": "com.fixture.edge.cycle.a.Order",
+   "layer": "SUPPORT",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 26
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 5
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 1,
+     "inputs": [
+      "cycle-group-9094c57d2a4f467b"
+     ],
+     "value": 1
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "com.fixture.edge.cycle.a.Customer",
+      "com.fixture.edge.cycle.b.Invoice"
+     ],
+     "value": 2
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 2,
+     "inputs": [
+      "com.fixture.edge.cycle.a.Customer",
+      "com.fixture.edge.cycle.b.Invoice"
+     ],
+     "value": 2
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 2,
+     "inputs": [
+      "com.fixture.edge.cycle.a.Customer",
+      "com.fixture.edge.cycle.b.Invoice"
+     ],
+     "value": 2
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "customer"
+     ],
+     "value": 1
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "self"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "invoice"
+     ],
+     "value": 9
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 5,
+     "inputs": [
+      "<init>",
+      "getCustomer",
+      "invoice",
+      "next",
+      "self"
+     ],
+     "value": 5
+    }
+   },
+   "name": "Order",
+   "nested_classes": [],
+   "package": "com.fixture.edge.cycle.a",
+   "role": "UNKNOWN"
+  },
+  {
+   "id": "com.fixture.edge.cycle.a.Region",
+   "layer": "SUPPORT",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 13
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 2
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 1,
+     "inputs": [
+      "cycle-group-9094c57d2a4f467b"
+     ],
+     "value": 1
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.cycle.a.Customer"
+     ],
+     "value": 1
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.cycle.a.Address"
+     ],
+     "value": 1
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.cycle.a.Customer"
+     ],
+     "value": 1
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "primaryCustomer"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "primaryCustomer"
+     ],
+     "value": 8
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "<init>",
+      "primaryCustomer"
+     ],
+     "value": 2
+    }
+   },
+   "name": "Region",
+   "nested_classes": [],
+   "package": "com.fixture.edge.cycle.a",
+   "role": "UNKNOWN"
+  },
+  {
+   "id": "com.fixture.edge.cycle.b.Invoice",
+   "layer": "SUPPORT",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 15
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 2
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 1,
+     "inputs": [
+      "cycle-group-9094c57d2a4f467b"
+     ],
+     "value": 1
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.cycle.a.Order"
+     ],
+     "value": 1
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.cycle.a.Order"
+     ],
+     "value": 1
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.cycle.a.Order"
+     ],
+     "value": 1
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "order"
+     ],
+     "value": 1
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "order"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "<init>"
+     ],
+     "value": 10
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "<init>",
+      "order"
+     ],
+     "value": 2
+    }
+   },
+   "name": "Invoice",
+   "nested_classes": [],
+   "package": "com.fixture.edge.cycle.b",
+   "role": "UNKNOWN"
+  },
+  {
+   "id": "com.fixture.edge.jobs.CliTool",
+   "layer": "CONFIGURATION",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 19
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 2
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 1,
+     "inputs": [
+      "java.io.PrintStream"
+     ],
+     "value": 1
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "main"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "main"
+     ],
+     "value": 14
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "<init>",
+      "main"
+     ],
+     "value": 2
+    }
+   },
+   "name": "CliTool",
+   "nested_classes": [],
+   "package": "com.fixture.edge.jobs",
+   "role": "APPLICATION"
+  },
+  {
+   "id": "com.fixture.edge.jobs.OrderEvents",
+   "layer": "SERVICE",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 9
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 5
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 5,
+     "inputs": [
+      "org.springframework.amqp.rabbit.annotation.RabbitListener",
+      "org.springframework.context.event.EventListener",
+      "org.springframework.jms.annotation.JmsListener",
+      "org.springframework.kafka.annotation.KafkaListener",
+      "org.springframework.stereotype.Component"
+     ],
+     "value": 5
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "onStarted"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "<init>"
+     ],
+     "value": 5
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 5,
+     "inputs": [
+      "<init>",
+      "audit",
+      "billing",
+      "consume",
+      "onStarted"
+     ],
+     "value": 5
+    }
+   },
+   "name": "OrderEvents",
+   "nested_classes": [],
+   "package": "com.fixture.edge.jobs",
+   "role": "COMPONENT"
+  },
+  {
+   "id": "com.fixture.edge.jobs.ReminderJob",
+   "layer": "SERVICE",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 27
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 4
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 4,
+     "inputs": [
+      "jakarta.annotation.PostConstruct",
+      "java.io.PrintStream",
+      "org.springframework.scheduling.annotation.Scheduled",
+      "org.springframework.stereotype.Component"
+     ],
+     "value": 4
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "ready"
+     ],
+     "value": 1
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "sendReminders"
+     ],
+     "value": 2
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "sendReminders"
+     ],
+     "value": 16
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 3,
+     "inputs": [
+      "<init>",
+      "init",
+      "sendReminders"
+     ],
+     "value": 3
+    }
+   },
+   "name": "ReminderJob",
+   "nested_classes": [],
+   "package": "com.fixture.edge.jobs",
+   "role": "COMPONENT"
+  },
+  {
+   "id": "com.fixture.edge.legacy.BillingAction",
+   "layer": "PRESENTATION",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 48
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 5
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 1,
+     "inputs": [
+      "cycle-group-d8f6acb51599c75b"
+     ],
+     "value": 1
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 5,
+     "inputs": [
+      "com.fixture.edge.legacy.BillingRecord",
+      "javax.xml.bind.JAXBContext",
+      "org.apache.commons.lang.StringUtils",
+      "org.apache.log4j.Logger",
+      "org.apache.struts.action.Action"
+     ],
+     "value": 5
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.legacy.BillingRecord"
+     ],
+     "value": 1
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.legacy.BillingRecord"
+     ],
+     "value": 1
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "LOG"
+     ],
+     "value": 1
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "execute"
+     ],
+     "value": 2
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "execute"
+     ],
+     "value": 33
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 4,
+     "inputs": [
+      "<clinit>",
+      "<init>",
+      "execute",
+      "oldApi"
+     ],
+     "value": 4
+    }
+   },
+   "name": "BillingAction",
+   "nested_classes": [],
+   "package": "com.fixture.edge.legacy",
+   "role": "ACTION"
+  },
+  {
+   "id": "com.fixture.edge.legacy.BillingRecord",
+   "layer": "DOMAIN",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 10
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 2
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 1,
+     "inputs": [
+      "cycle-group-d8f6acb51599c75b"
+     ],
+     "value": 1
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 4,
+     "inputs": [
+      "com.fixture.edge.legacy.BillingAction",
+      "javax.persistence.Entity",
+      "javax.persistence.Id",
+      "javax.persistence.Table"
+     ],
+     "value": 4
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.legacy.BillingAction"
+     ],
+     "value": 1
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.legacy.BillingAction"
+     ],
+     "value": 1
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "id"
+     ],
+     "value": 1
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.legacy.BillingAction"
+     ],
+     "value": 1
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "touch"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "touch"
+     ],
+     "value": 5
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "<init>",
+      "touch"
+     ],
+     "value": 2
+    }
+   },
+   "name": "BillingRecord",
+   "nested_classes": [],
+   "package": "com.fixture.edge.legacy",
+   "role": "ENTITY"
+  },
+  {
+   "id": "com.fixture.edge.model.Item",
+   "layer": "DOMAIN",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 15
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 3
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 2,
+     "inputs": [
+      "com.fixture.edge.model.ItemService",
+      "com.fixture.edge.web.ItemController"
+     ],
+     "value": 2
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 2,
+     "inputs": [
+      "id",
+      "name"
+     ],
+     "value": 2
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "getName"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "getName"
+     ],
+     "value": 5
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 3,
+     "inputs": [
+      "<init>",
+      "getId",
+      "getName"
+     ],
+     "value": 3
+    }
+   },
+   "name": "Item",
+   "nested_classes": [],
+   "package": "com.fixture.edge.model",
+   "role": "MODEL"
+  },
+  {
+   "id": "com.fixture.edge.model.ItemService",
+   "layer": "SERVICE",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 128
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 11
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 5,
+     "inputs": [
+      "com.fixture.edge.model.Item",
+      "java.util.ArrayList",
+      "java.util.Comparator",
+      "java.util.List",
+      "org.springframework.stereotype.Service"
+     ],
+     "value": 5
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.web.ItemController"
+     ],
+     "value": 1
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.model.Item"
+     ],
+     "value": 1
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 2,
+     "inputs": [
+      "CACHE",
+      "counter"
+     ],
+     "value": 2
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "find"
+     ],
+     "value": 2
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "find"
+     ],
+     "value": 28
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 10,
+     "inputs": [
+      "<clinit>",
+      "<init>",
+      "anonymous",
+      "calculate",
+      "calculate",
+      "calculate",
+      "delete",
+      "find",
+      "save",
+      "search"
+     ],
+     "value": 10
+    }
+   },
+   "name": "ItemService",
+   "nested_classes": [
+    "com.fixture.edge.model.ItemService$1",
+    "com.fixture.edge.model.ItemService$NameOrder",
+    "com.fixture.edge.model.ItemService$Tracker"
+   ],
+   "package": "com.fixture.edge.model",
+   "role": "SERVICE"
+  },
+  {
+   "id": "com.fixture.edge.model.OrderEntity",
+   "layer": "DOMAIN",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 10
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 2
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 1,
+     "inputs": [
+      "jakarta.persistence.Entity"
+     ],
+     "value": 1
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 2,
+     "inputs": [
+      "com.fixture.edge.model.OrderRepository",
+      "com.fixture.edge.web.OrderAdminController"
+     ],
+     "value": 2
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "reference"
+     ],
+     "value": 1
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "getReference"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "getReference"
+     ],
+     "value": 5
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "<init>",
+      "getReference"
+     ],
+     "value": 2
+    }
+   },
+   "name": "OrderEntity",
+   "nested_classes": [],
+   "package": "com.fixture.edge.model",
+   "role": "ENTITY"
+  },
+  {
+   "id": "com.fixture.edge.model.OrderRepository",
+   "layer": "DATA_ACCESS",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 13
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 2
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "com.fixture.edge.model.OrderEntity",
+      "org.springframework.stereotype.Repository"
+     ],
+     "value": 2
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.web.OrderAdminController"
+     ],
+     "value": 1
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.model.OrderEntity"
+     ],
+     "value": 1
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "latest"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "latest"
+     ],
+     "value": 8
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "<init>",
+      "latest"
+     ],
+     "value": 2
+    }
+   },
+   "name": "OrderRepository",
+   "nested_classes": [],
+   "package": "com.fixture.edge.model",
+   "role": "REPOSITORY"
+  },
+  {
+   "id": "com.fixture.edge.web.AuditFilter",
+   "layer": "PRESENTATION",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 14
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 2
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 4,
+     "inputs": [
+      "javax.servlet.Filter",
+      "javax.servlet.FilterChain",
+      "javax.servlet.ServletRequest",
+      "javax.servlet.ServletResponse"
+     ],
+     "value": 4
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "doFilter"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "doFilter"
+     ],
+     "value": 9
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "<init>",
+      "doFilter"
+     ],
+     "value": 2
+    }
+   },
+   "name": "AuditFilter",
+   "nested_classes": [],
+   "package": "com.fixture.edge.web",
+   "role": "FILTER"
+  },
+  {
+   "id": "com.fixture.edge.web.GreetingResource",
+   "layer": "PRESENTATION",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 11
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 3
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 3,
+     "inputs": [
+      "javax.ws.rs.GET",
+      "javax.ws.rs.POST",
+      "javax.ws.rs.Path"
+     ],
+     "value": 3
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "post"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "<init>"
+     ],
+     "value": 5
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 3,
+     "inputs": [
+      "<init>",
+      "hello",
+      "post"
+     ],
+     "value": 3
+    }
+   },
+   "name": "GreetingResource",
+   "nested_classes": [],
+   "package": "com.fixture.edge.web",
+   "role": "CONTROLLER"
+  },
+  {
+   "id": "com.fixture.edge.web.ItemController",
+   "layer": "PRESENTATION",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 59
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 8
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 14,
+     "inputs": [
+      "com.fixture.edge.model.Item",
+      "com.fixture.edge.model.ItemService",
+      "jakarta.validation.Valid",
+      "jakarta.validation.constraints.NotNull",
+      "jakarta.validation.constraints.Size",
+      "java.util.List",
+      "org.springframework.web.bind.annotation.DeleteMapping",
+      "org.springframework.web.bind.annotation.GetMapping",
+      "org.springframework.web.bind.annotation.PathVariable",
+      "org.springframework.web.bind.annotation.PostMapping",
+      "org.springframework.web.bind.annotation.RequestBody",
+      "org.springframework.web.bind.annotation.RequestMapping",
+      "org.springframework.web.bind.annotation.RequestParam",
+      "org.springframework.web.bind.annotation.RestController"
+     ],
+     "value": 14
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 2,
+     "inputs": [
+      "com.fixture.edge.model.Item",
+      "com.fixture.edge.model.ItemService"
+     ],
+     "value": 2
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "service"
+     ],
+     "value": 1
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "search"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "<init>"
+     ],
+     "value": 10
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 8,
+     "inputs": [
+      "<init>",
+      "any",
+      "bulk",
+      "create",
+      "delete",
+      "get",
+      "notAnEndpoint",
+      "search"
+     ],
+     "value": 8
+    }
+   },
+   "name": "ItemController",
+   "nested_classes": [],
+   "package": "com.fixture.edge.web",
+   "role": "CONTROLLER"
+  },
+  {
+   "id": "com.fixture.edge.web.LegacyServlet",
+   "layer": "PRESENTATION",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 25
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 3
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 4,
+     "inputs": [
+      "javax.servlet.annotation.WebServlet",
+      "javax.servlet.http.HttpServlet",
+      "javax.servlet.http.HttpServletRequest",
+      "javax.servlet.http.HttpServletResponse"
+     ],
+     "value": 4
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "doPost"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "doPost"
+     ],
+     "value": 10
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 3,
+     "inputs": [
+      "<init>",
+      "doGet",
+      "doPost"
+     ],
+     "value": 3
+    }
+   },
+   "name": "LegacyServlet",
+   "nested_classes": [],
+   "package": "com.fixture.edge.web",
+   "role": "SERVLET"
+  },
+  {
+   "id": "com.fixture.edge.web.OrderAdminController",
+   "layer": "PRESENTATION",
+   "metrics": {
+    "class.bytecode_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 3000
+     },
+     "value": 23
+    },
+    "class.complexity": {
+     "indicator": {
+      "over": 120,
+      "state": "ok",
+      "warn": 60
+     },
+     "value": 2
+    },
+    "class.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.dependency_count": {
+     "indicator": {
+      "over": 30,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 4,
+     "inputs": [
+      "com.fixture.edge.model.OrderEntity",
+      "com.fixture.edge.model.OrderRepository",
+      "org.springframework.stereotype.Controller",
+      "org.springframework.web.bind.annotation.GetMapping"
+     ],
+     "value": 4
+    },
+    "class.fan_in": {
+     "indicator": {
+      "over": 25,
+      "state": "ok",
+      "warn": 15
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.fan_out": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 2,
+     "inputs": [
+      "com.fixture.edge.model.OrderEntity",
+      "com.fixture.edge.model.OrderRepository"
+     ],
+     "value": 2
+    },
+    "class.field_count": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 12
+     },
+     "input_count": 1,
+     "inputs": [
+      "repository"
+     ],
+     "value": 1
+    },
+    "class.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "class.max_method_complexity": {
+     "indicator": {
+      "over": 20,
+      "state": "ok",
+      "warn": 10
+     },
+     "input_count": 1,
+     "inputs": [
+      "latest"
+     ],
+     "value": 1
+    },
+    "class.max_method_size": {
+     "indicator": {
+      "over": 8000,
+      "state": "ok",
+      "warn": 1000
+     },
+     "input_count": 1,
+     "inputs": [
+      "latest"
+     ],
+     "value": 13
+    },
+    "class.method_count": {
+     "indicator": {
+      "over": 35,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "<init>",
+      "latest"
+     ],
+     "value": 2
+    }
+   },
+   "name": "OrderAdminController",
+   "nested_classes": [],
+   "package": "com.fixture.edge.web",
+   "role": "CONTROLLER"
+  }
+ ],
+ "counting": "19 top-level classes; 3 nested, anonymous or local classes folded into their owners.",
+ "definitions": {
+  "class.bytecode_size": {
+   "formula": "sum of Code attribute lengths of its methods (bytes)",
+   "label": "Bytecode size",
+   "plain": "How much compiled code the class has; a rough size measure independent of formatting.",
+   "threshold": {
+    "over": 8000,
+    "warn": 3000
+   }
+  },
+  "class.complexity": {
+   "formula": "sum over methods of (conditional branch instructions + switch cases + 1)",
+   "label": "Bytecode complexity",
+   "plain": "How many decision points the class has in total; approximates cyclomatic complexity from bytecode.",
+   "threshold": {
+    "over": 120,
+    "warn": 60
+   }
+  },
+  "class.cycle_groups": {
+   "formula": "number of cyclic groups (SCCs) containing C",
+   "label": "Cycle groups",
+   "plain": "Whether this class is part of a dependency loop.",
+   "threshold": null
+  },
+  "class.dependency_count": {
+   "formula": "|{referenced types, internal and external, excluding java.lang.*}|",
+   "label": "Distinct dependencies",
+   "plain": "How many different types this class needs to compile.",
+   "threshold": {
+    "over": 30,
+    "warn": 20
+   }
+  },
+  "class.fan_in": {
+   "formula": "|{internal classes that depend on C}|",
+   "label": "Fan-in",
+   "plain": "How many other classes rely on this class. High fan-in means a change here can affect many places.",
+   "threshold": {
+    "over": 25,
+    "warn": 15
+   }
+  },
+  "class.fan_out": {
+   "formula": "|{internal classes C depends on}|",
+   "label": "Fan-out",
+   "plain": "How many other classes this class relies on. High fan-out means it breaks when any of them changes.",
+   "threshold": {
+    "over": 20,
+    "warn": 12
+   }
+  },
+  "class.field_count": {
+   "formula": "declared fields excluding synthetic fields",
+   "label": "Fields",
+   "plain": "How much state the class keeps.",
+   "threshold": {
+    "over": 20,
+    "warn": 12
+   }
+  },
+  "class.layer_violations": {
+   "formula": "|{dependencies from C to a layer C may not use}|",
+   "label": "Layer violations",
+   "plain": "How many times this class reaches into a layer it should not use.",
+   "threshold": null
+  },
+  "class.max_method_complexity": {
+   "formula": "max over methods of (conditional branches + switch cases + 1)",
+   "label": "Most complex method",
+   "plain": "How many paths its most complicated method has; each path needs its own test.",
+   "threshold": {
+    "over": 20,
+    "warn": 10
+   }
+  },
+  "class.max_method_size": {
+   "formula": "max Code attribute length over its methods (bytes)",
+   "label": "Largest method",
+   "plain": "The size of its biggest method. Very large methods are hard to read and test.",
+   "threshold": {
+    "over": 8000,
+    "warn": 1000
+   }
+  },
+  "class.method_count": {
+   "formula": "declared methods excluding synthetic, bridge and lambda methods",
+   "label": "Methods",
+   "plain": "How much behaviour the class contains.",
+   "threshold": {
+    "over": 35,
+    "warn": 20
+   }
+  },
+  "package.A": {
+   "formula": "(abstract classes + interfaces) / classes in P",
+   "label": "Abstractness (A)",
+   "plain": "Share of the package that is interfaces or abstract classes.",
+   "threshold": null
+  },
+  "package.Ca": {
+   "formula": "|{classes outside P that depend on a class in P}|",
+   "label": "Afferent coupling (Ca)",
+   "plain": "How many outside classes rely on this package.",
+   "threshold": {
+    "over": 40,
+    "warn": 20
+   }
+  },
+  "package.Ce": {
+   "formula": "|{classes outside P that a class in P depends on}|",
+   "label": "Efferent coupling (Ce)",
+   "plain": "How many outside classes this package relies on.",
+   "threshold": {
+    "over": 40,
+    "warn": 20
+   }
+  },
+  "package.D": {
+   "formula": "|A + I - 1|",
+   "label": "Distance from main sequence (D)",
+   "plain": "0 is balanced. Near 1 means either rigid concrete code that many rely on, or unused abstractions.",
+   "threshold": {
+    "over": 0.7,
+    "warn": 0.5
+   }
+  },
+  "package.I": {
+   "formula": "Ce / (Ca + Ce); 0 when Ca + Ce = 0",
+   "label": "Instability (I)",
+   "plain": "0 means many others rely on it and it relies on little (hard to change); 1 means the opposite (easy to change).",
+   "threshold": null
+  },
+  "package.bytecode_size": {
+   "formula": "sum of class bytecode sizes in P",
+   "label": "Bytecode size",
+   "plain": "Total compiled code in the package.",
+   "threshold": null
+  },
+  "package.class_count": {
+   "formula": "top-level classes in P",
+   "label": "Classes",
+   "plain": "Size of the package.",
+   "threshold": null
+  },
+  "package.cycle_groups": {
+   "formula": "package-level cyclic groups containing P + class-level groups with a member in P",
+   "label": "Cycle groups",
+   "plain": "How many dependency loops touch this package.",
+   "threshold": null
+  },
+  "package.largest_cycle": {
+   "formula": "max size of a class-level cyclic group with a member in P",
+   "label": "Largest cycle group",
+   "plain": "Size of the biggest loop touching this package.",
+   "threshold": null
+  },
+  "package.layer_violations": {
+   "formula": "sum of class layer violations in P",
+   "label": "Layer violations",
+   "plain": "How often code in this package reaches into a forbidden layer.",
+   "threshold": null
+  }
+ },
+ "facts_available": true,
+ "packages": [
+  {
+   "class_count": 4,
+   "id": "com.fixture.edge.cycle.a",
+   "isolated": false,
+   "metrics": {
+    "package.A": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0.0
+    },
+    "package.Ca": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.cycle.b.Invoice"
+     ],
+     "value": 1
+    },
+    "package.Ce": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.cycle.b.Invoice"
+     ],
+     "value": 1
+    },
+    "package.D": {
+     "indicator": {
+      "over": 0.7,
+      "state": "ok",
+      "warn": 0.5
+     },
+     "value": 0.5
+    },
+    "package.I": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0.5
+    },
+    "package.bytecode_size": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 75
+    },
+    "package.class_count": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 4,
+     "inputs": [
+      "com.fixture.edge.cycle.a.Address",
+      "com.fixture.edge.cycle.a.Customer",
+      "com.fixture.edge.cycle.a.Order",
+      "com.fixture.edge.cycle.a.Region"
+     ],
+     "value": 4
+    },
+    "package.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 2,
+     "inputs": [
+      "cycle-group-66b8439024c63fa8",
+      "cycle-group-9094c57d2a4f467b"
+     ],
+     "value": 2
+    },
+    "package.largest_cycle": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 5
+    },
+    "package.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0
+    }
+   },
+   "name": "com.fixture.edge.cycle.a"
+  },
+  {
+   "class_count": 1,
+   "id": "com.fixture.edge.cycle.b",
+   "isolated": false,
+   "metrics": {
+    "package.A": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0.0
+    },
+    "package.Ca": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.cycle.a.Order"
+     ],
+     "value": 1
+    },
+    "package.Ce": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.cycle.a.Order"
+     ],
+     "value": 1
+    },
+    "package.D": {
+     "indicator": {
+      "over": 0.7,
+      "state": "ok",
+      "warn": 0.5
+     },
+     "value": 0.5
+    },
+    "package.I": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0.5
+    },
+    "package.bytecode_size": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 15
+    },
+    "package.class_count": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 1,
+     "inputs": [
+      "com.fixture.edge.cycle.b.Invoice"
+     ],
+     "value": 1
+    },
+    "package.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 2,
+     "inputs": [
+      "cycle-group-66b8439024c63fa8",
+      "cycle-group-9094c57d2a4f467b"
+     ],
+     "value": 2
+    },
+    "package.largest_cycle": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 5
+    },
+    "package.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0
+    }
+   },
+   "name": "com.fixture.edge.cycle.b"
+  },
+  {
+   "class_count": 3,
+   "id": "com.fixture.edge.jobs",
+   "isolated": true,
+   "metrics": {
+    "package.A": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0.0
+    },
+    "package.Ca": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.Ce": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.D": {
+     "indicator": {
+      "over": 0.7,
+      "state": "unknown",
+      "warn": 0.5
+     },
+     "note": "Not meaningful: the package has no internal dependencies in either direction.",
+     "value": null
+    },
+    "package.I": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0.0
+    },
+    "package.bytecode_size": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 55
+    },
+    "package.class_count": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 3,
+     "inputs": [
+      "com.fixture.edge.jobs.CliTool",
+      "com.fixture.edge.jobs.OrderEvents",
+      "com.fixture.edge.jobs.ReminderJob"
+     ],
+     "value": 3
+    },
+    "package.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.largest_cycle": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0
+    },
+    "package.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0
+    }
+   },
+   "name": "com.fixture.edge.jobs"
+  },
+  {
+   "class_count": 2,
+   "id": "com.fixture.edge.legacy",
+   "isolated": true,
+   "metrics": {
+    "package.A": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0.0
+    },
+    "package.Ca": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.Ce": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.D": {
+     "indicator": {
+      "over": 0.7,
+      "state": "unknown",
+      "warn": 0.5
+     },
+     "note": "Not meaningful: the package has no internal dependencies in either direction.",
+     "value": null
+    },
+    "package.I": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0.0
+    },
+    "package.bytecode_size": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 58
+    },
+    "package.class_count": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 2,
+     "inputs": [
+      "com.fixture.edge.legacy.BillingAction",
+      "com.fixture.edge.legacy.BillingRecord"
+     ],
+     "value": 2
+    },
+    "package.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 1,
+     "inputs": [
+      "cycle-group-d8f6acb51599c75b"
+     ],
+     "value": 1
+    },
+    "package.largest_cycle": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 2
+    },
+    "package.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 1
+    }
+   },
+   "name": "com.fixture.edge.legacy"
+  },
+  {
+   "class_count": 4,
+   "id": "com.fixture.edge.model",
+   "isolated": false,
+   "metrics": {
+    "package.A": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0.0
+    },
+    "package.Ca": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 2,
+     "inputs": [
+      "com.fixture.edge.web.ItemController",
+      "com.fixture.edge.web.OrderAdminController"
+     ],
+     "value": 2
+    },
+    "package.Ce": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.D": {
+     "indicator": {
+      "over": 0.7,
+      "state": "over",
+      "warn": 0.5
+     },
+     "value": 1.0
+    },
+    "package.I": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0.0
+    },
+    "package.bytecode_size": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 166
+    },
+    "package.class_count": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 4,
+     "inputs": [
+      "com.fixture.edge.model.Item",
+      "com.fixture.edge.model.ItemService",
+      "com.fixture.edge.model.OrderEntity",
+      "com.fixture.edge.model.OrderRepository"
+     ],
+     "value": 4
+    },
+    "package.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.largest_cycle": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0
+    },
+    "package.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0
+    }
+   },
+   "name": "com.fixture.edge.model"
+  },
+  {
+   "class_count": 5,
+   "id": "com.fixture.edge.web",
+   "isolated": false,
+   "metrics": {
+    "package.A": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0.0
+    },
+    "package.Ca": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.Ce": {
+     "indicator": {
+      "over": 40,
+      "state": "ok",
+      "warn": 20
+     },
+     "input_count": 4,
+     "inputs": [
+      "com.fixture.edge.model.Item",
+      "com.fixture.edge.model.ItemService",
+      "com.fixture.edge.model.OrderEntity",
+      "com.fixture.edge.model.OrderRepository"
+     ],
+     "value": 4
+    },
+    "package.D": {
+     "indicator": {
+      "over": 0.7,
+      "state": "ok",
+      "warn": 0.5
+     },
+     "value": 0.0
+    },
+    "package.I": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 1.0
+    },
+    "package.bytecode_size": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 132
+    },
+    "package.class_count": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 5,
+     "inputs": [
+      "com.fixture.edge.web.AuditFilter",
+      "com.fixture.edge.web.GreetingResource",
+      "com.fixture.edge.web.ItemController",
+      "com.fixture.edge.web.LegacyServlet",
+      "com.fixture.edge.web.OrderAdminController"
+     ],
+     "value": 5
+    },
+    "package.cycle_groups": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "input_count": 0,
+     "inputs": [],
+     "value": 0
+    },
+    "package.largest_cycle": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0
+    },
+    "package.layer_violations": {
+     "indicator": {
+      "over": null,
+      "state": "info",
+      "warn": null
+     },
+     "value": 0
+    }
+   },
+   "name": "com.fixture.edge.web"
+  }
+ ],
+ "rules_version": "2026.10.0",
+ "worst": {
+  "class.bytecode_size": [
+   {
+    "id": "com.fixture.edge.model.ItemService",
+    "state": "ok",
+    "value": 128
+   },
+   {
+    "id": "com.fixture.edge.web.ItemController",
+    "state": "ok",
+    "value": 59
+   },
+   {
+    "id": "com.fixture.edge.legacy.BillingAction",
+    "state": "ok",
+    "value": 48
+   },
+   {
+    "id": "com.fixture.edge.jobs.ReminderJob",
+    "state": "ok",
+    "value": 27
+   },
+   {
+    "id": "com.fixture.edge.cycle.a.Order",
+    "state": "ok",
+    "value": 26
+   }
+  ],
+  "class.complexity": [
+   {
+    "id": "com.fixture.edge.model.ItemService",
+    "state": "ok",
+    "value": 11
+   },
+   {
+    "id": "com.fixture.edge.web.ItemController",
+    "state": "ok",
+    "value": 8
+   },
+   {
+    "id": "com.fixture.edge.cycle.a.Order",
+    "state": "ok",
+    "value": 5
+   },
+   {
+    "id": "com.fixture.edge.jobs.OrderEvents",
+    "state": "ok",
+    "value": 5
+   },
+   {
+    "id": "com.fixture.edge.legacy.BillingAction",
+    "state": "ok",
+    "value": 5
+   }
+  ],
+  "class.cycle_groups": [
+   {
+    "id": "com.fixture.edge.cycle.a.Address",
+    "state": "info",
+    "value": 1
+   },
+   {
+    "id": "com.fixture.edge.cycle.a.Customer",
+    "state": "info",
+    "value": 1
+   },
+   {
+    "id": "com.fixture.edge.cycle.a.Order",
+    "state": "info",
+    "value": 1
+   },
+   {
+    "id": "com.fixture.edge.cycle.a.Region",
+    "state": "info",
+    "value": 1
+   },
+   {
+    "id": "com.fixture.edge.cycle.b.Invoice",
+    "state": "info",
+    "value": 1
+   }
+  ],
+  "class.dependency_count": [
+   {
+    "id": "com.fixture.edge.web.ItemController",
+    "state": "ok",
+    "value": 14
+   },
+   {
+    "id": "com.fixture.edge.jobs.OrderEvents",
+    "state": "ok",
+    "value": 5
+   },
+   {
+    "id": "com.fixture.edge.legacy.BillingAction",
+    "state": "ok",
+    "value": 5
+   },
+   {
+    "id": "com.fixture.edge.model.ItemService",
+    "state": "ok",
+    "value": 5
+   },
+   {
+    "id": "com.fixture.edge.jobs.ReminderJob",
+    "state": "ok",
+    "value": 4
+   }
+  ],
+  "class.fan_in": [
+   {
+    "id": "com.fixture.edge.cycle.a.Customer",
+    "state": "ok",
+    "value": 2
+   },
+   {
+    "id": "com.fixture.edge.cycle.a.Order",
+    "state": "ok",
+    "value": 2
+   },
+   {
+    "id": "com.fixture.edge.model.Item",
+    "state": "ok",
+    "value": 2
+   },
+   {
+    "id": "com.fixture.edge.model.OrderEntity",
+    "state": "ok",
+    "value": 2
+   },
+   {
+    "id": "com.fixture.edge.cycle.a.Address",
+    "state": "ok",
+    "value": 1
+   }
+  ],
+  "class.fan_out": [
+   {
+    "id": "com.fixture.edge.cycle.a.Customer",
+    "state": "ok",
+    "value": 2
+   },
+   {
+    "id": "com.fixture.edge.cycle.a.Order",
+    "state": "ok",
+    "value": 2
+   },
+   {
+    "id": "com.fixture.edge.web.ItemController",
+    "state": "ok",
+    "value": 2
+   },
+   {
+    "id": "com.fixture.edge.web.OrderAdminController",
+    "state": "ok",
+    "value": 2
+   },
+   {
+    "id": "com.fixture.edge.cycle.a.Address",
+    "state": "ok",
+    "value": 1
+   }
+  ],
+  "class.field_count": [
+   {
+    "id": "com.fixture.edge.model.Item",
+    "state": "ok",
+    "value": 2
+   },
+   {
+    "id": "com.fixture.edge.model.ItemService",
+    "state": "ok",
+    "value": 2
+   },
+   {
+    "id": "com.fixture.edge.cycle.a.Customer",
+    "state": "ok",
+    "value": 1
+   },
+   {
+    "id": "com.fixture.edge.cycle.a.Order",
+    "state": "ok",
+    "value": 1
+   },
+   {
+    "id": "com.fixture.edge.cycle.b.Invoice",
+    "state": "ok",
+    "value": 1
+   }
+  ],
+  "class.layer_violations": [
+   {
+    "id": "com.fixture.edge.legacy.BillingRecord",
+    "state": "info",
+    "value": 1
+   }
+  ],
+  "class.max_method_complexity": [
+   {
+    "id": "com.fixture.edge.jobs.ReminderJob",
+    "state": "ok",
+    "value": 2
+   },
+   {
+    "id": "com.fixture.edge.legacy.BillingAction",
+    "state": "ok",
+    "value": 2
+   },
+   {
+    "id": "com.fixture.edge.model.ItemService",
+    "state": "ok",
+    "value": 2
+   },
+   {
+    "id": "com.fixture.edge.cycle.a.Address",
+    "state": "ok",
+    "value": 1
+   },
+   {
+    "id": "com.fixture.edge.cycle.a.Customer",
+    "state": "ok",
+    "value": 1
+   }
+  ],
+  "class.max_method_size": [
+   {
+    "id": "com.fixture.edge.legacy.BillingAction",
+    "state": "ok",
+    "value": 33
+   },
+   {
+    "id": "com.fixture.edge.model.ItemService",
+    "state": "ok",
+    "value": 28
+   },
+   {
+    "id": "com.fixture.edge.jobs.ReminderJob",
+    "state": "ok",
+    "value": 16
+   },
+   {
+    "id": "com.fixture.edge.jobs.CliTool",
+    "state": "ok",
+    "value": 14
+   },
+   {
+    "id": "com.fixture.edge.web.OrderAdminController",
+    "state": "ok",
+    "value": 13
+   }
+  ],
+  "class.method_count": [
+   {
+    "id": "com.fixture.edge.model.ItemService",
+    "state": "ok",
+    "value": 10
+   },
+   {
+    "id": "com.fixture.edge.web.ItemController",
+    "state": "ok",
+    "value": 8
+   },
+   {
+    "id": "com.fixture.edge.cycle.a.Order",
+    "state": "ok",
+    "value": 5
+   },
+   {
+    "id": "com.fixture.edge.jobs.OrderEvents",
+    "state": "ok",
+    "value": 5
+   },
+   {
+    "id": "com.fixture.edge.legacy.BillingAction",
+    "state": "ok",
+    "value": 4
+   }
+  ],
+  "package.A": [],
+  "package.Ca": [
+   {
+    "id": "com.fixture.edge.model",
+    "state": "ok",
+    "value": 2
+   },
+   {
+    "id": "com.fixture.edge.cycle.a",
+    "state": "ok",
+    "value": 1
+   },
+   {
+    "id": "com.fixture.edge.cycle.b",
+    "state": "ok",
+    "value": 1
+   }
+  ],
+  "package.Ce": [
+   {
+    "id": "com.fixture.edge.web",
+    "state": "ok",
+    "value": 4
+   },
+   {
+    "id": "com.fixture.edge.cycle.a",
+    "state": "ok",
+    "value": 1
+   },
+   {
+    "id": "com.fixture.edge.cycle.b",
+    "state": "ok",
+    "value": 1
+   }
+  ],
+  "package.D": [
+   {
+    "id": "com.fixture.edge.model",
+    "state": "over",
+    "value": 1.0
+   },
+   {
+    "id": "com.fixture.edge.cycle.a",
+    "state": "ok",
+    "value": 0.5
+   },
+   {
+    "id": "com.fixture.edge.cycle.b",
+    "state": "ok",
+    "value": 0.5
+   }
+  ],
+  "package.I": [
+   {
+    "id": "com.fixture.edge.web",
+    "state": "info",
+    "value": 1.0
+   },
+   {
+    "id": "com.fixture.edge.cycle.a",
+    "state": "info",
+    "value": 0.5
+   },
+   {
+    "id": "com.fixture.edge.cycle.b",
+    "state": "info",
+    "value": 0.5
+   }
+  ],
+  "package.bytecode_size": [
+   {
+    "id": "com.fixture.edge.model",
+    "state": "info",
+    "value": 166
+   },
+   {
+    "id": "com.fixture.edge.web",
+    "state": "info",
+    "value": 132
+   },
+   {
+    "id": "com.fixture.edge.cycle.a",
+    "state": "info",
+    "value": 75
+   },
+   {
+    "id": "com.fixture.edge.legacy",
+    "state": "info",
+    "value": 58
+   },
+   {
+    "id": "com.fixture.edge.jobs",
+    "state": "info",
+    "value": 55
+   }
+  ],
+  "package.class_count": [
+   {
+    "id": "com.fixture.edge.web",
+    "state": "info",
+    "value": 5
+   },
+   {
+    "id": "com.fixture.edge.cycle.a",
+    "state": "info",
+    "value": 4
+   },
+   {
+    "id": "com.fixture.edge.model",
+    "state": "info",
+    "value": 4
+   },
+   {
+    "id": "com.fixture.edge.jobs",
+    "state": "info",
+    "value": 3
+   },
+   {
+    "id": "com.fixture.edge.legacy",
+    "state": "info",
+    "value": 2
+   }
+  ],
+  "package.cycle_groups": [
+   {
+    "id": "com.fixture.edge.cycle.a",
+    "state": "info",
+    "value": 2
+   },
+   {
+    "id": "com.fixture.edge.cycle.b",
+    "state": "info",
+    "value": 2
+   },
+   {
+    "id": "com.fixture.edge.legacy",
+    "state": "info",
+    "value": 1
+   }
+  ],
+  "package.largest_cycle": [
+   {
+    "id": "com.fixture.edge.cycle.a",
+    "state": "info",
+    "value": 5
+   },
+   {
+    "id": "com.fixture.edge.cycle.b",
+    "state": "info",
+    "value": 5
+   },
+   {
+    "id": "com.fixture.edge.legacy",
+    "state": "info",
+    "value": 2
+   }
+  ],
+  "package.layer_violations": [
+   {
+    "id": "com.fixture.edge.legacy",
+    "state": "info",
+    "value": 1
+   }
+  ]
+ }
+}

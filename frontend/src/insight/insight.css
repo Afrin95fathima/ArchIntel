@@ -55,3 +55,19 @@
 .cycle-node:hover rect, .cycle-node:focus rect { fill: #f6e1de; }
 .cycle-node text { font-weight: 600; fill: var(--neutral-900); }
 .cycle-edge.runtime-only { color: var(--state-info); }
+.metric-value { display: inline-block; min-width: 2.2em; padding: 0 5px; border-radius: 4px; text-align: right; font-variant-numeric: tabular-nums; }
+.metric-value.near { background: #f5ead8; color: var(--state-warning); font-weight: 600; }
+.metric-value.over { background: #f6e1de; color: var(--severity-critical); font-weight: 700; }
+.metric-detail-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+.metric-card { padding: 10px 12px; border: 1px solid var(--neutral-200); border-radius: var(--radius-md); }
+.metric-card.over { border-color: #e7b8b1; }
+.metric-card.near { border-color: #e6cfa6; }
+.metric-card header { display: flex; justify-content: space-between; gap: 8px; }
+.metric-card p { margin: 6px 0; font-size: var(--text-13); }
+.metric-scatter { width: 100%; max-width: 420px; }
+.metric-scatter .axis { stroke: var(--neutral-400); }
+.metric-scatter .main-sequence { stroke: var(--brand-600); stroke-dasharray: 5 4; }
+.metric-scatter text { font-size: 11px; fill: var(--neutral-600); }
+.metric-point { fill: var(--brand-600); opacity: .8; }
+.metric-point.near { fill: var(--state-warning); }
+.metric-point.over { fill: var(--severity-critical); }

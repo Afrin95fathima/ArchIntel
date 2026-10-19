@@ -1,0 +1,104 @@
+# ArchIntel metric thresholds and technical-debt rules (see docs/INSIGHT-REFERENCE.md).
+# Thresholds are absolute and documented; change them here, never in code. `warn` marks "near",
+# `over` marks "over threshold". Every finding reports the measured value next to the threshold.
+schema_version: 1
+rules_version: 2026.10.0
+
+metric_thresholds:
+  class.fan_in:            {warn: 15, over: 25}
+  class.fan_out:           {warn: 12, over: 20}
+  class.method_count:      {warn: 20, over: 35}
+  class.field_count:       {warn: 12, over: 20}
+  class.bytecode_size:     {warn: 3000, over: 8000}
+  class.max_method_size:   {warn: 1000, over: 8000}
+  class.complexity:        {warn: 60, over: 120}
+  class.max_method_complexity: {warn: 10, over: 20}
+  class.dependency_count:  {warn: 20, over: 30}
+  package.D:               {warn: 0.5, over: 0.7}
+  package.Ce:              {warn: 20, over: 40}
+  package.Ca:              {warn: 20, over: 40}
+
+# Allowed layer dependencies: a dependency from layer X to layer Y not listed under X is a violation.
+# CONFIGURATION and SUPPORT may depend on any layer; any layer may depend on SUPPORT.
+layering:
+  PRESENTATION: [PRESENTATION, SERVICE, DATA_ACCESS, DOMAIN, SUPPORT]
+  SERVICE: [SERVICE, DATA_ACCESS, DOMAIN, SUPPORT]
+  DATA_ACCESS: [DATA_ACCESS, DOMAIN, SUPPORT]
+  DOMAIN: [DOMAIN, SUPPORT]
+  CONFIGURATION: [PRESENTATION, SERVICE, DATA_ACCESS, DOMAIN, CONFIGURATION, SUPPORT]
+  SUPPORT: [PRESENTATION, SERVICE, DATA_ACCESS, DOMAIN, CONFIGURATION, SUPPORT]
+
+rules:
+  - id: DEBT-GOD-CLASS
+    title: God class
+    severity: HIGH
+    description: At least `min_signals` of the listed size/coupling metrics are over their threshold.
+    min_signals: 2
+    metrics: [class.method_count, class.field_count, class.fan_in, class.fan_out, class.bytecode_size]
+    action: Identify groups of methods that use the same fields and move each group into its own class.
+  - id: DEBT-HIGH-COUPLING
+    title: High coupling
+    severity: MEDIUM
+    description: fan-in + fan-out (distinct internal classes) is over the threshold.
+    threshold: 30
+    action: Introduce a narrower interface for the most common callers, or split responsibilities so fewer classes depend on this one.
+  - id: DEBT-CYCLE-MEMBER
+    title: Cyclic dependency membership
+    severity: HIGH
+    description: The class belongs to a cyclic group (strongly connected component) of top-level classes.
+    action: Open the cycle and review the highest-ranked dependency to cut.
+  - id: DEBT-LAYER-VIOLATION
+    title: Layer violation
+    severity: HIGH
+    description: A class depends on a class in a layer it may not use according to `layering`.
+    action: Move the dependency behind a service or interface in an allowed layer.
+  - id: DEBT-LAYER-SKIP
+    title: Controller bypasses the service layer
+    severity: LOW
+    description: A presentation class depends directly on data access while the application has a service layer.
+    action: Route the call through the existing service that owns this data, if one exists.
+  - id: DEBT-LARGE-METHOD
+    title: Large method
+    severity: MEDIUM
+    severity_over: HIGH
+    description: A method's bytecode size is over the threshold. HotSpot does not JIT-compile methods larger than 8000 bytes of bytecode (HugeMethodLimit).
+    metric: class.max_method_size
+    action: Extract cohesive blocks of the method into well-named private methods or collaborating classes.
+  - id: DEBT-COMPLEX-METHOD
+    title: Complex method
+    severity: MEDIUM
+    description: Branch instructions + 1 (an approximation of cyclomatic complexity from bytecode) is over the threshold.
+    metric: class.max_method_complexity
+    action: Replace nested conditionals with early returns, polymorphism or lookup tables, and add tests per branch first.
+  - id: DEBT-TOO-MANY-DEPENDENCIES
+    title: Too many dependencies
+    severity: MEDIUM
+    description: Distinct referenced types (internal and external, excluding java.lang) is over the threshold.
+    metric: class.dependency_count
+    action: Group related dependencies behind a facade or split the class by responsibility.
+  - id: DEBT-ENTITY-IN-CONTROLLER
+    title: Entity used directly by a controller
+    severity: MEDIUM
+    description: A presentation-layer class uses a persistence entity as a parameter, return type, field or call target.
+    action: Map the entity to a request/response model at the controller boundary so the database model can change independently.
+  - id: DEBT-STATIC-STATE
+    title: Mutable static state
+    severity: MEDIUM
+    description: A non-final static field, or a static final collection that is modified, holds shared mutable state.
+    action: Move the state into an instance managed by the container, or make it immutable.
+  - id: DEBT-DEPRECATED-API
+    title: Deprecated API usage
+    severity: LOW
+    description: The class calls a member marked @Deprecated in the application, or a JDK member listed as deprecated in lifecycle-rules.yaml.
+    action: Replace the call with the documented successor API.
+  - id: DEBT-AGING-FRAMEWORK
+    title: Aging or end-of-life framework usage
+    severity: MEDIUM
+    severity_over: HIGH
+    description: The class uses a technology rated aging (MEDIUM) or end-of-life (HIGH) by the lifecycle rules (WP1).
+    action: Follow the migration notes on the Technology lifecycle page.
+  - id: DEBT-UNOBSERVED
+    title: Unobserved at runtime
+    severity: INFO
+    description: No span in the selected runtime sessions mapped to this class. Unobserved does not mean unused.
+    action: Exercise the entry points listed under Suggested next tests before drawing conclusions.
