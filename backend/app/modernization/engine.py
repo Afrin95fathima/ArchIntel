@@ -133,7 +133,7 @@ def build(assessment_id, version, static, facts, evidence, options):
         domain_classes = set(domain.get('classes', []))
         observed_domain_methods = sum(1 for c, _ in observed_methods if c in domain_classes)
         domain_method_signatures = {(c['id'], m['signature']) for c in static['classes'] if c['id'] in domain_classes
-                                    for m in c.get('methods', []) if m.get('signature') and not m.get('name', '').startswith('<')}
+                                    for m in c.get('methods', []) if m.get('signature') and not (m.get('name') or '').startswith('<')}
         observed_domain_classes = min(observed.get('observed', 0), len(domain_classes))
         class_pct = round(100 * observed_domain_classes / len(domain_classes), 2) if has_runtime and domain_classes else None
         method_pct = round(100 * len(observed_methods & domain_method_signatures) / len(domain_method_signatures), 2) if methods_available and domain_method_signatures else None
@@ -296,6 +296,14 @@ def build(assessment_id, version, static, facts, evidence, options):
     target['alternatives'] = [dict(strategy=row['strategy'], status=row['status'], reason=row['rationale'], finding_ids=row['finding_ids'], unknowns=row['unknowns'])
                               for row in strategy_rows if row['strategy'] != options['strategy']]
     class_count = len(static.get('classes', []))
+    planned_class_count = sum(len(component.get('classes', [])) for component in target.get('components', []))
+    modernization_progress = dict(
+        percentage=round(100 * planned_class_count / class_count, 1) if class_count else 0,
+        planned_classes=planned_class_count,
+        total_classes=class_count,
+        basis='Classes assigned to target components in this saved proposal, divided by analyzed application classes.',
+        state='PLAN_COVERAGE',
+    )
     boundary_edge_count = sum(row['edge_count'] for row in matrix.get('rows', []))
     average_cross_ratio = round(sum(a['external_coupling'] for a in structural_by.values()) / max(1, len(structural_by)), 3)
     baseline_metrics = dict(cycle_count=len(static.get('cycles', [])), god_class_count=sum(i.get('issue_type') == 'GOD_CLASS' for i in static.get('issues', [])),
@@ -328,6 +336,7 @@ def build(assessment_id, version, static, facts, evidence, options):
         automatic_winner=None)
     result = dict(id=assessment_id, version_id=version.id, version_fingerprint=version.fingerprint, rule_version=RULE_VERSION, calibration_version=CALIBRATION,
         options=options, assessments=assessments, findings=findings, decisions=decisions, target=target, waves=waves, decision_brief=result_brief,
+        modernization_progress=modernization_progress,
         dependency_edges=[dict(source=s, target=t) for s, t in sorted(all_graph.edges)],
         domain_dependency_matrix=matrix, data_ownership=ownership, entry_points=entry_points,
         dead_code_candidates=dead_candidates,

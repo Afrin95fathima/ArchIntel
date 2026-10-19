@@ -81,6 +81,14 @@ def authenticate(item, authorization):
 
 def ingest(db, item, events, settings):
     if item.status not in ('WAITING_FOR_AGENT','RUNNING'): raise HTTPException(409,'Session is not accepting telemetry.')
+    started=item.started_at
+    if started:
+        started=started.replace(tzinfo=now().tzinfo) if started.tzinfo is None else started
+        if (now()-started).total_seconds()>settings.runtime_max_session_duration_hours*3600:
+            item.status='FAILED';item.ended_at=now();item.updated_at=now()
+            counters=dict(item.settings.get('ingestion',{}));counters['session_duration_rejections']=counters.get('session_duration_rejections',0)+len(events)
+            item.settings=dict(item.settings,ingestion=counters);db.commit()
+            raise HTTPException(409,dict(code='LIMIT_EXCEEDED',limit='max_session_duration',configured=settings.runtime_max_session_duration_hours,observed=int((now()-started).total_seconds()/3600),next_step='Create a new runtime session for the next observation window.'))
     counters=dict(item.settings.get('ingestion',{}))
     strict=item.settings.get('binding_mode')=='STRICT'
     for event in events:
@@ -97,6 +105,11 @@ def ingest(db, item, events, settings):
     for event in events:
         key = (event['trace_id'],event['span_id'])
         stored=dict(event,session_id=item.id)
+        event_size=len(__import__('json').dumps(stored,separators=(',',':'),ensure_ascii=False).encode('utf-8'))
+        if event_size>settings.runtime_max_span_size_bytes:
+            dropped+=1
+            counters['oversized_spans']=counters.get('oversized_spans',0)+1
+            continue
         if key in existing:
             duplicates+=1
             if existing[key]!=stored:conflicts+=1
@@ -144,11 +157,11 @@ def result(db, sessions, settings):
 
 def quality(sessions,runtime,coverage):
     counters={key:sum(s.settings.get('ingestion',{}).get(key,0) for s in sessions) for key in
-              ('duplicate_spans','conflicting_spans','declared_match_spans','unverified_spans','binding_rejected_spans')}
+              ('duplicate_spans','conflicting_spans','declared_match_spans','unverified_spans','binding_rejected_spans','oversized_spans')}
     counters.update(accepted_spans=sum(s.span_count for s in sessions),dropped_spans=sum(s.dropped_count for s in sessions),
                     missing_parents=runtime['missing_parent_count'],invalid_parent_links=runtime.get('invalid_parent_count',0))
     warnings=[]
-    for key in ('conflicting_spans','unverified_spans','binding_rejected_spans','dropped_spans','missing_parents','invalid_parent_links'):
+    for key in ('conflicting_spans','unverified_spans','binding_rejected_spans','oversized_spans','dropped_spans','missing_parents','invalid_parent_links'):
         if counters[key]:warnings.append(f'{key.replace("_"," ")}: {counters[key]}')
     if any('ingestion' not in s.settings and s.span_count for s in sessions):warnings.append('Legacy session ingestion diagnostics are unavailable.')
     return dict(**counters,method_mapping=coverage.get('method_mapping_diagnostics',{}),warnings=warnings,

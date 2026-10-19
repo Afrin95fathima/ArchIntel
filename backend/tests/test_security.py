@@ -245,10 +245,11 @@ def test_upgrade_preserves_existing_snapshots(tmp_path):
         run_id=run.id
         db.commit()
     with engine.connect() as db:
-        before = [tuple(row) for row in db.execute(text('SELECT * FROM analysis_runs'))]
+        before = [tuple(row) for row in db.execute(text('SELECT id, tenant_id, created_at, application_id, artifact_id, status, progress, stage, started_at, completed_at, error_message, stages, result FROM analysis_runs'))]
     command.upgrade(migration, 'head')
     with engine.connect() as db:
-        assert [tuple(row) for row in db.execute(text('SELECT * FROM analysis_runs'))] == before
+        assert [tuple(row) for row in db.execute(text('SELECT id, tenant_id, created_at, application_id, artifact_id, status, progress, stage, started_at, completed_at, error_message, stages, result FROM analysis_runs'))] == before
+        assert db.execute(text('SELECT limit_details FROM analysis_runs')).scalar() is None
         assert db.execute(text('SELECT COUNT(*) FROM projects')).scalar() == 1
     engine.dispose()
 

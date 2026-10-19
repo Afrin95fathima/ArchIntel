@@ -101,7 +101,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             except ValueError:
                 return JSONResponse({'detail':'Invalid Content-Length.'},status_code=400)
             if too_large:
-                return JSONResponse({'detail':'Artifact exceeds upload limit.'},status_code=413)
+                return JSONResponse({'detail':{'code':'LIMIT_EXCEEDED','limit':'max_upload_size_compressed','configured':config.max_upload_mb*1024**2,'observed':int(length)-65536,'next_step':'Split the artifact by module or ask your administrator to raise max_upload_mb.'}},status_code=413)
         response = await call_next(request)
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['Referrer-Policy'] = 'same-origin'

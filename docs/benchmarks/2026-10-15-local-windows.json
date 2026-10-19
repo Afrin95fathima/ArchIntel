@@ -1,0 +1,189 @@
+{
+  "kind": "synthetic-modular-analysis-benchmark",
+  "environment": {
+    "platform": "Windows-11-10.0.26100-SP0",
+    "python": "3.12.10",
+    "processor": "Intel64 Family 6 Model 154 Stepping 4, GenuineIntel",
+    "cpu_count": 8
+  },
+  "workload": {
+    "module_count": 7,
+    "package_target_classes": 1000,
+    "cross_module_checkpoint_target": "up to 40 per module"
+  },
+  "memory": {
+    "value": 125603840,
+    "units": "bytes of peak process working set"
+  },
+  "repeats": 3,
+  "results": [
+    {
+      "requested_classes": 100,
+      "actual_classes": 100,
+      "modules": 7,
+      "packages": 7,
+      "dependency_pairs": 100,
+      "typed_dependency_edges": 100,
+      "generated_edges": 100,
+      "cross_module_edges": 7,
+      "domains": 7,
+      "class_scc_count": 1,
+      "package_scc_count": 1,
+      "reported_class_cycle_members": 7,
+      "largest_package_classes": 15,
+      "issues": 2,
+      "dependency_edges_per_class": 1.0,
+      "result_json_bytes": 113699,
+      "seconds_median": 0.0287,
+      "seconds_samples": [
+        0.0857,
+        0.0287,
+        0.0263
+      ]
+    },
+    {
+      "requested_classes": 1000,
+      "actual_classes": 1000,
+      "modules": 7,
+      "packages": 7,
+      "dependency_pairs": 1238,
+      "typed_dependency_edges": 1238,
+      "generated_edges": 1238,
+      "cross_module_edges": 245,
+      "domains": 7,
+      "class_scc_count": 35,
+      "package_scc_count": 1,
+      "reported_class_cycle_members": 245,
+      "largest_package_classes": 143,
+      "issues": 36,
+      "dependency_edges_per_class": 1.238,
+      "result_json_bytes": 960504,
+      "seconds_median": 0.3317,
+      "seconds_samples": [
+        0.3088,
+        0.3317,
+        0.3352
+      ]
+    },
+    {
+      "requested_classes": 5000,
+      "actual_classes": 5000,
+      "modules": 7,
+      "packages": 7,
+      "dependency_pairs": 5266,
+      "typed_dependency_edges": 5266,
+      "generated_edges": 5266,
+      "cross_module_edges": 273,
+      "domains": 7,
+      "class_scc_count": 39,
+      "package_scc_count": 1,
+      "reported_class_cycle_members": 273,
+      "largest_package_classes": 715,
+      "issues": 40,
+      "dependency_edges_per_class": 1.0532,
+      "result_json_bytes": 4051152,
+      "seconds_median": 1.4057,
+      "seconds_samples": [
+        1.4829,
+        1.4057,
+        1.396
+      ]
+    },
+    {
+      "requested_classes": 10000,
+      "actual_classes": 10000,
+      "modules": 7,
+      "packages": 14,
+      "dependency_pairs": 10266,
+      "typed_dependency_edges": 10266,
+      "generated_edges": 10266,
+      "cross_module_edges": 273,
+      "domains": 7,
+      "class_scc_count": 39,
+      "package_scc_count": 2,
+      "reported_class_cycle_members": 273,
+      "largest_package_classes": 1000,
+      "issues": 587,
+      "dependency_edges_per_class": 1.0266,
+      "result_json_bytes": 8243589,
+      "seconds_median": 3.2459,
+      "seconds_samples": [
+        3.3282,
+        3.2459,
+        3.1885
+      ]
+    }
+  ],
+  "profile": {
+    "classes": 10000,
+    "modules": 7,
+    "top_functions": [
+      {
+        "function": "engine.py:14(analyze)",
+        "calls": 1,
+        "own_seconds": 0.05689,
+        "cumulative_seconds": 9.64855
+      },
+      {
+        "function": "domains.py:20(discover_domains)",
+        "calls": 1,
+        "own_seconds": 0.04658,
+        "cumulative_seconds": 7.05803
+      },
+      {
+        "function": "community_louvain.py:163(best_partition)",
+        "calls": 1,
+        "own_seconds": 0.00053,
+        "cumulative_seconds": 6.5346
+      },
+      {
+        "function": "community_louvain.py:258(generate_dendrogram)",
+        "calls": 1,
+        "own_seconds": 0.00061,
+        "cumulative_seconds": 6.52481
+      },
+      {
+        "function": "community_louvain.py:470(__one_level)",
+        "calls": 7,
+        "own_seconds": 1.18603,
+        "cumulative_seconds": 5.55306
+      },
+      {
+        "function": "community_louvain.py:508(__neighcom)",
+        "calls": 129845,
+        "own_seconds": 0.80811,
+        "cumulative_seconds": 2.15974
+      },
+      {
+        "function": "~:0(<method 'get' of 'dict' objects>)",
+        "calls": 3547955,
+        "own_seconds": 1.36507,
+        "cumulative_seconds": 1.36507
+      },
+      {
+        "function": "~:0(<built-in method builtins.sum>)",
+        "calls": 76547,
+        "own_seconds": 0.11842,
+        "cumulative_seconds": 0.77373
+      },
+      {
+        "function": "graph.py:1918(size)",
+        "calls": 65,
+        "own_seconds": 0.00061,
+        "cumulative_seconds": 0.68456
+      },
+      {
+        "function": "graph.py:1954(<genexpr>)",
+        "calls": 68145,
+        "own_seconds": 0.03365,
+        "cumulative_seconds": 0.66306
+      }
+    ]
+  },
+  "limitations": [
+    "Measures deterministic in-process architecture analysis; excludes archive validation, jQAssistant, Neo4j extraction, database persistence, API queueing and UI rendering.",
+    "Synthetic graph shape and host conditions may differ from customer applications.",
+    "Memory is process high-water RSS/working set after all cases; it is not a per-case allocation profile.",
+    "This is not a capacity, latency, or service-level guarantee."
+  ]
+}

@@ -41,7 +41,7 @@ def test_health_configuration_and_migration(client):
     assert client.get('/api/v1/health').status_code==200
     assert client.get('/api/v1/ready').json()['dependencies']=={'database':'ok','scanner':'ok'}
     with client.app.state.engine.connect() as connection:
-        assert connection.execute(text('SELECT version_num FROM alembic_version')).scalar()=='0008'
+        assert connection.execute(text('SELECT version_num FROM alembic_version')).scalar()=='0009'
     assert client.get('/api/v1/analysis/capabilities').json()['status']=='AVAILABLE'
 
 
@@ -108,6 +108,35 @@ def test_invalid_archive_rejected_without_residual_file(client):
     assert response.status_code==422
     assert not list((client.app.state.config.data_dir/'uploads').glob('*'))
     assert client.post(f'/api/v1/applications/{app}/analysis').status_code==409
+
+
+def test_upload_size_limit_is_structured_and_cleans_partial_file(client):
+    app=new_app(client)
+    client.app.state.config.max_upload_mb=0
+    response=client.post(f'/api/v1/applications/{app}/artifact',files={'file':('sample.jar',artifact())})
+    assert response.status_code==413
+    detail=response.json()['detail']
+    assert detail['code']=='LIMIT_EXCEEDED' and detail['limit']=='max_upload_size_compressed'
+    assert not list((client.app.state.config.data_dir/'uploads').glob('*'))
+
+
+def test_limit_rejection_is_distinct_and_job_files_are_cleaned(client,monkeypatch):
+    from app.services.ingestion import LimitExceeded
+    def rejected(*args):raise LimitExceeded('max_edges_per_scan',1,2,'Split the artifact.')
+    monkeypatch.setattr(JQAssistantScanner,'scan',rejected)
+    app=new_app(client)
+    client.post(f'/api/v1/applications/{app}/artifact',files={'file':('sample.jar',artifact())})
+    identity=client.post(f'/api/v1/applications/{app}/analysis').json()['id']
+    for _ in range(200):
+        state=client.get(f'/api/v1/analyses/{identity}').json()
+        if state['status']=='REJECTED_LIMIT_EXCEEDED':break
+        time.sleep(.02)
+    assert state['status']=='REJECTED_LIMIT_EXCEEDED'
+    assert state['limit_details']['limit']=='max_edges_per_scan'
+    deadline=time.monotonic()+2
+    while list((client.app.state.config.data_dir/'jobs').glob(identity+'-*')) and time.monotonic()<deadline:time.sleep(.02)
+    assert not list((client.app.state.config.data_dir/'jobs').glob(identity+'-*'))
+    assert client.get(f'/api/v1/analyses/{identity}/summary').status_code==409
 
 
 def test_failed_scan_never_publishes_results(client,monkeypatch):

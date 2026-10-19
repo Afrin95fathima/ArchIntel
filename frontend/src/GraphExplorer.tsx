@@ -9,7 +9,7 @@ import { Badge, Button, ErrorBox, Loading, PageTitle } from './components';
 const colorTokens = ['--palette-327863','--palette-5579ad','--palette-aa8551','--palette-8771a9','--palette-5d9194','--palette-b26d70','--palette-77834e'];
 const readThemeColor = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-export function GraphCanvas({data,domains,onNode,onDrill,compact=false,cycleNodeIds=[]}: {data:GraphData;domains:Domain[];onNode?:(node:GraphNode)=>void;onDrill?:(node:GraphNode)=>void;compact?:boolean;cycleNodeIds?:string[]}) {
+export function GraphCanvas({data,domains,onNode,onDrill,compact=false,cycleNodeIds=[],nodeColors}: {data:GraphData;domains:Domain[];onNode?:(node:GraphNode)=>void;onDrill?:(node:GraphNode)=>void;compact?:boolean;cycleNodeIds?:string[];nodeColors?:Record<string,string>}) {
   const container = useRef<HTMLDivElement>(null);
   const instance = useRef<Core|null>(null);
   const callbacks = useRef({onNode,onDrill});
@@ -18,7 +18,7 @@ export function GraphCanvas({data,domains,onNode,onDrill,compact=false,cycleNode
     if (!container.current) return;
     const colors = colorTokens.map(readThemeColor);
     const cy = cytoscape({container:container.current,
-      elements:[...data.nodes.map(n=>({data:{id:n.id,label:n.name?.split('.').at(-1)||n.simple_name||n.id.split('.').at(-1),size:Math.min(78,42+(n.class_count||1)*2),color:colors[Math.max(0,domains.findIndex(d=>d.id===(n.domain_id||n.id)))%colors.length],cycle:cycleNodeIds.includes(n.id)}})),
+      elements:[...data.nodes.map(n=>({data:{id:n.id,label:n.name?.split('.').at(-1)||n.simple_name||n.id.split('.').at(-1),size:Math.min(78,42+(n.class_count||1)*2),color:nodeColors?.[n.id]||colors[Math.max(0,domains.findIndex(d=>d.id===(n.domain_id||n.id)))%colors.length],cycle:cycleNodeIds.includes(n.id)}})),
         ...data.edges.map(e=>({data:{id:e.id,source:e.source,target:e.target,weight:e.weight||1}}))],
       style:[
         {selector:'node',style:{'background-color':'data(color)','label':'data(label)','color':readThemeColor('--palette-283c35'),'font-family':'Inter, system-ui','font-size':11,'font-weight':600,'text-valign':'bottom','text-margin-y':9,'width':'data(size)','height':'data(size)','border-width':6,'border-color':readThemeColor('--palette-fff'),'text-wrap':'wrap','text-max-width':'140px'}},
@@ -34,7 +34,7 @@ export function GraphCanvas({data,domains,onNode,onDrill,compact=false,cycleNode
     cy.on('dbltap','node',event=>{const node=data.nodes.find(n=>n.id===event.target.id());if(node)callbacks.current.onDrill?.(node);});
     instance.current=cy;
     return ()=>{cy.destroy();instance.current=null;};
-  },[data,domains,cycleNodeIds]);
+  },[data,domains,cycleNodeIds,nodeColors]);
   return <div className={'graph-canvas-wrap '+(compact?'compact':'')}><div className="graph-canvas" ref={container}/><button className="graph-fit" onClick={()=>instance.current?.fit(undefined,40)} aria-label="Fit graph"><Maximize2 size={16}/></button>{data.nodes.length===0&&<div className="graph-empty">No nodes in this selection.</div>}</div>;
 }
 

@@ -57,6 +57,7 @@ class AnalysisView(BaseModel):
     completed_at: datetime | None
     created_at: datetime
     error_message: str | None
+    limit_details: dict | None = None
     stages: list[dict]
 
 

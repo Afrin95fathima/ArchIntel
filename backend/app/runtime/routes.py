@@ -101,9 +101,9 @@ async def ingest(session_id:str,request:Request,db=Depends(db_session)):
         response=ExportTraceServiceResponse()
         if dropped:
             response.partial_success.rejected_spans=dropped
-            response.partial_success.error_message='Session span limit reached.'
+            response.partial_success.error_message='One or more telemetry limits were reached; rejected spans were counted.'
         return Response(response.SerializeToString(),media_type='application/x-protobuf')
-    return {'partialSuccess':{'rejectedSpans':str(dropped),'errorMessage':'Session span limit reached.'}} if dropped else {}
+    return {'partialSuccess':{'rejectedSpans':str(dropped),'errorMessage':'One or more telemetry limits were reached; rejected spans were counted.'}} if dropped else {}
 
 
 @router.get('/runtime-sessions/{session_id}/evidence',response_model=EvidenceResponse)

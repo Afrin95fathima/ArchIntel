@@ -45,6 +45,7 @@ class AnalysisRun(Identity, Base):
     application_id: Mapped[str] = mapped_column(ForeignKey('applications.id'), index=True)
     artifact_id: Mapped[str] = mapped_column(ForeignKey('artifacts.id'))
     status: Mapped[str] = mapped_column(String(40), default='QUEUED', index=True)
+    limit_details: Mapped[dict | None] = mapped_column(JSON)
     progress: Mapped[int] = mapped_column(default=0)
     stage: Mapped[str] = mapped_column(String(80), default='UPLOAD_RECEIVED')
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

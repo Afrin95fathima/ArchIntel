@@ -62,7 +62,8 @@ class JQAssistantScanner:
         except subprocess.TimeoutExpired as error:
             raise ScannerError('Graph extraction exceeded the time limit.') from error
         if export.returncode:
-            raise ScannerError('Graph export failed or the dependency limit was exceeded.')
+            detail=export.stderr.decode('utf-8','replace')[-2000:]
+            raise ScannerError('Graph export failed or the dependency limit was exceeded.' + ((' '+detail) if detail else ''))
         marker = b'ARCHINTEL_GRAPH_JSON:'
         lines = [line[len(marker):] for line in export.stdout.splitlines() if line.startswith(marker)]
         if not lines:
@@ -89,6 +90,13 @@ class JQAssistantScanner:
                 target = target[:-2]
             if target not in primitive_types:
                 edges.append(dict(edge, target=target))
+                if len(edges)>self.settings.max_edges:
+                    from app.services.ingestion import LimitExceeded
+                    raise LimitExceeded('max_edges_per_scan',self.settings.max_edges,len(edges),'Split the artifact by module or ask your administrator to raise max_edges.')
         typed = {(e['source'],e['target']) for e in edges if e['dependency_type']!='OTHER'}
         edges = [e for e in edges if e['dependency_type']!='OTHER' or (e['source'],e['target']) not in typed]
+        packages={row['fqn'].rpartition('.')[0] or '(default)' for row in classes}
+        if len(packages)>self.settings.max_packages_per_scan:
+            from app.services.ingestion import LimitExceeded
+            raise LimitExceeded('max_packages_per_scan',self.settings.max_packages_per_scan,len(packages),'Split the artifact by module or ask your administrator to raise max_packages_per_scan.')
         return classes, edges

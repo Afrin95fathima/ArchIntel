@@ -18,6 +18,7 @@ The default assistant uses deterministic evidence explanations. Optional local-m
 
 ## Documentation
 
+- [Complete user guide: screens, fields, inputs, and outputs](docs/ARCHINTEL-COMPLETE-USER-GUIDE.md)
 - [Dynamic analysis user flow](docs/RUNTIME-USER-FLOW.md) · [PDF](docs/RUNTIME-USER-FLOW.pdf)
 - [Runtime developer guide](docs/RUNTIME-DEVELOPER-GUIDE.md) · [PDF](docs/RUNTIME-DEVELOPER-GUIDE.pdf)
 - [Dynamic verification](docs/RUNTIME-VERIFICATION.md)

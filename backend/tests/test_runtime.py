@@ -245,6 +245,30 @@ def test_body_limits_malformed_payload_and_empty_batches(live):
     assert live.post(base+'/v1/traces',content=b'x'*101,headers=headers).status_code==413
 
 
+def test_limits_endpoint_and_oversized_spans_are_visible_as_dropped(live):
+    limits=live.get('/api/v1/limits').json()['limits']
+    assert limits['max_classes_per_scan']==live.app.state.config.max_classes
+    assert limits['runtime_max_span_size_bytes']==live.app.state.config.runtime_max_span_size_bytes
+    c=create(live);base='/api/v1/runtime-sessions/'+c['session']['id'];live.post(base+'/start')
+    live.app.state.config.runtime_max_span_size_bytes=100
+    response=live.post(base+'/v1/traces',json=payload(span(1,'app.a.A')),headers={'Authorization':'Bearer '+c['token']})
+    assert response.status_code==200 and response.json()['partialSuccess']['rejectedSpans']=='1'
+    diag=live.get(base+'/diagnostics').json()
+    assert diag['dropped_spans']==1 and diag['ingestion']['oversized_spans']==1
+
+
+def test_expired_runtime_session_is_rejected_and_closed(live):
+    from datetime import timedelta
+    from app.models import now
+    c=create(live);base='/api/v1/runtime-sessions/'+c['session']['id'];live.post(base+'/start')
+    live.app.state.config.runtime_max_session_duration_hours=1
+    with live.app.state.sessions() as db:
+        item=db.get(RuntimeSession,c['session']['id']);item.started_at=now()-timedelta(hours=2);db.commit()
+    response=live.post(base+'/v1/traces',json=payload(span(1,'app.a.A')),headers={'Authorization':'Bearer '+c['token']})
+    assert response.status_code==409 and response.json()['detail']['limit']=='max_session_duration'
+    assert live.get(base).json()['status']=='FAILED'
+
+
 def test_agent_plan_uses_explicit_declared_method_names(live):
     with live.app.state.sessions() as db:
         run=db.get(AnalysisRun,live.run_id);static=copy.deepcopy(run.result)

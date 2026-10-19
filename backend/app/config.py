@@ -69,6 +69,12 @@ class Settings(BaseSettings):
     max_classes: int = 20000
     max_edges: int = 200000
     scan_timeout_seconds: int = 600
+    # Conservative placeholders; validate with deployment ramp tests before advertising capacity.
+    max_compression_ratio: int = 1024  # unvalidated, to be set from ramp-test results
+    max_packages_per_scan: int = 10000  # unvalidated, to be set from ramp-test results
+    max_job_disk_mb: int = 2048  # unvalidated, to be set from ramp-test results
+    runtime_max_span_size_bytes: int = 262144  # unvalidated, to be set from ramp-test results
+    runtime_max_session_duration_hours: int = 24  # unvalidated, to be set from ramp-test results
     retain_artifacts: bool = False
     max_cycle_length: int = 8
     max_cycles_per_scc: int = 20
@@ -123,6 +129,14 @@ class Settings(BaseSettings):
     @classmethod
     def positive_runtime_limit(cls, value):
         if value <= 0: raise ValueError('Runtime limits must be positive.')
+        return value
+
+    @field_validator('max_upload_mb','max_expanded_mb','max_archive_entries','max_classes','max_edges',
+                     'max_compression_ratio','max_packages_per_scan','max_job_disk_mb',
+                     'runtime_max_span_size_bytes','runtime_max_session_duration_hours')
+    @classmethod
+    def positive_ingestion_limits(cls, value):
+        if value < 0: raise ValueError('Ingestion limits cannot be negative.')
         return value
 
     @field_validator('runtime_structural_weight')

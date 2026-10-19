@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from app import models as m
 from app.schemas import (ProjectInput, ProjectView, ApplicationInput, ApplicationView, ArtifactView,
     AnalysisView, ItemsResponse, GraphResponse, QueryInput, AssistantResponse)
-from app.services.ingestion import validate_archive, validate_project_zip, file_hash, ArtifactError
+from app.services.ingestion import validate_archive, validate_project_zip, file_hash, ArtifactError, LimitExceeded
 from app.services.assistant import answer
 from app.config import ROOT
 from app.services.engine import VERSION
@@ -99,7 +99,7 @@ async def upload(application_id: str, file: UploadFile, request: Request, db: Se
             while chunk := await file.read(1024 * 1024):
                 total += len(chunk)
                 if total > config.max_upload_mb * 1024**2:
-                    raise HTTPException(413, 'Artifact exceeds the upload size limit.')
+                    raise HTTPException(413, dict(code='LIMIT_EXCEEDED',limit='max_upload_size_compressed',configured=config.max_upload_mb*1024**2,observed=total,next_step='Split the artifact by module or ask your administrator to raise max_upload_mb.'))
                 target.write(chunk)
         manifest = validate_project_zip(path, config) if extension == '.zip' else validate_archive(path, config)
         record = m.Artifact(application_id=application_id, filename=filename, path=str(path),
@@ -109,6 +109,9 @@ async def upload(application_id: str, file: UploadFile, request: Request, db: Se
         db.commit()
         db.refresh(record)
         return record
+    except LimitExceeded as error:
+        path.unlink(missing_ok=True)
+        raise HTTPException(413, dict(code='LIMIT_EXCEEDED',limit=error.limit,configured=error.configured,observed=error.observed,next_step=error.advice))
     except ArtifactError as error:
         path.unlink(missing_ok=True)
         raise HTTPException(422, str(error))
@@ -197,6 +200,30 @@ def graph(analysis_id: str, level: str, domain_id: str | None = None, package: s
     visible = [e for e in all_edges if e['source'] in ids and e['target'] in ids]
     return GraphResponse(nodes=nodes, edges=visible[:2000], total_nodes=total, total_edges=len(all_edges),
         truncated=total>limit or len(visible)>2000)
+
+
+@router.get('/limits', response_model=dict)
+def effective_limits(request: Request):
+    config=request.app.state.config
+    values={
+        'max_upload_size_compressed':config.max_upload_mb*1024**2,
+        'max_uncompressed_size':config.max_expanded_mb*1024**2,
+        'max_archive_entries':config.max_archive_entries,
+        'max_compression_ratio':config.max_compression_ratio,
+        'allowed_artifact_types':['JAR','WAR','ZIP'],
+        'max_classes_per_scan':config.max_classes,
+        'max_edges_per_scan':config.max_edges,
+        'max_packages_per_scan':config.max_packages_per_scan,
+        'max_scan_duration_seconds':config.scan_timeout_seconds,
+        'max_temp_disk_per_job_bytes':config.max_job_disk_mb*1024**2,
+        'runtime_max_body_bytes':config.runtime_max_body_bytes,
+        'runtime_max_batch_spans':config.runtime_max_batch_spans,
+        'runtime_max_session_spans':config.runtime_max_session_spans,
+        'runtime_max_span_size_bytes':config.runtime_max_span_size_bytes,
+        'runtime_max_session_duration_hours':config.runtime_max_session_duration_hours,
+        'runtime_raw_trace_retention_hours':config.runtime_raw_trace_retention_hours,
+    }
+    return dict(limits=values,validation='Defaults marked in configuration are unvalidated placeholders; capacity claims require end-to-end ramp tests.')
 
 
 @router.get('/analyses/{analysis_id}/domains', response_model=ItemsResponse)

@@ -7,7 +7,7 @@ import time
 from uuid import uuid4
 from sqlalchemy import select, update
 from app.models import AnalysisRun, Artifact, now
-from app.services.ingestion import ArtifactError, validate_archive, validate_project_zip, remove_job, file_hash
+from app.services.ingestion import ArtifactError, LimitExceeded, validate_archive, validate_project_zip, remove_job, file_hash
 from app.services.scanner import JQAssistantScanner, ScannerError
 from app.services.engine import analyze
 from app.services.tech_stack import inspect_artifact
@@ -55,11 +55,20 @@ class AnalysisWorker:
             if claimed.rowcount != 1:
                 return
         timings, previous, start, work = [], None, time.monotonic(), None
+        job_start=time.monotonic()
         completed = False
+
+        def check_job_budget():
+            maximum=self.config.max_job_disk_mb*1024**2
+            observed=sum(item.stat().st_size for item in work.rglob('*') if item.is_file()) if work and work.exists() else 0
+            if observed>maximum:
+                raise LimitExceeded('max_temp_disk_per_job',maximum,observed,'Split the artifact by module or ask your administrator to raise max_job_disk_mb.')
 
         def stage(name: str, progress: int) -> None:
             nonlocal previous, start
             current = time.monotonic()
+            if current-job_start>self.config.scan_timeout_seconds:
+                raise LimitExceeded('max_scan_duration',self.config.scan_timeout_seconds,int(current-job_start),'Retry with a smaller artifact or ask your administrator to raise scan_timeout_seconds.')
             if previous:
                 timings.append(dict(stage=previous, duration_seconds=round(current-start,3)))
             previous, start = name, current
@@ -85,8 +94,17 @@ class AnalysisWorker:
             classes_dir.mkdir()
             validator = validate_project_zip if metadata['filename'].lower().endswith('.zip') else validate_archive
             validator(artifact_path, self.config, classes_dir)
+            check_job_budget()
             stage('SCANNING', 12)
             classes, edges = self.scanner.scan(work, classes_dir, stage)
+            if len(classes)>self.config.max_classes:
+                raise LimitExceeded('max_classes_per_scan',self.config.max_classes,len(classes),'Split the artifact by module or ask your administrator to raise max_classes.')
+            if len(edges)>self.config.max_edges:
+                raise LimitExceeded('max_edges_per_scan',self.config.max_edges,len(edges),'Split the artifact by module or ask your administrator to raise max_edges.')
+            packages={row.get('package_name') for row in classes if row.get('package_name')}
+            if len(packages)>self.config.max_packages_per_scan:
+                raise LimitExceeded('max_packages_per_scan',self.config.max_packages_per_scan,len(packages),'Split the artifact by module or ask your administrator to raise max_packages_per_scan.')
+            check_job_budget()
             result = analyze(classes, edges, self.config, stage)
             result['tech_inventory'] = inspect_artifact(artifact_path, classes_dir, result)
             result['artifact'] = metadata
@@ -101,10 +119,12 @@ class AnalysisWorker:
             completed = True
         except Exception as error:
             message = str(error) if isinstance(error, (ArtifactError, ScannerError, ValueError)) else 'Analysis failed unexpectedly. Check service configuration and retry.'
-            logger.error(json.dumps(dict(event='analysis_failed', analysis_id=analysis_id, stage=previous, error_type=type(error).__name__)))
+            rejected=isinstance(error,LimitExceeded)
+            logger.error(json.dumps(dict(event='analysis_limit_rejected' if rejected else 'analysis_failed', analysis_id=analysis_id, stage=previous, error_type=type(error).__name__, limit=getattr(error,'limit',None), configured=getattr(error,'configured',None), observed=getattr(error,'observed',None))))
             with self.sessions.begin() as session:
                 run = session.get(AnalysisRun, analysis_id)
-                run.status, run.error_message, run.completed_at = 'FAILED', message, now()
+                run.status, run.error_message, run.completed_at = ('REJECTED_LIMIT_EXCEEDED' if rejected else 'FAILED'), message, now()
+                run.limit_details=dict(code='LIMIT_EXCEEDED',limit=error.limit,configured=error.configured,observed=error.observed,next_step=error.advice) if rejected else None
                 if previous:
                     timings.append(dict(stage=previous, duration_seconds=round(time.monotonic()-start,3), failed=True))
                 run.stages = timings

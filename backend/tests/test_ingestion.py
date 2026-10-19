@@ -1,7 +1,7 @@
 import zipfile
 import pytest
 from app.config import Settings
-from app.services.ingestion import validate_archive,validate_project_zip,ArtifactError,remove_job
+from app.services.ingestion import validate_archive,validate_project_zip,ArtifactError,LimitExceeded,remove_job
 
 
 @pytest.mark.parametrize('name',['../evil.class','/absolute.class','C:/escape.class','a/../../bad.class','a\\..\\bad.class'])
@@ -42,6 +42,37 @@ def test_war_extraction_and_bad_magic(tmp_path):
     assert (out/'a/A.class').exists()
     with zipfile.ZipFile(target,'w') as z:z.writestr('a/B.class',b'not bytecode')
     with pytest.raises(ArtifactError):validate_archive(target,Settings(_env_file=None),out)
+
+
+def test_compressed_and_expanded_limits_are_enforced(tmp_path):
+    target=tmp_path/'small.jar'
+    with zipfile.ZipFile(target,'w',compression=zipfile.ZIP_STORED) as z:z.writestr('A.class',b'\xca\xfe\xba\xbe'+b'x'*20)
+    assert validate_archive(target,Settings(_env_file=None,max_upload_mb=1,max_expanded_mb=1))['class_files']==1
+    with pytest.raises(LimitExceeded) as compressed:
+        validate_archive(target,Settings(_env_file=None,max_upload_mb=0))
+    assert compressed.value.limit=='max_upload_size_compressed'
+    out=tmp_path/'out';out.mkdir()
+    with pytest.raises(LimitExceeded) as expanded:
+        validate_archive(target,Settings(_env_file=None,max_expanded_mb=0,max_compression_ratio=999999),out)
+    assert expanded.value.limit=='max_uncompressed_size'
+
+
+def test_configurable_compression_ratio_limit(tmp_path):
+    target=tmp_path/'ratio.jar'
+    with zipfile.ZipFile(target,'w',compression=zipfile.ZIP_DEFLATED) as z:z.writestr('A.class',b'\xca\xfe\xba\xbe'+b'0'*5000)
+    with pytest.raises(LimitExceeded,match='max_compression_ratio'):
+        validate_archive(target,Settings(_env_file=None,max_compression_ratio=2))
+
+
+def test_nested_project_archive_enforces_actual_expansion_budget(tmp_path):
+    module=tmp_path/'module.jar'
+    with zipfile.ZipFile(module,'w',compression=zipfile.ZIP_STORED) as z:z.writestr('p/A.class',b'\xca\xfe\xba\xbe'+b'x'*64)
+    bundle=tmp_path/'project.zip'
+    with zipfile.ZipFile(bundle,'w',compression=zipfile.ZIP_STORED) as z:z.write(module,'app/target/app.jar')
+    out=tmp_path/'classes';out.mkdir()
+    with pytest.raises(LimitExceeded,match='max_uncompressed_size'):
+        validate_project_zip(bundle,Settings(_env_file=None,max_expanded_mb=0),out)
+    assert not list(out.rglob('*.class'))
 
 
 def test_project_zip_collects_compiled_module_outputs_and_deduplicates_identical_classes(tmp_path):

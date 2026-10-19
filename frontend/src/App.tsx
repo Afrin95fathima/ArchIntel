@@ -97,7 +97,7 @@ export function App() {
         dataError?<ErrorBox error={dataError}/>:!loaded?<Loading/>:
         <div key={selected}>
           {view==='overview'&&<Overview summary={summary.data!} domains={domains.data!.items} assessments={assessments.data!.items} issues={issues.data!.items} analysisId={selected} navigate={setView}/>}
-          {view==='architecture'&&<ArchitectureBlueprint analysisId={selected} applicationName={app?.name||'Analyzed application'} summary={summary.data!} domains={domains.data!.items}/>}
+          {view==='architecture'&&<ArchitectureBlueprint analysisId={selected} applicationId={run.application_id} analyses={(analyses.data||[]).filter(row=>row.application_id===run.application_id)} applicationName={app?.name||'Analyzed application'} summary={summary.data!} domains={domains.data!.items}/>}
           {view==='explorer'&&<GraphExplorer analysisId={selected} domains={domains.data!.items}/>}
           {view==='domains'&&<Domains domains={domains.data!.items} assessments={assessments.data!.items} issues={issues.data!.items}/>}
           {view==='issues'&&<><Issues issues={issues.data!.items} domains={domains.data!.items}/>{issues.data!.total>500&&<div className="notice">Showing the first 500 findings. Use the paginated API or export for the complete report.</div>}</>}
