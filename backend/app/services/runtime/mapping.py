@@ -2,6 +2,20 @@
 import re
 
 
+GENERATED_SUFFIX = re.compile(r'(?:\$\$Lambda(?:\$\d+)?(?:[./]0x[0-9a-fA-F]+)?|\$\$(?:FastClassBy|EnhancerBy)(?:Spring)?CGLIB\$\$[A-Za-z0-9]+|'
+    r'\$HibernateProxy\$[A-Za-z0-9]+|_\$\$_jvst[A-Za-z0-9_]*|\$ByteBuddy\$[A-Za-z0-9]+)$')
+
+
+def _nested_candidate(name: str, classes: dict) -> str | None:
+    """com.x.Outer.Inner -> com.x.Outer$Inner, accepted only when exactly one binary name matches."""
+    parts = name.split('.')
+    for split in range(len(parts) - 1, 0, -1):
+        candidate = '.'.join(parts[:split]) + '$' + '$'.join(parts[split:])
+        if candidate in classes:
+            return candidate
+    return None
+
+
 def map_class(identity: str | None, classes: dict) -> dict:
     result = dict(runtime_identity=identity,static_id=None,state='UNRESOLVED',confidence=0.,evidence=[])
     if not identity:
@@ -15,6 +29,15 @@ def map_class(identity: str | None, classes: dict) -> dict:
     proxy = re.sub(r'\$\$(?:SpringCGLIB\$\$\d+|EnhancerBySpringCGLIB\$\$[a-zA-Z0-9]+)$','',normalized)
     if proxy != normalized and proxy in classes:
         return dict(result,static_id=proxy,state='PROXY_RESOLVED',confidence=.9,evidence=['Recognized Spring subclass proxy suffix with exact existing base class.'])
+    generated = GENERATED_SUFFIX.sub('',normalized)
+    if generated != normalized and generated in classes:
+        lambda_class = '$$Lambda' in normalized
+        return dict(result,static_id=generated,state='LAMBDA_RESOLVED' if lambda_class else 'PROXY_RESOLVED',confidence=.7,
+            evidence=['Runtime-generated %s of an existing class; resolved to its declaring class, not to a specific method.' % ('lambda class' if lambda_class else 'proxy or subclass')])
+    nested = _nested_candidate(normalized,classes)
+    if nested:
+        return dict(result,static_id=nested,state='NESTED_RESOLVED',confidence=.95,
+            evidence=['Canonical dotted nested-class name matched the binary name %s.' % nested])
     return dict(result,evidence=['No unambiguous static class match; not forced by simple name.'])
 
 

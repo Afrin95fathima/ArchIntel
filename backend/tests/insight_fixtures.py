@@ -7,6 +7,7 @@ from app.config import Settings
 from app.services.engine import analyze
 from app.insight.facts import extract, bounded_for_snapshot
 from app.insight.scan import scanner_rows
+from app.insight.reconcile import reconcile
 from app.insight.model import InsightModel
 
 CLASSES = Path(__file__).resolve().parent / 'fixtures' / 'classes'
@@ -20,6 +21,7 @@ def snapshot(name: str = 'petclinic') -> dict:
     result = analyze(classes, edges, Settings(_env_file=None))
     internal = {c['id'] for c in result['classes']}
     result['bytecode'] = bounded_for_snapshot(extracted, internal, 48 * 1024 * 1024)
+    reconcile(result)
     result['source_store'] = dict(status='NO_SOURCE_IN_ARTIFACT', index={})
     return result
 

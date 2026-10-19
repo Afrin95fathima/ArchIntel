@@ -15,6 +15,7 @@ from app.services.runtime.normalization import decode, normalize
 from app.services.runtime.graph_builder import project
 from app.services.runtime.mapping import map_class, map_method
 from app.services.runtime.entry_points import is_method_entry_point
+from app.services.runtime.coverage import is_declared_method
 
 router=APIRouter(prefix='/api/v1',tags=['Runtime analysis'])
 
@@ -194,7 +195,7 @@ def unified_coverage_details(application_id:str,request:Request,
             if inventory_available:
                 for class_id,cls in classes.items():
                     for method in cls.get('methods',[]):
-                        if not method.get('name') or method['name'].startswith('<'): continue
+                        if not is_declared_method(method): continue
                         is_entry=is_method_entry_point(method.get('annotations',[]))
                         if (kind=='entry_points') != is_entry: continue
                         identity=(class_id,method['signature'])
@@ -207,7 +208,7 @@ def unified_coverage_details(application_id:str,request:Request,
             else:
                 for class_id,cls in classes.items():
                     for method in cls.get('methods',[]):
-                        if not method.get('name') or method['name'].startswith('<'): continue
+                        if not is_declared_method(method): continue
                         is_entry=is_method_entry_point(method.get('annotations',[]))
                         if (kind=='entry_points') != is_entry: continue
                         items.append(dict(id=class_id+'#'+(method.get('signature') or method['name']),name=method['name'],

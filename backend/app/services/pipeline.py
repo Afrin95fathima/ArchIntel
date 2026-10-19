@@ -12,7 +12,7 @@ from app.services.scanner import JQAssistantScanner, ScannerError
 from app.services.engine import analyze
 from app.services.tech_stack import inspect_artifact
 from app.insight.facts import extract as extract_bytecode, bounded_for_snapshot
-from app.insight.scan import BytecodeScanner
+from app.insight.scan import BytecodeScanner, supplement as supplement_edges
 
 logger = logging.getLogger('archintel.pipeline')
 
@@ -107,12 +107,18 @@ class AnalysisWorker:
             if len(packages)>self.config.max_packages_per_scan:
                 raise LimitExceeded('max_packages_per_scan',self.config.max_packages_per_scan,len(packages),'Split the artifact by module or ask your administrator to raise max_packages_per_scan.')
             check_job_budget()
-            result = analyze(classes, edges, self.config, stage)
+            extracted = None
             if self.config.bytecode_facts_enabled:
-                stage('BYTECODE_FACTS', 88)
+                stage('BYTECODE_FACTS', 36)
+                extracted = extract_bytecode(classes_dir, owned={c['fqn'] for c in classes})
+                if self.config.scanner_engine != 'bytecode':
+                    edges = supplement_edges(edges, extracted)
+            result = analyze(classes, edges, self.config, stage)
+            if extracted is not None:
                 internal_names = {c['id'] for c in result['classes']}
-                result['bytecode'] = bounded_for_snapshot(extract_bytecode(classes_dir, owned=internal_names), internal_names,
-                    self.config.bytecode_facts_max_bytes)
+                result['bytecode'] = bounded_for_snapshot(extracted, internal_names, self.config.bytecode_facts_max_bytes)
+                from app.insight.reconcile import reconcile
+                reconcile(result)
                 from app.insight.source_store import capture as capture_sources
                 result['source_store'] = capture_sources(self.config, analysis_id, artifact_path, result)
             result['tech_inventory'] = inspect_artifact(artifact_path, classes_dir, result)

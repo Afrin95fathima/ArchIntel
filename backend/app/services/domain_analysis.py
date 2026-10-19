@@ -7,7 +7,7 @@ from app.services.runtime.entry_points import is_method_entry_point
 TYPE_GROUPS = {
     'CALL': {'METHOD_CALL', 'CALLS'},
     'INHERITANCE': {'EXTENDS', 'IMPLEMENTS', 'INHERITS', 'IMPLEMENTS_INTERFACE'},
-    'FIELD_OR_TYPE_REFERENCE': {'FIELD_TYPE', 'TYPE_REFERENCE', 'RETURNS', 'PARAMETER_TYPE', 'ANNOTATION'},
+    'FIELD_OR_TYPE_REFERENCE': {'FIELD_TYPE', 'TYPE_REFERENCE', 'RETURNS', 'RETURN_TYPE', 'PARAMETER_TYPE', 'ANNOTATION', 'GENERIC_TYPE', 'EXCEPTION'},
 }
 
 
@@ -161,8 +161,8 @@ def entry_point_inventory(domains, classes, membership):
         did=membership.get(class_name)
         if not did:continue
         for method in cls.get('methods',[]):
+            if not is_method_entry_point(method.get('annotations',[])):continue
             annotations=sorted({a.rsplit('.',1)[-1] for a in method.get('annotations',[])})
-            if not is_method_entry_point(annotations):continue
             if set(annotations)&{'Scheduled'}:kind='SCHEDULED_JOB'
             elif set(annotations)&{'KafkaListener','JmsListener','RabbitListener'}:kind='MESSAGE_LISTENER'
             elif set(annotations)&{'GET','POST','PUT','DELETE','PATCH','HEAD','OPTIONS'}:kind='JAX_RS_ENDPOINT'

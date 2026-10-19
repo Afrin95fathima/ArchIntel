@@ -2,6 +2,12 @@
 from .entry_points import is_method_entry_point
 
 
+def is_declared_method(method):
+    """Source-level methods only: constructors, initializers, lambda bodies, accessors, bridges and synthetics are excluded."""
+    name = method.get('name') or ''
+    return bool(name) and not name.startswith(('<', 'lambda$', 'access$', '$deserializeLambda$')) and not method.get('synthetic') and not method.get('bridge')
+
+
 def metric(observed, population, reason=None):
     if population is None:
         return dict(observed=None,total=None,percentage=None,status='UNAVAILABLE',reason=reason)
@@ -32,7 +38,7 @@ def calculate(static, graph, events=None):
         for c in static['classes']:
             for m in c['methods']:
                 # jQAssistant may attach inherited-reference stubs with a signature but no parsed name.
-                if not m.get('name') or m['name'].startswith('<'): continue
+                if not is_declared_method(m): continue
                 identity=(c['id'],m['signature'])
                 method_population.add(identity)
                 if is_method_entry_point(m.get('annotations',[])): entry_population.add(identity)

@@ -50,3 +50,24 @@ class BytecodeScanner:
             raise ScannerError('No readable Java class files were found in the artifact.')
         on_stage('GRAPH_EXTRACTION', 30)
         return scanner_rows(extracted)
+
+
+SUPPLEMENTED = ('PARAMETER_TYPE', 'RETURN_TYPE', 'ANNOTATION', 'EXCEPTION', 'GENERIC_TYPE', 'FIELD_TYPE', 'INHERITANCE', 'INTERFACE')
+
+
+def supplement(edges: list[dict], extracted: dict) -> list[dict]:
+    """Add dependency types the graph export does not distinguish (parameter, return, member annotations,
+    declared exceptions, type arguments) from class-file facts. An untyped OTHER edge is dropped once a
+    typed edge exists for the same pair, and no typed edge is ever duplicated."""
+    from .facts import referenced_types
+    seen = {(e['source'], e['target'], e['dependency_type']) for e in edges}
+    merged = list(edges)
+    for fqn, info in sorted(extracted['classes'].items()):
+        refs = referenced_types(info)
+        for kind in SUPPLEMENTED:
+            for target in sorted(refs.get(kind, ())):
+                if (fqn, target, kind) not in seen:
+                    seen.add((fqn, target, kind))
+                    merged.append(dict(source=fqn, target=target, dependency_type=kind, supplemented=True))
+    typed = {(e['source'], e['target']) for e in merged if e['dependency_type'] != 'OTHER'}
+    return [e for e in merged if e['dependency_type'] != 'OTHER' or (e['source'], e['target']) not in typed]
