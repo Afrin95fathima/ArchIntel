@@ -958,6 +958,611 @@
    "package": "com.fixture.edge.jobs"
   }
  ],
+ "rates": {
+  "by_domain": [
+   {
+    "class_count": 5,
+    "id": "domain-8b120c26c8966284",
+    "name": "Cycle A",
+    "rates": {
+     "any-class": {
+      "classes": [
+       "com.fixture.edge.cycle.a.Address",
+       "com.fixture.edge.cycle.a.Customer",
+       "com.fixture.edge.cycle.a.Order",
+       "com.fixture.edge.cycle.a.Region",
+       "com.fixture.edge.cycle.b.Invoice"
+      ],
+      "denominator": 5,
+      "numerator": 5,
+      "percentage": 100.0
+     },
+     "cycle-member": {
+      "classes": [
+       "com.fixture.edge.cycle.a.Address",
+       "com.fixture.edge.cycle.a.Customer",
+       "com.fixture.edge.cycle.a.Order",
+       "com.fixture.edge.cycle.a.Region",
+       "com.fixture.edge.cycle.b.Invoice"
+      ],
+      "denominator": 5,
+      "numerator": 5,
+      "percentage": 100.0
+     }
+    }
+   },
+   {
+    "class_count": 11,
+    "id": "domain-69cd1be5d9aa64e6",
+    "name": "Billing Jobs",
+    "rates": {
+     "aging-framework": {
+      "classes": [
+       "com.fixture.edge.legacy.BillingAction",
+       "com.fixture.edge.legacy.BillingRecord",
+       "com.fixture.edge.web.AuditFilter",
+       "com.fixture.edge.web.GreetingResource",
+       "com.fixture.edge.web.LegacyServlet"
+      ],
+      "denominator": 11,
+      "numerator": 5,
+      "percentage": 45.5
+     },
+     "any-class": {
+      "classes": [
+       "com.fixture.edge.legacy.BillingAction",
+       "com.fixture.edge.legacy.BillingRecord",
+       "com.fixture.edge.web.AuditFilter",
+       "com.fixture.edge.web.GreetingResource",
+       "com.fixture.edge.web.LegacyServlet",
+       "com.fixture.edge.web.OrderAdminController"
+      ],
+      "denominator": 11,
+      "numerator": 6,
+      "percentage": 54.5
+     },
+     "cycle-member": {
+      "classes": [
+       "com.fixture.edge.legacy.BillingAction",
+       "com.fixture.edge.legacy.BillingRecord"
+      ],
+      "denominator": 11,
+      "numerator": 2,
+      "percentage": 18.2
+     },
+     "deprecated-api": {
+      "classes": [
+       "com.fixture.edge.legacy.BillingRecord"
+      ],
+      "denominator": 11,
+      "numerator": 1,
+      "percentage": 9.1
+     }
+    }
+   },
+   {
+    "class_count": 3,
+    "id": "domain-f36427bea173da2c",
+    "name": "Item",
+    "rates": {
+     "any-class": {
+      "classes": [
+       "com.fixture.edge.model.ItemService"
+      ],
+      "denominator": 3,
+      "numerator": 1,
+      "percentage": 33.3
+     }
+    }
+   }
+  ],
+  "by_package": [
+   {
+    "class_count": 4,
+    "id": "com.fixture.edge.cycle.a",
+    "name": "com.fixture.edge.cycle.a",
+    "rates": {
+     "any-class": {
+      "classes": [
+       "com.fixture.edge.cycle.a.Address",
+       "com.fixture.edge.cycle.a.Customer",
+       "com.fixture.edge.cycle.a.Order",
+       "com.fixture.edge.cycle.a.Region"
+      ],
+      "denominator": 4,
+      "numerator": 4,
+      "percentage": 100.0
+     },
+     "cycle-member": {
+      "classes": [
+       "com.fixture.edge.cycle.a.Address",
+       "com.fixture.edge.cycle.a.Customer",
+       "com.fixture.edge.cycle.a.Order",
+       "com.fixture.edge.cycle.a.Region"
+      ],
+      "denominator": 4,
+      "numerator": 4,
+      "percentage": 100.0
+     }
+    }
+   },
+   {
+    "class_count": 1,
+    "id": "com.fixture.edge.cycle.b",
+    "name": "com.fixture.edge.cycle.b",
+    "rates": {
+     "any-class": {
+      "classes": [
+       "com.fixture.edge.cycle.b.Invoice"
+      ],
+      "denominator": 1,
+      "numerator": 1,
+      "percentage": 100.0
+     },
+     "cycle-member": {
+      "classes": [
+       "com.fixture.edge.cycle.b.Invoice"
+      ],
+      "denominator": 1,
+      "numerator": 1,
+      "percentage": 100.0
+     }
+    }
+   },
+   {
+    "class_count": 2,
+    "id": "com.fixture.edge.legacy",
+    "name": "com.fixture.edge.legacy",
+    "rates": {
+     "aging-framework": {
+      "classes": [
+       "com.fixture.edge.legacy.BillingAction",
+       "com.fixture.edge.legacy.BillingRecord"
+      ],
+      "denominator": 2,
+      "numerator": 2,
+      "percentage": 100.0
+     },
+     "any-class": {
+      "classes": [
+       "com.fixture.edge.legacy.BillingAction",
+       "com.fixture.edge.legacy.BillingRecord"
+      ],
+      "denominator": 2,
+      "numerator": 2,
+      "percentage": 100.0
+     },
+     "cycle-member": {
+      "classes": [
+       "com.fixture.edge.legacy.BillingAction",
+       "com.fixture.edge.legacy.BillingRecord"
+      ],
+      "denominator": 2,
+      "numerator": 2,
+      "percentage": 100.0
+     },
+     "deprecated-api": {
+      "classes": [
+       "com.fixture.edge.legacy.BillingRecord"
+      ],
+      "denominator": 2,
+      "numerator": 1,
+      "percentage": 50.0
+     }
+    }
+   },
+   {
+    "class_count": 5,
+    "id": "com.fixture.edge.web",
+    "name": "com.fixture.edge.web",
+    "rates": {
+     "aging-framework": {
+      "classes": [
+       "com.fixture.edge.web.AuditFilter",
+       "com.fixture.edge.web.GreetingResource",
+       "com.fixture.edge.web.LegacyServlet"
+      ],
+      "denominator": 5,
+      "numerator": 3,
+      "percentage": 60.0
+     },
+     "any-class": {
+      "classes": [
+       "com.fixture.edge.web.AuditFilter",
+       "com.fixture.edge.web.GreetingResource",
+       "com.fixture.edge.web.LegacyServlet",
+       "com.fixture.edge.web.OrderAdminController"
+      ],
+      "denominator": 5,
+      "numerator": 4,
+      "percentage": 80.0
+     }
+    }
+   },
+   {
+    "class_count": 4,
+    "id": "com.fixture.edge.model",
+    "name": "com.fixture.edge.model",
+    "rates": {
+     "any-class": {
+      "classes": [
+       "com.fixture.edge.model.ItemService"
+      ],
+      "denominator": 4,
+      "numerator": 1,
+      "percentage": 25.0
+     }
+    }
+   },
+   {
+    "class_count": 3,
+    "id": "com.fixture.edge.jobs",
+    "name": "com.fixture.edge.jobs",
+    "rates": {}
+   }
+  ],
+  "note": "Each percentage is numerator / denominator, rounded to one decimal. Per-package and per-domain rows use the classes of that package or domain as the denominator and cover class-based rates only.",
+  "rates": [
+   {
+    "classes": [],
+    "denominator": 19,
+    "denominator_definition": "all analysed top-level classes",
+    "id": "god-class",
+    "label": "God classes",
+    "numerator": 0,
+    "numerator_definition": "classes that exceed at least the rule's minimum number of size or coupling thresholds",
+    "percentage": 0.0,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-GOD-CLASS"
+    ],
+    "severity": null,
+    "status": "MEASURED",
+    "subjects": [],
+    "text": "0 of 19 classes (0.0%)",
+    "unit": "classes"
+   },
+   {
+    "classes": [],
+    "denominator": 19,
+    "denominator_definition": "all analysed top-level classes",
+    "id": "high-coupling",
+    "label": "Highly coupled classes",
+    "numerator": 0,
+    "numerator_definition": "classes whose fan-in plus fan-out exceeds the coupling threshold",
+    "percentage": 0.0,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-HIGH-COUPLING"
+    ],
+    "severity": null,
+    "status": "MEASURED",
+    "subjects": [],
+    "text": "0 of 19 classes (0.0%)",
+    "unit": "classes"
+   },
+   {
+    "classes": [
+     "com.fixture.edge.cycle.a.Address",
+     "com.fixture.edge.cycle.a.Customer",
+     "com.fixture.edge.cycle.a.Order",
+     "com.fixture.edge.cycle.a.Region",
+     "com.fixture.edge.cycle.b.Invoice",
+     "com.fixture.edge.legacy.BillingAction",
+     "com.fixture.edge.legacy.BillingRecord"
+    ],
+    "denominator": 19,
+    "denominator_definition": "all analysed top-level classes",
+    "id": "cycle-member",
+    "label": "Classes in dependency cycles",
+    "numerator": 7,
+    "numerator_definition": "classes that belong to a strongly connected group of two or more classes",
+    "percentage": 36.8,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-CYCLE-MEMBER"
+    ],
+    "severity": "HIGH",
+    "status": "MEASURED",
+    "subjects": [
+     "com.fixture.edge.cycle.a.Address",
+     "com.fixture.edge.cycle.a.Customer",
+     "com.fixture.edge.cycle.a.Order",
+     "com.fixture.edge.cycle.a.Region",
+     "com.fixture.edge.cycle.b.Invoice",
+     "com.fixture.edge.legacy.BillingAction",
+     "com.fixture.edge.legacy.BillingRecord"
+    ],
+    "text": "7 of 19 classes (36.8%)",
+    "unit": "classes"
+   },
+   {
+    "classes": [],
+    "denominator": 19,
+    "denominator_definition": "all analysed top-level classes",
+    "id": "too-many-dependencies",
+    "label": "Classes with too many dependencies",
+    "numerator": 0,
+    "numerator_definition": "classes that reference more distinct types than the threshold",
+    "percentage": 0.0,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-TOO-MANY-DEPENDENCIES"
+    ],
+    "severity": null,
+    "status": "MEASURED",
+    "subjects": [],
+    "text": "0 of 19 classes (0.0%)",
+    "unit": "classes"
+   },
+   {
+    "classes": [
+     "com.fixture.edge.legacy.BillingRecord"
+    ],
+    "denominator": 19,
+    "denominator_definition": "all analysed top-level classes",
+    "id": "deprecated-api",
+    "label": "Classes calling deprecated APIs",
+    "numerator": 1,
+    "numerator_definition": "classes with at least one call site to a deprecated member",
+    "percentage": 5.3,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-DEPRECATED-API"
+    ],
+    "severity": "LOW",
+    "status": "MEASURED",
+    "subjects": [
+     "com.fixture.edge.legacy.BillingRecord"
+    ],
+    "text": "1 of 19 classes (5.3%)",
+    "unit": "classes"
+   },
+   {
+    "classes": [
+     "com.fixture.edge.legacy.BillingAction",
+     "com.fixture.edge.legacy.BillingRecord",
+     "com.fixture.edge.web.AuditFilter",
+     "com.fixture.edge.web.GreetingResource",
+     "com.fixture.edge.web.LegacyServlet"
+    ],
+    "denominator": 19,
+    "denominator_definition": "all analysed top-level classes",
+    "id": "aging-framework",
+    "label": "Classes using aging frameworks",
+    "numerator": 8,
+    "numerator_definition": "classes that use a technology the lifecycle rules mark aging or end-of-life",
+    "percentage": 42.1,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-AGING-FRAMEWORK"
+    ],
+    "severity": "HIGH",
+    "status": "MEASURED",
+    "subjects": [
+     "com.fixture.edge.legacy.BillingAction uses commons-lang-2",
+     "com.fixture.edge.legacy.BillingAction uses jdk-removed-ee-modules",
+     "com.fixture.edge.legacy.BillingAction uses log4j-1",
+     "com.fixture.edge.legacy.BillingAction uses struts-1",
+     "com.fixture.edge.legacy.BillingRecord uses javax-persistence",
+     "com.fixture.edge.web.AuditFilter uses javax-servlet",
+     "com.fixture.edge.web.GreetingResource uses javax-ws-rs",
+     "com.fixture.edge.web.LegacyServlet uses javax-servlet"
+    ],
+    "text": "8 of 19 classes (42.1%)",
+    "unit": "classes"
+   },
+   {
+    "classes": [
+     "com.fixture.edge.legacy.BillingRecord",
+     "com.fixture.edge.web.OrderAdminController"
+    ],
+    "denominator": 15,
+    "denominator_definition": "all class-to-class dependency edges between application classes",
+    "id": "layer-violation",
+    "label": "Layer-violating dependencies",
+    "numerator": 2,
+    "numerator_definition": "class dependency edges that point against the layering or skip the service layer",
+    "percentage": 13.3,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-LAYER-VIOLATION",
+     "DEBT-LAYER-SKIP"
+    ],
+    "severity": "HIGH",
+    "status": "MEASURED",
+    "subjects": [
+     "com.fixture.edge.legacy.BillingRecord -> com.fixture.edge.legacy.BillingAction",
+     "com.fixture.edge.web.OrderAdminController -> com.fixture.edge.model.OrderRepository"
+    ],
+    "text": "2 of 15 dependency edges (13.3%)",
+    "unit": "dependency edges"
+   },
+   {
+    "classes": [
+     "com.fixture.edge.legacy.BillingAction",
+     "com.fixture.edge.web.OrderAdminController"
+    ],
+    "denominator": 5,
+    "denominator_definition": "all dependency edges whose source is a presentation-layer class",
+    "id": "entity-in-controller",
+    "label": "Controller dependencies on entities",
+    "numerator": 2,
+    "numerator_definition": "presentation-layer edges that point directly at an entity class",
+    "percentage": 40.0,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-ENTITY-IN-CONTROLLER"
+    ],
+    "severity": "MEDIUM",
+    "status": "MEASURED",
+    "subjects": [
+     "com.fixture.edge.legacy.BillingAction -> com.fixture.edge.legacy.BillingRecord",
+     "com.fixture.edge.web.OrderAdminController -> com.fixture.edge.model.OrderEntity"
+    ],
+    "text": "2 of 5 dependency edges (40.0%)",
+    "unit": "dependency edges"
+   },
+   {
+    "classes": [],
+    "denominator": 71,
+    "denominator_definition": "all methods with a measured bytecode length",
+    "id": "large-method",
+    "label": "Large methods",
+    "numerator": 0,
+    "numerator_definition": "methods whose bytecode length exceeds the warn threshold",
+    "percentage": 0.0,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-LARGE-METHOD"
+    ],
+    "severity": null,
+    "status": "MEASURED",
+    "subjects": [],
+    "text": "0 of 71 methods (0.0%)",
+    "unit": "methods"
+   },
+   {
+    "classes": [],
+    "denominator": 71,
+    "denominator_definition": "all methods with a measured bytecode length",
+    "id": "complex-method",
+    "label": "Complex methods",
+    "numerator": 0,
+    "numerator_definition": "methods whose branch count plus one exceeds the warn threshold",
+    "percentage": 0.0,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-COMPLEX-METHOD"
+    ],
+    "severity": null,
+    "status": "MEASURED",
+    "subjects": [],
+    "text": "0 of 71 methods (0.0%)",
+    "unit": "methods"
+   },
+   {
+    "classes": [
+     "com.fixture.edge.model.ItemService"
+    ],
+    "denominator": 3,
+    "denominator_definition": "all static fields except serialVersionUID, enum constants and synthetic fields",
+    "id": "static-state",
+    "label": "Mutable static state",
+    "numerator": 2,
+    "numerator_definition": "static fields that are non-final, or final collections that are mutated",
+    "percentage": 66.7,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-STATIC-STATE"
+    ],
+    "severity": "MEDIUM",
+    "status": "MEASURED",
+    "subjects": [
+     "com.fixture.edge.model.ItemService#CACHE",
+     "com.fixture.edge.model.ItemService#counter"
+    ],
+    "text": "2 of 3 static fields (66.7%)",
+    "unit": "static fields"
+   },
+   {
+    "classes": [],
+    "denominator": null,
+    "denominator_definition": "all analysed top-level classes",
+    "id": "unobserved",
+    "label": "Classes never observed at runtime",
+    "numerator": null,
+    "numerator_definition": "classes with no mapped span in the selected runtime sessions",
+    "percentage": null,
+    "reason": "no runtime session is selected",
+    "rule_ids": [
+     "DEBT-UNOBSERVED"
+    ],
+    "severity": null,
+    "status": "NOT_MEASURED",
+    "subjects": [],
+    "text": "not measured: no runtime session is selected",
+    "unit": "classes"
+   },
+   {
+    "classes": [],
+    "denominator": 15,
+    "denominator_definition": "all class dependency edges whose two classes both have a candidate domain",
+    "id": "cross-domain-edges",
+    "label": "Cross-domain dependencies",
+    "numerator": 0,
+    "numerator_definition": "class dependency edges whose two classes belong to different candidate domains",
+    "percentage": 0.0,
+    "reason": null,
+    "rule_ids": [],
+    "severity": null,
+    "status": "MEASURED",
+    "subjects": [],
+    "text": "0 of 15 dependency edges (0.0%)",
+    "unit": "dependency edges"
+   },
+   {
+    "classes": [],
+    "denominator": null,
+    "denominator_definition": "all detected entry points",
+    "id": "entry-points-unobserved",
+    "label": "Entry points never observed",
+    "numerator": null,
+    "numerator_definition": "entry points whose handler method (or, without method evidence, handler class) has no mapped span",
+    "percentage": null,
+    "reason": "no runtime session is selected",
+    "rule_ids": [],
+    "severity": null,
+    "status": "NOT_MEASURED",
+    "subjects": [],
+    "text": "not measured: no runtime session is selected",
+    "unit": "entry points"
+   },
+   {
+    "classes": [
+     "com.fixture.edge.cycle.a.Address",
+     "com.fixture.edge.cycle.a.Customer",
+     "com.fixture.edge.cycle.a.Order",
+     "com.fixture.edge.cycle.a.Region",
+     "com.fixture.edge.cycle.b.Invoice",
+     "com.fixture.edge.legacy.BillingAction",
+     "com.fixture.edge.legacy.BillingRecord",
+     "com.fixture.edge.model.ItemService",
+     "com.fixture.edge.web.AuditFilter",
+     "com.fixture.edge.web.GreetingResource",
+     "com.fixture.edge.web.LegacyServlet",
+     "com.fixture.edge.web.OrderAdminController"
+    ],
+    "denominator": 19,
+    "denominator_definition": "all analysed top-level classes",
+    "id": "any-class",
+    "label": "Classes with at least one finding",
+    "numerator": 12,
+    "numerator_definition": "distinct classes named by any technical-debt finding",
+    "percentage": 63.2,
+    "reason": null,
+    "rule_ids": [],
+    "severity": "HIGH",
+    "status": "MEASURED",
+    "subjects": [
+     "com.fixture.edge.cycle.a.Address",
+     "com.fixture.edge.cycle.a.Customer",
+     "com.fixture.edge.cycle.a.Order",
+     "com.fixture.edge.cycle.a.Region",
+     "com.fixture.edge.cycle.b.Invoice",
+     "com.fixture.edge.legacy.BillingAction",
+     "com.fixture.edge.legacy.BillingRecord",
+     "com.fixture.edge.model.ItemService",
+     "com.fixture.edge.web.AuditFilter",
+     "com.fixture.edge.web.GreetingResource",
+     "com.fixture.edge.web.LegacyServlet",
+     "com.fixture.edge.web.OrderAdminController"
+    ],
+    "text": "12 of 19 classes (63.2%)",
+    "unit": "classes"
+   }
+  ]
+ },
  "rules": [
   {
    "action": "Identify groups of methods that use the same fields and move each group into its own class.",

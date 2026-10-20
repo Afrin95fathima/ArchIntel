@@ -522,6 +522,477 @@
    "package": "org.springframework.samples.petclinic.system"
   }
  ],
+ "rates": {
+  "by_domain": [
+   {
+    "class_count": 1,
+    "id": "domain-22c6bf723d668df4",
+    "name": "Application Clinic",
+    "rates": {
+     "aging-framework": {
+      "classes": [
+       "org.springframework.samples.petclinic.PetClinicApplication"
+      ],
+      "denominator": 1,
+      "numerator": 1,
+      "percentage": 100.0
+     },
+     "any-class": {
+      "classes": [
+       "org.springframework.samples.petclinic.PetClinicApplication"
+      ],
+      "denominator": 1,
+      "numerator": 1,
+      "percentage": 100.0
+     }
+    }
+   },
+   {
+    "class_count": 8,
+    "id": "domain-9d798ed24befbf26",
+    "name": "Owner Visit",
+    "rates": {
+     "any-class": {
+      "classes": [
+       "org.springframework.samples.petclinic.owner.OwnerController",
+       "org.springframework.samples.petclinic.owner.PetController",
+       "org.springframework.samples.petclinic.owner.VisitController"
+      ],
+      "denominator": 8,
+      "numerator": 3,
+      "percentage": 37.5
+     }
+    }
+   },
+   {
+    "class_count": 8,
+    "id": "domain-88320003e6c6ba0d",
+    "name": "Vet",
+    "rates": {
+     "any-class": {
+      "classes": [
+       "org.springframework.samples.petclinic.vet.VetController"
+      ],
+      "denominator": 8,
+      "numerator": 1,
+      "percentage": 12.5
+     }
+    }
+   },
+   {
+    "class_count": 4,
+    "id": "domain-c8fb47353d19fc72",
+    "name": "System Configuration",
+    "rates": {}
+   },
+   {
+    "class_count": 3,
+    "id": "domain-663f102c0b38921a",
+    "name": "Type Owner",
+    "rates": {}
+   }
+  ],
+  "by_package": [
+   {
+    "class_count": 1,
+    "id": "org.springframework.samples.petclinic",
+    "name": "org.springframework.samples.petclinic",
+    "rates": {
+     "aging-framework": {
+      "classes": [
+       "org.springframework.samples.petclinic.PetClinicApplication"
+      ],
+      "denominator": 1,
+      "numerator": 1,
+      "percentage": 100.0
+     },
+     "any-class": {
+      "classes": [
+       "org.springframework.samples.petclinic.PetClinicApplication"
+      ],
+      "denominator": 1,
+      "numerator": 1,
+      "percentage": 100.0
+     }
+    }
+   },
+   {
+    "class_count": 11,
+    "id": "org.springframework.samples.petclinic.owner",
+    "name": "org.springframework.samples.petclinic.owner",
+    "rates": {
+     "any-class": {
+      "classes": [
+       "org.springframework.samples.petclinic.owner.OwnerController",
+       "org.springframework.samples.petclinic.owner.PetController",
+       "org.springframework.samples.petclinic.owner.VisitController"
+      ],
+      "denominator": 11,
+      "numerator": 3,
+      "percentage": 27.3
+     }
+    }
+   },
+   {
+    "class_count": 5,
+    "id": "org.springframework.samples.petclinic.vet",
+    "name": "org.springframework.samples.petclinic.vet",
+    "rates": {
+     "any-class": {
+      "classes": [
+       "org.springframework.samples.petclinic.vet.VetController"
+      ],
+      "denominator": 5,
+      "numerator": 1,
+      "percentage": 20.0
+     }
+    }
+   },
+   {
+    "class_count": 3,
+    "id": "org.springframework.samples.petclinic.model",
+    "name": "org.springframework.samples.petclinic.model",
+    "rates": {}
+   },
+   {
+    "class_count": 4,
+    "id": "org.springframework.samples.petclinic.system",
+    "name": "org.springframework.samples.petclinic.system",
+    "rates": {}
+   }
+  ],
+  "note": "Each percentage is numerator / denominator, rounded to one decimal. Per-package and per-domain rows use the classes of that package or domain as the denominator and cover class-based rates only.",
+  "rates": [
+   {
+    "classes": [],
+    "denominator": 24,
+    "denominator_definition": "all analysed top-level classes",
+    "id": "god-class",
+    "label": "God classes",
+    "numerator": 0,
+    "numerator_definition": "classes that exceed at least the rule's minimum number of size or coupling thresholds",
+    "percentage": 0.0,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-GOD-CLASS"
+    ],
+    "severity": null,
+    "status": "MEASURED",
+    "subjects": [],
+    "text": "0 of 24 classes (0.0%)",
+    "unit": "classes"
+   },
+   {
+    "classes": [],
+    "denominator": 24,
+    "denominator_definition": "all analysed top-level classes",
+    "id": "high-coupling",
+    "label": "Highly coupled classes",
+    "numerator": 0,
+    "numerator_definition": "classes whose fan-in plus fan-out exceeds the coupling threshold",
+    "percentage": 0.0,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-HIGH-COUPLING"
+    ],
+    "severity": null,
+    "status": "MEASURED",
+    "subjects": [],
+    "text": "0 of 24 classes (0.0%)",
+    "unit": "classes"
+   },
+   {
+    "classes": [],
+    "denominator": 24,
+    "denominator_definition": "all analysed top-level classes",
+    "id": "cycle-member",
+    "label": "Classes in dependency cycles",
+    "numerator": 0,
+    "numerator_definition": "classes that belong to a strongly connected group of two or more classes",
+    "percentage": 0.0,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-CYCLE-MEMBER"
+    ],
+    "severity": null,
+    "status": "MEASURED",
+    "subjects": [],
+    "text": "0 of 24 classes (0.0%)",
+    "unit": "classes"
+   },
+   {
+    "classes": [],
+    "denominator": 24,
+    "denominator_definition": "all analysed top-level classes",
+    "id": "too-many-dependencies",
+    "label": "Classes with too many dependencies",
+    "numerator": 0,
+    "numerator_definition": "classes that reference more distinct types than the threshold",
+    "percentage": 0.0,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-TOO-MANY-DEPENDENCIES"
+    ],
+    "severity": null,
+    "status": "MEASURED",
+    "subjects": [],
+    "text": "0 of 24 classes (0.0%)",
+    "unit": "classes"
+   },
+   {
+    "classes": [],
+    "denominator": 24,
+    "denominator_definition": "all analysed top-level classes",
+    "id": "deprecated-api",
+    "label": "Classes calling deprecated APIs",
+    "numerator": 0,
+    "numerator_definition": "classes with at least one call site to a deprecated member",
+    "percentage": 0.0,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-DEPRECATED-API"
+    ],
+    "severity": null,
+    "status": "MEASURED",
+    "subjects": [],
+    "text": "0 of 24 classes (0.0%)",
+    "unit": "classes"
+   },
+   {
+    "classes": [
+     "org.springframework.samples.petclinic.PetClinicApplication"
+    ],
+    "denominator": 24,
+    "denominator_definition": "all analysed top-level classes",
+    "id": "aging-framework",
+    "label": "Classes using aging frameworks",
+    "numerator": 1,
+    "numerator_definition": "classes that use a technology the lifecycle rules mark aging or end-of-life",
+    "percentage": 4.2,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-AGING-FRAMEWORK"
+    ],
+    "severity": "MEDIUM",
+    "status": "MEASURED",
+    "subjects": [
+     "org.springframework.samples.petclinic.PetClinicApplication uses spring-boot"
+    ],
+    "text": "1 of 24 classes (4.2%)",
+    "unit": "classes"
+   },
+   {
+    "classes": [],
+    "denominator": 35,
+    "denominator_definition": "all class-to-class dependency edges between application classes",
+    "id": "layer-violation",
+    "label": "Layer-violating dependencies",
+    "numerator": 0,
+    "numerator_definition": "class dependency edges that point against the layering or skip the service layer",
+    "percentage": 0.0,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-LAYER-VIOLATION",
+     "DEBT-LAYER-SKIP"
+    ],
+    "severity": null,
+    "status": "MEASURED",
+    "subjects": [],
+    "text": "0 of 35 dependency edges (0.0%)",
+    "unit": "dependency edges"
+   },
+   {
+    "classes": [
+     "org.springframework.samples.petclinic.owner.OwnerController",
+     "org.springframework.samples.petclinic.owner.PetController",
+     "org.springframework.samples.petclinic.owner.VisitController",
+     "org.springframework.samples.petclinic.vet.VetController"
+    ],
+    "denominator": 15,
+    "denominator_definition": "all dependency edges whose source is a presentation-layer class",
+    "id": "entity-in-controller",
+    "label": "Controller dependencies on entities",
+    "numerator": 8,
+    "numerator_definition": "presentation-layer edges that point directly at an entity class",
+    "percentage": 53.3,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-ENTITY-IN-CONTROLLER"
+    ],
+    "severity": "MEDIUM",
+    "status": "MEASURED",
+    "subjects": [
+     "org.springframework.samples.petclinic.owner.OwnerController -> org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.PetController -> org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.PetController -> org.springframework.samples.petclinic.owner.Pet",
+     "org.springframework.samples.petclinic.owner.PetController -> org.springframework.samples.petclinic.owner.PetType",
+     "org.springframework.samples.petclinic.owner.VisitController -> org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.VisitController -> org.springframework.samples.petclinic.owner.Pet",
+     "org.springframework.samples.petclinic.owner.VisitController -> org.springframework.samples.petclinic.owner.Visit",
+     "org.springframework.samples.petclinic.vet.VetController -> org.springframework.samples.petclinic.vet.Vet"
+    ],
+    "text": "8 of 15 dependency edges (53.3%)",
+    "unit": "dependency edges"
+   },
+   {
+    "classes": [],
+    "denominator": 104,
+    "denominator_definition": "all methods with a measured bytecode length",
+    "id": "large-method",
+    "label": "Large methods",
+    "numerator": 0,
+    "numerator_definition": "methods whose bytecode length exceeds the warn threshold",
+    "percentage": 0.0,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-LARGE-METHOD"
+    ],
+    "severity": null,
+    "status": "MEASURED",
+    "subjects": [],
+    "text": "0 of 104 methods (0.0%)",
+    "unit": "methods"
+   },
+   {
+    "classes": [],
+    "denominator": 104,
+    "denominator_definition": "all methods with a measured bytecode length",
+    "id": "complex-method",
+    "label": "Complex methods",
+    "numerator": 0,
+    "numerator_definition": "methods whose branch count plus one exceeds the warn threshold",
+    "percentage": 0.0,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-COMPLEX-METHOD"
+    ],
+    "severity": null,
+    "status": "MEASURED",
+    "subjects": [],
+    "text": "0 of 104 methods (0.0%)",
+    "unit": "methods"
+   },
+   {
+    "classes": [],
+    "denominator": 3,
+    "denominator_definition": "all static fields except serialVersionUID, enum constants and synthetic fields",
+    "id": "static-state",
+    "label": "Mutable static state",
+    "numerator": 0,
+    "numerator_definition": "static fields that are non-final, or final collections that are mutated",
+    "percentage": 0.0,
+    "reason": null,
+    "rule_ids": [
+     "DEBT-STATIC-STATE"
+    ],
+    "severity": null,
+    "status": "MEASURED",
+    "subjects": [],
+    "text": "0 of 3 static fields (0.0%)",
+    "unit": "static fields"
+   },
+   {
+    "classes": [],
+    "denominator": null,
+    "denominator_definition": "all analysed top-level classes",
+    "id": "unobserved",
+    "label": "Classes never observed at runtime",
+    "numerator": null,
+    "numerator_definition": "classes with no mapped span in the selected runtime sessions",
+    "percentage": null,
+    "reason": "no runtime session is selected",
+    "rule_ids": [
+     "DEBT-UNOBSERVED"
+    ],
+    "severity": null,
+    "status": "NOT_MEASURED",
+    "subjects": [],
+    "text": "not measured: no runtime session is selected",
+    "unit": "classes"
+   },
+   {
+    "classes": [
+     "org.springframework.samples.petclinic.model.BaseEntity",
+     "org.springframework.samples.petclinic.model.NamedEntity",
+     "org.springframework.samples.petclinic.model.Person",
+     "org.springframework.samples.petclinic.owner.Owner",
+     "org.springframework.samples.petclinic.owner.Pet",
+     "org.springframework.samples.petclinic.owner.PetController",
+     "org.springframework.samples.petclinic.owner.PetType",
+     "org.springframework.samples.petclinic.owner.PetTypeRepository",
+     "org.springframework.samples.petclinic.owner.Visit"
+    ],
+    "denominator": 35,
+    "denominator_definition": "all class dependency edges whose two classes both have a candidate domain",
+    "id": "cross-domain-edges",
+    "label": "Cross-domain dependencies",
+    "numerator": 7,
+    "numerator_definition": "class dependency edges whose two classes belong to different candidate domains",
+    "percentage": 20.0,
+    "reason": null,
+    "rule_ids": [],
+    "severity": null,
+    "status": "MEASURED",
+    "subjects": [
+     "org.springframework.samples.petclinic.owner.Owner -> org.springframework.samples.petclinic.model.Person",
+     "org.springframework.samples.petclinic.owner.Pet -> org.springframework.samples.petclinic.model.NamedEntity",
+     "org.springframework.samples.petclinic.owner.Pet -> org.springframework.samples.petclinic.owner.PetType",
+     "org.springframework.samples.petclinic.owner.PetController -> org.springframework.samples.petclinic.owner.PetType",
+     "org.springframework.samples.petclinic.owner.PetController -> org.springframework.samples.petclinic.owner.PetTypeRepository",
+     "org.springframework.samples.petclinic.owner.PetType -> org.springframework.samples.petclinic.model.NamedEntity",
+     "org.springframework.samples.petclinic.owner.Visit -> org.springframework.samples.petclinic.model.BaseEntity"
+    ],
+    "text": "7 of 35 dependency edges (20.0%)",
+    "unit": "dependency edges"
+   },
+   {
+    "classes": [],
+    "denominator": null,
+    "denominator_definition": "all detected entry points",
+    "id": "entry-points-unobserved",
+    "label": "Entry points never observed",
+    "numerator": null,
+    "numerator_definition": "entry points whose handler method (or, without method evidence, handler class) has no mapped span",
+    "percentage": null,
+    "reason": "no runtime session is selected",
+    "rule_ids": [],
+    "severity": null,
+    "status": "NOT_MEASURED",
+    "subjects": [],
+    "text": "not measured: no runtime session is selected",
+    "unit": "entry points"
+   },
+   {
+    "classes": [
+     "org.springframework.samples.petclinic.PetClinicApplication",
+     "org.springframework.samples.petclinic.owner.OwnerController",
+     "org.springframework.samples.petclinic.owner.PetController",
+     "org.springframework.samples.petclinic.owner.VisitController",
+     "org.springframework.samples.petclinic.vet.VetController"
+    ],
+    "denominator": 24,
+    "denominator_definition": "all analysed top-level classes",
+    "id": "any-class",
+    "label": "Classes with at least one finding",
+    "numerator": 5,
+    "numerator_definition": "distinct classes named by any technical-debt finding",
+    "percentage": 20.8,
+    "reason": null,
+    "rule_ids": [],
+    "severity": "MEDIUM",
+    "status": "MEASURED",
+    "subjects": [
+     "org.springframework.samples.petclinic.PetClinicApplication",
+     "org.springframework.samples.petclinic.owner.OwnerController",
+     "org.springframework.samples.petclinic.owner.PetController",
+     "org.springframework.samples.petclinic.owner.VisitController",
+     "org.springframework.samples.petclinic.vet.VetController"
+    ],
+    "text": "5 of 24 classes (20.8%)",
+    "unit": "classes"
+   }
+  ]
+ },
  "rules": [
   {
    "action": "Identify groups of methods that use the same fields and move each group into its own class.",

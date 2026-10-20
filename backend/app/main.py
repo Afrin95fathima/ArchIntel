@@ -26,7 +26,7 @@ from app.evidence.routes import router as evidence_router
 from app.modernization.routes import router as modernization_router
 from app.transformation.routes import router as transformation_router
 from app.system.routes import router as system_router
-from app.insight.routes import router as insight_router
+from app.insight.routes import router as insight_router, glossary_router as insight_glossary_router
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
@@ -136,6 +136,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.include_router(router)
     app.include_router(insight_router)
+    app.include_router(insight_glossary_router)
     app.include_router(runtime_router)
     app.include_router(security_router)
     app.include_router(ai_router)

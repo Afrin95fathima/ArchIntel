@@ -9,6 +9,7 @@ from .cycles import analyse as analyse_cycles
 from .lifecycle import evaluate as evaluate_lifecycle, load_rules as load_lifecycle_rules
 from .metrics import compute as compute_metrics, layer_violations, load_debt_rules
 from .roles import LAYER_PLAIN, method_label, short
+from . import debt_rates
 
 SEVERITY_WEIGHT = {'CRITICAL': 4, 'HIGH': 3, 'MEDIUM': 2, 'LOW': 1, 'INFO': 0}
 COLLECTION_TYPES = ('java.util.List', 'java.util.Map', 'java.util.Set', 'java.util.Collection', 'java.util.ArrayList', 'java.util.HashMap',
@@ -32,6 +33,8 @@ def detect(model, rules: dict | None = None, metrics: dict | None = None, cycles
     lifecycle = lifecycle or evaluate_lifecycle(model, model.result.get('tech_inventory'))
     findings = []
     classes = {row['id']: row for row in metrics['classes']}
+    populations = dict(methods=0, static_fields=0, edges=len(model.owner_edges),
+        presentation_edges=sum(1 for (source, _), _kinds in model.owner_edges.items() if model.roles.get(source, {}).get('layer') == 'PRESENTATION'))
 
     # God class -----------------------------------------------------------------
     rule = by_id['DEBT-GOD-CLASS']
@@ -88,6 +91,7 @@ def detect(model, rules: dict | None = None, metrics: dict | None = None, cycles
             for method in model.methods_of(owner):
                 if 'code_length' not in method:
                     continue
+                populations['methods'] += 1
                 label = method_label(owner, method['name'])
                 ident = owner + '#' + method['name'] + method['descriptor']
                 where = f" (lines {method['line_range'][0]}-{method['line_range'][1]})" if method.get('line_range') else ''
@@ -132,6 +136,7 @@ def detect(model, rules: dict | None = None, metrics: dict | None = None, cycles
             for field in info['fields']:
                 if not field['static'] or field['synthetic'] or field['name'] in ('serialVersionUID', '$VALUES'):
                     continue
+                populations['static_fields'] += 1
                 mutated_in = sorted({m['name'] for m in info['methods'] if any(a['name'] == field['name'] and a['kind'] == 'putstatic' for a in m['field_access']) and m['name'] != '<clinit>'})
                 if not field['final']:
                     why = f"static non-final field {short(owner)}.{field['name']} ({short(field['type'])})" + (f", assigned in {', '.join(mutated_in)}()" if mutated_in else '')
@@ -194,6 +199,7 @@ def detect(model, rules: dict | None = None, metrics: dict | None = None, cycles
     return dict(findings=findings, packages=_package_summary(findings, metrics), rules=[dict(id=r['id'], title=r['title'], severity=r['severity'],
         description=r['description'], action=r['action']) for r in rules['rules']], thresholds=thresholds, rules_version=rules['rules_version'],
         counts=dict(Counter(f['severity'] for f in findings)), by_rule=dict(Counter(f['rule_id'] for f in findings)),
+        rates=debt_rates.compute(model, findings, list(classes), populations, observed is not None, model.facts_available),
         runtime_included=observed is not None, facts_available=model.facts_available,
         effort_note='The debt index is a heuristic ordering aid with its inputs shown. It is not a time, cost or currency estimate.')
 

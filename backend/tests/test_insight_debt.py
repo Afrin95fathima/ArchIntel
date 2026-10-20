@@ -73,3 +73,73 @@ def test_package_summary_shows_formula_and_inputs():
     legacy = next(p for p in packages if p['package'] == 'com.fixture.edge.legacy')
     assert legacy['debt_index'] == sum({'HIGH': 3, 'MEDIUM': 2, 'LOW': 1, 'INFO': 0}[k] * v for k, v in legacy['counts'].items())
     assert 'debt index =' in legacy['formula'] and legacy['inputs']['classes'] == 2
+
+
+# ---- Item 12: percentages with numerator and denominator ---------------------------------------------------------
+
+def rate(result, rate_id):
+    return next(r for r in result['rates']['rates'] if r['id'] == rate_id)
+
+
+def test_edgecases_rates_match_hand_counts():
+    """19 top-level classes (22 minus 3 nested), 15 owner-level dependency edges, 71 measured methods, 3 static fields."""
+    r = detect(model('edgecases'))
+    cycles = rate(r, 'cycle-member')
+    assert (cycles['numerator'], cycles['denominator'], cycles['percentage']) == (7, 19, 36.8) and cycles['text'] == '7 of 19 classes (36.8%)'
+    assert len(cycles['classes']) == 7 and 'com.fixture.edge.cycle.a.Order' in cycles['classes']
+    aging = rate(r, 'aging-framework')
+    assert (aging['numerator'], aging['denominator'], aging['percentage']) == (8, 19, 42.1)
+    layer = rate(r, 'layer-violation')
+    assert (layer['numerator'], layer['denominator'], layer['percentage']) == (2, 15, 13.3) and layer['unit'] == 'dependency edges'
+    controller = rate(r, 'entity-in-controller')
+    assert (controller['numerator'], controller['denominator'], controller['percentage']) == (2, 5, 40.0)
+    static = rate(r, 'static-state')
+    assert (static['numerator'], static['denominator'], static['percentage']) == (2, 3, 66.7)
+    assert (rate(r, 'deprecated-api')['numerator'], rate(r, 'deprecated-api')['denominator']) == (1, 19)
+    assert (rate(r, 'large-method')['denominator'], rate(r, 'large-method')['numerator']) == (71, 0)
+    assert rate(r, 'cross-domain-edges')['text'] == '0 of 15 dependency edges (0.0%)'
+    anyclass = rate(r, 'any-class')
+    assert (anyclass['numerator'], anyclass['denominator'], anyclass['percentage']) == (12, 19, 63.2)
+
+
+def test_petclinic_rates_match_hand_counts():
+    """24 classes; 35 distinct class edges of which 7 join different candidate domains; 15 edges leave the 6 presentation classes, 8 of them reach entities."""
+    r = detect(model('petclinic'))
+    assert rate(r, 'cross-domain-edges')['text'] == '7 of 35 dependency edges (20.0%)'
+    controller = rate(r, 'entity-in-controller')
+    assert (controller['numerator'], controller['denominator'], controller['percentage']) == (8, 15, 53.3)
+    assert rate(r, 'aging-framework')['text'] == '1 of 24 classes (4.2%)'
+    assert rate(r, 'any-class')['text'] == '5 of 24 classes (20.8%)'
+
+
+def test_unmeasurable_rates_say_why_and_never_show_a_percentage():
+    r = detect(model('edgecases'))
+    for rate_id in ('unobserved', 'entry-points-unobserved'):
+        item = rate(r, rate_id)
+        assert item['status'] == 'NOT_MEASURED' and item['percentage'] is None and item['numerator'] is None
+        assert item['reason'] == 'no runtime session is selected' and item['text'] == 'not measured: no runtime session is selected'
+
+
+def test_runtime_rates_use_the_selected_sessions():
+    base = model('petclinic')
+    controllers = [c for c in base.classes if c.endswith('Controller')]
+    observed_ids = set(base.classes) - set(controllers[:2])
+    runtime = dict(runtime_graph=dict(nodes=[dict(id=c, static_id=c) for c in observed_ids], edges=[]), observed_methods=None)
+    from insight_fixtures import model as build
+    r = detect(build('petclinic', runtime))
+    unobserved = rate(r, 'unobserved')
+    assert (unobserved['numerator'], unobserved['denominator']) == (2, 24) and unobserved['percentage'] == 8.3 and set(unobserved['classes']) == set(controllers[:2])
+    entry = rate(r, 'entry-points-unobserved')
+    total = len(base.entry_points['items'])
+    expected = sum(1 for e in base.entry_points['items'] if e['handler_class'] in controllers[:2])
+    assert (entry['numerator'], entry['denominator']) == (expected, total) and entry['basis'].startswith('class-level')
+
+
+def test_package_and_domain_breakdowns_use_their_own_denominators():
+    r = detect(model('edgecases'))['rates']
+    package = next(p for p in r['by_package'] if p['id'] == 'com.fixture.edge.cycle.a')
+    classes_in_package = package['class_count']
+    cycle = package['rates']['cycle-member']
+    assert cycle['denominator'] == classes_in_package and cycle['numerator'] == len(cycle['classes']) and cycle['percentage'] == round(100 * cycle['numerator'] / classes_in_package, 1)
+    assert sum(p['class_count'] for p in r['by_package']) == 19 and sum(d['class_count'] for d in r['by_domain']) == 19
+    assert sum(len(p['rates'].get('cycle-member', {}).get('classes', [])) for p in r['by_package']) == 7

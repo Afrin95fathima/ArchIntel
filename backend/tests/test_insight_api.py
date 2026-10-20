@@ -257,3 +257,14 @@ def test_source_store_captures_java_entries_and_respects_limits_and_deny(tmp_pat
     assert read(config, 'an1', result, 'p.B')['kind'] == 'NOT_AVAILABLE'
     deny = Settings(_env_file=None, data_dir=tmp_path, source_store_mode='DENY')
     assert capture(deny, 'an2', archive, result)['status'] == 'DISABLED' and read(deny, 'an1', result, 'p.A')['kind'] == 'DISABLED'
+
+
+def test_debt_endpoint_returns_rates_and_glossary_defines_each_one(insight_client):
+    analysis, _ = analyse(insight_client, 'edgecases')
+    debt = insight_client.get(f'/api/v1/analyses/{analysis}/insight/debt').json()
+    rates = {r['id']: r for r in debt['rates']['rates']}
+    assert rates['cycle-member']['text'] == '7 of 19 classes (36.8%)' and rates['unobserved']['status'] == 'NOT_MEASURED'
+    entries = {e['id']: e for e in insight_client.get('/api/v1/insight/glossary').json()['entries']}
+    for rate_id, rate in rates.items():
+        entry = entries['rate:' + rate_id]
+        assert entry['numerator'] == rate['numerator_definition'] and entry['denominator'] == rate['denominator_definition'] and entry['formula']

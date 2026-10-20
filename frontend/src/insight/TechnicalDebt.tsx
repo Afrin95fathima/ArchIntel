@@ -1,5 +1,7 @@
 import { Fragment, useMemo, useState } from 'react';
 import { PageTitle } from '../components';
+import { DebtRates, type DebtRatesPayload } from './DebtRates';
+import { GlossaryPanel } from './GlossaryPanel';
 import { AiExplain, ExplanationLayers, Formula, InsightState, NodeLink, NotAvailable, short, useInsight } from './shared';
 
 export type DebtFinding = { id: string; rule_id: string; title: string; severity: string; entity_id: string; entity_type: string; package: string;
@@ -7,7 +9,7 @@ export type DebtFinding = { id: string; rule_id: string; title: string; severity
   evidence: { kind: string; text: string; line?: number | null }[]; suggested_action: string; node_ids: string[]; related: Record<string, string> };
 export type DebtResult = { findings: DebtFinding[]; packages: { package: string; class_count: number; counts: Record<string, number>; debt_index: number; debt_density: number | null; formula: string; inputs: Record<string, number> }[];
   rules: { id: string; title: string; severity: string; description: string; action: string }[]; counts: Record<string, number>; by_rule: Record<string, number>;
-  runtime_included: boolean; facts_available: boolean; effort_note: string; rules_version: string };
+  runtime_included: boolean; facts_available: boolean; effort_note: string; rules_version: string; rates?: DebtRatesPayload };
 
 const ORDER: Record<string, number> = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3, INFO: 4 };
 
@@ -50,6 +52,7 @@ function DebtBody({ data, analysisId }: { data: DebtResult; analysisId: string }
   return <>
     <div className="insight-cards">{['HIGH', 'MEDIUM', 'LOW', 'INFO'].map(s => <article key={s}><strong>{data.counts[s] || 0}</strong><span>{s.toLowerCase()} findings</span></article>)}</div>
     <p className="fine-print">Rules {data.rules_version}. {data.runtime_included ? 'Runtime evidence is included (unobserved classes are listed as INFO).' : 'No runtime session selected: the "unobserved at runtime" rule is not evaluated.'}{!data.facts_available && ' Method-level rules need bytecode facts, which this analysis does not have; run a new analysis.'}</p>
+    {data.rates && <DebtRates data={data.rates} />}
     <section className="panel insight-panel"><h3>Debt by package</h3><Formula formula={data.packages[0]?.formula || 'debt index = 3 × HIGH + 2 × MEDIUM + 1 × LOW'} /><p className="fine-print">{data.effort_note}</p>
       <div className="insight-table-wrap"><table className="insight-table"><thead><tr><th>Package</th><th>Classes</th><th>High</th><th>Medium</th><th>Low</th><th>Debt index</th><th>Per class</th></tr></thead><tbody>
         {data.packages.filter(p => p.debt_index > 0).map(p => <tr key={p.package}><td><NodeLink id={p.package} label={p.package} /></td><td>{p.class_count}</td><td>{p.counts.HIGH || 0}</td><td>{p.counts.MEDIUM || 0}</td><td>{p.counts.LOW || 0}</td><td>{p.debt_index}</td><td>{p.debt_density ?? '—'}</td></tr>)}
@@ -80,5 +83,6 @@ function DebtBody({ data, analysisId }: { data: DebtResult; analysisId: string }
           </td></tr>}
           </Fragment>)}
         </Fragment>)}</tbody></table></div>}
+    <GlossaryPanel only={['rate:', 'debt-index']} />
   </>;
 }

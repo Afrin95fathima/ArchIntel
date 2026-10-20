@@ -10,6 +10,13 @@ from .model import get_model
 from . import lifecycle
 
 router = APIRouter(prefix='/api/v1/analyses/{analysis_id}/insight', tags=['Insight'])
+glossary_router = APIRouter(prefix='/api/v1/insight', tags=['Insight'])
+
+
+@glossary_router.get('/glossary', response_model=dict)
+def glossary():
+    from .glossary import entries
+    return dict(entries=entries())
 
 
 def runtime_evidence(db, request: Request, analysis_id: str, session_ids: str | None) -> tuple[dict | None, str]:
