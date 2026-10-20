@@ -18,10 +18,10 @@ test('local AI registration, policy, real assistant and invocation history',asyn
   await page.getByRole('button',{name:'Back to analysis',exact:true}).click();
   await page.getByRole('button',{name:'Explore demo application'}).click();
   await expect(page.getByRole('heading',{name:'A clearer picture. A smarter next step.'})).toBeVisible({timeout:150000});
-  await page.getByRole('button',{name:'Architecture assistant',exact:true}).click();
+  await page.getByRole('button',{name:'Open architecture assistant'}).click();
   await page.getByLabel('Ask an architecture question').fill('Where should modernization begin?');
   await page.getByLabel('Send question').click();
-  await expect(page.getByText('FACTS FROM ANALYSIS')).toBeVisible({timeout:90000});
+  await expect(page.getByText(/FROM THE ANALYSIS · NO MODEL|AI-GENERATED · CITED/).first()).toBeVisible({timeout:90000});
   await page.getByText('Sources and limitations',{exact:true}).click();
   await expect(page.locator('.fine-print').filter({hasText:'Mode: LOCAL_MODEL_ASSISTED.'})).toBeVisible();
   await page.getByRole('button',{name:'Security & access',exact:true}).click();

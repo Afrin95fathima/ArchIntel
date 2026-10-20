@@ -42,7 +42,7 @@ test('capture redesigned screens at supported desktop widths', async ({ page }) 
     await page.getByRole('tab', { name: 'Architecture metrics' }).click(); await capture('dependencies-metrics');
     await nav('Modernization'); await expect(page.getByRole('tab', { name: 'Proposal workspace' })).toBeVisible(); await capture('modernization-proposal');
     await page.getByRole('tab', { name: 'Extraction sequence' }).click(); await capture('modernization-sequence');
-    await nav('Architecture assistant'); await expect(page.getByLabel('Ask an architecture question')).toBeVisible(); await capture('architecture-assistant');
+    await page.getByRole('button', { name: 'Open architecture assistant' }).click(); await expect(page.getByLabel('Ask an architecture question')).toBeVisible(); await capture('architecture-assistant'); await page.getByRole('button', { name: 'Close assistant' }).click();
     await nav('Dynamic analysis'); await expect(page.getByRole('heading', { name: 'Observe architecture in motion.' })).toBeVisible(); await capture('dynamic-analysis');
     await nav('Evidence & digital twin'); await expect(page.getByRole('heading', { name: 'Trace conclusions to their evidence.' })).toBeVisible(); await capture('evidence-digital-twin');
     await nav('Reports'); await expect(page.getByRole('heading', { name: 'Reports', exact: true })).toBeVisible();

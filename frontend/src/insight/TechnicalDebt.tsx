@@ -1,4 +1,5 @@
-import { Fragment, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
+import { publishAssistantContext } from '../assistantContext';
 import { PageTitle } from '../components';
 import { DebtRates, type DebtRatesPayload } from './DebtRates';
 import { GlossaryPanel } from './GlossaryPanel';
@@ -41,6 +42,11 @@ function DebtBody({ data, analysisId }: { data: DebtResult; analysisId: string }
   const [severity, setSeverity] = useState(''), [rule, setRule] = useState(''), [search, setSearch] = useState(''), [group, setGroup] = useState<'none' | 'package' | 'rule'>('none');
   const [sort, setSort] = useState<'severity' | 'subject' | 'rule'>('severity'), [open, setOpen] = useState('');
   const rules = Object.fromEntries(data.rules.map(r => [r.id, r]));
+  useEffect(() => {      // the opened finding is the page selection the docked assistant can ask about
+    const finding = data.findings.find(f => f.id === open);
+    publishAssistantContext(finding ? { kind: 'class', id: finding.node_ids[0], label: short(finding.node_ids[0]) } : null);
+    return () => publishAssistantContext(null);
+  }, [open, data.findings]);
   const rows = useMemo(() => data.findings.filter(f => (!severity || f.severity === severity) && (!rule || f.rule_id === rule) && (!search || (f.entity_id + ' ' + f.explanation.plain).toLowerCase().includes(search.toLowerCase())))
     .sort((a, b) => sort === 'subject' ? a.entity_id.localeCompare(b.entity_id) : sort === 'rule' ? a.rule_id.localeCompare(b.rule_id) || a.entity_id.localeCompare(b.entity_id) : (ORDER[a.severity] - ORDER[b.severity]) || a.rule_id.localeCompare(b.rule_id)), [data, severity, rule, search, sort]);
   const groups = useMemo(() => {

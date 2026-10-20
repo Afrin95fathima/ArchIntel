@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect,useState} from 'react';
 import {useQuery,useQueryClient} from '@tanstack/react-query';
 import {api,post} from '../api';
 import {PageTitle,ErrorBox} from '../components';
@@ -6,6 +6,7 @@ import type {Application,Analysis} from '../types';
 import type {RuntimeSession,RuntimeEvidence,AgentConfiguration,RuntimeGraphData,RuntimeEdge,InstrumentationPlan} from './types';
 import {RuntimeGraph,evidenceColors} from './RuntimeGraph';
 import {SuggestedTests} from '../insight/SuggestedTests';
+import {publishAssistantContext} from '../assistantContext';
 import {MappingDetails,DatabaseCallers} from './RuntimeMappingTables';
 import './runtime.css';
 
@@ -31,6 +32,7 @@ export function RuntimeAnalysis({applications,analyses}:{applications:Applicatio
   const effectiveAnalysis=analysisId||available[0]?.id||'';
   const sessions=useQuery({queryKey:['runtime-sessions',effectiveApp],queryFn:()=>api<RuntimeSession[]>('/applications/'+effectiveApp+'/runtime-sessions'),enabled:!!effectiveApp,refetchInterval:3000});
   const selection=selected.join(',');const sid=selected[0];
+  useEffect(()=>{const found=sessions.data?.find(x=>x.id===sid);publishAssistantContext(found?{kind:'session',id:found.id,label:found.name}:null);return()=>publishAssistantContext(null);},[sid,sessions.data]);
   const evidence=useQuery({queryKey:['runtime-evidence',effectiveApp,selection],queryFn:()=>api<RuntimeEvidence>('/applications/'+effectiveApp+'/architecture/unified?runtime_session_ids='+selection),enabled:!!selection,refetchInterval:10000});
   const coverageDetails=useQuery({queryKey:['runtime-coverage-details',effectiveApp,selection,coverageKind,coverageFilter,coverageSearch,coverageOffset],queryFn:()=>{const params=new URLSearchParams({runtime_session_ids:selection,kind:coverageKind||'classes',state:coverageFilter,offset:String(coverageOffset),limit:'50'});if(coverageSearch.trim())params.set('q',coverageSearch.trim());return api<CoverageDetailPage>('/applications/'+effectiveApp+'/architecture/unified/coverage-details?'+params.toString());},enabled:!!selection&&!!coverageKind});
   const graph=useQuery({queryKey:['runtime-view',effectiveApp,selection,level,view],queryFn:()=>api<RuntimeGraphData>('/applications/'+effectiveApp+'/architecture/unified/'+level+'?runtime_session_ids='+selection+'&graph_kind='+view),enabled:!!selection&&tab==='Graph',refetchInterval:10000});

@@ -36,10 +36,10 @@ test('investor walkthrough uses live persisted analysis across every screen',asy
   await page.locator('tbody tr').first().click();
   await expect(page.getByText('Risks and blockers')).toBeVisible();
   await page.screenshot({path:'../docs/screenshots/modernization.png',fullPage:true});
-  await page.getByRole('button',{name:'Architecture assistant',exact:true}).click();
+  await page.getByRole('button',{name:'Open architecture assistant'}).click();
   await page.getByLabel('Ask an architecture question').fill('Why is Payment high risk?');
   await page.getByLabel('Send question').click();
-  await expect(page.getByText('FACTS FROM ANALYSIS')).toBeVisible();
+  await expect(page.getByText(/FROM THE ANALYSIS · NO MODEL|AI-GENERATED · CITED/).first()).toBeVisible();
   await expect(page.locator('.fact').first()).toBeVisible();
   await page.screenshot({path:'../docs/screenshots/assistant.png',fullPage:true});
   const exportUrl=await page.getByRole('link',{name:'Export analysis'}).getAttribute('href');

@@ -28,3 +28,17 @@ it('groups by package and shows the debt index formula', async () => {
   expect(screen.getByText(/debt index = 3 × HIGH/)).toBeTruthy();
   expect(screen.getByText(/not a time, cost or currency estimate/)).toBeTruthy();
 });
+
+it('publishes the opened finding as the page selection for the docked assistant, and clears it on close', async () => {
+  mount();
+  const seen: (unknown)[] = [];
+  const listener = (event: Event) => seen.push((event as CustomEvent).detail);
+  window.addEventListener('archintel-assistant-context', listener);
+  fireEvent.change(await screen.findByLabelText('Rule'), { target: { value: 'DEBT-LAYER-VIOLATION' } });
+  const table = screen.getAllByRole('table').at(-1)!;
+  fireEvent.click(within(table).getByRole('button', { name: 'Layer violation' }));
+  expect(seen.at(-1)).toEqual({ kind: 'class', id: 'com.fixture.edge.legacy.BillingRecord', label: 'BillingRecord' });
+  fireEvent.click(within(table).getByRole('button', { name: 'Layer violation' }));
+  expect(seen.at(-1)).toBeNull();
+  window.removeEventListener('archintel-assistant-context', listener);
+});
