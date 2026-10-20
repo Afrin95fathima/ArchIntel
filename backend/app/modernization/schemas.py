@@ -21,3 +21,4 @@ class Question(BaseModel):
     model_config = ConfigDict(extra='forbid')
     question: Literal['WHY', 'BLOCKERS', 'NEXT_STEP']
     decision_id: str = Field(min_length=1, max_length=36)
+    with_ai: bool = False

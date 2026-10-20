@@ -352,3 +352,54 @@ def test_actual_planning_graph_keeps_canonical_scope_immutable(live):
                 scope='local:'+identity
                 neo.run('MATCH (n:ArchIntelEntity {scope:$scope}) DETACH DELETE n',scope=scope).consume()
                 neo.run('MATCH (n:ArchIntelProjection {scope:$scope}) DELETE n',scope=scope).consume()
+
+
+def test_findings_carry_rule_id_measured_value_threshold_and_named_subjects():
+    doc, facts, evidence, version, static = pure(observations=.5, reviewed=False)
+    assert doc['rule_version'] == 'modernization-intelligence-4'
+    assert doc['findings']
+    for finding in doc['findings']:
+        assert finding['rule_id'] == finding['kind']
+        assert isinstance(finding['measured'], dict) and isinstance(finding['threshold'], dict) and isinstance(finding['subjects'], list)
+    by_domain = {a['domain_id']: a for a in doc['assessments']}
+    limited = [f for f in doc['findings'] if f['kind'] == 'LIMITED_OBSERVATION']
+    assert limited
+    for finding in limited:
+        observed = by_domain[finding['domain_id']]['observation']
+        assert finding['measured']['observed_classes'] == observed['observed']
+        assert finding['measured']['total_classes'] == observed['total']
+        assert finding['measured']['observed_class_percentage'] == round(100 * observed['observed'] / observed['total'], 2)
+        assert finding['threshold'] == {'minimum_observed_class_percentage': 80}
+        assert finding['subjects'] == [by_domain[finding['domain_id']]['domain_name']]
+        assert f"{observed['observed']} of {observed['total']} classes" in finding['text']
+    assert validation.validate(doc, facts, evidence)['status'] == 'VALIDATED'
+
+
+def test_unattached_runtime_is_reported_as_not_measured_not_as_zero_percent():
+    doc, *_ = pure(observations=0)
+    limited = [f for f in doc['findings'] if f['kind'] == 'LIMITED_OBSERVATION']
+    assert limited
+    for finding in limited:
+        assert finding['measured']['observed_class_percentage'] is None and finding['measured']['observed_classes'] is None
+        assert 'No runtime session is attached' in finding['text'] and '0%' not in finding['text']
+
+
+def test_explain_why_returns_rule_measured_value_threshold_subjects_and_evidence():
+    doc, *_ = pure(observations=.5, reviewed=False)
+    item = SimpleNamespace(id='a1', version_id='v1', document=doc)
+    for decision in doc['decisions']:
+        out = service.answer(item, SimpleNamespace(question='WHY', decision_id=decision['id'], with_ai=False))
+        assert out['decision_rule']['rule_id'] == decision['kind']
+        assert out['ai'] == {'status': 'NOT_REQUESTED'}
+        assert [r['rule_id'] for r in out['reasons']] == [f['kind'] for f in doc['findings'] if f['id'] in decision['finding_ids']]
+        for reason in out['reasons']:
+            assert reason['measured_fields_recorded'] is True and reason['evidence_ids'] and reason['subjects']
+
+
+def test_explain_why_on_a_proposal_saved_before_rule_version_4_says_the_fields_were_not_recorded():
+    doc, *_ = pure()
+    for finding in doc['findings']:
+        for key in ('measured', 'threshold', 'subjects', 'rule_id'): finding.pop(key)
+    item = SimpleNamespace(id='a1', version_id='v1', document=doc)
+    out = service.answer(item, SimpleNamespace(question='WHY', decision_id=doc['decisions'][0]['id'], with_ai=False))
+    assert out['reasons'] and all(r['measured_fields_recorded'] is False and r['rule_id'] for r in out['reasons'])

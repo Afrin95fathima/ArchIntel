@@ -78,7 +78,7 @@ def review(vid: str, aid: str, body: ReviewInput, request: Request, db=Depends(s
 @router.post('/{aid}/explain')
 def explain(vid: str, aid: str, body: Question, request: Request, db=Depends(session)):
     version = version_owned(db, request, vid)
-    return service.answer(service.owned(db, version, aid), body)
+    return service.answer(service.owned(db, version, aid), body, request, db)
 
 
 @router.get('/{aid}/graph')

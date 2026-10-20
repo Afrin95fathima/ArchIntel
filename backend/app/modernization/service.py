@@ -94,11 +94,31 @@ def rebuild(db, item, config):
     return dict(state=item.projection_state, attempts=item.projection_attempts, error_code=item.projection_error)
 
 
-def answer(item, body):
+def _reason(finding):
+    """One finding as a rule id, measured value, threshold, named subjects and evidence ids. Older proposals lack the measured fields."""
+    recorded = 'measured' in finding
+    return dict(rule_id=finding.get('rule_id') or finding['kind'], severity=finding['severity'], text=finding['text'],
+        measured=finding.get('measured') or {}, threshold=finding.get('threshold') or {}, subjects=finding.get('subjects') or [],
+        evidence_ids=finding['evidence_ids'], fact_count=len(finding['fact_ids']), measured_fields_recorded=recorded)
+
+
+def answer(item, body, request=None, db=None):
     decision = next((d for d in item.document['decisions'] if d['id'] == body.decision_id), None)
     if not decision: raise HTTPException(404, 'Decision not found in this assessment.')
     findings = [f for f in item.document['findings'] if f['id'] in decision['finding_ids']]
+    reasons = [_reason(f) for f in findings]
     texts = [f['text'] for f in findings] if body.question == 'WHY' else decision['blockers'] if body.question == 'BLOCKERS' else [decision['action']]
-    return dict(mode='DETERMINISTIC_EVIDENCE_RETRIEVAL', answer=' '.join(texts), decision=decision, findings=findings,
+    result = dict(mode='DETERMINISTIC_EVIDENCE_RETRIEVAL', answer=' '.join(texts), decision=decision, findings=findings, reasons=reasons,
+        decision_rule=dict(rule_id=decision['kind'], action=decision['action'], blockers=decision['blockers']),
         evidence_ids=decision['evidence_ids'], fact_ids=decision['fact_ids'], version_id=item.version_id,
-        limitations=['Answers are limited to this frozen assessment. No model calls, arbitrary questions, Cypher or source execution.'])
+        ai=dict(status='NOT_REQUESTED'),
+        limitations=['Answers are limited to this frozen assessment. No arbitrary questions, Cypher or source execution.'])
+    if body.with_ai and request is not None:
+        from app.ai.grounded import explain
+        evidence = [dict(id='finding:' + f['id'], text=f"{r['rule_id']}: {r['text']} Measured {r['measured']}; threshold {r['threshold']}; involved {', '.join(r['subjects'])}.")
+                    for f, r in zip(findings, reasons)]
+        domain = next((a for a in item.document['assessments'] if a['domain_id'] == decision['domain_id']), {})
+        known = {s for r in reasons for s in r['subjects']} | {domain.get('domain_name', '')}
+        result['ai'] = explain(request, db, 'DECISION_EXPLANATION', evidence, 'Explain in plain language why this decision was made for this domain, using only the supplied findings.',
+            'assessment:' + item.id, known)
+    return result

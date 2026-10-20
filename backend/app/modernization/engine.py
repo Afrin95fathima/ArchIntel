@@ -13,7 +13,7 @@ from app.services.runtime.entry_points import is_method_entry_point
 from app.services.domain_analysis import dependency_matrix, model_overlap, entry_point_inventory
 from . import decomposition
 
-RULE_VERSION = 'modernization-intelligence-3'
+RULE_VERSION = 'modernization-intelligence-4'
 CALIBRATION = 'fixture-calibration-1'
 STRATEGIES = ['MODULAR_MONOLITH', 'MICROSERVICES', 'HYBRID', 'CLOUD_REFACTOR', 'JAVA_UPGRADE', 'FRAMEWORK_UPGRADE']
 PREREQUISITES = ['PINNED_SOURCE_AND_PASSING_BUILD', 'BEHAVIORAL_CONTRACTS', 'DATA_OWNERSHIP_REVIEW', 'HUMAN_CHANGE_APPROVAL']
@@ -50,6 +50,7 @@ def structural(version, static):
 def build(assessment_id, version, static, facts, evidence, options):
     uid = lambda key: identity(assessment_id, key)
     domains = sorted(version.document['domains'], key=lambda d: d['id'])
+    names = {d['id']: d['name'] for d in domains}
     membership = {c: d['id'] for d in domains for c in d['classes']}
     domain_ids = {d['id'] for d in domains}
     structural_by = {a['domain_id']: a for a in structural(version, static)}
@@ -105,23 +106,47 @@ def build(assessment_id, version, static, facts, evidence, options):
         support = sorted({e for f in fs for e in f['evidence_ids']} | {
             e['id'] for e in evidence if e['kind'] == 'COVERAGE' and e['target'] == did or e['kind'] == 'STATIC' and e['target'] in domain['classes']})
         local_findings = []
-        def finding(kind, severity, text, fids=None, eids=None):
-            row = dict(id=uid('finding:' + did + ':' + kind), domain_id=did, kind=kind, severity=severity, text=text,
-                       fact_ids=fact_ids if fids is None else fids, evidence_ids=support if eids is None else sorted(set(eids)), rule_version=RULE_VERSION)
+        def finding(kind, severity, text, fids=None, eids=None, measured=None, threshold=None, subjects=None):
+            # rule_id equals kind. measured/threshold/subjects are what "Explain why" shows: the value, the limit, and the named domains, classes or edges.
+            row = dict(id=uid('finding:' + did + ':' + kind), domain_id=did, kind=kind, rule_id=kind, severity=severity, text=text,
+                       fact_ids=fact_ids if fids is None else fids, evidence_ids=support if eids is None else sorted(set(eids)), rule_version=RULE_VERSION,
+                       measured=measured or {}, threshold=threshold or {}, subjects=list(subjects or []))
             findings.append(row); local_findings.append(row['id'])
         conflicts = [f for f in fs if f.get('conflict_ids')]
         cross = [f for f in fs if membership.get(f['source']) == did and membership.get(f['target']) in domain_ids and membership[f['target']] != did]
         unresolved = [f for f in fs if f['source'] not in membership or f['target'] not in membership]
-        if did in cyclic: finding('CROSS_DOMAIN_CYCLE', 'HIGH', 'This domain belongs to a cyclic group in the combined dependency graph.')
-        if baseline['external_coupling'] > .5: finding('HIGH_STRUCTURAL_COUPLING', 'HIGH', 'More than half of outgoing structural dependency pairs cross this boundary.')
-        if shared[did]: finding('SHARED_PERSISTENCE_CANDIDATE', 'HIGH', 'Multiple domains call the same observed database resource; ownership and transactions remain unknown.', [], shared[did])
-        if conflicts: finding('CONFLICTING_EVIDENCE', 'HIGH', 'Conflicting supporting evidence requires manual review.', [f['id'] for f in conflicts])
-        if unresolved: finding('UNRESOLVED_RUNTIME_BOUNDARY', 'MEDIUM', 'Some observed dependencies cannot be assigned to a known domain.', [f['id'] for f in unresolved])
+        if did in cyclic:
+            group = next(g for g in cyclic_groups if did in g)
+            finding('CROSS_DOMAIN_CYCLE', 'HIGH', f"{domain['name']} is in a dependency cycle with {len(group) - 1} other domain(s): {', '.join(names[g] for g in group)}.",
+                measured={'domains_in_cycle': len(group)}, threshold={'minimum_domains_in_cycle': 2}, subjects=[names[g] for g in group])
+        if baseline['external_coupling'] > .5:
+            finding('HIGH_STRUCTURAL_COUPLING', 'HIGH', f"{round(100 * baseline['external_coupling'], 1)}% of {domain['name']}'s outgoing dependency pairs cross its boundary (limit 50%).",
+                measured={'external_coupling': round(baseline['external_coupling'], 3), 'cross_boundary_class_pairs': len(cross)}, threshold={'maximum_external_coupling': .5},
+                subjects=sorted({f['source'] for f in cross})[:10])
+        shared_keys = sorted(key for key, owners in resources.items() if did in owners and len(owners) > 1)
+        if shared[did]:
+            finding('SHARED_PERSISTENCE_CANDIDATE', 'HIGH', f"{domain['name']} calls {len(shared_keys)} database resource(s) that other domains also call: {', '.join(k[3] for k in shared_keys[:5])}.", [], shared[did],
+                measured={'shared_resources': len(shared_keys)}, threshold={'minimum_domains_per_resource': 2}, subjects=['/'.join(k) for k in shared_keys[:10]])
+        if conflicts:
+            finding('CONFLICTING_EVIDENCE', 'HIGH', f"{len(conflicts)} dependency fact(s) of {domain['name']} have conflicting evidence.", [f['id'] for f in conflicts],
+                measured={'conflicting_facts': len(conflicts)}, threshold={'allowed_conflicting_facts': 0}, subjects=[f"{f['source']} -> {f['target']}" for f in conflicts[:10]])
+        if unresolved:
+            finding('UNRESOLVED_RUNTIME_BOUNDARY', 'MEDIUM', f"{len(unresolved)} observed dependency fact(s) of {domain['name']} reference a class with no domain.", [f['id'] for f in unresolved],
+                measured={'unassigned_facts': len(unresolved)}, threshold={'allowed_unassigned_facts': 0},
+                subjects=sorted({n for f in unresolved for n in (f['source'], f['target']) if n not in membership})[:10])
         observed = coverage[did]
         observation_score = round(100 * observed['observed'] / observed['total'], 2) if has_runtime and observed['total'] else 0
-        if observation_score < 80: finding('LIMITED_OBSERVATION', 'MEDIUM', 'Selected sessions observe fewer than 80% of this domain\'s classes; unobserved never means unused.', [])
-        if not version.manifest.get('domain_review'): finding('UNREVIEWED_BOUNDARY', 'MEDIUM', 'Candidate business boundary has not been reviewed.', [])
-        finding('BEHAVIOR_AND_DATA_UNKNOWN', 'MEDIUM', 'Behavioral contracts and reviewed data ownership are unavailable; extraction cannot be approved.', [])
+        if observation_score < 80:
+            finding('LIMITED_OBSERVATION', 'MEDIUM',
+                (f"Selected sessions observed {observed['observed']} of {observed['total']} classes of {domain['name']} ({observation_score}%, minimum 80%)." if has_runtime
+                 else f"No runtime session is attached to this version, so none of the {observed['total']} classes of {domain['name']} was observed."), [],
+                measured={'observed_classes': observed['observed'] if has_runtime else None, 'total_classes': observed['total'], 'observed_class_percentage': observation_score if has_runtime else None},
+                threshold={'minimum_observed_class_percentage': 80}, subjects=[domain['name']])
+        if not version.manifest.get('domain_review'):
+            finding('UNREVIEWED_BOUNDARY', 'MEDIUM', f"The membership of {domain['name']} ({len(domain['classes'])} classes) has not been reviewed.", [],
+                measured={'domain_review_recorded': False}, threshold={'domain_review_recorded': True}, subjects=[domain['name']])
+        finding('BEHAVIOR_AND_DATA_UNKNOWN', 'MEDIUM', f"No behavioral contract tests or data-ownership review are recorded for {domain['name']}; extraction cannot be approved.", [],
+            measured={'behavioral_contracts_recorded': False, 'data_ownership_reviewed': False}, threshold={'behavioral_contracts_recorded': True, 'data_ownership_reviewed': True}, subjects=[domain['name']])
         outgoing = [f for f in fs if membership.get(f['source']) == did and f['classification'] != 'STATIC_ONLY' and f['target'] in membership]
         total = sum(f['call_count'] for f in outgoing)
         internal = sum(f['call_count'] for f in outgoing if membership[f['target']] == did)
@@ -150,11 +175,17 @@ def build(assessment_id, version, static, facts, evidence, options):
         # Quality is a conservative diagnostic index. It does not alter readiness.
         cov = version.document['coverage']
         diagnostics = version.document.get('quality', {})
-        quality_penalty = min(100, 20 * (cov.get('missing_parent_count', 0) + cov.get('unresolved_node_count', 0) +
-            sum(diagnostics.get(k, 0) for k in ('dropped_spans', 'conflicting_spans', 'invalid_parent_links', 'binding_rejected_spans'))))
-        if diagnostics.get('unverified_spans') or diagnostics.get('warnings'): quality_penalty = max(quality_penalty, 25)
+        issue_keys = ('dropped_spans', 'conflicting_spans', 'invalid_parent_links', 'binding_rejected_spans')
+        quality_issues = cov.get('missing_parent_count', 0) + cov.get('unresolved_node_count', 0) + sum(diagnostics.get(k, 0) for k in issue_keys)
+        quality_penalty = min(100, 20 * quality_issues)
+        unverified = bool(diagnostics.get('unverified_spans') or diagnostics.get('warnings'))
+        if unverified: quality_penalty = max(quality_penalty, 25)
         if has_runtime and quality_penalty:
-            finding('RUNTIME_QUALITY_LIMITATION', 'MEDIUM', 'Telemetry loss, identity uncertainty or mapping gaps limit the observed sample.', [])
+            finding('RUNTIME_QUALITY_LIMITATION', 'MEDIUM',
+                f"Runtime capture has {quality_issues} counted quality issue(s)" + (" and unverified spans or warnings" if unverified else "") + " (missing parents, unresolved nodes, dropped, conflicting or rejected spans).", [],
+                measured={'quality_issue_count': quality_issues, 'missing_parent_count': cov.get('missing_parent_count', 0), 'unresolved_node_count': cov.get('unresolved_node_count', 0),
+                          **{k: diagnostics.get(k, 0) for k in issue_keys}, 'unverified_spans_or_warnings': unverified},
+                threshold={'allowed_quality_issues': 0}, subjects=[domain['name']])
         quality = max(0, 100 - quality_penalty) if has_runtime else 0
         confidence_components = dict(static_support=round(float(domain.get('confidence', 0)) * 100, 1), runtime_observation=observation_score, mapping_quality=quality,
             boundary_review=100 if version.manifest.get('domain_review') else 0, behavioral_validation=0, data_ownership=0)
