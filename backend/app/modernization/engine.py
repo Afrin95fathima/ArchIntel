@@ -11,7 +11,7 @@ from app.services.domains import enrich_domains
 from app.services.modernization import assess_and_rank
 from app.services.runtime.entry_points import is_method_entry_point
 from app.services.domain_analysis import dependency_matrix, model_overlap, entry_point_inventory
-from . import decomposition
+from . import decomposition, describe
 
 RULE_VERSION = 'modernization-intelligence-4'
 CALIBRATION = 'fixture-calibration-1'
@@ -52,6 +52,20 @@ def structural(version, static):
     # Reviewed membership changes domains, so only class-level God-class findings are reused; domain-boundary violations are not recomputed here.
     god_classes = [i for i in static.get('issues', []) if i['issue_type'] == 'GOD_CLASS']
     return assess_and_rank(domains, membership, graph, cycles, god_classes, static['configuration']['readiness_weights'], boundary_available=False)
+
+
+def wave_reason(number, members, dependencies, names, candidates, coupled):
+    """Why these domains form this wave: their named dependencies and the cost indexes of the groups that were ready."""
+    text = f"Wave {number}: {', '.join(names[m] for m in members)}. "
+    text += ('Depends on ' + ', '.join(names[d] for d in dependencies) + ' (earlier waves). ') if dependencies else 'Depends on no other candidate domain. '
+    if coupled:
+        text += 'Kept together because they form a dependency cycle: ' + '; '.join(' + '.join(names[d] for d in group) for group in coupled) + '. '
+    ranked = sorted(candidates, key=lambda c: (c[1], c[0]))
+    if len(ranked) > 1:
+        text += f"Chosen first of {len(ranked)} dependency-ready groups for the lowest heuristic cost index: " + '; '.join(f"{' + '.join(g)} {round(c, 1)}" for g, c in ranked) + '.'
+    else:
+        text += 'It is the only dependency-ready group.'
+    return text
 
 
 def build(assessment_id, version, static, facts, evidence, options):
@@ -289,7 +303,7 @@ def build(assessment_id, version, static, facts, evidence, options):
                 + ". Not measured, so excluded: " + '; '.join(f"{e['label'].lower()} ({e['reason']})" for e in confidence_not_measured) + '. Heuristic evidence index, not a calibrated probability.',
             observation=observed, evidence_ids=support, fact_ids=fact_ids, blockers=blockers,
             recommendations=[recommendation], effort_band=effort_band, risk_band=risk_band,
-            cost_index=cost_index, cost_drivers=cost_drivers,
+            cost_index=cost_index, cost_drivers=cost_drivers, cost_inputs=baseline.get('cost_inputs'), cost_formula=baseline.get('cost_formula'),
             difficulty='HIGH' if did in cyclic or shared[did] or combined < 60 else 'MEDIUM',
             order_rationale=f"Review after its {len([1 for s,t in all_graph.edges if s==did])} downstream dependency domain(s) and before its {len([1 for s,t in all_graph.edges if t==did])} dependent consumer(s); prioritize the observed {len(seams)} cross-domain class pair(s) and {len(shared[did])} shared-data signal(s).",
             expected_impact='Proposed reduction in boundary risk; no measured improvement until a validated before/after change.'))
@@ -309,8 +323,8 @@ def build(assessment_id, version, static, facts, evidence, options):
         selected = [a for a in assessments if a['domain_id'] in members]
         waves.append(dict(id=uid('wave:' + str(wave_no)), number=wave_no, domains=members, dependencies=deps,
             coupled_groups=[sorted(condensation.nodes[n]['members']) for n in ready if len(condensation.nodes[n]['members']) > 1],
-            reason=('Lowest-cost eligible dependency group is sequenced first. Dependencies precede consumers; cyclic groups remain together. '
-                    'Independent groups are sequenced for reviewability, not because parallel delivery is impossible.'),
+            reason=wave_reason(wave_no, members, deps, names, [(sorted(names[d] for d in condensation.nodes[n]['members']), sum(next(a for a in assessments if a['domain_id']==d).get('cost_index') or 0 for d in condensation.nodes[n]['members'])) for n in eligible],
+                               [sorted(condensation.nodes[n]['members']) for n in ready if len(condensation.nodes[n]['members']) > 1]),
             readiness={a['domain_id']: a['combined_score'] for a in selected}, confidence={a['domain_id']: a['confidence_score'] for a in selected},
             difficulty='HIGH' if any(a['difficulty'] == 'HIGH' for a in selected) else 'MEDIUM',
             blockers=sorted({b for a in selected for b in a['blockers']}), prerequisites=list(PREREQUISITES),
@@ -432,6 +446,7 @@ def build(assessment_id, version, static, facts, evidence, options):
             'Runtime observations describe selected workloads only; no absence proves independence.',
             'Data ownership, behavioral equivalence and extraction authorization remain unavailable.',
             'Cloud, Java and framework strategies are review proposals; compatibility validation is not implemented in Phase 5.'])
+    describe.apply(result, domains)
     result['microservice_decomposition'] = decomposition.build(static, result)
     result['graph'] = planning_graph(assessment_id, result, facts, by_evidence)
     return result

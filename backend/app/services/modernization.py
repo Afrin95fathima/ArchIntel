@@ -89,6 +89,7 @@ def assess_and_rank(domains, membership, graph, cycles, issues, weights, boundar
         if metric['internal_cohesion'] is None: risks.append('No outgoing dependency evidence to estimate cohesion.')
         confidence = 'LIMITED' if db['status'] == 'UNKNOWN' else 'STRUCTURAL_ONLY'
         boundary_count = sum(i['issue_type'] == 'DOMAIN_BOUNDARY_VIOLATION' and domain['id'] in i['domain_ids'] for i in issues) if boundary_available else None
+        cost_inputs = dict(classes=member_count, boundary_pairs=len(boundary_pairs), shared_repositories=len(shared), god_classes=len(god_classes), cross_domain_cycles=len(cross_cycles))
         cost_index = round(member_count / 20 + len(boundary_pairs) * 1.5 + len(shared) * 8 + len(god_classes) * 6 + len(cross_cycles) * 12, 1)
         effort = 'S' if cost_index <= 8 else 'M' if cost_index <= 18 else 'L' if cost_index <= 35 else 'XL'
         risk = 'HIGH' if cross_cycles or shared or len(boundary_pairs) >= 8 else 'MEDIUM' if boundary_pairs or god_classes else 'LOW'
@@ -101,7 +102,8 @@ def assess_and_rank(domains, membership, graph, cycles, issues, weights, boundar
         parts = '; '.join(f"{d['label'].lower()} {d['value']} = {d['text']}" for d in details.values())
         assessments.append(dict(domain_id=domain['id'], domain_name=domain['name'], readiness_score=readiness,
             extraction_difficulty={'S':'LOW','M':'MEDIUM','L':'HIGH','XL':'VERY_HIGH'}[effort], effort_band=effort,
-            risk_band=risk, risk_drivers=drivers, heuristic_cost_index=cost_index,
+            risk_band=risk, risk_drivers=drivers, heuristic_cost_index=cost_index, cost_inputs=cost_inputs,
+            cost_formula='cost index = classes / 20 + 1.5 x crossing class pairs + 8 x shared repositories + 6 x God-class candidates + 12 x cross-domain cycles (heuristic, not hours or currency)',
             component_scores={k: round(v, 2) for k,v in components.items()}, weights=effective, configured_weights=configured,
             component_details=details, not_measured=not_measured,
             formula='readiness = sum(component x weight) over the measured inputs. Weights: configured cohesion/decoupling/cycles/database weights x 0.8, plus boundary size 0.12 and class concentration 0.08; '
@@ -114,7 +116,11 @@ def assess_and_rank(domains, membership, graph, cycles, issues, weights, boundar
             explanation=f"{domain['name']} scores {readiness}/100 from {len(components)} measured inputs: {parts}." + (f' Not measured: {excluded}.' if excluded else '')))
     domain_graph = nx.DiGraph()
     domain_graph.add_nodes_from(d['id'] for d in domains)
-    domain_graph.add_edges_from((membership[s], membership[t]) for s,t in graph.edges if membership[s] != membership[t])
+    pair_counts = {}
+    for s, t in graph.edges:
+        if membership[s] != membership[t]:
+            pair_counts[(membership[s], membership[t])] = pair_counts.get((membership[s], membership[t]), 0) + 1
+    domain_graph.add_edges_from(pair_counts)
     condensation = nx.condensation(domain_graph)
     assessment_by_id = {a['domain_id']: a for a in assessments}
     remaining = set(condensation.nodes)
@@ -126,9 +132,29 @@ def assess_and_rank(domains, membership, graph, cycles, issues, weights, boundar
             members = sorted(condensation.nodes[group]['members'], key=lambda d: (-assessment_by_id[d]['readiness_score'], assessment_by_id[d]['domain_name']))
             for domain_id in members:
                 assessment = assessment_by_id[domain_id]
-                assessment.update(recommended_order=len(ranked) + 1, wave=wave, coupled_group=members if len(members)>1 else [],
-                    sequence_reason='Dependency-first wave: prerequisites appear earlier. Within a wave, higher readiness comes first.' if len(members)==1 else 'Coupled group: remediate cycles together; row order is not an independent extraction plan.')
+                assessment.update(recommended_order=len(ranked) + 1, wave=wave, coupled_group=members if len(members) > 1 else [])
                 ranked.append(assessment)
         remaining.difference_update(ready_groups)
         wave += 1
+    for a in ranked:
+        did = a['domain_id']
+        uses = sorted(((names[t], n, assessment_by_id[t]['wave']) for (s, t), n in pair_counts.items() if s == did and t != did and t not in a['coupled_group']), key=lambda x: (x[2], x[0]))
+        used_by = sorted(((names[s], n, assessment_by_id[s]['wave']) for (s, t), n in pair_counts.items() if t == did and s not in a['coupled_group']), key=lambda x: (x[2], x[0]))
+        peers = [names[m] for m in a['coupled_group'] if m != did]
+        wave_peers = [x for x in ranked if x['wave'] == a['wave'] and x['domain_id'] != did and x['domain_id'] not in a['coupled_group']]
+        parts = []
+        if peers:
+            loop = sum(n for (s, t), n in pair_counts.items() if s in a['coupled_group'] and t in a['coupled_group'] and s != t)
+            parts.append(f"{a['domain_name']} is in a dependency cycle with {', '.join(peers)} ({loop} class pairs between the group); the group is remediated together in wave {a['wave']}.")
+        if uses:
+            parts.append(f"Wave {a['wave']}: {a['domain_name']} depends on " + ', '.join(f"{n} ({c} class pair{'s' if c != 1 else ''}, wave {w})" for n, c, w in uses) + ', which precede it.')
+        elif not peers:
+            parts.append(f"Wave {a['wave']}: {a['domain_name']} depends on no other candidate domain.")
+        if used_by:
+            parts.append('It is used by ' + ', '.join(f"{n} ({c} class pair{'s' if c != 1 else ''}, wave {w})" for n, c, w in used_by) + '.')
+        if wave_peers:
+            ordered = sorted(wave_peers + [a], key=lambda x: (-x['readiness_score'], x['domain_name']))
+            scores = ', '.join(x['domain_name'] + ' ' + str(x['readiness_score']) for x in ordered)
+            parts.append(f"Within wave {a['wave']} it ranks {ordered.index(a) + 1} of {len(ordered)} by structural readiness ({scores}).")
+        a['sequence_reason'] = ' '.join(parts)
     return ranked

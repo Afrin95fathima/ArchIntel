@@ -2,6 +2,8 @@ import {useState} from 'react';
 import {post} from '../api';
 import {Badge, ErrorBox} from '../components';
 import {aiReason} from '../insight/shared';
+import {ItemDescription} from './ItemDescription';
+import type {ItemDescriptionData} from './ItemDescription';
 
 export type Decision={id:string;domain_id:string;kind:string;action:string;blockers:string[];finding_ids:string[];fact_ids:string[];evidence_ids:string[]};
 type Reason={rule_id:string;severity:string;text:string;measured:Record<string,unknown>;threshold:Record<string,unknown>;subjects:string[];evidence_ids:string[];fact_count:number;measured_fields_recorded:boolean};
@@ -11,7 +13,7 @@ type Explanation={reasons:Reason[];decision:Decision;decision_rule:{rule_id:stri
 const pairs=(values:Record<string,unknown>)=>Object.entries(values).map(([k,v])=>`${k} = ${v===null||v===undefined?'not measured':String(v)}`).join('; ');
 
 /** One decision with its own explanation state, so a click on one item never loads, disables or fills another. */
-export function DecisionCard({base,versionId,planId,decision,name}:{base:string;versionId:string;planId:string;decision:Decision;name:string}){
+export function DecisionCard({base,versionId,planId,decision,name,description}:{base:string;versionId:string;planId:string;decision:Decision;name:string;description?:ItemDescriptionData}){
   const [result,setResult]=useState<Explanation|null>(null);
   const [open,setOpen]=useState(false);
   const [busy,setBusy]=useState(false);
@@ -31,6 +33,7 @@ export function DecisionCard({base,versionId,planId,decision,name}:{base:string;
   }
   return <article aria-label={'Decision '+name}>
     <h3>{name}: {decision.kind}</h3><p>{decision.action}</p><p>Blockers: {decision.blockers.join(', ')}</p>
+    {description&&<ItemDescription item={description}/>}
     <button type="button" disabled={busy} aria-expanded={open} aria-label={(open?'Hide explanation: ':'Explain why: ')+name} onClick={toggle}>{busy?'Explaining…':open?'Hide explanation':'Explain why'}</button>
     {error?<ErrorBox error={error}/>:null}
     {open&&result&&<section aria-label={'Explanation: '+name} className="decision-explanation">
