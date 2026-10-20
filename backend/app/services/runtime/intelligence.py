@@ -1,28 +1,22 @@
 from collections import defaultdict
 import networkx as nx
 from app.services.graph import stable_id
+from .db_callers import resolve as resolve_database_callers
 
 
-def derive(static, runtime, coverage, events, structural_weight, weights=None):
+def derive(static, runtime, coverage, events, structural_weight, weights=None, session_info=None):
     weights = weights or {'cohesion': .60, 'cycles': .25, 'persistence': .15}
     nodes = {n['id']:n for n in runtime['nodes']}
-    by_event = {(e['session_id'],e['trace_id'],e['span_id']):e for e in events}
     class_domains = {c['id']:c['domain_id'] for c in static['classes']}
     classes_by_id = {c['id']:c for c in static['classes']}
-    # Only directly observed callers: do not skip missing spans to invent ownership.
-    database, flows = {}, {}
+    # Callers come from the span's own code attributes or the nearest received ancestor (see db_callers); missing spans are never invented.
+    flows = {}
     grouped = defaultdict(list)
     for e in events:
         grouped[(e['session_id'],e['trace_id'])].append(e)
-        if not e.get('database_system'): continue
-        parent = by_event.get((e['session_id'],e['trace_id'],e.get('parent_span_id')))
-        from .mapping import map_class
-        caller = map_class(parent.get('class_name') if parent else None,classes_by_id)['static_id']
-        key = (caller,e['database_system'],e.get('database_server'),e.get('database_namespace'),e.get('database_table'),e.get('database_operation'))
-        item = database.setdefault(key,dict(caller=caller,domain_id=class_domains.get(caller),system=e['database_system'],
-            resource=e.get('database_table'),namespace=e.get('database_namespace'),server=e.get('database_server'),operation=e.get('database_operation'),call_count=0,evidence=[]))
-        item['call_count'] += 1
-        item['evidence'] = (item['evidence']+[dict(session_id=e['session_id'],trace_id=e['trace_id'],span_id=e['span_id'])])[:20]
+    database_rows, database_summary = resolve_database_callers(events,classes_by_id,session_info)
+    database = {i:item for i,item in enumerate(database_rows)}
+    for item in database.values(): item['domain_id'] = class_domains.get(item['caller'])
     for (sid,trace), group in grouped.items():
         ordered = sorted(group,key=lambda e:e['timestamp'])
         entry = next((e for e in ordered if e['event_type']=='HTTP_SERVER'),ordered[0])
@@ -78,4 +72,4 @@ def derive(static, runtime, coverage, events, structural_weight, weights=None):
     # Generic "exercise another entry point" text was removed: specific, ranked suggestions come from
     # app.insight.test_suggestions (route, parameters, constraints, reachable classes).
     recommendations = []
-    return dict(database=list(database.values()),flows=list(flows.values()),modernization=assessments,recommendations=recommendations)
+    return dict(database=list(database.values()),database_summary=database_summary,flows=list(flows.values()),modernization=assessments,recommendations=recommendations)

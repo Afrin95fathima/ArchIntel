@@ -4,13 +4,17 @@ import io
 import json
 import re
 from .mapping import DESCRIPTOR
+from .sql_tables import parse_statement
 from google.protobuf.json_format import MessageToDict
 from opentelemetry.proto.collector.trace.v1.trace_service_pb2 import ExportTraceServiceRequest
 
 IDENTITY = re.compile(r'^[\w.$/;<>\[\]-]{1,400}$')
+SPAN_NAME = re.compile(r'^[\w .:/{}$<>\[\]()#,@+-]{1,120}$')
+SCOPE = re.compile(r'^[\w.@/:-]{1,200}$')
+STATEMENT_KEYS = ('db.statement', 'db.query.text')
 ALLOWED = {'code.namespace','code.function','code.function.name','code.function.namespace',
     'code.method.name','code.method.descriptor','http.request.method','http.method','http.route',
-    'db.system','db.system.name','db.operation','db.operation.name','db.collection.name','db.namespace','server.address',
+    'db.system','db.system.name','db.operation','db.operation.name','db.collection.name','db.sql.table','db.namespace','server.address','thread.name',
     'messaging.system','messaging.operation.type','messaging.operation','messaging.destination.name',
     'exception.type','archintel.event_type'}
 
@@ -65,6 +69,9 @@ def normalize(data: dict, maximum: int) -> list[dict]:
     for resource in data.get('resourceSpans', []):
         resource_attrs=attributes(resource.get('resource',{}).get('attributes',[]),resource=True)
         for scope in resource.get('scopeSpans', []):
+            scope_info = scope.get('scope') or {}
+            scope_name = scope_info.get('name') if isinstance(scope_info.get('name'), str) and SCOPE.fullmatch(scope_info.get('name')) else None
+            scope_version = scope_info.get('version') if isinstance(scope_info.get('version'), str) and SCOPE.fullmatch(scope_info.get('version')) else None
             for span in scope.get('spans', []):
                 if len(events) >= maximum: raise ValueError('Batch span limit exceeded.')
                 trace, identity, parent = [str(span.get(k, '')).lower() for k in ('traceId','spanId','parentSpanId')]
@@ -76,6 +83,13 @@ def normalize(data: dict, maximum: int) -> list[dict]:
                 start, end = int(span.get('startTimeUnixNano',0)), int(span.get('endTimeUnixNano',0))
                 if start <= 0 or end < start or end > 9223372036854775807: raise ValueError('Invalid span timestamps.')
                 attrs = attributes(span.get('attributes', []))
+                # Statement text is parsed here for its operation and table names, then discarded; it is never stored.
+                parsed_operation, parsed_tables = None, []
+                for item in span.get('attributes', []):
+                    if item.get('key') in STATEMENT_KEYS and isinstance(item.get('value', {}).get('stringValue'), str):
+                        parsed_operation, parsed_tables = parse_statement(item['value']['stringValue'])
+                        break
+                span_name = span.get('name') if isinstance(span.get('name'), str) and SPAN_NAME.fullmatch(span.get('name')) else None
                 for event in span.get('events', []):
                     attrs.update({k:v for k,v in attributes(event.get('attributes',[])).items() if k=='exception.type'})
                 cls = attrs.get('code.namespace') or attrs.get('code.function.namespace')
@@ -102,7 +116,9 @@ def normalize(data: dict, maximum: int) -> list[dict]:
                     artifact_sha256=resource_attrs.get('archintel.artifact.sha256'),
                     invalid_resource_identity=any(a.get('key') in ('service.name','archintel.artifact.sha256') and a.get('key') not in resource_attrs for a in resource.get('resource',{}).get('attributes',[])),
                     http_route=attrs.get('http.route'),http_method=http,database_system=db,
-                    database_operation=attrs.get('db.operation.name') or attrs.get('db.operation'),
-                    database_table=attrs.get('db.collection.name'),database_namespace=attrs.get('db.namespace'),database_server=attrs.get('server.address'),messaging_system=messaging,
+                    database_operation=attrs.get('db.operation.name') or attrs.get('db.operation') or parsed_operation,
+                    database_table=attrs.get('db.collection.name') or attrs.get('db.sql.table') or (parsed_tables[0] if parsed_tables else None),
+                    database_tables=parsed_tables or [t for t in [attrs.get('db.collection.name') or attrs.get('db.sql.table')] if t],
+                    span_name=span_name,scope_name=scope_name,scope_version=scope_version,span_kind=kind if isinstance(kind,int) else None,thread_name=attrs.get('thread.name'),database_namespace=attrs.get('db.namespace'),database_server=attrs.get('server.address'),messaging_system=messaging,
                     messaging_destination=attrs.get('messaging.destination.name'),exception_type=attrs.get('exception.type'),attributes=attrs))
     return events

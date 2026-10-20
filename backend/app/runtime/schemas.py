@@ -56,6 +56,8 @@ class EvidenceResponse(BaseModel):
     mappings: list[dict]
     flows: list[dict]
     database: list[dict]
+    database_summary: dict = Field(default_factory=dict)
+    mapping_report: dict = Field(default_factory=dict)
     modernization: list[dict]
     recommendations: list[dict]
     limitations: list[str]

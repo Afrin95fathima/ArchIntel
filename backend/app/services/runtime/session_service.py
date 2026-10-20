@@ -13,6 +13,7 @@ from .graph_builder import build
 from .coverage import calculate
 from .fusion import fuse
 from .intelligence import derive
+from .mapping_report import build as mapping_report
 from .instrumentation import build_plan
 
 LOCK = RLock()
@@ -151,8 +152,8 @@ def result(db, sessions, settings):
     runtime=build(events,run.result)
     coverage=calculate(run.result,runtime,events)
     return dict(analysis_id=run.id,session_ids=ids,graph=fuse(run.result,runtime),runtime_graph=runtime,
-        mappings=runtime['mappings'],coverage=coverage,quality=quality(sessions,runtime,coverage),derivation_version='runtime-foundation-2',
-        **derive(run.result,runtime,coverage,events,settings.runtime_structural_weight,settings.runtime_score_weights),limitations=LIMITATIONS)
+        mappings=runtime['mappings'],mapping_report=mapping_report(events,run.result),coverage=coverage,quality=quality(sessions,runtime,coverage),derivation_version='runtime-foundation-3',
+        **derive(run.result,runtime,coverage,events,settings.runtime_structural_weight,settings.runtime_score_weights,{s.id:dict(dropped=s.dropped_count) for s in sessions}),limitations=LIMITATIONS)
 
 
 def quality(sessions,runtime,coverage):
