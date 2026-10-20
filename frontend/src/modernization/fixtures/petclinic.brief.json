@@ -1,0 +1,1147 @@
+{
+ "assessments": [
+  {
+   "domain_id": "domain-22c6bf723d668df4",
+   "domain_name": "Application Clinic"
+  },
+  {
+   "domain_id": "domain-663f102c0b38921a",
+   "domain_name": "Type Owner"
+  },
+  {
+   "domain_id": "domain-88320003e6c6ba0d",
+   "domain_name": "Vet"
+  },
+  {
+   "domain_id": "domain-9d798ed24befbf26",
+   "domain_name": "Owner Visit"
+  },
+  {
+   "domain_id": "domain-c8fb47353d19fc72",
+   "domain_name": "System Configuration"
+  }
+ ],
+ "decision_brief": {
+  "automatic_winner": null,
+  "baseline_metrics": {
+   "average_cross_domain_coupling": 0.107,
+   "class_count": 24,
+   "cross_domain_edge_count": 15,
+   "cycle_count": 0,
+   "god_class_count": 1,
+   "shared_entity_count": 0
+  },
+  "blockers": [
+   {
+    "code": "RUNTIME_OBSERVATION_GAP",
+    "domains": [
+     "Application Clinic",
+     "Type Owner",
+     "Vet",
+     "Owner Visit",
+     "System Configuration"
+    ],
+    "hard": false,
+    "meaning": "The selected runtime sessions do not cover enough of the domain.",
+    "resolve": "Exercise the unobserved entry points and capture a new architecture version.",
+    "subjects": [
+     "Application Clinic"
+    ]
+   },
+   {
+    "code": "BEHAVIORAL_CONTRACTS",
+    "domains": [
+     "Application Clinic",
+     "Type Owner",
+     "Vet",
+     "Owner Visit",
+     "System Configuration"
+    ],
+    "hard": false,
+    "meaning": "No behavioral contract tests protect the domain's user-visible behavior.",
+    "resolve": "Add representative API and workflow tests before changing boundaries.",
+    "subjects": [
+     "Application Clinic"
+    ]
+   },
+   {
+    "code": "DATA_OWNERSHIP_REVIEW",
+    "domains": [
+     "Application Clinic",
+     "Type Owner",
+     "Vet",
+     "Owner Visit",
+     "System Configuration"
+    ],
+    "hard": false,
+    "meaning": "Write authority for the domain's data is not confirmed.",
+    "resolve": "Review entities, repositories, transactions and database permissions with their owners.",
+    "subjects": [
+     "Application Clinic"
+    ]
+   },
+   {
+    "code": "HUMAN_CHANGE_APPROVAL",
+    "domains": [
+     "Application Clinic",
+     "Type Owner",
+     "Vet",
+     "Owner Visit",
+     "System Configuration"
+    ],
+    "hard": false,
+    "meaning": "No reviewer has approved this proposal for implementation.",
+    "resolve": "Obtain explicit architecture and product-owner review.",
+    "subjects": []
+   },
+   {
+    "code": "PINNED_SOURCE_AND_PASSING_BUILD",
+    "domains": [
+     "Application Clinic",
+     "Type Owner",
+     "Vet",
+     "Owner Visit",
+     "System Configuration"
+    ],
+    "hard": false,
+    "meaning": "The exact source revision is not pinned and a clean build is not confirmed.",
+    "resolve": "Record the repository commit and run the normal build pipeline.",
+    "subjects": []
+   }
+  ],
+  "confidence": [
+   "Domain confidence runs from 40.0 (Application Clinic) to 80.0 (Vet) out of 100.",
+   "Runtime sessions observed 12 of 24 classes (50.0%).",
+   "5 domains below 80% observed: Application Clinic, Type Owner, Vet, Owner Visit and 1 more. Unobserved never means unused."
+  ],
+  "decision": "Decide how to modernize the analyzed artifact (24 classes, 5 packages, 5 candidate domains: Application Clinic, Type Owner, Vet, Owner Visit, System Configuration). You requested MODULAR_MONOLITH with the objective: Fixture",
+  "effort_range": "Heuristic bands: M, S",
+  "evidence": [
+   {
+    "id": "01be0bfa-5509-5c58-8cff-6b8e35408b68",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.Pet",
+    "target": "org.springframework.samples.petclinic.owner.PetType"
+   },
+   {
+    "id": "03e4a86e-02f8-54ed-84f8-659c93cb34c1",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetType",
+    "target": "org.springframework.samples.petclinic.model.NamedEntity"
+   },
+   {
+    "id": "126fd6d1-44f1-5fe9-b287-24d5b935b7ee",
+    "kind": "COVERAGE",
+    "source": "analysis",
+    "target": "domain-663f102c0b38921a"
+   },
+   {
+    "id": "264cedba-5aeb-515d-846b-31e2ea91e839",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetController",
+    "target": "org.springframework.samples.petclinic.owner.PetType"
+   },
+   {
+    "id": "2cd6b13e-101d-5889-8e91-9c7307961e06",
+    "kind": "STATIC",
+    "source": "analysis",
+    "target": "org.springframework.samples.petclinic.owner.PetTypeRepository"
+   },
+   {
+    "id": "344e7999-0604-578c-bf1a-41cec3e7a0b1",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.Pet",
+    "target": "org.springframework.samples.petclinic.owner.PetType"
+   },
+   {
+    "id": "3a18427d-f066-5d92-9411-52abbc990b80",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+    "target": "org.springframework.samples.petclinic.owner.PetType"
+   },
+   {
+    "id": "5c67a76b-02fc-5b1f-a09a-5df0d5e1eb60",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+    "target": "org.springframework.samples.petclinic.owner.PetType"
+   },
+   {
+    "id": "6a28f0f0-ac67-552c-a08c-f62dd002f524",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+    "target": "org.springframework.samples.petclinic.owner.PetTypeRepository"
+   },
+   {
+    "id": "6aea852a-3a1d-5768-98ed-1b9074e8dcaf",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+    "target": "org.springframework.samples.petclinic.owner.PetType"
+   },
+   {
+    "id": "71c9af50-6e18-5940-b14b-30e90e62354a",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetController",
+    "target": "org.springframework.samples.petclinic.owner.PetTypeRepository"
+   },
+   {
+    "id": "771cb8dc-b1fd-5738-9dc1-d14c9ef96346",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetType",
+    "target": "org.springframework.samples.petclinic.model.NamedEntity"
+   },
+   {
+    "id": "7c5eb550-7649-54e4-adc3-8dc94b500787",
+    "kind": "STATIC",
+    "source": "analysis",
+    "target": "org.springframework.samples.petclinic.owner.PetType"
+   },
+   {
+    "id": "83562c9b-20a6-54e0-8881-1eb1499eb9c2",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+    "target": "org.springframework.samples.petclinic.owner.PetType"
+   },
+   {
+    "id": "a70e4563-fee8-5e66-989e-1201b60b14d9",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetTypeRepository",
+    "target": "org.springframework.samples.petclinic.owner.PetType"
+   },
+   {
+    "id": "ba7bf1aa-e784-5ff6-86cf-c94021ba00e7",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.Pet",
+    "target": "org.springframework.samples.petclinic.owner.PetType"
+   },
+   {
+    "id": "c6ecb1d9-ff4e-5105-9f17-5b5b83d440b4",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+    "target": "org.springframework.samples.petclinic.owner.PetTypeRepository"
+   },
+   {
+    "id": "d87d7e8d-7a13-56b3-913d-64975e7be16e",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+    "target": "org.springframework.samples.petclinic.owner.PetTypeRepository"
+   },
+   {
+    "id": "e133cc78-d699-5fd9-8d59-47161f11338b",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetController",
+    "target": "org.springframework.samples.petclinic.owner.PetTypeRepository"
+   },
+   {
+    "id": "e459c3b8-6ebc-501d-a4db-01c2e4f06715",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+    "target": "org.springframework.samples.petclinic.owner.PetType"
+   },
+   {
+    "id": "e813c44c-c935-5a90-a3c1-4c2036fb404f",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetController",
+    "target": "org.springframework.samples.petclinic.owner.PetTypeRepository"
+   },
+   {
+    "id": "ea046263-78dd-5198-ada0-2ac93eca3baa",
+    "kind": "STATIC",
+    "source": "analysis",
+    "target": "org.springframework.samples.petclinic.owner.PetTypeFormatter"
+   },
+   {
+    "id": "0ffc873d-3086-5cfd-a0c2-3561a8d3e9dd",
+    "kind": "COVERAGE",
+    "source": "analysis",
+    "target": "domain-22c6bf723d668df4"
+   },
+   {
+    "id": "df2b7d8a-6dd6-53c6-afba-82cbe146f695",
+    "kind": "STATIC",
+    "source": "analysis",
+    "target": "org.springframework.samples.petclinic.PetClinicApplication"
+   },
+   {
+    "id": "179a875e-4002-5ea6-b9ce-1eb094cf6d56",
+    "kind": "STATIC",
+    "source": "analysis",
+    "target": "org.springframework.samples.petclinic.system.CrashController"
+   },
+   {
+    "id": "2f916516-768c-5d3e-b028-671084bbc7a3",
+    "kind": "COVERAGE",
+    "source": "analysis",
+    "target": "domain-c8fb47353d19fc72"
+   },
+   {
+    "id": "50c3c772-11a2-5174-a510-7031f1df3504",
+    "kind": "STATIC",
+    "source": "analysis",
+    "target": "org.springframework.samples.petclinic.system.WebConfiguration"
+   },
+   {
+    "id": "6038daa2-6237-5d50-a6c6-aa506dc0b281",
+    "kind": "STATIC",
+    "source": "analysis",
+    "target": "org.springframework.samples.petclinic.system.CacheConfiguration"
+   },
+   {
+    "id": "aa676978-669a-51aa-a8e6-0e36d10a776a",
+    "kind": "STATIC",
+    "source": "analysis",
+    "target": "org.springframework.samples.petclinic.system.WelcomeController"
+   },
+   {
+    "id": "0e371a21-210c-57b3-9887-9b93b537d029",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetController",
+    "target": "org.springframework.samples.petclinic.owner.Pet"
+   }
+  ],
+  "evidence_scope": {
+   "architecture_version_id": "8ff4f1cd-18d6-43fd-815b-878bfdee974a",
+   "domain_count": 5,
+   "evidence_count": 441,
+   "fact_count": 35,
+   "runtime_sessions": 1
+  },
+  "facts": [
+   {
+    "id": "actions_domain-2",
+    "label": "Application Clinic blockers",
+    "source": "plan: assessments[].blockers",
+    "text": "5",
+    "unit": "",
+    "value": 5
+   },
+   {
+    "id": "actions_domain-8",
+    "label": "Vet blockers",
+    "source": "plan: assessments[].blockers",
+    "text": "5",
+    "unit": "",
+    "value": 5
+   },
+   {
+    "id": "actions_domain-c",
+    "label": "System Configuration blockers",
+    "source": "plan: assessments[].blockers",
+    "text": "5",
+    "unit": "",
+    "value": 5
+   },
+   {
+    "id": "aging_spring-boot",
+    "label": "Spring Boot affected classes",
+    "source": "lifecycle rules: spring-boot",
+    "text": "1",
+    "unit": "",
+    "value": 1
+   },
+   {
+    "id": "aging_technologies",
+    "label": "Aging or end-of-life technologies",
+    "source": "lifecycle rules",
+    "text": "1",
+    "unit": "",
+    "value": 1
+   },
+   {
+    "id": "blocked_domains",
+    "label": "Domains with a hard blocker",
+    "source": "plan: assessments[].hard_blockers",
+    "text": "0",
+    "unit": "",
+    "value": 0
+   },
+   {
+    "id": "blocker_RUNTIME_OBSERVATION_GAP",
+    "label": "RUNTIME_OBSERVATION_GAP domains",
+    "source": "plan: assessments[].blockers",
+    "text": "5",
+    "unit": "",
+    "value": 5
+   },
+   {
+    "id": "classes",
+    "label": "Analyzed classes",
+    "source": "static summary: class_count",
+    "text": "24",
+    "unit": "",
+    "value": 24
+   },
+   {
+    "id": "confidence_max",
+    "label": "Highest domain confidence",
+    "source": "plan: assessments[].confidence_score",
+    "text": "80.0",
+    "unit": "",
+    "value": 80.0
+   },
+   {
+    "id": "confidence_min",
+    "label": "Lowest domain confidence",
+    "source": "plan: assessments[].confidence_score",
+    "text": "40.0",
+    "unit": "",
+    "value": 40.0
+   },
+   {
+    "id": "cross_domain_edges",
+    "label": "Cross-domain dependency edges",
+    "source": "plan: domain_dependency_matrix rows, sum of edge_count",
+    "text": "15",
+    "unit": "",
+    "value": 15
+   },
+   {
+    "id": "cross_domain_pairs",
+    "label": "Domain pairs with a dependency",
+    "source": "plan: domain_dependency_matrix rows",
+    "text": "3",
+    "unit": "",
+    "value": 3
+   },
+   {
+    "id": "domains",
+    "label": "Candidate domains",
+    "source": "plan: assessments",
+    "text": "5",
+    "unit": "",
+    "value": 5
+   },
+   {
+    "id": "entry_points",
+    "label": "Detected entry points",
+    "source": "insight: entry-point detection",
+    "text": "18",
+    "unit": "",
+    "value": 18
+   },
+   {
+    "id": "java_classes",
+    "label": "Classes at the current Java target",
+    "source": "lifecycle rules: java-class-target",
+    "text": "24",
+    "unit": "",
+    "value": 24
+   },
+   {
+    "id": "low_coverage_domains",
+    "label": "Domains below the observation threshold",
+    "source": "plan: assessments[].runtime_coverage",
+    "text": "5",
+    "unit": "",
+    "value": 5
+   },
+   {
+    "id": "more_53780f7b",
+    "label": "Further items not listed by name",
+    "source": "brief: length of the listed set",
+    "text": "15",
+    "unit": "",
+    "value": 15
+   },
+   {
+    "id": "more_fd811fc2",
+    "label": "Further items not listed by name",
+    "source": "brief: length of the listed set",
+    "text": "1",
+    "unit": "",
+    "value": 1
+   },
+   {
+    "id": "observation_threshold",
+    "label": "Minimum observed class percentage per domain",
+    "source": "plan rule: LIMITED_OBSERVATION threshold",
+    "text": "80",
+    "unit": "%",
+    "value": 80
+   },
+   {
+    "id": "observed_classes",
+    "label": "Observed classes",
+    "source": "plan: assessments[].runtime_coverage",
+    "text": "12",
+    "unit": "",
+    "value": 12
+   },
+   {
+    "id": "observed_pct",
+    "label": "Observed class percentage",
+    "source": "plan: assessments[].runtime_coverage",
+    "text": "50.0",
+    "unit": "%",
+    "value": 50.0
+   },
+   {
+    "id": "observed_total",
+    "label": "Classes in domains",
+    "source": "plan: assessments[].runtime_coverage",
+    "text": "24",
+    "unit": "",
+    "value": 24
+   },
+   {
+    "id": "packages",
+    "label": "Packages",
+    "source": "static summary: package_count",
+    "text": "5",
+    "unit": "",
+    "value": 5
+   },
+   {
+    "id": "planned_classes",
+    "label": "Classes assigned to plan components",
+    "source": "plan: target.components",
+    "text": "24",
+    "unit": "",
+    "value": 24
+   },
+   {
+    "id": "rate_aging-framework_d",
+    "label": "Classes using aging frameworks population",
+    "source": "technical debt rates: aging-framework",
+    "text": "24",
+    "unit": "",
+    "value": 24
+   },
+   {
+    "id": "rate_aging-framework_n",
+    "label": "Classes using aging frameworks count",
+    "source": "technical debt rates: aging-framework",
+    "text": "1",
+    "unit": "",
+    "value": 1
+   },
+   {
+    "id": "rate_aging-framework_pct",
+    "label": "Classes using aging frameworks percentage",
+    "source": "technical debt rates: aging-framework",
+    "text": "4.2",
+    "unit": "%",
+    "value": 4.2
+   },
+   {
+    "id": "rate_any-class_d",
+    "label": "Classes with at least one finding population",
+    "source": "technical debt rates: any-class",
+    "text": "24",
+    "unit": "",
+    "value": 24
+   },
+   {
+    "id": "rate_any-class_n",
+    "label": "Classes with at least one finding count",
+    "source": "technical debt rates: any-class",
+    "text": "5",
+    "unit": "",
+    "value": 5
+   },
+   {
+    "id": "rate_any-class_pct",
+    "label": "Classes with at least one finding percentage",
+    "source": "technical debt rates: any-class",
+    "text": "20.8",
+    "unit": "%",
+    "value": 20.8
+   },
+   {
+    "id": "rate_cross-domain-edges_d",
+    "label": "Cross-domain dependencies population",
+    "source": "technical debt rates: cross-domain-edges",
+    "text": "35",
+    "unit": "",
+    "value": 35
+   },
+   {
+    "id": "rate_cross-domain-edges_n",
+    "label": "Cross-domain dependencies count",
+    "source": "technical debt rates: cross-domain-edges",
+    "text": "7",
+    "unit": "",
+    "value": 7
+   },
+   {
+    "id": "rate_cross-domain-edges_pct",
+    "label": "Cross-domain dependencies percentage",
+    "source": "technical debt rates: cross-domain-edges",
+    "text": "20.0",
+    "unit": "%",
+    "value": 20.0
+   },
+   {
+    "id": "rate_entity-in-controller_d",
+    "label": "Controller dependencies on entities population",
+    "source": "technical debt rates: entity-in-controller",
+    "text": "15",
+    "unit": "",
+    "value": 15
+   },
+   {
+    "id": "rate_entity-in-controller_n",
+    "label": "Controller dependencies on entities count",
+    "source": "technical debt rates: entity-in-controller",
+    "text": "8",
+    "unit": "",
+    "value": 8
+   },
+   {
+    "id": "rate_entity-in-controller_pct",
+    "label": "Controller dependencies on entities percentage",
+    "source": "technical debt rates: entity-in-controller",
+    "text": "53.3",
+    "unit": "%",
+    "value": 53.3
+   },
+   {
+    "id": "score_scale",
+    "label": "Score scale maximum",
+    "source": "score definitions (glossary: readiness, confidence)",
+    "text": "100",
+    "unit": "",
+    "value": 100
+   },
+   {
+    "id": "unknown_behavioral_validation",
+    "label": "Behavioral validation domains",
+    "source": "plan: assessments[].confidence_not_measured",
+    "text": "5",
+    "unit": "",
+    "value": 5
+   },
+   {
+    "id": "unknown_cohesion",
+    "label": "Cohesion domains",
+    "source": "plan: assessments[].confidence_not_measured",
+    "text": "2",
+    "unit": "",
+    "value": 2
+   },
+   {
+    "id": "unknown_data_independence",
+    "label": "Data independence domains",
+    "source": "plan: assessments[].confidence_not_measured",
+    "text": "3",
+    "unit": "",
+    "value": 3
+   },
+   {
+    "id": "unknown_data_ownership_review",
+    "label": "Data ownership review domains",
+    "source": "plan: assessments[].confidence_not_measured",
+    "text": "5",
+    "unit": "",
+    "value": 5
+   },
+   {
+    "id": "unknown_decoupling",
+    "label": "Decoupling domains",
+    "source": "plan: assessments[].confidence_not_measured",
+    "text": "2",
+    "unit": "",
+    "value": 2
+   },
+   {
+    "id": "unknown_resolved_dependency_references",
+    "label": "Resolved dependency references domains",
+    "source": "plan: assessments[].confidence_not_measured",
+    "text": "2",
+    "unit": "",
+    "value": 2
+   },
+   {
+    "id": "unknown_runtime_data_quality",
+    "label": "Runtime data quality domains",
+    "source": "plan: assessments[].confidence_not_measured",
+    "text": "5",
+    "unit": "",
+    "value": 5
+   }
+  ],
+  "headline": "Decide how to modernize the analyzed artifact (24 classes, 5 packages, 5 candidate domains: Application Clinic, Type Owner, Vet, Owner Visit, System Configuration). You requested MODULAR_MONOLITH with the objective: Fixture",
+  "material_risks": [
+   {
+    "finding_ids": [
+     "1cdc6264-a887-5324-8ff5-6cb647f8c552",
+     "27c05011-d9df-5a98-ba6d-d211b92f79f6",
+     "a1a8c583-04b3-5382-b758-45a157c707de",
+     "cdc9afef-3feb-5d84-9d07-c5b249535f2b",
+     "f2d5dd5c-fdab-55f6-9ecf-4354af5749fa"
+    ],
+    "message": "LIMITED_OBSERVATION in Application Clinic, Owner Visit, System Configuration, Type Owner, Vet: Selected sessions observed 0 of 1 classes of Application Clinic (0.0%, minimum 80%)."
+   }
+  ],
+  "names": [
+   "Application Clinic",
+   "BEHAVIORAL_CONTRACTS",
+   "CLOUD_REFACTOR",
+   "Classes never observed at runtime",
+   "CrashController.triggerException()",
+   "DATA_OWNERSHIP_REVIEW",
+   "Entry points never observed",
+   "FRAMEWORK_UPGRADE",
+   "HUMAN_CHANGE_APPROVAL",
+   "HYBRID",
+   "JAVA_UPGRADE",
+   "Java 17",
+   "Java 21 or Java 25 (LTS)",
+   "MICROSERVICES",
+   "MODULAR_MONOLITH",
+   "Owner Visit",
+   "OwnerController.initCreationForm()",
+   "OwnerController.initFindForm()",
+   "OwnerController.initUpdateOwnerForm()",
+   "OwnerController.processCreationForm()",
+   "OwnerController.processFindForm()",
+   "OwnerController.processUpdateOwnerForm()",
+   "OwnerController.showOwner()",
+   "PINNED_SOURCE_AND_PASSING_BUILD",
+   "PetClinicApplication.main()",
+   "PetController.initCreationForm()",
+   "PetController.initUpdateForm()",
+   "PetController.processCreationForm()",
+   "PetController.processUpdateForm()",
+   "RUNTIME_OBSERVATION_GAP",
+   "Spring Boot",
+   "System Configuration",
+   "Type Owner",
+   "Vet",
+   "VetController.showResourcesVetList()",
+   "VetController.showVetList()",
+   "VisitController.initNewVisitForm()",
+   "VisitController.processNewVisitForm()",
+   "WelcomeController.welcome()",
+   "the analyzed artifact"
+  ],
+  "next_step": "Start with System Configuration: COLLECT_MORE_EVIDENCE (5 blockers); then resolve the blockers listed under \"Blockers and prerequisites\".",
+  "numbers_check": {
+   "unregistered": []
+  },
+  "objective": "Fixture",
+  "options": [
+   {
+    "blockers": [],
+    "finding_ids": [],
+    "recommended": true,
+    "selected_by_user": true,
+    "status": "EVIDENCE_SUPPORTS_REVIEW",
+    "strategy": "MODULAR_MONOLITH",
+    "tradeoffs": [
+     "Keeps one deployment unit: the 15 cross-domain dependency edges stay in-process and become module contracts.",
+     "No domain has a hard blocker."
+    ]
+   },
+   {
+    "blockers": [],
+    "finding_ids": [
+     "78aed7f0-6e29-55b0-bc10-07ddac3a3465",
+     "80d35c5c-72f1-55d6-89bf-bd80aecd8ecc",
+     "baf54c77-5bee-54ec-8b44-7e8f93c1f9c0",
+     "c52898d7-9de5-55b1-b6ab-cb2f560beb48",
+     "d865d33e-011e-51a0-9af4-d37f4252b297"
+    ],
+    "recommended": false,
+    "selected_by_user": false,
+    "status": "CONDITIONAL",
+    "strategy": "MICROSERVICES",
+    "tradeoffs": [
+     "Turns 15 cross-domain dependency edges between 3 domain pairs into remote calls.",
+     "No database resource is called by more than one domain in the selected evidence.",
+     "No domain is in a dependency cycle."
+    ]
+   },
+   {
+    "blockers": [],
+    "finding_ids": [
+     "78aed7f0-6e29-55b0-bc10-07ddac3a3465",
+     "80d35c5c-72f1-55d6-89bf-bd80aecd8ecc",
+     "baf54c77-5bee-54ec-8b44-7e8f93c1f9c0",
+     "c52898d7-9de5-55b1-b6ab-cb2f560beb48",
+     "d865d33e-011e-51a0-9af4-d37f4252b297"
+    ],
+    "recommended": false,
+    "selected_by_user": false,
+    "status": "CONDITIONAL",
+    "strategy": "HYBRID",
+    "tradeoffs": [
+     "No domain is ready for extraction now; all 5 stay in-process until their blockers are resolved."
+    ]
+   },
+   {
+    "blockers": [],
+    "finding_ids": [],
+    "recommended": false,
+    "selected_by_user": false,
+    "status": "INSUFFICIENT_EVIDENCE",
+    "strategy": "CLOUD_REFACTOR",
+    "tradeoffs": [
+     "The target platform, deployment constraints and cost objectives were not supplied, so no cloud trade-off can be measured."
+    ]
+   },
+   {
+    "blockers": [],
+    "finding_ids": [],
+    "recommended": false,
+    "selected_by_user": false,
+    "status": "INSUFFICIENT_EVIDENCE",
+    "strategy": "JAVA_UPGRADE",
+    "tradeoffs": [
+     "Class files target Java 17 (aging) in 24 classes; the rules recommend Java 21 or Java 25 (LTS)."
+    ]
+   },
+   {
+    "blockers": [],
+    "finding_ids": [],
+    "recommended": false,
+    "selected_by_user": false,
+    "status": "INSUFFICIENT_EVIDENCE",
+    "strategy": "FRAMEWORK_UPGRADE",
+    "tradeoffs": [
+     "1 technology flagged: Spring Boot aging (1 class)."
+    ]
+   }
+  ],
+  "overall_confidence": "PARTIAL",
+  "prerequisites": [
+   {
+    "code": "PINNED_SOURCE_AND_PASSING_BUILD",
+    "meaning": "The exact source revision is not pinned and a clean build is not confirmed.",
+    "resolve": "Record the repository commit and run the normal build pipeline."
+   },
+   {
+    "code": "BEHAVIORAL_CONTRACTS",
+    "meaning": "No behavioral contract tests protect the domain's user-visible behavior.",
+    "resolve": "Add representative API and workflow tests before changing boundaries."
+   },
+   {
+    "code": "DATA_OWNERSHIP_REVIEW",
+    "meaning": "Write authority for the domain's data is not confirmed.",
+    "resolve": "Review entities, repositories, transactions and database permissions with their owners."
+   },
+   {
+    "code": "HUMAN_CHANGE_APPROVAL",
+    "meaning": "No reviewer has approved this proposal for implementation.",
+    "resolve": "Obtain explicit architecture and product-owner review."
+   }
+  ],
+  "proposed_targets": {
+   "average_cross_domain_coupling": {
+    "baseline": 0.107,
+    "basis": "Proposed 20% reduction; planning target, not forecast.",
+    "target": 0.086
+   },
+   "cross_domain_edge_count": {
+    "baseline": 15,
+    "basis": "Proposed 20% reduction; planning target, not forecast.",
+    "target": 12
+   },
+   "cycle_count": {
+    "baseline": 0,
+    "basis": "Proposed target; retain zero if already zero.",
+    "target": 0
+   },
+   "god_class_count": {
+    "baseline": 1,
+    "basis": "Proposed target; candidate findings require review.",
+    "target": 0
+   }
+  },
+  "questions": [
+   "Which user-visible workflows of the analyzed artifact must stay unchanged? No behavioral contract tests are recorded."
+  ],
+  "recommendation": {
+   "matches_request": true,
+   "note": "MODULAR_MONOLITH is the result of the rule for these 5 domains; your requested option MODULAR_MONOLITH stays selected.",
+   "option": "MODULAR_MONOLITH",
+   "rationale": "No domain has both full evidence and no blocker. Confidence ranges from 40.0 (Application Clinic) to 80.0 (Vet) out of 100. Collect the missing evidence before choosing extraction.",
+   "rule": "Recommend MODULAR_MONOLITH when no domain has a hard blocker but none has the decision PREPARE_FOR_EXTRACTION."
+  },
+  "risks": [
+   {
+    "denominator": 15,
+    "id": "entity-in-controller",
+    "kind": "technical-debt",
+    "numerator": 8,
+    "percentage": 53.3,
+    "text": "Controller dependencies on entities: 8 of 15 dependency edges (53.3%)."
+   },
+   {
+    "denominator": 24,
+    "id": "any-class",
+    "kind": "technical-debt",
+    "numerator": 5,
+    "percentage": 20.8,
+    "text": "Classes with at least one finding: 5 of 24 classes (20.8%)."
+   },
+   {
+    "denominator": 35,
+    "id": "cross-domain-edges",
+    "kind": "technical-debt",
+    "numerator": 7,
+    "percentage": 20.0,
+    "text": "Cross-domain dependencies: 7 of 35 dependency edges (20.0%)."
+   },
+   {
+    "denominator": 24,
+    "id": "aging-framework",
+    "kind": "technical-debt",
+    "numerator": 1,
+    "percentage": 4.2,
+    "text": "Classes using aging frameworks: 1 of 24 classes (4.2%)."
+   }
+  ],
+  "scope": {
+   "classes": 24,
+   "domains": [
+    "Application Clinic",
+    "Type Owner",
+    "Vet",
+    "Owner Visit",
+    "System Configuration"
+   ],
+   "entry_points": 18,
+   "planned_classes": 24,
+   "text": "The plan covers 24 of 24 classes in 5 domains. 18 entry points were detected (PetClinicApplication.main(), OwnerController.initCreationForm(), OwnerController.processCreationForm() and 15 more)."
+  },
+  "sections": [
+   {
+    "id": "decision",
+    "paragraphs": [
+     "Decide how to modernize the analyzed artifact (24 classes, 5 packages, 5 candidate domains: Application Clinic, Type Owner, Vet, Owner Visit, System Configuration). You requested MODULAR_MONOLITH with the objective: Fixture"
+    ],
+    "title": "The decision"
+   },
+   {
+    "id": "recommendation",
+    "paragraphs": [
+     "Recommended: MODULAR_MONOLITH. No domain has both full evidence and no blocker. Confidence ranges from 40.0 (Application Clinic) to 80.0 (Vet) out of 100. Collect the missing evidence before choosing extraction.",
+     "Rule applied: Recommend MODULAR_MONOLITH when no domain has a hard blocker but none has the decision PREPARE_FOR_EXTRACTION.",
+     "MODULAR_MONOLITH is the result of the rule for these 5 domains; your requested option MODULAR_MONOLITH stays selected."
+    ],
+    "title": "Recommended option and why"
+   },
+   {
+    "id": "options",
+    "paragraphs": [
+     "MODULAR_MONOLITH (requested) (recommended): Keeps one deployment unit: the 15 cross-domain dependency edges stay in-process and become module contracts. No domain has a hard blocker.",
+     "MICROSERVICES: Turns 15 cross-domain dependency edges between 3 domain pairs into remote calls. No database resource is called by more than one domain in the selected evidence. No domain is in a dependency cycle.",
+     "HYBRID: No domain is ready for extraction now; all 5 stay in-process until their blockers are resolved.",
+     "CLOUD_REFACTOR: The target platform, deployment constraints and cost objectives were not supplied, so no cloud trade-off can be measured.",
+     "JAVA_UPGRADE: Class files target Java 17 (aging) in 24 classes; the rules recommend Java 21 or Java 25 (LTS).",
+     "FRAMEWORK_UPGRADE: 1 technology flagged: Spring Boot aging (1 class)."
+    ],
+    "title": "Options considered"
+   },
+   {
+    "id": "scope",
+    "paragraphs": [
+     "The plan covers 24 of 24 classes in 5 domains. 18 entry points were detected (PetClinicApplication.main(), OwnerController.initCreationForm(), OwnerController.processCreationForm() and 15 more)."
+    ],
+    "title": "Scope"
+   },
+   {
+    "id": "blockers",
+    "paragraphs": [
+     "RUNTIME_OBSERVATION_GAP (blocker) affects 5 of 5 domains (Application Clinic, Type Owner, Vet, Owner Visit and 1 more): The selected runtime sessions do not cover enough of the domain. Resolve: Exercise the unobserved entry points and capture a new architecture version.",
+     "PINNED_SOURCE_AND_PASSING_BUILD: The exact source revision is not pinned and a clean build is not confirmed. Resolve: Record the repository commit and run the normal build pipeline.",
+     "BEHAVIORAL_CONTRACTS: No behavioral contract tests protect the domain's user-visible behavior. Resolve: Add representative API and workflow tests before changing boundaries.",
+     "DATA_OWNERSHIP_REVIEW: Write authority for the domain's data is not confirmed. Resolve: Review entities, repositories, transactions and database permissions with their owners.",
+     "HUMAN_CHANGE_APPROVAL: No reviewer has approved this proposal for implementation. Resolve: Obtain explicit architecture and product-owner review."
+    ],
+    "title": "Blockers and prerequisites"
+   },
+   {
+    "id": "risks",
+    "paragraphs": [
+     "Controller dependencies on entities: 8 of 15 dependency edges (53.3%).",
+     "Classes with at least one finding: 5 of 24 classes (20.8%).",
+     "Cross-domain dependencies: 7 of 35 dependency edges (20.0%).",
+     "Classes using aging frameworks: 1 of 24 classes (4.2%).",
+     "Not measured: Classes never observed at runtime; Entry points never observed."
+    ],
+    "title": "Risks"
+   },
+   {
+    "id": "confidence",
+    "paragraphs": [
+     "Domain confidence runs from 40.0 (Application Clinic) to 80.0 (Vet) out of 100.",
+     "Runtime sessions observed 12 of 24 classes (50.0%).",
+     "5 domains below 80% observed: Application Clinic, Type Owner, Vet, Owner Visit and 1 more. Unobserved never means unused."
+    ],
+    "title": "Confidence and what was not observed"
+   },
+   {
+    "id": "unknowns",
+    "paragraphs": [
+     "Behavioral validation is not measured for 5 of 5 domains: no behavioral contract tests are recorded for this version.",
+     "Cohesion is not measured for 2 of 5 domains (Application Clinic, System Configuration): the domain has no dependency edges, so the internal share has no denominator.",
+     "Data independence is not measured for 3 of 5 domains (Application Clinic, System Configuration, Vet): no repository class or data-access reference was found; absence does not prove independence.",
+     "Data ownership review is not measured for 5 of 5 domains: no data-ownership review is recorded for this version.",
+     "Decoupling is not measured for 2 of 5 domains (Application Clinic, System Configuration): the domain has no dependency edges, so the outgoing share has no denominator.",
+     "Resolved dependency references is not measured for 2 of 5 domains (Application Clinic, System Configuration): Application Clinic has no dependency facts; System Configuration has no dependency facts.",
+     "Runtime data quality is not measured for 5 of 5 domains: the accepted span count is not recorded in this version.",
+     "Which user-visible workflows of the analyzed artifact must stay unchanged? No behavioral contract tests are recorded."
+    ],
+    "title": "What is not known"
+   }
+  ],
+  "selected_strategy": "MODULAR_MONOLITH",
+  "selection_source": "USER_INPUT",
+  "strategy_comparison": [
+   {
+    "finding_ids": [],
+    "rationale": "Keeps one deployment unit: the 15 cross-domain dependency edges stay in-process and become module contracts. No domain has a hard blocker.",
+    "recommended": true,
+    "selected_by_user": true,
+    "status": "EVIDENCE_SUPPORTS_REVIEW",
+    "strategy": "MODULAR_MONOLITH",
+    "tradeoffs": [
+     "Keeps one deployment unit: the 15 cross-domain dependency edges stay in-process and become module contracts.",
+     "No domain has a hard blocker."
+    ],
+    "unknowns": [
+     "Which user-visible workflows of the analyzed artifact must stay unchanged? No behavioral contract tests are recorded.",
+     "Behavioral validation is not measured for 5 of 5 domains: no behavioral contract tests are recorded for this version.",
+     "Cohesion is not measured for 2 of 5 domains (Application Clinic, System Configuration): the domain has no dependency edges, so the internal share has no denominator."
+    ]
+   },
+   {
+    "finding_ids": [
+     "78aed7f0-6e29-55b0-bc10-07ddac3a3465",
+     "80d35c5c-72f1-55d6-89bf-bd80aecd8ecc",
+     "baf54c77-5bee-54ec-8b44-7e8f93c1f9c0",
+     "c52898d7-9de5-55b1-b6ab-cb2f560beb48",
+     "d865d33e-011e-51a0-9af4-d37f4252b297"
+    ],
+    "rationale": "Turns 15 cross-domain dependency edges between 3 domain pairs into remote calls. No database resource is called by more than one domain in the selected evidence. No domain is in a dependency cycle.",
+    "recommended": false,
+    "selected_by_user": false,
+    "status": "CONDITIONAL",
+    "strategy": "MICROSERVICES",
+    "tradeoffs": [
+     "Turns 15 cross-domain dependency edges between 3 domain pairs into remote calls.",
+     "No database resource is called by more than one domain in the selected evidence.",
+     "No domain is in a dependency cycle."
+    ],
+    "unknowns": [
+     "Which user-visible workflows of the analyzed artifact must stay unchanged? No behavioral contract tests are recorded.",
+     "Behavioral validation is not measured for 5 of 5 domains: no behavioral contract tests are recorded for this version.",
+     "Cohesion is not measured for 2 of 5 domains (Application Clinic, System Configuration): the domain has no dependency edges, so the internal share has no denominator."
+    ]
+   },
+   {
+    "finding_ids": [
+     "78aed7f0-6e29-55b0-bc10-07ddac3a3465",
+     "80d35c5c-72f1-55d6-89bf-bd80aecd8ecc",
+     "baf54c77-5bee-54ec-8b44-7e8f93c1f9c0",
+     "c52898d7-9de5-55b1-b6ab-cb2f560beb48",
+     "d865d33e-011e-51a0-9af4-d37f4252b297"
+    ],
+    "rationale": "No domain is ready for extraction now; all 5 stay in-process until their blockers are resolved.",
+    "recommended": false,
+    "selected_by_user": false,
+    "status": "CONDITIONAL",
+    "strategy": "HYBRID",
+    "tradeoffs": [
+     "No domain is ready for extraction now; all 5 stay in-process until their blockers are resolved."
+    ],
+    "unknowns": [
+     "Which user-visible workflows of the analyzed artifact must stay unchanged? No behavioral contract tests are recorded.",
+     "Behavioral validation is not measured for 5 of 5 domains: no behavioral contract tests are recorded for this version.",
+     "Cohesion is not measured for 2 of 5 domains (Application Clinic, System Configuration): the domain has no dependency edges, so the internal share has no denominator."
+    ]
+   },
+   {
+    "finding_ids": [],
+    "rationale": "The target platform, deployment constraints and cost objectives were not supplied, so no cloud trade-off can be measured.",
+    "recommended": false,
+    "selected_by_user": false,
+    "status": "INSUFFICIENT_EVIDENCE",
+    "strategy": "CLOUD_REFACTOR",
+    "tradeoffs": [
+     "The target platform, deployment constraints and cost objectives were not supplied, so no cloud trade-off can be measured."
+    ],
+    "unknowns": [
+     "The target platform, deployment constraints and cost objectives were not supplied, so no cloud trade-off can be measured.",
+     "The target version or platform is not chosen; dependency compatibility is not checked."
+    ]
+   },
+   {
+    "finding_ids": [],
+    "rationale": "Class files target Java 17 (aging) in 24 classes; the rules recommend Java 21 or Java 25 (LTS).",
+    "recommended": false,
+    "selected_by_user": false,
+    "status": "INSUFFICIENT_EVIDENCE",
+    "strategy": "JAVA_UPGRADE",
+    "tradeoffs": [
+     "Class files target Java 17 (aging) in 24 classes; the rules recommend Java 21 or Java 25 (LTS)."
+    ],
+    "unknowns": [
+     "Class files target Java 17 (aging) in 24 classes; the rules recommend Java 21 or Java 25 (LTS).",
+     "The target version or platform is not chosen; dependency compatibility is not checked."
+    ]
+   },
+   {
+    "finding_ids": [],
+    "rationale": "1 technology flagged: Spring Boot aging (1 class).",
+    "recommended": false,
+    "selected_by_user": false,
+    "status": "INSUFFICIENT_EVIDENCE",
+    "strategy": "FRAMEWORK_UPGRADE",
+    "tradeoffs": [
+     "1 technology flagged: Spring Boot aging (1 class)."
+    ],
+    "unknowns": [
+     "1 technology flagged: Spring Boot aging (1 class).",
+     "The target version or platform is not chosen; dependency compatibility is not checked."
+    ]
+   }
+  ],
+  "strategy_fit": {
+   "confidence": "HEURISTIC_REVIEW_REQUIRED",
+   "matches_request": true,
+   "metrics": {
+    "average_cross_domain_coupling": 0.107,
+    "class_count": 24,
+    "cross_domain_edge_count": 15,
+    "cycle_count": 0,
+    "god_class_count": 1,
+    "shared_entity_count": 0
+   },
+   "rationale": "No domain has both full evidence and no blocker. Confidence ranges from 40.0 (Application Clinic) to 80.0 (Vet) out of 100. Collect the missing evidence before choosing extraction.",
+   "recommendation": "MODULAR_MONOLITH",
+   "rule": "Recommend MODULAR_MONOLITH when no domain has a hard blocker but none has the decision PREPARE_FOR_EXTRACTION."
+  },
+  "summary": "Recommended: MODULAR_MONOLITH. No domain has both full evidence and no blocker. Confidence ranges from 40.0 (Application Clinic) to 80.0 (Vet) out of 100. Collect the missing evidence before choosing extraction.",
+  "top_actions": [
+   "System Configuration: COLLECT_MORE_EVIDENCE (5 blockers)",
+   "Vet: COLLECT_MORE_EVIDENCE (5 blockers)",
+   "Application Clinic: COLLECT_MORE_EVIDENCE (5 blockers)"
+  ],
+  "top_risks": [
+   "Controller dependencies on entities: 8 of 15 dependency edges (53.3%).",
+   "Classes with at least one finding: 5 of 24 classes (20.8%).",
+   "Cross-domain dependencies: 7 of 35 dependency edges (20.0%)."
+  ],
+  "unknowns": [
+   "Behavioral validation is not measured for 5 of 5 domains: no behavioral contract tests are recorded for this version.",
+   "Cohesion is not measured for 2 of 5 domains (Application Clinic, System Configuration): the domain has no dependency edges, so the internal share has no denominator.",
+   "Data independence is not measured for 3 of 5 domains (Application Clinic, System Configuration, Vet): no repository class or data-access reference was found; absence does not prove independence.",
+   "Data ownership review is not measured for 5 of 5 domains: no data-ownership review is recorded for this version.",
+   "Decoupling is not measured for 2 of 5 domains (Application Clinic, System Configuration): the domain has no dependency edges, so the outgoing share has no denominator.",
+   "Resolved dependency references is not measured for 2 of 5 domains (Application Clinic, System Configuration): Application Clinic has no dependency facts; System Configuration has no dependency facts.",
+   "Runtime data quality is not measured for 5 of 5 domains: the accepted span count is not recorded in this version."
+  ],
+  "unresolved_questions": [
+   "Which user-visible workflows of the analyzed artifact must stay unchanged? No behavioral contract tests are recorded.",
+   "Behavioral validation is not measured for 5 of 5 domains: no behavioral contract tests are recorded for this version.",
+   "Cohesion is not measured for 2 of 5 domains (Application Clinic, System Configuration): the domain has no dependency edges, so the internal share has no denominator.",
+   "Data independence is not measured for 3 of 5 domains (Application Clinic, System Configuration, Vet): no repository class or data-access reference was found; absence does not prove independence.",
+   "Data ownership review is not measured for 5 of 5 domains: no data-ownership review is recorded for this version.",
+   "Decoupling is not measured for 2 of 5 domains (Application Clinic, System Configuration): the domain has no dependency edges, so the outgoing share has no denominator.",
+   "Resolved dependency references is not measured for 2 of 5 domains (Application Clinic, System Configuration): Application Clinic has no dependency facts; System Configuration has no dependency facts.",
+   "Runtime data quality is not measured for 5 of 5 domains: the accepted span count is not recorded in this version."
+  ]
+ }
+}

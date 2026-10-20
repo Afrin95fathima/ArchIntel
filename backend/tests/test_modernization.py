@@ -427,3 +427,13 @@ def test_explain_why_on_a_proposal_saved_before_rule_version_4_says_the_fields_w
     item = SimpleNamespace(id='a1', version_id='v1', document=doc)
     out = service.answer(item, SimpleNamespace(question='WHY', decision_id=doc['decisions'][0]['id'], with_ai=False))
     assert out['reasons'] and all(r['measured_fields_recorded'] is False and r['rule_id'] for r in out['reasons'])
+
+
+def test_reviewed_domains_with_nested_classes_still_produce_a_valid_plan():
+    """Regression: nested and anonymous classes outside every reviewed domain used to raise KeyError when scores were recomputed."""
+    from insight_fixtures import snapshot
+    static = snapshot('edgecases')
+    assert any('$' in c['id'] for c in static['classes'])
+    doc, facts, evidence, _, _ = pure(static, observations=.5, reviewed=True)
+    assert doc['assessments'] and all(a['structural_source'] == 'RECOMPUTED_REVIEWED_DOMAINS' for a in doc['assessments'])
+    assert validation.validate(doc, facts, evidence)['status'] == 'VALIDATED'

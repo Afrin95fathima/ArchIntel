@@ -17,6 +17,12 @@ def validate(document, facts, evidence):
     for row in brief.get('strategy_comparison', []):
         check(all(fid in findings for fid in row.get('finding_ids', [])), 'STRATEGY_FINDING_MISSING')
         check(row.get('status') in {'EVIDENCE_SUPPORTS_REVIEW', 'CONDITIONAL', 'INSUFFICIENT_EVIDENCE', 'INVENTORY_AVAILABLE_REVIEW_REQUIRED'}, 'UNKNOWN_STRATEGY_STATUS')
+    if brief.get('facts') is not None:
+        from .brief import unregistered_numbers, _format
+        check(all(f.get('text') == _format(f['value']) for f in brief['facts']), 'BRIEF_FACT_TEXT_MISMATCH')
+        check(unregistered_numbers(brief) == [], 'BRIEF_NUMBER_NOT_IN_FACT_TABLE')
+        check(len({f['id'] for f in brief['facts']}) == len(brief['facts']), 'BRIEF_FACT_DUPLICATED')
+        check(brief.get('recommendation', {}).get('option') in {'MODULAR_MONOLITH', 'MICROSERVICES', 'HYBRID', 'CLOUD_REFACTOR', 'JAVA_UPGRADE', 'FRAMEWORK_UPGRADE'}, 'BRIEF_RECOMMENDATION_UNKNOWN')
     for risk in brief.get('material_risks', []):
         check(all(fid in findings for fid in risk.get('finding_ids', [])), 'BRIEF_FINDING_MISSING')
     decomposition = document.get('microservice_decomposition', {})

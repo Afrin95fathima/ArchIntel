@@ -11,7 +11,7 @@ from app.services.domains import enrich_domains
 from app.services.modernization import assess_and_rank
 from app.services.runtime.entry_points import is_method_entry_point
 from app.services.domain_analysis import dependency_matrix, model_overlap, entry_point_inventory
-from . import decomposition, describe
+from . import brief as brief_module, decomposition, describe
 
 RULE_VERSION = 'modernization-intelligence-4'
 CALIBRATION = 'fixture-calibration-1'
@@ -40,9 +40,10 @@ def structural(version, static):
     domains = copy.deepcopy(version.document['domains'])
     classes = {c['id']: c for c in static['classes']}
     membership = {c: d['id'] for d in domains for c in d['classes']}
+    # Only classes that belong to a reviewed domain take part; nested and anonymous classes outside every domain have no membership to look up.
     graph = nx.DiGraph()
-    graph.add_nodes_from(classes)
-    graph.add_edges_from((e['source'], e['target']) for e in static['edges'])
+    graph.add_nodes_from(membership)
+    graph.add_edges_from((e['source'], e['target']) for e in static['edges'] if e['source'] in membership and e['target'] in membership)
     for d in domains:
         d['class_count'] = len(d['classes'])
     enrich_domains(domains, membership, graph, classes, static.get('external_edges', []))
@@ -447,6 +448,7 @@ def build(assessment_id, version, static, facts, evidence, options):
             'Data ownership, behavioral equivalence and extraction authorization remain unavailable.',
             'Cloud, Java and framework strategies are review proposals; compatibility validation is not implemented in Phase 5.'])
     describe.apply(result, domains)
+    brief_module.merge(result['decision_brief'], brief_module.build(result, static, domains, options, by_evidence), result)
     result['microservice_decomposition'] = decomposition.build(static, result)
     result['graph'] = planning_graph(assessment_id, result, facts, by_evidence)
     return result

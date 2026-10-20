@@ -30,8 +30,18 @@ def views(name):  # noqa: C901
     return out
 
 
+def brief_fixture():
+    """The decision brief of a PetClinic plan with half the classes observed and the domains reviewed."""
+    from test_modernization import pure  # noqa: E402
+    from insight_fixtures import snapshot  # noqa: E402
+    document = pure(snapshot('petclinic'), observations=.5, reviewed=True)[0]
+    return {'decision_brief': document['decision_brief'], 'assessments': [{k: a[k] for k in ('domain_id', 'domain_name')} for a in document['assessments']]}
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
+    (ROOT / 'frontend' / 'src' / 'modernization' / 'fixtures').mkdir(exist_ok=True)
+    (ROOT / 'frontend' / 'src' / 'modernization' / 'fixtures' / 'petclinic.brief.json').write_text(json.dumps(brief_fixture(), indent=1, sort_keys=True, default=str) + '\n', encoding='utf-8')
     for name in ('petclinic', 'edgecases'):
         for view, data in views(name).items():
             (OUT / f'{name}.{view}.json').write_text(json.dumps(data, indent=1, sort_keys=True, default=str) + '\n', encoding='utf-8')
