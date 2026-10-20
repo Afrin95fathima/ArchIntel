@@ -160,7 +160,7 @@ def debt_refactoring(analysis_id: str, body: ExplainInput, request: Request, db=
         if source['text']:
             evidence.append(dict(id='source:' + node, text=f"[{source['kind']}] {source['text']}"))
         methods |= _method_names(model, [node])
-    ai = explain(request, db, 'REFACTORING_PROPOSAL', evidence, 'Propose a concrete refactoring for this finding. Name the methods involved as name().',
+    ai = explain(request, db, 'REFACTORING_PROPOSAL', evidence, 'Propose a refactoring for this finding. Name each method involved as name().',
         'analysis:' + analysis_id, set(model.classes), methods)
     return dict(finding_id=finding['id'], deterministic=dict(explanation=finding['explanation'], suggested_action=finding['suggested_action']), ai=ai,
         evidence_ids=[e['id'] for e in evidence])

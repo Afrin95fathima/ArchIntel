@@ -59,7 +59,7 @@ function HldBody({ data, expanded, setExpanded, sel, setSel, analysisId, session
         </g>)}
       </DiagramViewer>
       <Legend items={[<Line cls="observed" label="Observed at runtime (thickness = dependencies)" />, <Line cls="static" label="In the code only (static)" />, <Line cls="reverse" label="Points against the layering" />,
-        <><span className="legend-chip layer-chip" /> Layer (rounded rectangle) · <span className="legend-chip ext-chip" /> External system (pill) · top row: entry points</>]} />
+        <><span className="legend-chip layer-chip" /> Layer (rounded rectangle) · <span className="legend-chip ext-chip" /> External system = pill; top row = entry points</>]} />
       <HowToRead lines={data.how_to_read} limits={data.limitations} />
     </div>
     {sel?.type === 'edge' ? <EdgeInfo analysisId={analysisId} sel={sel} sessions={sessions} /> :
@@ -130,7 +130,7 @@ export function SequenceView({ seq }: { seq: Seq }) {
 export function ApplicationArchitecture({ analysisId, sessions = '', onOpen, blueprint }: { analysisId: string; sessions?: string; onOpen: (id: string) => void; blueprint: ReactNode }) {
   const [tab, setTab] = useState<'hld' | 'lld' | 'domains'>('hld');
   return <>
-    <PageTitle eyebrow="APPLICATION ARCHITECTURE" title="How the application is built, layer by layer." description="A high-level view of layers, entry points and external systems, and a low-level view of one component with its sequence diagrams. Everything is drawn from the analysed code and, when selected, runtime evidence." />
+    <PageTitle eyebrow="APPLICATION ARCHITECTURE" title="Layers, entry points and external systems." description="HLD = layers, entry points and external systems; LLD = one component with its sequence diagrams. Source of every box and arrow = the analysed bytecode, plus runtime spans when a session is selected." />
     <Tabs label="Architecture views" value={tab} onChange={setTab} items={[{ value: 'hld', label: 'High-level (HLD)' }, { value: 'lld', label: 'Low-level (LLD)' }, { value: 'domains', label: 'Candidate-domain blueprint' }]} />
     {tab === 'hld' && <HighLevel analysisId={analysisId} sessions={sessions} onOpen={onOpen} />}
     {tab === 'lld' && <LowLevel analysisId={analysisId} sessions={sessions} onOpen={onOpen} />}

@@ -68,7 +68,7 @@ def detect(model, rules: dict | None = None, metrics: dict | None = None, cycles
                 f"{short(member)} cannot be changed or reused on its own because it is part of a loop of {group['size']} classes that depend on each other.",
                 [dict(kind='CYCLE', text=e['references'][0]['text'] if e.get('references') else f"{short(e['source'])} → {short(e['target'])}") for e in (example['edges'] if example else [])],
                 [member], dict(cycle_group_id=group['id']),
-                action='Bidirectional entity association: confirm the owning side; usually acceptable.' if group['expected_entity_association'] else None))
+                action='Bidirectional JPA entity association: confirm the owning side; usually acceptable.' if group['expected_entity_association'] else None))
     # Layer violations and skips ------------------------------------------------------
     for row in layer_violations(model, rules):
         rule = by_id['DEBT-LAYER-VIOLATION' if row['kind'] == 'VIOLATION' else 'DEBT-LAYER-SKIP']
@@ -150,7 +150,7 @@ def detect(model, rules: dict | None = None, metrics: dict | None = None, cycles
                     continue
                 findings.append(_finding(rule, rule['severity'], owner + '#' + field['name'], 'FIELD', model.package(fqn), {'static': True, 'final': field['final']}, {'allowed': 'immutable or instance state'},
                     why[0].upper() + why[1:] + '.',
-                    f"{short(owner)} keeps shared data in '{field['name']}' that every request and thread sees, which causes hard-to-reproduce bugs and blocks running several instances.",
+                    f"{short(owner)} keeps shared data in '{field['name']}' that every request and thread sees, which causes hard-to-reproduce bugs and blocks running more than one instance.",
                     [dict(kind='FIELD', text=why)], [fqn]))
     # Deprecated API usage --------------------------------------------------------------------
     rule = by_id['DEBT-DEPRECATED-API']
@@ -201,7 +201,7 @@ def detect(model, rules: dict | None = None, metrics: dict | None = None, cycles
         counts=dict(Counter(f['severity'] for f in findings)), by_rule=dict(Counter(f['rule_id'] for f in findings)),
         rates=debt_rates.compute(model, findings, list(classes), populations, observed is not None, model.facts_available),
         runtime_included=observed is not None, facts_available=model.facts_available,
-        effort_note='The debt index is a heuristic ordering aid with its inputs shown. It is not a time, cost or currency estimate.')
+        effort_note='Debt index = the weighted finding count shown per package (formula in the glossary); it is a heuristic ordering aid, not a time, cost or currency estimate.')
 
 
 def _package_summary(findings, metrics):

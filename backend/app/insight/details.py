@@ -54,7 +54,7 @@ def _summary(kind, name, role, size_text, deps, dependents, cycles, entries, deb
                      + (f" (most: {deps[0]['name']}, {deps[0]['reference_count']} references)" if deps else '') +
                      f" and {len(dependents)} depend on it" + (f" (most: {dependents[0]['name']})" if dependents else '') + '.')
     else:
-        parts.append('It has no dependencies to or from other application code.')
+        parts.append(f'{name} has no dependencies to or from other application classes.')
     if cycles:
         parts.append(f"It is part of {len(cycles)} cyclic group{'s' if len(cycles) != 1 else ''} (largest: {max(c['size'] for c in cycles)} members).")
     if entries:

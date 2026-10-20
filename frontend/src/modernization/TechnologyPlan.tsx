@@ -26,7 +26,7 @@ export function TechnologyPlan({plan,active,activeNote,explainPath}:{plan:Techno
         <h4>{item.technology} ({item.status}) → {item.recommended.name} <Badge tone={item.verification==='CURATED'?'green':'medium'}>{item.verification==='CURATED'?'curated candidate':'unverified, confirm before use'}</Badge></h4>
         <ul>{item.why.map(w=><li key={w}>{w}</li>)}</ul>
         <p><strong>Affected classes ({item.affected_classes.length}):</strong> {item.affected_classes.slice(0,8).map(c=>c.split('.').at(-1)).join(', ')||'none listed'}.</p>
-        <h5>Alternatives considered</h5>{item.alternatives.length?<ul>{item.alternatives.map(a=><li key={a.id}><strong>{a.name}</strong>: not chosen because {a.reason}.</li>)}</ul>:<p>No other curated candidate exists for this rule.</p>}
+        <h5>Alternatives considered</h5>{item.alternatives.length?<ul>{item.alternatives.map(a=><li key={a.id}><strong>{a.name}</strong>: not chosen because {a.reason}.</li>)}</ul>:<p>No other curated candidate exists in modernization-candidates.yaml for this rule.</p>}
         <h5>Steps</h5><ol>{item.steps.map(s=><li key={s}>{s}</li>)}</ol>
         {item.prerequisites.length>0&&<p><strong>Prerequisites:</strong> {item.prerequisites.join('; ')}.</p>}{item.coupled_with.length>0&&<p><strong>Moves together with:</strong> {item.coupled_with.join(', ')}.</p>}
         {item.risks.length>0&&<><h5>Risks</h5><ul>{item.risks.map(r=><li key={r}>{r}</li>)}</ul></>}

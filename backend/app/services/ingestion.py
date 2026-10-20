@@ -68,7 +68,7 @@ def validate_archive(path: Path, config: Settings, destination: Path | None = No
                 if parts.is_absolute() or '..' in parts.parts or ':' in normalized or '\x00' in normalized:
                     raise ArtifactError('Archive contains an unsafe path.')
                 if stat.S_ISLNK(entry.external_attr >> 16) or entry.flag_bits & 1:
-                    raise ArtifactError('Encrypted entries and symbolic links are not supported.')
+                    raise ArtifactError('Encrypted ZIP entries and symbolic links are not supported.')
                 expanded += entry.file_size
                 _check_archive_metadata(entry, config, count, expanded, 'Archive')
                 if normalized.endswith('.jar'):
@@ -89,7 +89,7 @@ def validate_archive(path: Path, config: Settings, destination: Path | None = No
                     if class_path.startswith(prefix):
                         class_path = class_path[len(prefix):]
                 if class_path.casefold() in seen:
-                    raise ArtifactError('Duplicate class paths are ambiguous and are not supported.')
+                    raise ArtifactError('Duplicate class paths in one JAR are ambiguous and are not supported.')
                 seen.add(class_path.casefold())
                 classes.append(class_path)
                 if len(classes) > config.max_classes:
@@ -120,7 +120,7 @@ def validate_archive(path: Path, config: Settings, destination: Path | None = No
     return dict(class_files=len(classes), archive_entries=count, expanded_bytes=max(expanded, actual_expanded[0]),
         nested_libraries_skipped=libraries, multi_release_overrides_skipped=multi_release,
         packaging=packaging,
-        limitations=['Bundled third-party JARs are not recursively scanned; application references to them are preserved.', 'Multi-release override classes are skipped; base classes are analyzed.'])
+        limitations=['Bundled third-party JARs are not recursively scanned; application references to them are preserved.', 'Multi-release JAR override classes (META-INF/versions) are skipped; base classes are analyzed.'])
 
 
 def validate_project_zip(path: Path, config: Settings, destination: Path | None = None) -> dict:
@@ -149,7 +149,7 @@ def validate_project_zip(path: Path, config: Settings, destination: Path | None 
                 if parts.is_absolute() or '..' in parts.parts or ':' in normalized or '\x00' in normalized:
                     raise ArtifactError('Project ZIP contains an unsafe path.')
                 if stat.S_ISLNK(entry.external_attr >> 16) or entry.flag_bits & 1:
-                    raise ArtifactError('Encrypted entries and symbolic links are not supported.')
+                    raise ArtifactError('Encrypted ZIP entries and symbolic links are not supported.')
                 expanded += entry.file_size
                 _check_archive_metadata(entry, config, total_entries, expanded, 'Project ZIP', check_size=False)
                 lowered = normalized.casefold()
@@ -227,9 +227,9 @@ def validate_project_zip(path: Path, config: Settings, destination: Path | None 
                                 normalized = module_entry.filename.replace('\\', '/')
                                 parts = PurePosixPath(normalized)
                                 if parts.is_absolute() or '..' in parts.parts or ':' in normalized or '\x00' in normalized:
-                                    raise ArtifactError('A compiled module archive contains an unsafe path.')
+                                    raise ArtifactError('A compiled module archive contains an unsafe path (absolute or ../).')
                                 if stat.S_ISLNK(module_entry.external_attr >> 16) or module_entry.flag_bits & 1:
-                                    raise ArtifactError('Encrypted entries and symbolic links are not supported.')
+                                    raise ArtifactError('Encrypted ZIP entries and symbolic links are not supported.')
                                 expanded += module_entry.file_size
                                 _check_archive_metadata(module_entry, config, total_entries, expanded, 'Project ZIP', check_size=False)
                                 name = normalized.casefold()
@@ -279,7 +279,7 @@ def validate_project_zip(path: Path, config: Settings, destination: Path | None 
         multi_release_overrides_skipped=multi_release, packaging='JAVA_PROJECT_ZIP',
         limitations=['Only compiled bytecode under target/classes or build/classes and project module JAR/WAR files is analyzed; Java source is not compiled.',
             'Third-party classes bundled under dependency/lib folders are skipped.',
-            'Module and multi-release metadata can be incomplete when only classes directories are included.',
+            'Module and multi-release metadata (module-info.class, META-INF/versions) can be incomplete when only classes directories are included.',
             'For conflicting definitions with the same fully qualified class name, the first normalized project path is analyzed; alternatives are listed in the ZIP manifest.'])
 
 

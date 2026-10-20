@@ -111,7 +111,7 @@ def answer(tools: Tools, question: str, last_entity: str | None = None) -> dict:
             where = f" Used by {', '.join(short(c) for c in i['classes'][:5])}." if i['classes'] else ''
             sentences.append(_s(f"{i['technology']}{' ' + str(i['version']) if i['version'] else ''} is {i['status']}; recommended alternative: {i['alternative']}.{where}", ['aging:' + i['id']]))
         if r['data']['stale']:
-            sentences.append(_s('The lifecycle rules file is stale, so these statuses may be out of date.', r['evidence'][:1]))
+            sentences.append(_s('The lifecycle rules file (lifecycle-rules.yaml) is stale, so these statuses may be out of date.', r['evidence'][:1]))
     elif route or re.search(r'\b(endpoint|endpoints|route|routes|entry point|entry points|url|urls|listener|scheduled|handles?|mapping)\b', low):
         text = ''
         if route:
@@ -139,7 +139,7 @@ def answer(tools: Tools, question: str, last_entity: str | None = None) -> dict:
         d = r['data']
         if not d['available']:
             return cannot(f"I cannot show source for {short(subject)}: {d.get('reason') or 'not available'}")
-        label = 'original source' if d['kind'] == 'SOURCE' else 'a bytecode outline (no source was uploaded)'
+        label = 'original source' if d['kind'] == 'SOURCE' else 'a bytecode outline (no .java source was uploaded in the JAR)'
         return dict(status='ANSWERED', calls=calls, entities=[subject], sentences=[_s(f"Here is {label} of {short(subject)}.", r['evidence'], code=d['text'], code_kind=d['kind'])])
     elif re.search(r'\b(metric|metrics|instability|abstractness|distance|fan[- ]?in|fan[- ]?out|coupling|complexity|biggest|largest|most (dependents|connected|methods))\b', low) and not re.search(r'\b(debt|problem|smell)\b', low):
         keys = {'instability': 'package.I', 'abstractness': 'package.A', 'distance': 'package.D', 'fan-in': 'class.fan_in', 'fan in': 'class.fan_in', 'fan-out': 'class.fan_out', 'fan out': 'class.fan_out',

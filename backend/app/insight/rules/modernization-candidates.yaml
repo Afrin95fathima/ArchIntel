@@ -23,7 +23,7 @@ items:
   java-class-target:
     - {id: java-21, name: "Java 21 (LTS)", target_version: "21", requires_java: 21, phase: platform, lifecycle: {rule: java-class-target, version: "21"},
        steps: ["Recompile with --release 21 and run the existing tests.", "Replace removed JDK APIs (JAXB, JAX-WS, CORBA, javax.annotation were removed in 11; internal sun.* APIs are encapsulated).", "Update build plugins and the CI JDK to 21."],
-       fit: "Smallest step to a line the rules file marks current."}
+       fit: "Smallest step to an LTS line that lifecycle-rules.yaml marks current."}
     - {id: java-25, name: "Java 25 (LTS)", target_version: "25", requires_java: 25, phase: platform, lifecycle: {rule: java-class-target, version: "25"},
        steps: ["Recompile with --release 25 and run the existing tests.", "Check frameworks and build plugins for Java 25 support.", "Remove use of the Security Manager (disabled since Java 24)."],
        fit: "Latest LTS; choose it when every other target supports it."}
@@ -61,7 +61,7 @@ items:
     - {id: jakarta-validation-3, name: "jakarta.validation 3 with Hibernate Validator 8", target_version: "3.0", requires_java: 11, phase: framework, lifecycle: null,
        namespace: {from: "javax.validation", to: "jakarta.validation"},
        steps: ["Upgrade to Hibernate Validator 8.", "Rename javax.validation.* to jakarta.validation.*."],
-       fit: "Small rename that moves with the framework upgrade."}
+       fit: "Small rename (javax.validation to jakarta.validation) that moves with the framework upgrade."}
   javax-ws-rs:
     - {id: jakarta-ws-rs-3.1, name: "jakarta.ws.rs 3.1 with Jersey 3.1", target_version: "3.1", requires_java: 11, phase: framework, lifecycle: null,
        namespace: {from: "javax.ws.rs", to: "jakarta.ws.rs"},
@@ -110,7 +110,7 @@ items:
     - {id: spring-mvc, name: "Spring MVC controllers", target_version: "6", requires_java: 17, phase: framework, lifecycle: {rule: spring-framework, version: "6.2"},
        namespace: {from: "javax.", to: "jakarta."},
        steps: ["Map each Struts action to a controller method.", "Move form beans to request objects.", "Replace JSP tags and struts-config.xml mappings."],
-       fit: "Replaces the action layer; moves in the same phase as the framework upgrade."}
+       fit: "Replaces the Struts action layer; moves in the same phase as the Spring Framework upgrade."}
   jackson-1:
     - {id: jackson-2, name: "Jackson 2.x", target_version: "2", requires_java: 8, phase: library, lifecycle: null,
        namespace: {from: "org.codehaus.jackson", to: "com.fasterxml.jackson"},

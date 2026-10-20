@@ -29,7 +29,7 @@ export function Reports({ applications }: { applications: Application[] }) {
     {applications.length === 0 ? <div className="empty"><FileText size={28}/><h2>No applications yet</h2><p>Analyze an application to make its evidence available for export.</p></div> : <>
       {(versions.error || proposals.error) && <ErrorBox error={versions.error || proposals.error}/>}
       <section className="panel report-picker">
-        <div className="panel-heading"><div><h2>Modernization report</h2><p>Ten sections, each with a plain-terms summary and the technical detail beneath it. Every figure comes from the analysis, runtime sessions and saved proposal selected here.</p></div><FileText size={20}/></div>
+        <div className="panel-heading"><div><h2>Modernization report</h2><p>Report = 10 sections, each with an In plain terms summary and the Technical detail beneath it. Every figure comes from the analysis, runtime sessions and saved proposal selected here.</p></div><FileText size={20}/></div>
         <div className="report-fields">
           <label>Application<select value={appId} onChange={e => setApplicationId(e.target.value)}>{applications.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}</select></label>
           <label>Architecture version<select value={version} onChange={e => setVersionId(e.target.value)} disabled={!versions.data?.length}><option value="">Select a captured version</option>{versions.data?.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}</select></label>

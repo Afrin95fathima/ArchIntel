@@ -19,7 +19,7 @@ def _nested_candidate(name: str, classes: dict) -> str | None:
 def map_class(identity: str | None, classes: dict) -> dict:
     result = dict(runtime_identity=identity,static_id=None,state='UNRESOLVED',rule=None,confidence=0.,evidence=[])
     if not identity:
-        return dict(result,evidence=['Telemetry did not supply an application class identity.'])
+        return dict(result,evidence=['Telemetry did not supply code.namespace or code.function for this span.'])
     if identity in classes:
         return dict(result,static_id=identity,state='EXACT',rule='exact',confidence=1.,evidence=['Exact fully qualified class match.'])
     normalized = identity.replace('/', '.')
@@ -38,7 +38,7 @@ def map_class(identity: str | None, classes: dict) -> dict:
     if nested:
         return dict(result,static_id=nested,state='NESTED_RESOLVED',rule='nested_name',confidence=.95,
             evidence=['Canonical dotted nested-class name matched the binary name %s.' % nested])
-    return dict(result,evidence=['No unambiguous static class match; not forced by simple name.'])
+    return dict(result,evidence=[f'No unambiguous static class match for {identity}; it is not forced by simple name.'])
 
 
 GENERATED_MARKERS = ('$Proxy', '$$', '$Lambda', '$HibernateProxy$', '$ByteBuddy$', '_$$_jvst')

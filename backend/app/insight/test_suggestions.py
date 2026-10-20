@@ -211,5 +211,5 @@ def build(model, rules_note: bool = True) -> dict:
         method_level=observed_methods is not None,
         limitation=('Observation is matched per handler method.' if observed_methods is not None else
             'Only class-level observation is available, so an entry point counts as done when its controller class was observed.') if observed is not None else
-            'No runtime session selected: all entry points are listed as suggestions.',
+            'Not measured: no runtime session is selected, so all entry points are listed as suggestions.',
         totals=dict(entry_points=len(prepared), done=len(done), open=len(suggestions)))

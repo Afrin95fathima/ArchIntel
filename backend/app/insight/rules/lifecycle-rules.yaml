@@ -248,7 +248,7 @@ rules:
     source: https://openjdk.org/jeps/260
     status: end-of-life
     alternative: Supported JDK APIs (e.g. java.util.Base64 for sun.misc.BASE64Encoder, VarHandle for Unsafe)
-    migration_notes: "Internal APIs are encapsulated since Java 9/16 (JEP 260, JEP 403) and several were removed. Replace with the supported equivalents."
+    migration_notes: "Internal APIs are encapsulated since Java 9/16 (JEP 260, JEP 403) and some, such as sun.misc.BASE64Encoder, were removed. Replace with the supported equivalents."
     effort: medium
 
 # Member-level deprecations in the JDK used by the WP4 "deprecated API usage" rule.

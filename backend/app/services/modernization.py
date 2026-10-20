@@ -48,8 +48,8 @@ def assess_and_rank(domains, membership, graph, cycles, issues, weights, boundar
                 f"{metric['outgoing_edges']} of {edge_total} dependency edges leave the domain ({round(100 * metric['cross_domain_ratio'], 1)}%)",
                 [f"Introduce an interface for the {metric['outgoing_edges']} outgoing dependencies, starting with {_top(by_source)}."] if metric['outgoing_edges'] else [])
         else:
-            skip('cohesion', 'the domain has no dependency edges, so the internal share has no denominator')
-            skip('decoupling', 'the domain has no dependency edges, so the outgoing share has no denominator')
+            skip('cohesion', f"{domain['name']} has no dependency edges, so the internal share has no denominator")
+            skip('decoupling', f"{domain['name']} has no dependency edges, so the outgoing share has no denominator")
         cycle_value = max(0., 100 * (1 - len(cyclic_members) / member_count) - (25 if cross_cycles else 0))
         measure('cycles', cycle_value, len(cyclic_members), member_count,
             f"{len(cyclic_members)} of {member_count} classes are in dependency cycles" + (f"; {len(cross_cycles)} cycle(s) span other domains (-25)" if cross_cycles else ''),
@@ -60,7 +60,7 @@ def assess_and_rank(domains, membership, graph, cycles, issues, weights, boundar
                 f"{len(shared)} of {len(repositories)} repositories used by the domain are also used by another domain",
                 [f"Give one domain ownership of {s}." for s in sharedn[:3]])
         else:
-            skip('database', 'no repository class or data-access reference was found; absence does not prove independence')
+            skip('database', f"no repository class or data-access reference was found in {domain['name']}; absence does not prove independence")
         pairs_scale = 100 / (1 + len(boundary_pairs) / max(1, member_count ** .5))
         measure('boundary_scale', max(0., pairs_scale), len(boundary_pairs), member_count,
             f"{len(boundary_pairs)} class pairs cross the boundary for {member_count} classes (100 / (1 + pairs / max(1, √classes)))",
@@ -70,7 +70,7 @@ def assess_and_rank(domains, membership, graph, cycles, issues, weights, boundar
                 f"{len(god_classes)} God-class candidate(s) among {member_count} classes (100 - 15 per candidate)",
                 [f"Split {', '.join(g.rsplit('.', 1)[-1] for g in god_classes[:5])}."] if god_classes else [])
         else:
-            skip('class_concentration', 'God-class findings are not available for this view')
+            skip('class_concentration', 'God-class findings are not measured for this view')
         configured = {key: value * CONFIGURED_SHARE for key, value in weights.items()}
         configured.update(EXTRA_WEIGHTS)
         total_weight = sum(configured[k] for k in components)
@@ -85,8 +85,8 @@ def assess_and_rank(domains, membership, graph, cycles, issues, weights, boundar
         if metric['cross_domain_ratio'] > .5: risks.append(f"{metric['outgoing_edges']} of {edge_total} dependency edges cross this boundary.")
         if shared: risks.append(f"{len(shared)} repositories are used by other domains too: {', '.join(r['repository'].rsplit('.', 1)[-1] for r in shared[:3])}.")
         if repositories: risks.append(f"Runtime SQL and transactions of {len(repositories)} repositories ({', '.join(r.rsplit('.', 1)[-1] for r in repositories[:3])}) are not validated.")
-        if db['status'] == 'UNKNOWN': risks.append('No database structural evidence found; absence does not prove independence.')
-        if metric['internal_cohesion'] is None: risks.append('No outgoing dependency evidence to estimate cohesion.')
+        if db['status'] == 'UNKNOWN': risks.append(f"No database structural evidence found for {domain['name']}; absence does not prove independence.")
+        if metric['internal_cohesion'] is None: risks.append(f"No outgoing dependency evidence of {domain['name']} to estimate cohesion.")
         confidence = 'LIMITED' if db['status'] == 'UNKNOWN' else 'STRUCTURAL_ONLY'
         boundary_count = sum(i['issue_type'] == 'DOMAIN_BOUNDARY_VIOLATION' and domain['id'] in i['domain_ids'] for i in issues) if boundary_available else None
         cost_inputs = dict(classes=member_count, boundary_pairs=len(boundary_pairs), shared_repositories=len(shared), god_classes=len(god_classes), cross_domain_cycles=len(cross_cycles))
@@ -107,7 +107,7 @@ def assess_and_rank(domains, membership, graph, cycles, issues, weights, boundar
             component_scores={k: round(v, 2) for k,v in components.items()}, weights=effective, configured_weights=configured,
             component_details=details, not_measured=not_measured,
             formula='readiness = sum(component x weight) over the measured inputs. Weights: configured cohesion/decoupling/cycles/database weights x 0.8, plus boundary size 0.12 and class concentration 0.08; '
-                    'weights of inputs that are not measured are removed and the rest are scaled to sum to 1. This is a heuristic ordering aid, not calibrated.'
+                    'weights of inputs that are not measured are removed and the rest are scaled to sum to 1. Per the glossary term Readiness this is a heuristic ordering aid, not calibrated.'
                     + (f' Not measured here: {excluded}.' if excluded else ''),
             internal_cohesion=metric['internal_cohesion'], external_coupling=metric['cross_domain_ratio'],
             incoming_pressure=metric['incoming_edges'], outgoing_pressure=metric['outgoing_edges'],

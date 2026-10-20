@@ -66,7 +66,7 @@ def test_each_recommendation_carries_why_alternatives_steps_risks_confidence_and
     assert log4j['alternatives'][0]['reason'] == 'it needs Java 11 against Java 8'
     assert log4j['steps'][0].startswith('Add log4j-api and log4j-core')
     assert log4j['why'] == ['Apache Log4j 1.x is end-of-life (the installed version could not be determined from the artifact); 1 class references it with 2 code references.',
-                            'Log4j 2 is chosen. Lifecycle status: not covered by the lifecycle rules file. It needs Java 8; the plan targets Java 21.']
+                            'Log4j 2 is chosen. Lifecycle status: not covered by lifecycle-rules.yaml. It needs Java 8; the plan targets Java 21.']
     assert log4j['confidence']['label'] == 'LOW' and log4j['confidence']['present'] == 2 and log4j['confidence']['total'] == 4
     assert log4j['runtime_evidence']['not_measured'] == 'no runtime session is attached' and log4j['runtime_evidence']['text'] is None
     assert log4j['citations'][:2] == ['rule:log4j-1', 'candidate:log4j-2'] and all(c.split(':', 1)[1] in m.classes for c in log4j['citations'] if c.startswith('class:'))

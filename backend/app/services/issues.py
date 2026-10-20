@@ -72,7 +72,7 @@ def detect_issues(classes, graph, class_metrics, package_metrics, thresholds, cy
             else:
                 issues.append(make_issue('MAIN_SEQUENCE_DEVIATION', 'MEDIUM', package, 'PACKAGE',
                     f"{package} deviates from the main sequence", metric,
-                    'Abstractness and instability are imbalanced; context determines whether this creates debt.',
+                    'Abstractness A and instability I are imbalanced: distance D = |A + I - 1| is high; context decides whether this creates debt.',
                     'Review concrete stable packages and abstract unused packages in their architectural role.', ds))
         unstable_targets = sorted({classes[t]['package_name'] for s, t in graph.edges
             if classes[s]['package_name'] == package and classes[t]['package_name'] != package
@@ -80,8 +80,8 @@ def detect_issues(classes, graph, class_metrics, package_metrics, thresholds, cy
         if unstable_targets:
             issues.append(make_issue('UNSTABLE_PACKAGE', 'MEDIUM', package, 'PACKAGE',
                 f"{package} depends on more unstable packages", {'metrics': metric, 'targets': unstable_targets},
-                'Dependency direction conflicts with the stable-dependencies heuristic.',
-                'Consider depending on stable abstractions; do not treat instability alone as a defect.', ds))
+                'Dependency direction conflicts with the Stable Dependencies Principle.',
+                'Consider depending on stable abstractions; instability I = Ce / (Ca + Ce) alone is not a defect.', ds))
     if main_sequence_models:
         packages = sorted(row[0] for row in main_sequence_models)
         issues.append(make_issue('MAIN_SEQUENCE_MODEL_SUMMARY', 'LOW', 'model-packages', 'PACKAGE_GROUP',
@@ -93,20 +93,20 @@ def detect_issues(classes, graph, class_metrics, package_metrics, thresholds, cy
     for cycle, association_domains in expected_associations:
         issues.append(make_issue('EXPECTED_ENTITY_ASSOCIATION', 'LOW', cycle['id'], 'CLASS',
             'Bidirectional entity association', dict(members=cycle['members'], cycle=cycle),
-            'Two entity types have reciprocal field-type references within one candidate domain. Field names and JPA mappedBy values are not present in this bytecode export, so this is an inferred association, not confirmation of its mapping.',
+            'Two JPA entity types have reciprocal field-type references within one candidate domain. Field names and JPA mappedBy values are not present in this bytecode export, so this is an inferred association, not confirmation of its mapping.',
             'Confirm the JPA ownership and mappedBy side in source before changing this association.', association_domains))
     for domain in domains:
         metric = domain['metrics']
         if metric['cross_domain_ratio'] > .5 and metric['outgoing_edges'] >= 2:
             issues.append(make_issue('CROSS_DOMAIN_COUPLING', 'HIGH', domain['id'], 'DOMAIN',
                 f"{domain['name']} has high cross-domain coupling", metric,
-                'More than half of its internal-application outgoing dependencies cross the candidate boundary.',
+                'More than 50% of its outgoing dependencies on application classes cross the candidate boundary.',
                 'Review domain membership and define a smaller explicit boundary API.', [domain['id']]))
     for s, t in graph.edges:
         if membership[s] != membership[t] and any(a.endswith('.Controller') or a.endswith('.RestController') for a in classes[t].get('annotations', [])):
             issues.append(make_issue('DOMAIN_BOUNDARY_VIOLATION', 'HIGH', s + ' -> ' + t, 'DEPENDENCY',
                 'Cross-domain dependency targets a controller', {'source': s, 'target': t},
-                'A candidate domain depends directly on another domain entry-point implementation.',
+                'A candidate domain depends directly on a @Controller class of another domain.',
                 'Review an application-service interface instead of depending on a controller.', [membership[s], membership[t]]))
     impact = {'CIRCULAR_DEPENDENCY':0,'LARGE_CYCLIC_CLUSTER':0,'GOD_CLASS':1,'DOMAIN_BOUNDARY_VIOLATION':1,
         'CROSS_DOMAIN_COUPLING':2,'SHARED_PERSISTENCE_CANDIDATE':2,'HIGH_FAN_IN':3,'HIGH_FAN_OUT':3,

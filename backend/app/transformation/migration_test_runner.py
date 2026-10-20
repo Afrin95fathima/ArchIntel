@@ -130,7 +130,7 @@ def execute(plan, rows):
         checks.append(dict(name='REFERENTIAL_INTEGRITY',status='PASS' if not foreign_errors else 'FAIL',violations=len(foreign_errors)))
         checks.append(dict(name='TYPE_CONVERSIONS',status='PASS' if not conversion_errors else 'FAIL',errors=conversion_errors))
         for invariant in plan.get('business_invariants',[]):
-            status='NOT_RUN'; details='Invariant kind is not supported by the local synthetic verifier.'
+            status='NOT_RUN'; details='This invariant kind is not supported by the local SQLite synthetic verifier.'
             kind=invariant['kind']; table=invariant['table']; col=invariant.get('column')
             column_mapping=next((m for m in maps if m['source_table'].casefold()==table.casefold() and m['source_column'].casefold()==str(col).casefold()),None)
             target_column=column_mapping['target_column'] if column_mapping else col
@@ -156,13 +156,13 @@ def execute(plan, rows):
             raw_fixture_persisted=False,counts=counts,checks=checks,result_sha256=checks_hash,
             recovery=dict(state='DISCARDED_WITH_PROCESS_MEMORY',backup_restore_tested=False),
             limitations=['This validates only the synthetic fixture and the supported local SQLite type/constraint checks.',
-                          'It does not validate the application database engine, production-scale behavior, deployment cutover, or backup restoration.'])
+                          'It does not validate the application database engine (PostgreSQL or other), production-scale behavior, deployment cutover or backup restoration.'])
     except sqlite3.IntegrityError as exc:
         db.rollback()
         return dict(state='FAIL',environment='EPHEMERAL_SQLITE_MEMORY',data_classification='SYNTHETIC',
             database_url_persisted=False,raw_fixture_persisted=False,checks=[dict(name='DATABASE_CONSTRAINTS',status='FAIL',code='KEY_OR_RELATIONSHIP_CONSTRAINT_FAILED')],
             result_sha256=hashlib.sha256(b'KEY_OR_RELATIONSHIP_CONSTRAINT_FAILED').hexdigest(),
             recovery=dict(state='DISCARDED_WITH_PROCESS_MEMORY',backup_restore_tested=False),
-            limitations=['The ephemeral database was rolled back and discarded; no source or target service was contacted.'])
+            limitations=['The ephemeral SQLite database was rolled back and discarded; no source or target service was contacted.'])
     finally:
         db.close()

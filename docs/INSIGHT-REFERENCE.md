@@ -19,7 +19,7 @@ missing the UI says "not available" and why.
    with the bytecode facts.
 5. Facts are stored in the snapshot (`result['bytecode']`); `source_store` keeps `.java` entries found in the artifact.
 6. Views are pure functions of an `InsightModel` (cached per analysis id) and are served under
-   `/api/v1/analyses/{id}/insight/…`. Snapshots that predate bytecode facts degrade to "run a new analysis".
+   `/api/v1/analyses/{id}/insight/…`. A snapshot that predates bytecode facts (no facts_available flag) shows "run a new analysis".
 
 ## Lifecycle rules (`app/insight/rules/lifecycle-rules.yaml`)
 
@@ -47,10 +47,10 @@ rules:
 ```
 
 Statuses are **end-of-life / aging / current**. They describe vendor support, never vulnerabilities (the UI and
-API say so). When a version cannot be determined the finding states why and uses the rule default. The effort
+API say so). When a version is not found in the manifest (MANIFEST.MF, pom.properties), the finding states why and uses the default of its rule in lifecycle-rules.yaml. The effort
 hint is a labelled heuristic index (`weight × affected classes`), not a time or cost estimate.
-The dates and support statements in the shipped file were compiled from the cited sources on the review date and
-must be re-verified before relying on them; the freshness banner exists to force that review.
+The dates in lifecycle-rules.yaml were compiled from the cited vendor pages on its reviewed_on date and must be
+re-verified before use; the freshness banner appears when reviewed_on is older than the configured limit.
 
 ## Debt rules and thresholds (`app/insight/rules/debt-rules.yaml`)
 
@@ -74,7 +74,7 @@ evidence items (with line numbers where bytecode provides them), suggested actio
 | DEBT-AGING-FRAMEWORK | class uses a technology rated aging (MEDIUM) or end-of-life (HIGH) |
 | DEBT-UNOBSERVED | no span of the selected sessions maps to the class (INFO; never called "unused") |
 
-Package debt index = 3×HIGH + 2×MEDIUM + 1×LOW (+4×CRITICAL); density = index / classes. It orders work; it is not an estimate.
+Package debt index = 3×HIGH + 2×MEDIUM + 1×LOW (+4×CRITICAL); density = index / classes. Package debt index = 3×HIGH + 2×MEDIUM + 1×LOW (+4×CRITICAL) orders packages; it is not an effort estimate in days.
 
 ## Metric formulas
 
@@ -101,7 +101,7 @@ Strongly connected components (networkx/Tarjan) on the top-level class graph and
 cycles are enumerated per component (length ≤ `max_cycle_length`, ≤ `max_cycles_per_scc` per component). Each cycle
 lists ordered members, each edge's types, code references (field, call with line, inheritance, annotation), and
 whether the edge is static and/or runtime. Cut candidates are ranked by: breaks the whole group, cycles broken,
-against layering, fewest references, fewest runtime calls — always labelled "suggestion, requires human review".
+against layering, fewest references, fewest runtime calls — every cut candidate carries the label "suggestion, requires human review" (field review_label).
 
 ## Assistant
 
@@ -111,8 +111,7 @@ Tools (all read-only, scoped to one analysis, size-bounded): `get_package`, `get
 Evidence ids: `class:`, `package:`, `edge:a->b`, `finding:`, `cycle:`, `entry:`, `aging:`, `metric:entity:key`,
 `runtime:`, `source:`, `layer:`, `summary:analysis`. The verifier removes any sentence whose citation does not
 exist, that names a class/package/method not present in the analysis or tool results, or (model mode) that states a
-number absent from the cited results. If nothing verifiable remains the deterministic answer is used; if the tools
-have no answer the assistant says it cannot determine it. There is no tool that changes code or data; change
+number absent from the cited results. If 0 sentences pass verification, the deterministic answer is used; if no tool returns data, the answer is "cannot determine" plus the tool names tried. There is no tool that changes code or data; change
 requests are refused and pointed to Source tasks (human approval). Memory: `assistant_messages` (per principal and
 analysis = application version), `GET/DELETE …/assistant/history`. Streaming: `POST …/assistant/chat` (NDJSON
 events `start`, `tool_call`, `tool_result`, `sentence`, `done`); non-streaming: `POST …/assistant/ask`. Budgets:
@@ -121,7 +120,7 @@ context/output limits from the AI policy. Identical deterministic questions are 
 
 ## AI data flow — what leaves the environment
 
-The insight layer never calls an external model. Its only model path is `app/ai/grounded.py`, which reuses the
+The insight layer calls no external model; only a local Ollama on a loopback address is allowed. Its only model path is `app/ai/grounded.py`, which reuses the
 existing gateway rules: fresh authorization (`MODEL_USE_LOCAL` + workspace policy `model_enabled`), provider must be
 a **local Ollama** on an operator-allow-listed loopback address, digest pinned, hourly budget, every outgoing string
 sanitised (credentials block, PII redacted/blocked per policy, prompt-injection patterns block), size limit,

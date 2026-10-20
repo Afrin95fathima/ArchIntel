@@ -44,8 +44,8 @@ def build_plan(spec, *, version_id, version_fingerprint, source_manifest_sha256,
                          'BACKUP_RESTORE_DRILL', 'RECONCILIATION_AFTER_CUTOVER'],
         blockers=sorted(set(blockers)),
         limitations=['This plan is metadata-only and performs no database connection, SQL generation, or writes.',
-                     'Runtime database observations are contextual evidence only; they do not prove table ownership or complete traffic.',
-                     'A disposable representative database and reviewed application-specific invariants are required before execution.'],
+                     'Runtime database observations (DATABASE evidence) are contextual only; they do not prove table ownership or complete traffic.',
+                     'A disposable representative database and reviewed invariants (BUSINESS_INVARIANT) are required before execution.'],
     )
     document['fingerprint'] = digest(document)
     return document

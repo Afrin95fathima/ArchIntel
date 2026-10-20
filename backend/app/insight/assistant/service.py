@@ -114,7 +114,7 @@ def _model_turn(request, db, tools: Tools, question: str, past: list[dict], conf
                 continue
             sentences.append(dict(text=item['text'].strip()[:700], cites=[e for c in dict.fromkeys(cites) for e in allowed[c]]))
         known_ids = {name for r in results for name in json.dumps(r['raw'].get('data', {}), default=str).replace('"', ' ').replace(',', ' ').replace(':', ' ').split()}
-        kept, removed = check_answer(tools.index, sentences, extra_known={k for k in known_ids if k[:1].isupper()})
+        kept, removed = check_answer(tools.index, sentences, extra_known={k for k in known_ids if k[:1].isupper()}, content_rules=True)
         # Numbers must come from the tool results the sentence cites; the model may not invent counts.
         supported = {n for r in results for n in re.findall(r'\d+', json.dumps(r['raw'].get('data', {}), default=str))}
         checked = []

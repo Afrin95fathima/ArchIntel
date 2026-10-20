@@ -37,7 +37,7 @@ def compare(baseline, candidate):
                     algorithm_version=baseline.get('algorithm_version'),
                     candidate_algorithm_version=candidate.get('algorithm_version')),
         classes=dict(added=sorted(after_classes-before_classes), removed=sorted(before_classes-after_classes),
-                     renames=[], rename_note='No rename is inferred without reviewed entity correspondence.'),
+                     renames=[], rename_note='ArchitectureDiff infers no class rename without a reviewed entity correspondence.'),
         edges=dict(added=[list(x) for x in sorted(after_edges-before_edges)],
                    removed=[list(x) for x in sorted(before_edges-after_edges)]),
         cycles=dict(added=[list(x) for x in sorted(after_cycles-before_cycles)],
@@ -47,9 +47,9 @@ def compare(baseline, candidate):
         domain_membership_changes=[dict(class_id=name, before=domain_before[name], after=domain_after[name])
                                    for name in sorted(common) if domain_before[name] != domain_after[name]],
         summaries=dict(baseline=baseline.get('summary', {}), candidate=candidate.get('summary', {})),
-        limitations=['Static deltas do not prove runtime behavior changed.',
+        limitations=['A static delta (ArchitectureDiff) does not prove runtime behavior changed.',
                      'Domain IDs may change when community detection changes; membership deltas require architect review.',
-                     'Readiness-score improvement alone is not an approval condition.'])
+                     'A Readiness-score improvement alone is not an approval condition.'])
     document['fingerprint'] = digest(document)
     return document
 
@@ -89,6 +89,6 @@ def expected_improvement(baseline, candidate, domain_id, decision_kind):
         decision_kind=decision_kind, domain_id=domain_id, metric=metric, direction='DECREASE',
         baseline_value=before, candidate_value=after,
         improvement=(before - after) if before is not None and after is not None else None,
-        reasons=sorted(set(reasons)), limitations=['Static structural change does not prove runtime, business or data behavior improved.'])
+        reasons=sorted(set(reasons)), limitations=['A static structural change (ArchitectureDiff) does not prove runtime, business or data behavior improved.'])
     result['fingerprint'] = digest(result)
     return result

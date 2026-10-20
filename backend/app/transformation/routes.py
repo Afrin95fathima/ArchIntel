@@ -37,7 +37,7 @@ def listing(vid: str, request: Request, db=Depends(session)):
         elif task.state == 'APPROVED':
             next_action = 'Review the accepted result and plan the next modernization wave.'
         elif task.state in ('STAGED', 'VALIDATION_BLOCKED'):
-            next_action = 'Complete the required build, security, architecture, and behavior checks.'
+            next_action = 'Complete the required build, security, architecture and behavior checks of this task.'
         elif view['gaps']:
             next_action = 'Resolve the listed source, baseline, or behavioral-contract gaps.'
         else:

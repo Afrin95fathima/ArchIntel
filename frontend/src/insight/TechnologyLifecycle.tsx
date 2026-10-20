@@ -26,7 +26,7 @@ export function TechnologyLifecycle({ analysisId }: { analysisId: string }) {
   const [open, setOpen] = useState('');
   return <>
     <PageTitle eyebrow="TECHNOLOGY LIFECYCLE" title="Which technologies are ageing, and where are they used?"
-      description="Each row is matched against a dated rules file. Statuses describe vendor support (end-of-life / aging / current), not security vulnerabilities." />
+      description="Each row is matched against lifecycle-rules.yaml. Status = vendor support (end-of-life / aging / current), not security vulnerabilities." />
     <InsightState query={query}>{() => {
       const data = query.data!;
       return <LifecycleBody data={data} analysisId={analysisId} status={status} setStatus={setStatus} open={open} setOpen={setOpen} />;
@@ -68,7 +68,7 @@ function LifecycleRow({ finding: f, analysisId, open, toggle }: { finding: Lifec
       <Formula formula={f.effort_index.formula} inputs={f.effort_index.inputs} /><p className="fine-print">Effort index {f.effort_index.value}. {f.effort_index.label}</p>
       <h4>Affected classes ({f.affected_class_count}{f.affected_truncated ? ', list truncated' : ''})</h4>
       {f.affected_classes.length ? f.affected_classes.map(c => <Expandable key={c.class_name} summary={<><NodeLink id={c.class_name} /> <span className="muted">· {c.call_site_count} references · {c.apis.slice(0, 3).join(', ')}{c.apis.length > 3 ? '…' : ''}</span></>}>
-        {c.call_sites.length ? <ul className="call-sites">{c.call_sites.map((s, i) => <li key={i}>{s.text}{s.line ? ` (line ${s.line})` : ''}</li>)}</ul> : <p className="muted">Referenced at class level only (no call sites recorded).</p>}
+        {c.call_sites.length ? <ul className="call-sites">{c.call_sites.map((s, i) => <li key={i}>{s.text}{s.line ? ` (line ${s.line})` : ''}</li>)}</ul> : <p className="muted">Referenced at class level only (call sites: not measured).</p>}
       </Expandable>) : <p className="muted">Found from dependency metadata only; no application class references these packages.</p>}
       {f.affected_class_count > 0 && f.status !== 'current' && <AiExplain analysisId={analysisId} path="lifecycle/explain" targetId={f.id} title="AI migration note for these classes (optional)" />}
     </td></tr>}

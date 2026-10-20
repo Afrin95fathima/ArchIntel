@@ -240,7 +240,7 @@ def view(db, task):
         validation=comparison, extraction_plan=extraction_plan, data_migration_plan=document.get('data_migration_plan'),
         data_discovery=discovery_record.document if discovery_record else None,
         data_migration_test_run=migration_run.document if migration_run else None,
-        execution=dict(merge_enabled=False, deployment_enabled=False, note='Reviewed staging and build comparison are available. Final approval requires architecture and security validation.'))
+        execution=dict(merge_enabled=False, deployment_enabled=False, note='Reviewed staging and build comparison are available for this task. Final approval requires architecture and security validation of this task.'))
 
 
 def prepare_extraction_plan(db, request, task, body):
@@ -797,7 +797,7 @@ def generate_microservice(db, request, task, body):
         task.document=updated_document
         task.state='READY'
         event(db, request, task, 'GENERATE_MICROSERVICE_REPOSITORY',
-              'Generated local candidate repository; validation remains required.',
+              'Generated local candidate repository (service_candidate); validation remains required.',
               generation_fingerprint=checked['fingerprint'], invocation_id=invocation)
         db.commit()
         model_event(request, identity, invocation, 'ALLOW', 'STRUCTURED_BUNDLE_VALIDATED',
@@ -818,7 +818,7 @@ def generate_microservice(db, request, task, body):
                     request_fingerprint=attempt.get('request_fingerprint')))
                 failed_task.state='FAILED'
                 event(db,request,failed_task,'GEMINI_GENERATION_FAILED',
-                    'Generation failed closed; no output was approved.',invocation_id=invocation,error_code=code)
+                    'Generation failed closed (GEMINI_GENERATION_FAILED); no output was approved.',invocation_id=invocation,error_code=code)
                 db.commit()
         except Exception:
             db.rollback()
@@ -947,7 +947,7 @@ def build(db, request, task, kind, body):
         if task.state != 'PAUSED': task.state = 'PLANNED' if kind == 'BASELINE' and not task.document.get('staged_changeset') else 'VALIDATION_BLOCKED'
         db.flush()
         if kind == 'BASELINE' and task.state == 'PLANNED' and not gaps(db, task): task.state = 'READY'
-        event(db, request, task, 'BUILD_FINISHED', 'Structured result recorded; raw build output is not retained.', build_id=item.id)
+        event(db, request, task, 'BUILD_FINISHED', 'Structured BUILD result recorded; raw build output is not retained.', build_id=item.id)
         db.commit(); return item
 
 
@@ -996,7 +996,7 @@ def scan_security(db, request, task, body):
         task.document=dict(task.document, security_analysis=dict(attempt.document, attempt_id=attempt.id,
             state=result['state'] if valid and result else 'FAILED'))
         if task.state!='PAUSED': task.state='VALIDATION_BLOCKED'
-        event(db, request, task, 'SECURITY_FINISHED', 'Bounded security findings recorded; raw tool output is not retained.', attempt_id=attempt.id)
+        event(db, request, task, 'SECURITY_FINISHED', 'Bounded SECURITY findings recorded; raw tool output is not retained.', attempt_id=attempt.id)
         db.commit()
 
 

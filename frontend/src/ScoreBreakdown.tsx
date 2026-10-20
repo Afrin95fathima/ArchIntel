@@ -29,7 +29,7 @@ export function ReadinessBreakdown({ assessment }: { assessment: ReadinessSource
   return <section className="score-breakdown" aria-label={`Readiness of ${assessment.domain_name}`}>
     <h3>Readiness {assessment.readiness_score}/100</h3>
     <p><strong>Question answered:</strong> how ready is {assessment.domain_name} to be modernized or extracted, judged from structural inputs only (dependencies, cycles, shared data, class size).</p>
-    {inputs ? <InputsTable inputs={inputs} caption={`Readiness inputs of ${assessment.domain_name}`} /> : <p>This assessment was created before input details were recorded. Run a new analysis to see them.</p>}
+    {inputs ? <InputsTable inputs={inputs} caption={`Readiness inputs of ${assessment.domain_name}`} /> : <p>This assessment was created before component_details were recorded. Run a new analysis to see them.</p>}
     <Excluded items={assessment.not_measured || []} />
     <p className="fine-print">{assessment.formula}</p>
   </section>;

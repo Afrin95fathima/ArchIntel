@@ -1,0 +1,157 @@
+# Content rules for every sentence the product shows or ships: UI text, backend messages and templates, rule files, docs.
+#
+# A sentence is a violation when it contains a banned phrase, or when it is prose (min_words or more) and contains no
+# specific name or number and does not define a term. See app/content/check.py for the exact tests.
+schema_version: 1
+min_words: 7
+
+banned_phrases:
+  # Written as regular expressions, matched case-insensitively on word boundaries.
+  - 'leverag(e|es|ed|ing)'
+  - 'seamless(ly)?'
+  - 'robust(ness)?'
+  - 'comprehensive(ly)?'
+  - 'holistic(ally)?'
+  - 'powerful'
+  - 'cutting[- ]edge'
+  - 'it is important to note'
+  - "in today'?s"
+  - 'delv(e|es|ed|ing)'
+  - 'streamlin(e|es|ed|ing)'
+  - 'unlock(s|ed|ing)?'
+  - 'ensure that'
+  - 'provides? insights? into'
+  - 'various'
+  - 'several'
+  - 'state[- ]of[- ]the[- ]art'
+  - 'best[- ]in[- ]class'
+  - 'world[- ]class'
+  - 'game[- ]chang(er|ing)'
+  - 'revolutionary'
+  - 'empower(s|ed|ing)?'
+  - 'synerg(y|ies|istic)'
+  - 'it(?:\x27| i)s worth (noting|mentioning)'
+  - 'at the end of the day'
+  - 'plethora'
+  - 'myriad'
+  - 'ever[- ]evolving'
+  - 'rich (set|suite|ecosystem)'
+  - 'end[- ]to[- ]end solution'
+
+# Words that name something specific on their own: products, languages and protocols this application is about.
+product_terms:
+  - ArchIntel
+  - Java
+  - JVM
+  - Spring
+  - Maven
+  - Gradle
+  - PostgreSQL
+  - Neo4j
+  - OpenTelemetry
+  - OTLP
+  - Gemini
+  - Ollama
+  - Hibernate
+  - Tomcat
+  - Struts
+  - Jakarta
+  - Docker
+  - Playwright
+  - jQAssistant
+  - Kotlin
+  - JSON
+  - SQL
+  - Git
+
+# Phrases that define a term or state a formula; a sentence with one of them is specific enough.
+definition_markers:
+  - ' = '
+  - '×'
+  - ' means '
+  - ' is defined as '
+  - ' stands for '
+  - ' counts '
+  - ' is the number of '
+
+# A sentence about this analysis, version, session or scan reports a fact about the specific application, and "not measured"
+# is the mandated way to report a value that cannot be computed. Neither is equally true for any application.
+data_markers:
+  - 'not measured'
+  - 'not recorded'
+  - 'this version'
+  - 'this analysis'
+  - 'this proposal'
+  - 'this application'
+  - 'this snapshot'
+  - 'this scan'
+  - 'this artifact'
+  - 'this plan'
+  - 'this session'
+  - 'this task'
+  - 'this architecture'
+  - 'the selected'
+  - 'selected session'
+  - 'the analysis'
+  - 'the artifact'
+  - 'the captured'
+  - 'this baseline'
+  - 'this account'
+  - 'the original'
+  - 'the scan'
+
+# A sentence that starts with one of these verbs tells the reader what to do (a UI instruction or a remediation step). It is checked
+# for banned phrases; it makes no claim that could be equally true for any application.
+imperative_starts: [Click, Select, Open, Use, Choose, Run, Create, Capture, Analyze, Attach, Exercise, Change, Connect, Set, Add, Provide, Enable,
+  Start, Stop, Review, Resolve, Check, Download, Preview, Export, Upload, Drag, Press, Pick, Keep, See, Expand, Collapse, Enter, Type, Update, Compare,
+  Inspect, Wait, Retry, Try, Confirm, Record, Save, Ask, Re-run, Re-upload, Link, Rename, Move, Replace, Remove, Raise, Pin, Install, Restart, Reload, Sign, Log, Stage, Retain, Configure, Establish, Define, Document, Identify, Prepare, Plan, Write, Build, Apply, Validate, Verify, Fix, Break,
+  Narrow, Reduce, Split, Pull, Introduce, Assign, Give, Settle, Collect, Explain, Describe, List, State, Name, Cite, Show, Report, Return, Get, Find, Look, Treat, Consider, Prefer, Avoid, Copy, Reconcile, Complete, Group, Leave, Return]
+
+scan:
+  frontend: [frontend/src]
+  backend: [backend/app]
+  rule_files: [backend/app/insight/rules]
+  docs: [README.md, docs/USER-MANUAL.md, docs/INSIGHT-REFERENCE.md, docs/ENHANCEMENT-ROUND2-PLAN.md, docs/ENHANCEMENT-ROUND2-STATUS.md]
+  skip_names: ['.test.', 'fixtures', 'node_modules', '__pycache__', 'alembic', 'tests']
+
+# Scoping decisions, applied by app/content/check.py and listed in docs/CONTENT-AUDIT.md.
+#   message_calls  A string passed to one of these calls is an API or validation error that states a precondition of the
+#                  workflow (for example "Task does not accept contracts in this state."). It is checked for banned phrases
+#                  but not required to name an application-specific value, because the rule it states is the same for every application.
+#   definition_files  These files are the glossary: each string defines a term, a rule or a blocker code and its formula.
+message_calls: [HTTPException, ValueError, PermissionError, RuntimeError, LookupError, KeyError, Error, cannot]
+# Product help: text that explains how the tool's own controls, policies and workflow gates behave. It says nothing about the analyzed
+# application, so it is checked for banned phrases only.
+product_help_files:
+  - frontend/src/security/AIConsole.tsx
+  - frontend/src/security/AccessShell.tsx
+  - frontend/src/security/SecurityConsole.tsx
+  - frontend/src/UIKit.tsx
+  - frontend/src/LocalDiagnostics.tsx
+  - frontend/src/transformation/TaskWorkspace.tsx
+  - frontend/src/transformation/DataMigrationWorkspace.tsx
+  - frontend/src/transformation/SecurityResults.tsx
+# Diagnostic status text of the local-setup checks: each string reports the state of one named service.
+message_files:
+  - backend/app/system/service.py
+definition_files:
+  - backend/app/insight/glossary.py            # the glossary: terms, formulas, numerators and denominators
+  - backend/app/insight/debt_rates.py          # definitions of each problem rate
+  - backend/app/modernization/blockers.py      # what each blocker code means
+  - backend/app/insight/metrics.py             # definitions of each architecture metric
+  - backend/app/insight/diagrams.py            # legends: what a box, arrow and colour means
+  - backend/app/insight/roles.py               # plain-language definition of each role
+  - backend/app/insight/rules/debt-rules.yaml  # definitions of each technical-debt rule
+  - frontend/src/insight/GlossaryPanel.tsx
+# System prompts for a model. They are instructions, not content; the output they produce is checked at run time by
+# app/ai/grounded.py, which drops any generated sentence with a banned phrase or no specific name or number.
+prompt_files:
+  - backend/app/ai/gemini.py
+  - backend/app/ai/grounded.py
+  - backend/app/ai/providers.py
+  - backend/app/transformation/microservice_codegen.py
+  - backend/app/insight/assistant/service.py
+  - backend/app/insight/assistant/tools.py     # tool descriptions the model reads
+
+# Approved exceptions: {file, contains, reason}. Keep this list empty unless a sentence cannot name or count anything.
+allow: []

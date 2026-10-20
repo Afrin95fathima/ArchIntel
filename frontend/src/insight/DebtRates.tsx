@@ -15,7 +15,7 @@ export function DebtRates({ data }: { data: DebtRatesPayload }) {
   const rows = [...measured].sort((a, b) => sort === 'percentage' ? (b.percentage || 0) - (a.percentage || 0) : (ORDER[a.severity || 'INFO'] - ORDER[b.severity || 'INFO']) || (b.percentage || 0) - (a.percentage || 0));
   const groups = view === 'domain' ? data.by_domain : data.by_package;
   const columns = measured.filter(r => r.id !== 'cross-domain-edges' && r.id !== 'entry-points-unobserved' && groups.some(g => g.rates[r.id]));
-  return <section className="panel insight-panel" aria-label="Technical problem rates"><h3>Technical problems as a share of the application</h3>
+  return <section className="panel insight-panel" aria-label="Technical problem rates"><h3>Problem rates (counted / population × 100)</h3>
     <p className="fine-print">{data.note}</p>
     <div className="insight-toolbar">
       <label>Show <select aria-label="Rate view" value={view} onChange={e => setView(e.target.value as 'overall')}><option value="overall">Whole application</option><option value="domain">Per domain</option><option value="package">Per package</option></select></label>

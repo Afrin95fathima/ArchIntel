@@ -110,4 +110,4 @@ def validate(document, facts, evidence):
     node_ids = {n['id'] for n in document['graph']['nodes']}
     check(all(e['source'] in node_ids and e['target'] in node_ids for e in document['graph']['edges']), 'GRAPH_DANGLING_REFERENCE')
     return dict(status='VALIDATED' if not errors else 'REJECTED', validator_version='proposal-validator-1', errors=sorted(set(errors)),
-                scope='Reference integrity, arithmetic, dependency order and publication safety. Not behavioral equivalence or empirical calibration.')
+                scope='Checks that every cited id exists, scores equal their weighted inputs, waves respect dependency order and no execution is enabled (validator proposal-validator-1). It does not check behavioral equivalence or calibration, which proposal-validator-1 does not cover.')

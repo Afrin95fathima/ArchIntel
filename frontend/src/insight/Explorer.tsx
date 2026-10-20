@@ -69,11 +69,11 @@ function Canvas({ data, selected, onSelect, onEdge, onDrill }: { data: GraphView
 function Legend() {
   return <details className="explorer-legend" open><summary>Legend</summary><div>
     <div><strong>Row / fill colour</strong> — architecture layer: {Object.entries(LAYER_FILL).map(([k, v]) => <span key={k} className="legend-chip" style={{ background: v }}>{k.toLowerCase().replace('_', ' ')}</span>)}</div>
-    <div><strong>Shape</strong> — rectangle: package · rounded rectangle: class · size grows with the number of classes or methods.</div>
+    <div><strong>Shape</strong> — rectangle = package; rounded rectangle = class; size grows with the number of classes or methods.</div>
     <div><strong>Border colour</strong> — highest technical-debt severity: <span className="legend-chip" style={{ borderColor: DEBT_COLOR.HIGH }}>high</span><span className="legend-chip" style={{ borderColor: DEBT_COLOR.MEDIUM }}>medium</span><span className="legend-chip" style={{ borderColor: DEBT_COLOR.LOW }}>low</span></div>
     <div><strong>Red glow</strong> — member of a cyclic group.</div>
     <div><strong>Runtime coverage</strong> — green border: observed in the selected sessions · dashed border: not observed (not the same as unused) · grey: no session selected.</div>
-    <div><strong>Edges</strong> — arrow points from dependent to dependency · dashed: static only · solid green: also observed at runtime · thickness: number of references.</div></div></details>;
+    <div><strong>Edges</strong> — arrow = dependent to dependency; dashed = static only; solid green = also observed at runtime; thickness = number of references.</div></div></details>;
 }
 
 function WhatAmILookingAt({ meta, external }: { meta: GraphView['meta']; external: GraphView['external'] }) {

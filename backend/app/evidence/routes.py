@@ -90,7 +90,7 @@ def compare(vid:str,other_id:str,request:Request,db=Depends(session)):
     for name in ('classes','methods','entry_points','dependencies','domains'):
         x=a.document['coverage'][name];y=b.document['coverage'][name]
         delta[name]=None if x['percentage'] is None or y['percentage'] is None or x['total']!=y['total'] else round(y['percentage']-x['percentage'],2)
-    return dict(from_version=a.id,to_version=b.id,percentage_point_delta=delta,note='Observation change only; no modernization improvement or causation is inferred.')
+    return dict(from_version=a.id,to_version=b.id,percentage_point_delta=delta,note=f'Percentage-point delta between versions {a.id[:8]} and {b.id[:8]}; it measures observation only and infers no modernization improvement.')
 
 @router.get('/architecture-versions/{vid}/export')
 def export(vid:str,request:Request,db=Depends(session)):

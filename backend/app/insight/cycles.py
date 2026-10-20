@@ -138,13 +138,13 @@ def _cut_candidates(model, graph, members, cycles, level):
     for rank, row in enumerate(rows[:5], 1):
         why = [f"appears in {row['cycles_broken']} of the {len(cycles)} listed cycles"]
         if row['breaks_whole_group']:
-            why.append('removing it alone breaks every cycle in this group')
+            why.append(f"removing {row['source'].rsplit('.', 1)[-1]} -> {row['target'].rsplit('.', 1)[-1]} alone breaks every cycle in this group")
         if row['against_layering']:
             why.append(f"it points against the layering ({model.roles.get(row['source'], {}).get('layer', '?').lower()} → "
                        f"{model.roles.get(row['target'], {}).get('layer', '?').lower()})")
         why.append(f"only {row['reference_count']} code reference{'s' if row['reference_count'] != 1 else ''} to rework")
-        why.append(f"{row['runtime_calls']} observed runtime calls" if row['runtime_calls'] else 'no runtime calls observed (none recorded or no session selected)')
-        row.update(rank=rank, why='; '.join(why) + '.', label='Suggestion only — requires human review before changing code.')
+        why.append(f"{row['runtime_calls']} observed runtime calls" if row['runtime_calls'] else 'not measured: no runtime session is selected' if model.runtime is None else '0 runtime calls observed in the selected sessions')
+        row.update(rank=rank, why='; '.join(why) + '.', label=f"Suggestion {rank} of {min(5, len(rows))}: requires human review before changing code.")
     return rows[:5]
 
 
@@ -179,8 +179,8 @@ def analyse(model, max_length: int = 8, cap: int = 20) -> dict:
         package_group_count=sum(g['level'] == 'PACKAGE' for g in out), nested_or_self_references_ignored=self_refs,
         method=dict(algorithm='Strongly connected components (Tarjan, networkx) on the directed dependency graph; elementary cycles '
             f'enumerated per component with length <= {max_length}, at most {cap} per component.',
-            nested_classes='Inner, anonymous and local classes are folded into their top-level class first.',
-            self_references='A class or package referring to itself is not a cycle and is excluded.'),
+            nested_classes='Nested class = an inner, anonymous or local class; it is folded into its top-level class first.',
+            self_references='Self reference = a class or package referring to itself; it is not a cycle and is excluded.'),
         runtime_included=model.runtime is not None)
 
 

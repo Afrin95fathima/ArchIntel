@@ -49,7 +49,7 @@ def context(db, version):
     latest = db.scalar(select(ArchitectureVersion).where(ArchitectureVersion.application_id == version.application_id).order_by(ArchitectureVersion.created_at.desc(), ArchitectureVersion.id.desc()).limit(1))
     # Do not disclose the ID of a newer runtime version to static-only readers.
     return dict(state='CURRENT' if latest and latest.id == version.id else 'SUPERSEDED',
-                note='Latest captured application version defines current planning context; historical assessments remain immutable.')
+                note=f"The latest captured version of this application defines the current planning context; version {version.id[:8]} is {'the latest' if latest and latest.id == version.id else 'superseded'}.")
 
 
 def reviews(db, aid):
@@ -112,7 +112,7 @@ def answer(item, body, request=None, db=None):
         decision_rule=dict(rule_id=decision['kind'], action=decision['action'], blockers=decision['blockers']),
         evidence_ids=decision['evidence_ids'], fact_ids=decision['fact_ids'], version_id=item.version_id,
         ai=dict(status='NOT_REQUESTED'),
-        limitations=['Answers are limited to this frozen assessment. No arbitrary questions, Cypher or source execution.'])
+        limitations=[f'Answers are limited to this proposal (assessment {item.id[:8]}). No arbitrary questions, Cypher or source execution.'])
     if body.with_ai and request is not None:
         from app.ai.grounded import explain
         evidence = [dict(id='finding:' + f['id'], text=f"{r['rule_id']}: {r['text']} Measured {r['measured']}; threshold {r['threshold']}; involved {', '.join(r['subjects'])}.")
@@ -157,4 +157,4 @@ def technology_ai(item, request, db):
         else:
             dropped.append(dict(text=row['rationale'][:200], reason='UNVERIFIED_IDENTIFIER'))
     return dict(status='AI_GENERATED' if final else 'NOT_AVAILABLE', reason=None if final else 'NO_VERIFIED_RECOMMENDATIONS', recommendations=final, dropped=dropped, request_id=info['request_id'],
-                label='AI-written wording. Each recommendation cites the rule it rephrases; a choice outside the curated candidates is marked unverified, confirm before use. The plan above does not depend on it.')
+                label='AI-written wording. Each recommendation cites its rule id (rule:log4j-1 style); a choice outside modernization-candidates.yaml is marked unverified, confirm before use. The technology plan of this proposal is unchanged by this wording.')

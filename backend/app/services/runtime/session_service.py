@@ -17,11 +17,11 @@ from .mapping_report import build as mapping_report
 from .instrumentation import build_plan
 
 LOCK = RLock()
-LIMITATIONS = ['Telemetry observes executed and instrumented paths only; unobserved does not mean unused.',
+LIMITATIONS = ['Telemetry observes executed and instrumented paths only; unobserved = no mapped span, which does not mean unused.',
     'Method/entry-point coverage needs a new static method inventory; overloads and inherited/composed routes may remain unobserved.',
     'Parent-child span relationships are observed nesting, not proof of every Java call.',
-    'Static snapshots and structural readiness are preserved; runtime scores are transparent heuristics.',
-    'Local prototype with workspace authentication; distributed worker locks and production deployment hardening are not implemented.',
+    'Static snapshots and structural readiness are preserved; runtime score = sum(component × weight) as in the glossary, a heuristic.',
+    'Local prototype with workspace authentication; distributed worker locks (LOCK is one RLock per process) and production hardening are not implemented.',
     'Shared persistence candidates require matching system/server/namespace/resource identities and remain subject to review.']
 
 
@@ -169,7 +169,7 @@ def quality(sessions,runtime,coverage):
                 scope=[dict(session_id=s.id,binding_mode=s.settings.get('binding_mode','LEGACY'),
                             plan_version=s.settings.get('instrumentation_plan',{}).get('version','LEGACY'),
                             plan_sha256=s.settings.get('instrumentation_plan',{}).get('sha256')) for s in sessions],
-                binding_note='Artifact identity is declared by the telemetry sender; it is not cryptographic attestation.')
+                binding_note='The archintel.artifact.sha256 resource attribute is declared by the telemetry sender; it is not cryptographic attestation.')
 
 
 def recover(db):
@@ -234,4 +234,4 @@ def agent_config(item, static, settings, token=None):
     return dict(environment=env,instrumentation_plan=classes,plan=plan,binding_mode=item.settings.get('binding_mode','LEGACY'),mode=mode,
         command='java -javaagent:/path/opentelemetry-javaagent.jar -jar /path/application.jar',
         token_expires_at=item.settings.get('token_expires_at'),
-        note='Set these environment variables in the application process. Start the session before the application. Session credential is reusable for OTLP ingestion, displayed only at creation/rotation, expires after 24 hours, and rotation revokes the prior credential. Explicit method names come from the static inventory; old snapshots without methods use framework auto-instrumentation only. Review the plan and overhead. No custom agent extension is required for selected methods.')
+        note='Set these environment variables in the application process. Start the session before the application. Session credential is reusable for OTLP ingestion, displayed only at creation/rotation, expires after 24 hours, and rotation revokes the prior credential. Explicit method names come from the static inventory; old snapshots without methods use OpenTelemetry framework auto-instrumentation only. Review the plan and overhead. No custom agent extension is required for the selected methods (OTEL_INSTRUMENTATION_METHODS_INCLUDE).')

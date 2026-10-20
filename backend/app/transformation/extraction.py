@@ -100,10 +100,10 @@ def build_plan(analysis, domain_id, source_manifest, *, complete_source_snapshot
         ),
         blockers=sorted(set(blockers)),
         limitations=[
-            'This is a static boundary preview; it does not create or move source files.',
-            'Runtime, reflection, framework wiring, transaction and business behavior are not inferred.',
+            'The ExtractionPlan is a static boundary preview; it does not create or move source files.',
+            'Runtime, reflection, Spring wiring, transaction and business behavior are not inferred.',
             'Source paths are filename/package-suffix candidates, not AST-verified type declarations; unresolved classes remain explicit.',
-            'A human must review ownership, contracts, dependencies and the proposed module boundary.',
+            'A human must review ownership, contracts, dependencies and the proposed module boundary (ExtractionPlan).',
         ],
         inputs=dict(analysis_sha256=digest(analysis), source_manifest_sha256=digest(manifest),
                     contracts_sha256=digest([dict(document=getattr(row, 'document', {}), review=row.review) for row in contracts]),

@@ -60,7 +60,7 @@ def dependency_matrix(domains, classes, edges, membership):
         afferent_domains=len(totals[d['id']]['afferent_domains']), efferent_domains=len(totals[d['id']]['efferent_domains']),
         boundary_crossing_classes=len(totals[d['id']]['boundary_classes'])) for d in domains}
     return dict(domain_ids=[dict(id=d['id'],name=d['name']) for d in domains],rows=rows,matrix_complete=True,
-        zero_cell_note='An ordered domain pair absent from rows has zero class-level dependency edges.',per_domain=per_domain,
+        zero_cell_note='An ordered domain pair absent from rows has 0 class-level dependency edges.',per_domain=per_domain,
         top_boundary_classes=[dict(class_name=name,boundary_edges=count,domain=membership[name]) for name,count in
             sorted(class_boundaries.items(),key=lambda item:(-item[1],item[0]))[:10]])
 
@@ -133,7 +133,7 @@ def model_overlap(domains, classes, edges, membership):
                 transactions.append(dict(class_name=name,domain=domain_by_id[membership[name]]['name'],signature=method.get('signature'),
                     annotation='Transactional',cross_domain_dependency_from_class=crosses,
                     state='INFERRED_CROSS_DOMAIN_POTENTIAL' if crosses else 'ANNOTATION_CONFIRMED',
-                    limitation='Class-level dependencies cannot prove that the annotated method makes the cross-domain call.'))
+                    limitation='A class-level dependency (edge_type METHOD_CALL) does not prove that the annotated method makes the cross-domain call.'))
     domain_entities=defaultdict(list)
     for name in sorted(entities):
         if membership.get(name): domain_entities[membership[name]].append(name)
@@ -148,7 +148,7 @@ def model_overlap(domains, classes, edges, membership):
         leakage=leakage,shared_repositories=shared_repositories,entity_relationships=relationships,
         transactional_methods=transactions,per_domain=per_domain,
         limitations=['JPA annotation names are visible, but annotation arguments such as @Table names and mappedBy are not exported.',
-            'Field names and field annotation details are not exported; duplicate-model detection uses naming conventions only.',
+            'Field names and field annotation details are not exported by the scanner (ExportGraph); duplicate-model detection uses naming conventions only.',
             'SQL/JPQL text is not retained, and runtime SQL parameters are discarded.',
             'Database-call observations identify resources/operations where available, not table-level ownership.'])
 

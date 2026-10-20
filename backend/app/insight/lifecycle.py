@@ -188,7 +188,7 @@ def evaluate(model, inventory: dict | None, rules: dict | None = None, today: da
     return dict(rules=freshness(rules, today, max_age_days), findings=findings, summary=dict(summary),
         inputs=dict(dependency_rows=len(dependencies), bytecode_facts=model.facts_available,
             dependency_inventory_status=inventory.get('dependency_inventory_status', 'NOT_AVAILABLE')),
-        label='Lifecycle status (end-of-life / aging / current) from the rules file. This is not a vulnerability assessment.',
+        label='Lifecycle status (end-of-life / aging / current) from lifecycle-rules.yaml; it is not a vulnerability assessment.',
         limitations=([] if model.facts_available else ['Bytecode facts are unavailable for this analysis, so call sites cannot be listed; '
             'package usage comes from class-level external dependencies only.']) + (inventory.get('limitations') or [])[:2])
 
@@ -208,7 +208,7 @@ def _finding(rule, verdict, version, evidence, usage, suffix='', version_reason=
         recommended_alternative=rule.get('alternative'), replacement=replacement, migration_notes=rule.get('migration_notes'),
         effort_hint=rule.get('effort', 'medium'),
         effort_index=dict(value=weight * max(count, 1), formula='effort weight (low=1, medium=2, high=3) x max(affected classes, 1)',
-            inputs=dict(effort_weight=weight, affected_classes=count), label='Heuristic index for ordering work, not a time or cost estimate.'),
+            inputs=dict(effort_weight=weight, affected_classes=count), label='Effort index = effort weight × affected classes, a heuristic for ordering work, not a time or cost estimate.'),
         evidence=evidence, affected_class_count=count, call_site_count=usage['call_site_count'], affected_classes=usage['classes'],
         affected_truncated=usage['truncated'],
         explanation=dict(technical=f"Rule {rule['id']}: {rule['technology']}" + (f' {version}' if version else '') +

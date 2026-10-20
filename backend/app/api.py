@@ -223,7 +223,7 @@ def effective_limits(request: Request):
         'runtime_max_session_duration_hours':config.runtime_max_session_duration_hours,
         'runtime_raw_trace_retention_hours':config.runtime_raw_trace_retention_hours,
     }
-    return dict(limits=values,validation='Defaults marked in configuration are unvalidated placeholders; capacity claims require end-to-end ramp tests.')
+    return dict(limits=values,validation='Limits marked as defaults in config.py are unvalidated placeholders; capacity claims need the ramp tests in scripts/ramp_ingestion_limits.py.')
 
 
 @router.get('/analyses/{analysis_id}/domains', response_model=ItemsResponse)

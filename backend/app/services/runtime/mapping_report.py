@@ -11,8 +11,8 @@ RULE_LABELS = {
     'exact': 'Exact fully qualified class name',
     'normalized': 'JVM internal name or descriptor normalized to a dotted name',
     'proxy_suffix': 'Generated proxy suffix removed; the base class exists in the scan',
-    'lambda_suffix': 'Lambda class resolved to its declaring class',
-    'nested_name': 'Dotted nested-class name matched the binary name',
+    'lambda_suffix': 'Lambda class ($$Lambda) resolved to its declaring class',
+    'nested_name': 'Dotted nested-class name (Outer.Inner) matched the binary name (Outer$Inner)',
     'route_match': 'HTTP method and route matched a controller mapping in the scan',
 }
 REASON_TEXT = {
@@ -57,7 +57,7 @@ def _still_tells(event, route_hit):
         return f"A {event.get('messaging_system')} message {'published to' if kind == 'MESSAGE_PUBLISH' else 'consumed from'} {event.get('messaging_destination') or 'an unnamed destination'}."
     if kind == 'HTTP_CLIENT':
         return f"An outgoing {event.get('http_method')} call."
-    return f"Span {event.get('span_name')!r} ran." if event.get('span_name') else 'Only the span timing and nesting are known.'
+    return f"Span {event.get('span_name')!r} ran." if event.get('span_name') else 'Only the span timing and parent nesting are known; no code.namespace, http.route or db table was recorded.'
 
 
 def _ref(event):

@@ -24,15 +24,6 @@ CONFIDENCE_WEIGHTS = dict(static_support=.30, runtime_coverage=.30, review_statu
 CONFIDENCE_LABELS = dict(static_support='Static boundary evidence', runtime_coverage='Runtime class coverage', review_status='Domain review recorded',
     unresolved_references='Resolved dependency references', runtime_data_quality='Runtime data quality',
     behavioral_validation='Behavioral validation', data_ownership='Data ownership review')
-ACTION = {
-    'BREAK_CYCLE_FIRST': 'Review and break the evidenced cyclic boundary before separating its members.',
-    'ISOLATE_DATA_FIRST': 'Review shared persistence and transaction ownership before changing the boundary.',
-    'REDUCE_COUPLING_FIRST': 'Review cross-domain dependencies and propose a narrower module interface.',
-    'COLLECT_MORE_EVIDENCE': 'Exercise unobserved entry points and capture a successor architecture version.',
-    'RETAIN_MODULAR_MONOLITH': 'Keep this boundary in-process and validate its module contract.',
-    'PREPARE_FOR_EXTRACTION': 'Establish source, behavior and data contracts before considering extraction.',
-    'MANUAL_REVIEW_REQUIRED': 'Resolve evidence conflicts or strategy-specific unknowns with an architect.',
-}
 
 
 def structural(version, static):
@@ -74,7 +65,7 @@ def wave_reason(number, members, dependencies, names, candidates, coupled):
     text = f"Wave {number}: {', '.join(names[m] for m in members)}. "
     text += ('Depends on ' + ', '.join(names[d] for d in dependencies) + ' (earlier waves). ') if dependencies else 'Depends on no other candidate domain. '
     if coupled:
-        text += 'Kept together because they form a dependency cycle: ' + '; '.join(' + '.join(names[d] for d in group) for group in coupled) + '. '
+        text += 'Kept together as one dependency cycle: ' + '; '.join(' + '.join(names[d] for d in group) for group in coupled) + '. '
     ranked = sorted(candidates, key=lambda c: (c[1], c[0]))
     if len(ranked) > 1:
         text += f"Chosen first of {len(ranked)} dependency-ready groups for the lowest heuristic cost index: " + '; '.join(f"{' + '.join(g)} {round(c, 1)}" for g, c in ranked) + '.'
@@ -111,7 +102,7 @@ def build(assessment_id, version, static, facts, evidence, options):
         for cls in static.get('classes', []):
             if cls['id'] not in observed_method_owners and inbound_static[cls['id']] == 0:
                 dead_candidates.append(dict(class_name=cls['id'],domain_id=membership.get(cls['id']),state='CANDIDATE_ONLY',
-                    reason='No inbound class-level static edge and no observed method owner in the selected sessions. This is not proof of unused code.'))
+                    reason=f"{cls['id'].rsplit('.', 1)[-1]} has no inbound class-level static edge and no observed method owner in the selected sessions; that is not proof it is unused."))
     for f in facts:
         s, t = membership.get(f['source']), membership.get(f['target'])
         for d in sorted({s, t} - {None}):
@@ -218,7 +209,7 @@ def build(assessment_id, version, static, facts, evidence, options):
         if unverified: quality_penalty = max(quality_penalty, 25)
         if has_runtime and quality_penalty:
             finding('RUNTIME_QUALITY_LIMITATION', 'MEDIUM',
-                f"Runtime capture has {quality_issues} counted quality issue(s)" + (" and unverified spans or warnings" if unverified else "") + " (missing parents, unresolved nodes, dropped, conflicting or rejected spans).", [],
+                f"Runtime capture has {quality_issues} counted quality issue(s)" + (" and unverified spans or warnings" if unverified else "") + f" ({cov.get('missing_parent_count', 0)} missing parents, {cov.get('unresolved_node_count', 0)} unresolved nodes, {sum(diagnostics.get(k, 0) for k in issue_keys)} dropped, conflicting or rejected spans).", [],
                 measured={'quality_issue_count': quality_issues, 'missing_parent_count': cov.get('missing_parent_count', 0), 'unresolved_node_count': cov.get('unresolved_node_count', 0),
                           **{k: diagnostics.get(k, 0) for k in issue_keys}, 'unverified_spans_or_warnings': unverified},
                 threshold={'allowed_quality_issues': 0}, subjects=[domain['name']])
@@ -235,7 +226,7 @@ def build(assessment_id, version, static, facts, evidence, options):
             conf('static_support', float(domain['confidence']) * 100, None, None, f"clustering confidence {domain['confidence']} (stability, conductance and size of the candidate boundary)",
                  [f"Review the {len(domain['classes'])} classes of {domain['name']}; the value comes from " + '; '.join(domain.get('evidence', [])[:2]) + '.'])
         else:
-            conf_skip('static_support', 'the domain record has no clustering confidence')
+            conf_skip('static_support', f"the domain record of {domain['name']} has no clustering confidence")
         if class_pct is not None:
             conf('runtime_coverage', class_pct, observed_domain_classes, len(domain_classes), f"{observed_domain_classes} of {len(domain_classes)} classes of {domain['name']} have a mapped span",
                  [f"Exercise code that reaches {', '.join(unobserved_names[:5])}." + (f" {len(unobserved_names) - 5} more are listed in Dynamic analysis." if len(unobserved_names) > 5 else '')] if unobserved_names else [])
@@ -306,7 +297,7 @@ def build(assessment_id, version, static, facts, evidence, options):
             structural_components=baseline['component_scores'], structural_weights=baseline['weights'], structural_details=baseline.get('component_details'),
             structural_not_measured=baseline.get('not_measured', []), structural_formula=baseline.get('formula'), structural_source='RECOMPUTED_REVIEWED_DOMAINS' if version.manifest.get('domain_review') else 'PRESERVED_BASELINE',
             runtime_score=runtime_score, runtime_components=runtime_components, runtime_weights=runtime_weights, combined_score=combined,
-            readiness_formula='Combined readiness retains the structural baseline when runtime is unavailable. Confidence-adjusted readiness = combined readiness × evidence confidence / 100.',
+            readiness_formula='Combined readiness = 0.6 × structural + 0.4 × runtime when runtime is measured, otherwise the structural score. Confidence-adjusted readiness = combined readiness × evidence confidence / 100.',
             confidence_adjusted_score=readiness_score, readiness_score=readiness_score, readiness_label=readiness_label, hard_blockers=hard_blockers,
             runtime_coverage=dict(classes=dict(observed=observed_domain_classes,total=len(domain_classes),percentage=class_pct),
                                   methods=dict(observed=observed_domain_methods,total=method_coverage.get('total') if methods_available else None,percentage=method_pct),
@@ -315,7 +306,7 @@ def build(assessment_id, version, static, facts, evidence, options):
             confidence_inputs=confidence_inputs, confidence_not_measured=confidence_not_measured,
             confidence_label='LIMITED' if confidence < 50 else 'PARTIAL',
             confidence_note=f"Confidence {confidence}/100 for {domain['name']} = sum(input x weight) over {len(confidence_inputs)} measured input(s): " + '; '.join(f"{v['label'].lower()} {v['value']} ({v['text']})" for v in confidence_inputs.values())
-                + ". Not measured, so excluded: " + '; '.join(f"{e['label'].lower()} ({e['reason']})" for e in confidence_not_measured) + '. Heuristic evidence index, not a calibrated probability.',
+                + ". Not measured, so excluded: " + '; '.join(f"{e['label'].lower()} ({e['reason']})" for e in confidence_not_measured) + '. Confidence = sum(input × weight) as defined in the glossary, not a calibrated probability.',
             observation=observed, evidence_ids=support, fact_ids=fact_ids, blockers=blockers,
             recommendations=[recommendation], effort_band=effort_band, risk_band=risk_band,
             cost_index=cost_index, cost_drivers=cost_drivers, cost_inputs=baseline.get('cost_inputs'), cost_formula=baseline.get('cost_formula'),
@@ -323,7 +314,7 @@ def build(assessment_id, version, static, facts, evidence, options):
             order_rationale=f"Review after its {len([1 for s,t in all_graph.edges if s==did])} downstream dependency domain(s) and before its {len([1 for s,t in all_graph.edges if t==did])} dependent consumer(s); prioritize the observed {len(seams)} cross-domain class pair(s) and {len(shared[did])} shared-data signal(s).",
             expected_impact='Proposed reduction in boundary risk; no measured improvement until a validated before/after change.'))
         decisions.append(dict(id=uid('decision:' + did), domain_id=did, kind=decision, finding_ids=local_findings, evidence_ids=support,
-            fact_ids=fact_ids, action=ACTION[decision], blockers=blockers, prerequisites=list(PREREQUISITES), status='PROPOSAL', execution_allowed=False))
+            fact_ids=fact_ids, action=decision, blockers=blockers, prerequisites=list(PREREQUISITES), status='PROPOSAL', execution_allowed=False))
     condensation = nx.condensation(all_graph)
     remaining = set(condensation.nodes); waves = []; wave_by_domain = {}; wave_no = 1
     while remaining:
@@ -352,24 +343,20 @@ def build(assessment_id, version, static, facts, evidence, options):
         components=[dict(domain_id=d['id'], name=d['name'], classes=d['classes'], deployment='IN_PROCESS' if options['strategy'] == 'MODULAR_MONOLITH' else 'UNDECIDED_REVIEW_REQUIRED') for d in domains],
         interfaces=[dict(source=s, target=t, contract='UNSPECIFIED', transport='LOCAL_MODULE' if options['strategy'] == 'MODULAR_MONOLITH' else 'UNDECIDED') for s, t in sorted(all_graph.edges)],
         alternatives=[],
-        note='A reviewed planning proposal is not permission to modify code or deploy. No business capabilities or service contracts are invented.')
+        note=f"This proposal covers {len(domains)} domains; approving it does not authorize code changes or deployment, and it names no business capability or service contract.")
     finding_ids_by_kind = defaultdict(list)
     for row in findings:
         finding_ids_by_kind[row['kind']].append(row['id'])
     risks = []
-    for kind, message in (
-        ('CROSS_DOMAIN_CYCLE', 'Cyclic dependencies make independent boundary changes risky.'),
-        ('HIGH_STRUCTURAL_COUPLING', 'Cross-boundary structural coupling needs review before separation.'),
-        ('SHARED_PERSISTENCE_CANDIDATE', 'Shared database access is observed, but ownership and transaction rules are unknown.'),
-        ('LIMITED_OBSERVATION', 'The selected runtime workload does not cover enough mapped classes to treat absence as independence.'),
-        ('CONFLICTING_EVIDENCE', 'Conflicting evidence requires resolution before relying on affected conclusions.'),
-    ):
+    for kind in ('CROSS_DOMAIN_CYCLE', 'HIGH_STRUCTURAL_COUPLING', 'SHARED_PERSISTENCE_CANDIDATE', 'LIMITED_OBSERVATION', 'CONFLICTING_EVIDENCE'):
         refs = sorted(finding_ids_by_kind[kind])
-        if refs: risks.append(dict(message=message, finding_ids=refs))
+        if refs:
+            affected = sorted({names[f['domain_id']] for f in findings if f['kind'] == kind})
+            risks.append(dict(message=f"{kind} affects {len(affected)} of {len(domains)} domains: {', '.join(affected)}.", finding_ids=refs))
     common_unknowns = [
-        'Behavioral contracts and representative workflow coverage are unavailable.',
-        'Data ownership, transaction boundaries and business invariants are not confirmed.',
-        'Operational constraints, deployment requirements and cost targets were not supplied.',
+        f"No behavioral contract tests are recorded for the {len(domains)} domains.",
+        f"Data ownership and transactions of the {len(domains)} domains are not reviewed.",
+        'No operational constraint, deployment requirement or cost target was supplied for this version.',
     ]
     strategy_rows = []
     boundary_gaps = sorted(set(finding_ids_by_kind['CROSS_DOMAIN_CYCLE'] + finding_ids_by_kind['HIGH_STRUCTURAL_COUPLING'] + finding_ids_by_kind['SHARED_PERSISTENCE_CANDIDATE']))
@@ -385,20 +372,20 @@ def build(assessment_id, version, static, facts, evidence, options):
                 frameworks = inventory.get('frameworks', [])
                 reason = f"Framework inventory found {', '.join(x.get('name')+' '+','.join(x.get('versions',[])) for x in frameworks) or 'partial framework metadata'}; compatibility and target version still need review." if has_inventory else 'Framework inventory is unavailable.'
             else:
-                reason = 'The architecture inventory is available, but target cloud platform, deployment constraints and cost objectives were not supplied.'
+                reason = 'The architecture inventory is available, but no target cloud platform, deployment constraint or cost objective was supplied for this version.'
             compat = inventory.get('compatibility', {})
             lifecycle_state = (f"Lifecycle rules: Java {compat.get('java_lifecycle')}, frameworks {compat.get('framework_lifecycle')} (see Technology lifecycle)."
                 if compat.get('java_lifecycle') not in (None, 'NOT_CHECKED') else 'Lifecycle status is not available for this analysis; run a new analysis to evaluate lifecycle rules.')
-            unknowns = [lifecycle_state, 'Vulnerability advisories are out of scope for lifecycle rules.', 'Target version/platform and dependency compatibility require authoritative review.']
+            unknowns = [lifecycle_state, 'Vulnerability advisories are out of scope for lifecycle-rules.yaml.', 'The target Java version, platform and dependency compatibility need an authoritative review.']
             refs = []
         elif candidate == 'MODULAR_MONOLITH':
             status = 'CONDITIONAL' if boundary_gaps else 'EVIDENCE_SUPPORTS_REVIEW'
-            reason = 'In-process boundaries preserve a single deployment unit; validate module contracts and boundary findings before changing structure.'
+            reason = f"In-process boundaries keep one deployment unit for the {len(domains)} domains; validate module contracts and the {len(boundary_gaps)} boundary findings first."
             unknowns = common_unknowns[:2]
             refs = boundary_gaps
         else:
             status = 'CONDITIONAL'
-            reason = 'Service separation needs independently owned data, verified behavior and operational evidence; the current capture cannot establish these.'
+            reason = f"Service separation of the {len(domains)} domains needs independently owned data, verified behavior and operational evidence; none is recorded in this capture."
             unknowns = common_unknowns
             refs = sorted(set(boundary_gaps + finding_ids_by_kind['BEHAVIOR_AND_DATA_UNKNOWN'] + finding_ids_by_kind['SHARED_PERSISTENCE_CANDIDATE']))
         strategy_rows.append(dict(strategy=candidate, status=status, rationale=reason, finding_ids=refs, unknowns=unknowns,
@@ -411,7 +398,7 @@ def build(assessment_id, version, static, facts, evidence, options):
         percentage=round(100 * planned_class_count / class_count, 1) if class_count else 0,
         planned_classes=planned_class_count,
         total_classes=class_count,
-        basis='Classes assigned to target components in this saved proposal, divided by analyzed application classes.',
+        basis=f'{planned_class_count} classes assigned to target components in this proposal, divided by {class_count} analyzed classes.',
         state='PLAN_COVERAGE',
     )
     boundary_edge_count = sum(row['edge_count'] for row in matrix.get('rows', []))
@@ -420,7 +407,7 @@ def build(assessment_id, version, static, facts, evidence, options):
         cross_domain_edge_count=boundary_edge_count, shared_entity_count=len(ownership.get('duplicated_models', [])),
         average_cross_domain_coupling=average_cross_ratio, class_count=class_count)
     proposed_targets = dict(cross_domain_edge_count=dict(baseline=boundary_edge_count,target=max(0, int(boundary_edge_count * .8)),basis='Proposed 20% reduction; planning target, not forecast.'),
-        cycle_count=dict(baseline=baseline_metrics['cycle_count'],target=0 if baseline_metrics['cycle_count'] else 0,basis='Proposed target; retain zero if already zero.'),
+        cycle_count=dict(baseline=baseline_metrics['cycle_count'],target=0,basis=f"Proposed target: no cycle remains (baseline {baseline_metrics['cycle_count']})."),
         god_class_count=dict(baseline=baseline_metrics['god_class_count'],target=0 if baseline_metrics['god_class_count'] else 0,basis='Proposed target; candidate findings require review.'),
         average_cross_domain_coupling=dict(baseline=average_cross_ratio,target=round(average_cross_ratio * .8,3),basis='Proposed 20% reduction; planning target, not forecast.'))
     strategy_fit = dict(recommendation='MODULAR_MONOLITH_FIRST' if class_count <= 250 and (ownership.get('shared_repositories') or ownership.get('duplicated_models') or not version.manifest.get('domain_review')) else 'REVIEW_BOUNDARIES',
@@ -428,7 +415,7 @@ def build(assessment_id, version, static, facts, evidence, options):
         metrics=baseline_metrics, confidence='HEURISTIC_REVIEW_REQUIRED')
     top_risks = [r['message'] for r in risks[:3]]
     result_brief = dict(
-        headline='Evidence-backed planning proposal; no strategy has been automatically selected.',
+        headline=f"Planning proposal for {len(domains)} domains; {options['strategy']} was requested and no strategy was selected automatically.",
         strategy_fit=strategy_fit, top_actions=[a['recommendations'][0]['text'] for a in sorted(assessments,key=lambda x:(x.get('cost_index') or 0,x['domain_id']))[:3]],
         effort_range='Heuristic bands: ' + ', '.join(sorted({a['effort_band'] for a in assessments})),
         overall_confidence='LIMITED' if max((a['confidence_score'] for a in assessments),default=0)<50 else 'PARTIAL',
@@ -437,11 +424,7 @@ def build(assessment_id, version, static, facts, evidence, options):
         summary=f"The captured version contains {len(domains)} candidate domains, {len(facts)} architecture facts and {len(evidence)} evidence records. The requested strategy is a proposal for review.",
         evidence_scope=dict(architecture_version_id=version.id, domain_count=len(domains), fact_count=len(facts), evidence_count=len(evidence), runtime_sessions=len(version.manifest['runtime_session_ids'])),
         material_risks=risks, strategy_comparison=strategy_rows,
-        unresolved_questions=[
-            'Which user-visible workflows and business invariants must remain unchanged?',
-            'Who owns each shared data resource, and which transactions cross candidate boundaries?',
-            'What deployment, availability, security and cost constraints should shape the target?',
-        ],
+        unresolved_questions=[],      # filled from the brief's questions and unmeasured inputs by brief.merge
         next_step='Review cited findings, confirm business and data rules, and capture representative runtime workflows before approving any implementation plan.',
         automatic_winner=None)
     result = dict(id=assessment_id, version_id=version.id, version_fingerprint=version.fingerprint, rule_version=RULE_VERSION, calibration_version=CALIBRATION,
@@ -451,16 +434,16 @@ def build(assessment_id, version, static, facts, evidence, options):
         domain_dependency_matrix=matrix, data_ownership=ownership, entry_points=entry_points,
         dead_code_candidates=dead_candidates,
         data_quality=dict(artifact_state='AVAILABLE' if version.manifest.get('artifact_sha256') else 'UNAVAILABLE',
-            artifact_impact='Static and modernization conclusions may be incomplete.' if not version.manifest.get('artifact_sha256') else 'Artifact hash is recorded in the version manifest.',
+            artifact_impact=f'Static and modernization conclusions for {class_count} classes may be incomplete.' if not version.manifest.get('artifact_sha256') else f"Artifact hash {version.manifest['artifact_sha256'][:12]} is recorded in the version manifest.",
             artifact_remediation='Re-upload the source or compiled artifact and run static analysis.' if not version.manifest.get('artifact_sha256') else None,
             graph_projection_state=version.manifest.get('projection_state','NOT_CAPTURED'),
             method_mapping_state='AVAILABLE' if version.manifest.get('method_observations_available') else 'UNAVAILABLE',
-            method_mapping_impact='Method and entry-point runtime scores are unavailable; class-level observation is not method coverage.' if not version.manifest.get('method_observations_available') else None,
+            method_mapping_impact='Method and entry-point runtime scores are not measured for this version; class-level observation is not method coverage.' if not version.manifest.get('method_observations_available') else None,
             method_mapping_remediation='Retain raw span events and configure method mapping before capturing a new architecture version.' if not version.manifest.get('method_observations_available') else None),
-        limitations=['Scores are deterministic heuristics validated with fixtures, not empirically calibrated success probabilities.',
-            'Runtime observations describe selected workloads only; no absence proves independence.',
-            'Data ownership, behavioral equivalence and extraction authorization remain unavailable.',
-            'Cloud, Java and framework strategies are review proposals; compatibility validation is not implemented in Phase 5.'])
+        limitations=[f'Scores follow the formulas of rule version {RULE_VERSION} and calibration {CALIBRATION}; they are not calibrated against migration outcomes.',
+            f"Runtime figures cover {len(version.manifest['runtime_session_ids'])} selected session(s) only; an unobserved class is not an unused class.",
+            f'Data ownership, behavioral equivalence and extraction approval are not recorded for the {len(domains)} domains.',
+            'Cloud, Java and framework strategies are review proposals; the technology plan checks only the Java level, namespace and dependency conflicts of its curated candidates.'])
     describe.apply(result, domains)
     shared = analysis_context(version, static, domains, bool(version.manifest['runtime_session_ids']))
     result['technology_plan'] = technology_plan.build(shared['model'], shared['lifecycle']) if shared['lifecycle'] is not None else dict(status='NOT_AVAILABLE', reason='This analysis has no bytecode facts, so aging technology cannot be assessed; run a new analysis.')

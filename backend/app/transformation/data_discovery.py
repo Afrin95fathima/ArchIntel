@@ -239,7 +239,7 @@ def discover(files: dict[str, dict], *, full_source_snapshot: bool, analysis: di
     if not full_source_snapshot:
         limitations.append('SOURCE_SNAPSHOT_IS_PARTIAL; unseen files may contain schemas or access paths.')
     if not any(x['state']=='PARSED' for x in parser_coverage):
-        questions=[dict(question='Which source migration directory or schema-only DDL file should be included in the authorized repository snapshot?',reason='No supported schema declaration was found in the captured files.',minimum_input='A repository path to migration files or a schema-only export; a target schema is not required.')]
+        questions=[dict(question='Which source migration directory or schema-only DDL file should be included in the authorized repository snapshot?',reason='No supported schema declaration was found in the captured files.',minimum_input='A repository path to Flyway or Liquibase migration files, or a schema-only export; a target schema is not required.')]
     else: questions=[]
     if any(x['kind']=='CONFLICTING_OR_SHARED_OWNERSHIP' for x in unresolved):
         for row in unresolved:
@@ -308,16 +308,16 @@ def propose_target(discovery: dict, domains: list[dict], target_engine: str='LOG
                 unresolved.append(dict(kind='REFERENCED_RESOURCE_NOT_DISCOVERED',resource=fk.get('target_table'),evidence=fk.get('evidence') or item['evidence']))
         target_schema.append(dict(name=item['name'],state=item['state'],columns=[dict(name=c['name'],data_type=('REVIEW_REQUIRED' if c['type']=='UNKNOWN' else c['type']),nullable=c['nullable']) for c in item['columns']],
             primary_key=item['primary_key'],foreign_keys=fks,source_resource=item['source_resource']))
-    no_target='No pre-existing target schema is required; this target is generated as a reviewable proposal.'
+    no_target='No pre-existing target schema is required; this target is generated as a reviewable MigrationPlan proposal.'
     plan=dict(target_engine=target_engine,target_schema_state='PROPOSED',tables=tables,target_schema=target_schema,
         source_schema=discovery['entities'],mappings=mappings,
         migration_steps=[dict(order=1,action='CREATE_TARGET_SCHEMA',state='PROPOSED',explanation='Create target objects from the reviewed proposal.'),
             dict(order=2,action='BACKFILL_DATA',state='PROPOSED',explanation='Copy data using reviewed mappings and explicit conflict handling.'),
             dict(order=3,action='VALIDATE_RELATIONSHIPS_AND_INVARIANTS',state='REQUIRED',explanation='Reconcile keys, relationships, conversions, and customer-defined invariants.'),
             dict(order=4,action='APPLICATION_BEHAVIOR_CHECKS',state='REQUIRED',explanation='Run approved behavior checks against the isolated candidate database.'),
-            dict(order=5,action='CUTOVER_PROPOSAL_ONLY',state='NOT_EXECUTABLE',explanation='Production cutover requires a separate future authorization.')],
+            dict(order=5,action='CUTOVER_PROPOSAL_ONLY',state='NOT_EXECUTABLE',explanation='Production cutover (CUTOVER_PROPOSAL_ONLY) requires a separate future authorization.')],
         alternatives=[dict(id='PRESERVE_CURRENT_RESOURCE_BOUNDARIES',description='Retain each discovered source resource and propose an additive target schema.',tradeoff='Lower semantic change; preserves current coupling.'),
-            dict(id='PARTITION_BY_CANDIDATE_SERVICE',description='Group target resources by inferred service ownership where evidence is unambiguous.',tradeoff='Potentially stronger boundaries; ambiguous/shared writers remain unresolved.')],
+            dict(id='PARTITION_BY_CANDIDATE_SERVICE',description='Group target resources by inferred service ownership (PARTITION_BY_CANDIDATE_SERVICE) where evidence is unambiguous.',tradeoff='Potentially stronger boundaries; ambiguous/shared writers remain unresolved.')],
         unresolved=sorted({(x['kind'],x.get('resource')):x for x in unresolved}.values(),key=lambda x:(x['kind'],x.get('resource') or '')),
         rationale=no_target,discovery_fingerprint=discovery['fingerprint'],state='PROPOSED_REVIEW_REQUIRED',execution_eligible=False)
     plan['fingerprint']=digest(plan)

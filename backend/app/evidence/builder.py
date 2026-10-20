@@ -69,7 +69,7 @@ def build(version,static,runtime,manifest,observed_methods):
                  evidence_ids=sorted(support[(edge['source'],edge['target'])]),conflict_ids=[],
                  static_types=sorted(set(edge['static_types'])),call_count=edge['call_count'],
                  confidence='OBSERVED_SUPPORT' if edge['evidence_type']!='STATIC_ONLY' else 'STATIC_SUPPORT',
-                 note='Static-only is not proof of unused code. Observed nesting is not a complete call graph.')
+                 note='Static-only = found in code without a mapped span, which is not proof of unused code. Observed nesting = parent-child span links, which are not a complete call graph.')
         facts.append(dict(id=uid,classification=edge['evidence_type'],document=doc))
         nodes[uid]=dict(id=uid,key='fact:'+uid,kind='ArchitectureFact',name=edge['source']+' -> '+edge['target'],classification=edge['evidence_type'])
         link(identity(version,'entity:'+edge['source']),uid,'SOURCE_OF');link(uid,identity(version,'entity:'+edge['target']),'TARGETS')
@@ -102,7 +102,7 @@ def build(version,static,runtime,manifest,observed_methods):
         link(root,eid,'HAS_EVIDENCE')
     for item in discovery:
         item['id']=identity(version,'discovery:'+item['kind']+':'+item['target'])
-        item['note']='Suggested investigation, not a proven business workflow. Marking exercised does not change observation coverage.'
+        item['note']='Suggested investigation = a gap in observation, not a proven business workflow; marking an item exercised does not change coverage.'
     # Edges from malformed old snapshots cannot manufacture missing entities.
     links={k:v for k,v in links.items() if v['source'] in nodes and v['target'] in nodes}
     graph=dict(nodes=sorted(nodes.values(),key=lambda n:n['id']),edges=sorted(links.values(),key=lambda e:e['id']))
@@ -110,5 +110,5 @@ def build(version,static,runtime,manifest,observed_methods):
                 modernization_baseline=static.get('modernization_baseline',{}),domain_dependency_matrix=static.get('domain_dependency_matrix',{}),
                 data_ownership=static.get('data_ownership',{}),entry_points=static.get('entry_points',{}),tech_inventory=static.get('tech_inventory',{}),
                 observed_methods=[list(x) for x in sorted(observed_methods)],
-                unknowns=['Data ownership is not established by database calls.','Tests and behavioral contracts are not available.','No modernization execution state is inferred.'],
+                unknowns=['Data ownership = who may write a table; database calls alone do not establish it.','Behavioral contract tests are not recorded for this version.','No modernization execution state is inferred.'],
                 facts_count=len(facts),evidence_count=len(evidence)),evidence,facts,sorted(discovery,key=lambda d:(d['priority'],d['kind'],d['target']))

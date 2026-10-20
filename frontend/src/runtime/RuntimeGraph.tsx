@@ -14,5 +14,5 @@ export function RuntimeGraph({data,onEdge}:{data:RuntimeGraphData;onEdge:(e:Runt
     cy.on('tap','edge',event=>{const edge=edges.find(e=>e.id===event.target.id());if(edge)callback.current(edge);});
     return()=>cy.destroy();
   },[data]);
-  return <><div ref={ref} className="runtime-canvas"/><p className="muted">Showing up to 150 nodes and 1,000 edges. Click an edge for its evidence. Full data is available in the report export.</p></>;
+  return <><div ref={ref} className="runtime-canvas"/><p className="muted">Showing up to 150 nodes and 1,000 edges. Click an edge for its evidence. Full data is in the JSON report export.</p></>;
 }

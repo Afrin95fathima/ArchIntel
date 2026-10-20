@@ -37,7 +37,7 @@ export function ExplanationLayers({ explanation, evidence, action, children }: {
   return <div className="explanation-layers">
     <section><h4>Plain language</h4><p>{explanation.plain}</p></section>
     <section><h4>Technical</h4><p>{explanation.technical}</p></section>
-    {evidence && <section><h4>Evidence</h4>{evidence.length ? <ul className="evidence-list">{evidence.map((item, index) => <li key={index}>{item.kind && <span className="evidence-kind">{item.kind.replaceAll('_', ' ').toLowerCase()}</span>}{item.text}{item.line ? <small> · line {item.line}</small> : null}</li>)}</ul> : <p className="muted">Not available: no supporting record was found.</p>}</section>}
+    {evidence && <section><h4>Evidence</h4>{evidence.length ? <ul className="evidence-list">{evidence.map((item, index) => <li key={index}>{item.kind && <span className="evidence-kind">{item.kind.replaceAll('_', ' ').toLowerCase()}</span>}{item.text}{item.line ? <small> · line {item.line}</small> : null}</li>)}</ul> : <p className="muted">not measured: no supporting record was found.</p>}</section>}
     {action && <section><h4>Suggested action</h4><p>{action}</p></section>}
     {children}
   </div>;
@@ -72,12 +72,12 @@ export function aiReason(reason?: string | null) {
     INSIGHT_AI_DISABLED: 'AI explanations are switched off for this deployment (insight_ai_mode=OFF)',
     MODEL_DISABLED: 'no local model is enabled in the workspace AI policy',
     MODEL_PERMISSION_REQUIRED: 'your account lacks the MODEL_USE_LOCAL permission',
-    PROVIDER_UNAVAILABLE: 'the configured local model provider is unavailable',
+    PROVIDER_UNAVAILABLE: 'the configured local model provider (Ollama) is unavailable',
     DESTINATION_DENIED: 'the policy only allows local models',
-    HOURLY_BUDGET: 'the hourly model budget is used up',
-    NO_VERIFIED_SENTENCES: 'every generated sentence failed the citation check',
-    SECRET_DETECTED: 'the evidence contained a credential-like value, so nothing was sent',
-    SENSITIVE_DATA: 'the evidence contained personal data and the policy blocks it',
+    HOURLY_BUDGET: 'the hourly model budget (model_calls_per_hour) is used up',
+    NO_VERIFIED_SENTENCES: 'every generated sentence failed the citation check (UNCITED_OR_UNKNOWN_CITATION)',
+    SECRET_DETECTED: 'the evidence contained a credential-like value (SECRET_DETECTED), so nothing was sent',
+    SENSITIVE_DATA: 'the evidence contained personal data (SENSITIVE_DATA) and the policy blocks it',
   };
   return known[reason || ''] || (reason ? reason.replaceAll('_', ' ').toLowerCase() : 'unknown');
 }

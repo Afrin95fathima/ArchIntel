@@ -47,9 +47,9 @@ def calculate(static, graph, events=None):
             mapped=map_method(e,by_class);method_states[mapped['state']]+=1
             if mapped['signature']:seen_methods.add((mapped['static_class'],mapped['signature']))
     return dict(classes=metric(observed,classes),dependencies=metric(calls,executable,'Distinct directed METHOD_CALL class pairs only.'),
-        methods=metric(seen_methods,method_population if inventory_available else None,'Named declared methods only; inherited reference stubs excluded. Exact JVM descriptor or unique owner + method name; ambiguous overloads remain unobserved.' if inventory_available else 'Static snapshot has no reliable method identity inventory; run a new static analysis.'),
-        entry_points=metric(seen_methods,entry_population if inventory_available else None,'Explicit supported method annotations only; inherited/composed routes may be absent.' if inventory_available else 'Static snapshot has no enumerated entry-point method inventory.'),
+        methods=metric(seen_methods,method_population if inventory_available else None,'Named declared methods only; inherited reference stubs = methods with a signature but no parsed name, excluded. Match = exact JVM descriptor or unique owner + method name; ambiguous overloads remain unobserved.' if inventory_available else 'This snapshot has no reliable method identity inventory; run a new static analysis.'),
+        entry_points=metric(seen_methods,entry_population if inventory_available else None,'Explicit supported method annotations only; inherited/composed routes may be absent.' if inventory_available else 'This snapshot has no enumerated entry-point method inventory.'),
         domains=metric({d['id'] for d in domains if d['observed']},{d['id'] for d in domains}),domain_observations=domains,
         method_mapping_diagnostics=dict(method_states),
         unresolved_node_count=sum(not n.get('static_id') for n in graph['nodes']),missing_parent_count=graph['missing_parent_count'],
-        note='Unobserved means not observed in selected sessions, never unused. Domain observation does not establish complete behavior coverage.')
+        note='Unobserved = not observed in the selected sessions, never unused. Domain observation = at least one class of the domain has a mapped span; it does not establish complete behavior coverage.')

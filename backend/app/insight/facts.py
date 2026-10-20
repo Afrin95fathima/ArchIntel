@@ -152,7 +152,7 @@ def bounded_for_snapshot(extracted: dict, internal: set[str], max_bytes: int) ->
             for method in info['methods']:
                 method['field_access'] = [s for s in method['field_access'] if s['owner'] in internal]
                 method['type_refs'] = [s for s in method['type_refs'] if s['type'] in internal]
-        reductions.append('external field accesses and type references removed')
+        reductions.append(f'external field accesses and type references removed to fit {max_bytes} bytes')
     if size(facts) > max_bytes:
         for info in facts['classes'].values():
             for method in info['methods']:

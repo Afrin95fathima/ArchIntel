@@ -758,7 +758,7 @@ def name_domains(communities: dict, shared_kernel: set, member_cid: dict,
             classes=members,
             packages=sorted({classes[n].get('package_name') or n.rpartition('.')[0] for n in members}),
             evidence=evidence,
-            confidence_note='Heuristic confidence, not a calibrated probability; validate business boundaries.',
+            confidence_note='Boundary confidence = 0.5 × stability + 0.3 × (1 - conductance) + 0.2 × size factor; it is a heuristic, not a calibrated probability.',
         ))
         cid_to_domain_id[cid] = domains[-1]['id']
 

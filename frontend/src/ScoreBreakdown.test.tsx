@@ -43,5 +43,5 @@ it('confidence shows measured evidence inputs and says behavioral validation was
 
 it('tells the user when an older assessment has no input details instead of inventing them', () => {
   render(<ReadinessBreakdown assessment={{ domain_name: 'Old', readiness_score: 50, formula: 'f' }} />);
-  expect(screen.getByText(/created before input details were recorded/)).toBeTruthy();
+  expect(screen.getByText(/created before component_details were recorded/)).toBeTruthy();
 });

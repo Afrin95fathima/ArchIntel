@@ -143,7 +143,7 @@ def detect(facts: dict) -> dict:
                 items.append(_entry('SCHEDULED_JOB', cls, method, [], [], trigger, [f'@Scheduled{values or ""}'], facts))
                 found = True
             if not found and 'PostConstruct' in names:
-                items.append(_entry('LIFECYCLE_CALLBACK', cls, method, [], [], 'runs once after the bean is created', ['@PostConstruct'], facts))
+                items.append(_entry('LIFECYCLE_CALLBACK', cls, method, [], [], 'runs once after the Spring bean is created', ['@PostConstruct'], facts))
                 found = True
             if not found and servlet and method['name'] in SERVLET_VERBS:
                 items.append(_entry('SERVLET', cls, method, [SERVLET_VERBS[method['name']]], [join_path('', p) for p in servlet_paths if p] or ['(mapped in web.xml)'],

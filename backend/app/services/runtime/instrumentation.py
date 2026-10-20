@@ -36,7 +36,7 @@ def build_plan(static,settings):
         selected.append(dict(class_name=identity,methods=','.join(methods),reason='Annotated application boundary' if boundary else 'Annotated entry point' if entry else 'Static importance' if important else 'Explicit deep tracing',priority=1 if boundary or entry else 2))
     plan=dict(version=VERSION,mode=mode,include_packages=included,exclude_packages=excluded,classes=selected,
               selected_method_names=method_count,encoded_bytes=encoded_bytes,omissions=omitted,
-              limitations=['Method-name instrumentation includes every overload; exact overload coverage requires descriptor telemetry.',
-                           'Framework auto-instrumentation may emit spans outside this method plan. Review agent overhead before using it.'])
+              limitations=['Method-name instrumentation includes every overload; exact overload coverage needs code.method.descriptor telemetry.',
+                           'OpenTelemetry framework auto-instrumentation may emit spans outside this method plan. Review agent overhead before using it.'])
     plan['sha256']=hashlib.sha256(json.dumps(plan,sort_keys=True,separators=(',',':')).encode()).hexdigest()
     return plan

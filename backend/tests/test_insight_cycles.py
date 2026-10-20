@@ -37,7 +37,7 @@ def test_cut_candidates_are_ranked_with_reasons_and_marked_for_review():
     top = group['cut_candidates'][0]
     # Every edge of the three cycles belongs to exactly one of them, so no single cut breaks the group.
     assert not any(c['breaks_whole_group'] for c in group['cut_candidates'])
-    assert all(c['label'].startswith('Suggestion only') for c in group['cut_candidates'])
+    assert all(c['label'].startswith('Suggestion ') and 'requires human review' in c['label'] for c in group['cut_candidates'])
     assert 'appears in' in top['why'] and top['rank'] == 1
     assert Counter(c['cycles_broken'] for c in group['cut_candidates'])[1] == len(group['cut_candidates'])
 

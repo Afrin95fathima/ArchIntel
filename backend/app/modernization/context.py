@@ -79,25 +79,25 @@ def build(db, version) -> dict:
     takes = [
         f"Static structure: {summary.get('class_count')} classes, {summary.get('package_count')} packages, {summary.get('domain_count')} candidate domains, {len(class_cycles)} class-level cycle group(s).",
         (f"Runtime coverage: {classes['percentage']}% of classes ({classes['observed']} of {classes['total']})" + (f"; {entry_text}" if entry_text else '; entry-point coverage is not measured')
-         + '. Unobserved classes and entry points lower the runtime coverage input of confidence; they never count as unused.') if classes.get('percentage') is not None
+         + f". {classes['total'] - classes['observed']} unobserved classes lower the runtime coverage input of confidence; unobserved never counts as unused.") if classes.get('percentage') is not None
         else 'Runtime coverage is not measured because no runtime session is attached; runtime coverage and runtime data quality are excluded from confidence.',
         (f"Domain review: recorded by {review['actor']}." if review else 'Domain review: not recorded; the review-status input of confidence is 0.'),
         (f"Aging technology: {len(aging)} finding(s) from the lifecycle rules ({', '.join(f['technology'] + ' ' + f['status'] for f in aging[:5])})." if aging else
-         'Aging technology: none flagged by the lifecycle rules.' if aging is not None else 'Aging technology: not measured, this analysis has no bytecode facts.'),
+         f"Aging technology: the lifecycle rules (version {life['rules']['rules_version']}) flag none." if aging is not None else 'Aging technology: not measured, this analysis has no bytecode facts.'),
     ]
     does_not = [
         'Behavioral contract tests: none are recorded for this version; behavioral validation is listed as not measured and is not scored.',
-        'Data ownership: no review is recorded; shared repositories are reported but ownership is not decided.',
-        'Vulnerabilities: out of scope; the lifecycle rules only state vendor support status.',
-        'Deployment constraints, availability targets and cost targets: not supplied to the planner.',
+        'Data ownership: no review is recorded for this version; shared repositories are reported but ownership is not decided.',
+        'Vulnerabilities: out of scope; lifecycle-rules.yaml only states vendor support status.',
+        'Deployment constraints, availability targets and cost targets: not supplied to the planner for this version.',
     ]
     return dict(
         version=dict(id=_field(version.id, 'architecture version'), name=_field(version.name, 'architecture version'), fingerprint=_field(version.fingerprint, 'architecture version'),
                      captured_at=_field(manifest.get('captured_at'), 'version manifest')),
         scan=dict(analysis_id=_field(run.id, 'analysis run'), scan_date=_field(run.completed_at or run.created_at, 'analysis run'),
                   algorithm_version=_field(static.get('algorithm_version'), 'analysis result') if static.get('algorithm_version') else _missing('the analysis result records no algorithm version')),
-        artifact=dict(name=_field(artifact.filename if artifact else summary.get('artifact', {}).get('filename'), 'artifact record'),
-                      sha256=_field(manifest.get('artifact_sha256') or (artifact.sha256 if artifact else None), 'version manifest') if (manifest.get('artifact_sha256') or artifact) else _missing('the version manifest records no artifact hash')),
+        artifact=dict(name=_field(artifact.filename if artifact else (static.get('artifact') or {}).get('filename'), 'artifact record'),
+                      sha256=_field(manifest.get('artifact_sha256') or (artifact.sha256 if artifact else None), 'version manifest') if (manifest.get('artifact_sha256') or artifact) else _missing('the version manifest records no artifact hash for this version')),
         counts=dict(classes=_field(summary.get('class_count'), 'static summary'), packages=_field(summary.get('package_count'), 'static summary'), domains=_field(summary.get('domain_count'), 'static summary'),
                     class_cycle_groups=_field(len(class_cycles), 'static cycles'),
                     aging_technology_findings=_field(len(aging), 'lifecycle rules') if aging is not None else _missing('this analysis has no bytecode facts; run a new analysis'),
@@ -107,6 +107,6 @@ def build(db, version) -> dict:
                      class_coverage=_coverage(classes, 'class') if session_ids else _missing('no runtime session is attached to this version'),
                      entry_point_coverage=_coverage(entries, 'entry-point') if session_ids else _missing('no runtime session is attached to this version'), method_coverage=_coverage(methods, 'method') if session_ids else _missing('no runtime session is attached to this version')),
         review=dict(domain_review=dict(value=True, actor=review['actor'], reason=review.get('reason')) if review else _missing('no domain review is recorded for this version'),
-                    plan_reviews=_missing('plan review state is shown with each saved proposal')),
+                    plan_reviews=_missing('plan review state is shown with each saved proposal in the Review tab')),
         changes=changes_since(db, version, run),
         takes_into_account=takes, does_not_take_into_account=does_not)

@@ -299,7 +299,7 @@ def verify(request: Request, db=Depends(db_session)):
         head = expected
     workspace = db.get(Workspace, request.state.identity['tenant_id'])
     return dict(valid=workspace.audit_head == head and workspace.audit_sequence == count,
-                checked=count, head=head, limitation='Database-owner replacement of the entire chain requires an external trusted checkpoint to detect.')
+                checked=count, head=head, limitation=f'Replacement of the whole chain by the database owner is detectable only against an external checkpoint of head {str(head)[:16]}.')
 
 
 @router.post('/principals/{identity}/permissions')

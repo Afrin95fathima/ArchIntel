@@ -16,14 +16,14 @@ export function MappingDetails({report}:{report?:MappingReport}){
       {report.resolved.map(r=><tr key={r.rule+r.runtime_identifier+r.static_class+(r.static_method||'')}>
         <td><code>{r.runtime_identifier}</code></td><td><code>{r.static_class}{r.static_method?'.'+r.static_method+'()':''}</code>{r.declared_route&&<small> via route {r.declared_route}</small>}</td>
         <td><strong>{r.rule}</strong><small>{r.rule_label}</small></td><td>{r.event_count}</td><td><Samples refs={r.sample_span_ids}/></td></tr>)}
-    </tbody></table>:<p>No span resolved to a scanned class.</p>}
+    </tbody></table>:<p>No span resolved to a scanned class (see Not mapped below).</p>}
     <h3>Not mapped ({report.counts.unmapped} events in {report.unmapped.length} groups)</h3>
     {report.unmapped.length?<table><thead><tr><th>Reason</th><th>Span</th><th>Missing</th><th>Events</th><th>What the span still tells us</th><th>Sample span ids</th></tr></thead><tbody>
       {report.unmapped.map((u,i)=><tr key={i}>
         <td><strong>{u.reason_code}</strong><small>{u.reason}</small>{u.closest_candidate&&<small>Closest scanned class: <code>{u.closest_candidate}</code> (similarity {u.similarity})</small>}</td>
         <td>{u.span_names.length?u.span_names.join(', '):'no span name'}<small>kind {u.span_kind||'not recorded'} · type {u.event_type} · scope {u.instrumentation_scope||'not recorded'}{u.scope_version?' '+u.scope_version:''}</small>{u.runtime_identifier&&<small>class <code>{u.runtime_identifier}</code></small>}</td>
         <td>{u.missing_attributes.length?u.missing_attributes.join(', '):'none'}</td><td>{u.event_count}</td><td>{u.still_tells_us}</td><td><Samples refs={u.sample_span_ids}/></td></tr>)}
-    </tbody></table>:<p>Every span mapped to a scanned class or a controller route.</p>}
+    </tbody></table>:<p>Every span mapped to a class or route; the Not mapped table is empty.</p>}
     {report.truncated&&<p className="fine-print">Only the 200 largest groups of each table are shown; the counts above include every span.</p>}
   </section>;
 }

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import re
 
+from app.content.check import check_text, load_rules
 from app.insight.cycles import analyse as analyse_cycles
 from app.insight.debt import detect
 from app.insight.lifecycle import evaluate
@@ -84,8 +85,8 @@ def known_names(model) -> set[str]:
     return names | simple
 
 
-def check_answer(index: Index, sentences: list[dict], extra_known: set[str] = frozenset()) -> tuple[list[dict], list[dict]]:
-    """Keep sentences whose citations exist and whose identifiers (class names, packages) exist."""
+def check_answer(index: Index, sentences: list[dict], extra_known: set[str] = frozenset(), content_rules: bool = False) -> tuple[list[dict], list[dict]]:
+    """Keep sentences whose citations exist and whose identifiers (class names, packages) exist. With content_rules (model-written text), also drop banned phrases and sentences that name nothing and count nothing."""
     model = index.model
     known = known_names(model) | set(extra_known)
     kept, removed = [], []
@@ -94,7 +95,12 @@ def check_answer(index: Index, sentences: list[dict], extra_known: set[str] = fr
         bad = [c for c in cites if not index.exists(c)]
         unknown = sorted({n for n in FQN.findall(sentence['text']) if n not in known and not n.startswith(('java.', 'jakarta.', 'javax.', 'org.', 'com.', 'io.'))}
                          | {n for n in CAMEL.findall(sentence['text']) if n not in known and n not in extra_known})
-        if sentence.get('requires_citation', True) and not cites:
+        content = check_text(sentence['text'], 'model output', 0, load_rules()) if content_rules else []
+        if any(v.kind == 'BANNED' for v in content):
+            removed.append(dict(text=sentence['text'], reason='BANNED_PHRASE'))
+        elif content:
+            removed.append(dict(text=sentence['text'], reason='NOT_SPECIFIC'))
+        elif sentence.get('requires_citation', True) and not cites:
             removed.append(dict(text=sentence['text'], reason='NO_CITATION'))
         elif bad:
             removed.append(dict(text=sentence['text'], reason='CITATION_NOT_FOUND', ids=bad))

@@ -18,7 +18,7 @@ export function PlanningContext({versionId}:{versionId:string}){
   if(!versionId)return null;
   if(query.error)return <ErrorBox error={query.error}/>;
   const c=query.data;
-  if(c&&!c.version)return <section className="runtime-card"><h2>Planning context</h2><p role="alert">The planning context response was incomplete, so no facts are shown.</p></section>;
+  if(c&&!c.version)return <section className="runtime-card"><h2>Planning context</h2><p role="alert">The /modernization/context response was incomplete, so no facts are shown.</p></section>;
   if(!c)return <section className="runtime-card"><h2>Planning context</h2><p>Loading the facts for this version…</p></section>;
   const rows:[string,Field][]=[['Architecture version',c.version.name],['Fingerprint',c.version.fingerprint],['Captured',c.version.captured_at],['Scan date',c.scan.scan_date],['Artifact',c.artifact.name],['Artifact SHA-256',c.artifact.sha256],
     ['Classes',c.counts.classes],['Packages',c.counts.packages],['Candidate domains',c.counts.domains],['Class-level cycle groups',c.counts.class_cycle_groups],['Aging-technology findings',c.counts.aging_technology_findings],['Entry points',c.counts.entry_points],

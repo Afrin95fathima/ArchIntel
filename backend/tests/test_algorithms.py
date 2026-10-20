@@ -136,7 +136,7 @@ def test_no_edges_and_one_class_are_valid():
     a=result['modernization'][0]
     # No dependency edges: cohesion and decoupling have no denominator, so they are excluded, not scored as 50.
     assert 'cohesion' not in a['component_scores'] and 'decoupling' not in a['component_scores']
-    assert [(e['input'],e['reason']) for e in a['not_measured']][:2]==[('cohesion','the domain has no dependency edges, so the internal share has no denominator'),('decoupling','the domain has no dependency edges, so the outgoing share has no denominator')]
+    assert [(e['input'],e['reason']) for e in a['not_measured']][:2]==[('cohesion','Only has no dependency edges, so the internal share has no denominator'),('decoupling','Only has no dependency edges, so the outgoing share has no denominator')]
     assert {e['input'] for e in a['not_measured']}=={'cohesion','decoupling','database'}
     assert set(a['component_scores'])==set(a['weights'])=={'cycles','boundary_scale','class_concentration'}
     assert sum(a['weights'].values())==pytest.approx(1)

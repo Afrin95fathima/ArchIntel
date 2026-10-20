@@ -115,7 +115,7 @@ def scan(config, artifact, manifest=None):
         return dict(result,image_id=image,artifact_sha256=before,databases=db,
             coverage='PACKAGED_ARCHIVE_COMPLETE' if complete else 'PACKAGED_ARCHIVE_PARTIAL',
             runtime_inventory=dict(packaging=packaging,embedded_archives=len(rows),scanned_archives=max(1,len(rows)),
-                complete=complete,limitations=['External launch classpaths, mounted libraries and runtime-injected dependencies are outside this archive scan.']
+                complete=complete,limitations=['External launch classpaths, mounted libraries and runtime-injected dependencies are outside the JAR or WAR scan.']
                     if complete else ['Thin JARs and container-provided or externally resolved runtime dependencies are not proven by archive scanning.']))
     finally:
         try: sandbox.call(['rm','-f','-v',name],timeout=15)

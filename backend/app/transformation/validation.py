@@ -151,4 +151,4 @@ def evaluate(task, builds, contracts, changeset):
                 architecture_fingerprint=digest(architecture) if architecture else None,
                 security_fingerprint=digest(security) if security else None,
                 gates=gates, contracts=comparisons,
-                scope='Reviewed test cases only; not a proof of full behavioral equivalence.')
+                scope='Reviewed test cases only (contracts with a test_case); not a proof of full behavioral equivalence.')

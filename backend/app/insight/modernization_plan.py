@@ -221,7 +221,7 @@ def build(model, lifecycle_result: dict, candidates: dict | None = None, rules: 
                                   rule='HIGH when all 4 inputs are present, MEDIUM when 3, otherwise LOW.')
         item['why'] = [
             f"{item['technology']} is {item['status']}" + (f" ({item['status_note']})" if item['version_known'] and item['status_note'] else ' (the installed version could not be determined from the artifact)') + f"; {_plural(len(affected), 'class', 'classes')} {'references' if len(affected) == 1 else 'reference'} it" + (f" with {_plural(item['call_site_count'], 'code reference')}." if item['call_site_count'] else '.'),
-            f"{chosen['name']} is chosen. Lifecycle status: " + (f"{chosen['lifecycle']['status']}" + (f" ({chosen['lifecycle']['note']})" if chosen['lifecycle']['note'] else '') if chosen['lifecycle']['status'] != 'not-covered' else 'not covered by the lifecycle rules file')
+            f"{chosen['name']} is chosen. Lifecycle status: " + (f"{chosen['lifecycle']['status']}" + (f" ({chosen['lifecycle']['note']})" if chosen['lifecycle']['note'] else '') if chosen['lifecycle']['status'] != 'not-covered' else 'not covered by lifecycle-rules.yaml')
             + f". It needs Java {chosen['requires_java']}" + (f"; the plan targets Java {target_java}." if target_java else '.'),
             *( [f"{chosen['namespace']['from']} -> {chosen['namespace']['to']} changes the imports of {_plural(len(chosen['namespace_classes']), 'class', 'classes')}."] if chosen['namespace'] and chosen['namespace_classes'] else []),
             *( [item['runtime_evidence']['text'] + '.'] if item['runtime_evidence']['text'] else [] )]
@@ -254,8 +254,8 @@ def build(model, lifecycle_result: dict, candidates: dict | None = None, rules: 
         basis=dict(current_java=current_java, flagged_items=len(items), bytecode_facts=model.facts_available, runtime_attached=observed is not None),
         language=language, runtime=runtime, phases=phases, items=items, dropped=dropped, unverified=[],
         feasible=all(i['feasible'] for i in items), review=dict(required=True, state='PROPOSED', note='A human reviews this proposal before it becomes the active plan.'),
-        limitations=['Compatibility baselines come from the curated candidates file and must be checked against each project\'s release notes before work starts.',
-                     'Vulnerability data is out of scope; statuses describe vendor support only.'])
+        limitations=['Compatibility baselines come from modernization-candidates.yaml and must be checked against each project\'s release notes before work starts.',
+                     'Vulnerability data is out of scope: statuses in lifecycle-rules.yaml describe vendor support only.'])
 
 
 def verify_ai(output: dict, plan: dict, evidence_ids: dict) -> tuple[list[dict], list[dict]]:

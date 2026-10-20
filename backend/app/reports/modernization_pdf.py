@@ -160,7 +160,7 @@ def render_report(report):
         if y < bottom+210:new_page()
         names={d['id']:d['name'] for d in ids}; order=[d['id'] for d in ids]; values={(r['source_domain_id'],r['target_domain_id']):r['edge_count'] for r in rows}
         maximum=max(values.values(),default=1) or 1; cell=min(40,420/max(1,len(order)))
-        line('Domain dependency matrix (source row -> target column)',size=10,font='F2',color=palette['navy'],gap=18)
+        line('Domain dependency matrix: row calls column',size=10,font='F2',color=palette['navy'],gap=18)
         start_x=margin+126; start_y=y
         for j,did in enumerate(order):
             text_at(names[did][:10],start_x+j*cell,start_y-7,6,'F1',palette['muted'])
@@ -174,7 +174,7 @@ def render_report(report):
                 text_at(str(value),start_x+j*cell+cell/2-3,y-9,7,'F2',palette['navy'])
             y-=18
         y-=5
-        wrapped('Cell values are class-level dependency edge counts. Absent domain pairs equal zero in the captured static graph.',width=100,size=7,color=palette['muted'],gap=10)
+        wrapped('Cell values are class-level dependency edge counts; a pair with no edge shows 0 in the captured static graph.',width=100,size=7,color=palette['muted'],gap=10)
         y-=8
 
     def dependency_graph(matrix):
@@ -183,7 +183,7 @@ def render_report(report):
         if not ids:return
         if y < bottom+275:new_page()
         names={d['id']:d['name'] for d in ids}; cx=306; cy=y-128; radius=98
-        line('Directed domain graph (edge labels show class-pair counts)',size=10,font='F2',color=palette['navy'],gap=18)
+        line('Domain graph: edge label = class pairs',size=10,font='F2',color=palette['navy'],gap=18)
         order=[d['id'] for d in ids]
         positions={did:(cx+radius*__import__('math').cos(2*__import__('math').pi*i/len(order)),cy+radius*__import__('math').sin(2*__import__('math').pi*i/len(order))) for i,did in enumerate(order)}
         maximum=max((r['edge_count'] for r in rows),default=1)
@@ -194,7 +194,7 @@ def render_report(report):
         for did,(x,y0) in positions.items():
             rect(x-40,y0-10,80,20,palette['pale_teal']); text_at(names[did][:18],x-37,y0-3,6,'F2',palette['navy'])
         if not rows:
-            text_at('No cross-domain edges were found in the static graph.',margin,cy-radius-17,7,'F1',palette['muted'])
+            text_at('No cross-domain edges were found in the captured static graph.',margin,cy-radius-17,7,'F1',palette['muted'])
         y=cy-radius-20
 
     def table_block(block):
@@ -288,7 +288,7 @@ def render_report(report):
             commands.append(f'{colour} RG 0.9 w {sx:.1f} {y1:.1f} m {gx:.1f} {y1:.1f} l {gx:.1f} {y2:.1f} l {tx - 1:.1f} {y2:.1f} l S'.encode('ascii'))
             text_at(str(edge['class_pairs']), gx - 8, (y1 + y2) / 2, 6, 'F2', colour)
         y = top - body - 6
-        wrapped('Arrows point from the depending layer to what it uses; numbers are distinct class pairs. Teal: also seen at runtime. Grey: code only. Red: against the layering.', width=100, size=7, color=palette['muted'], gap=10)
+        wrapped('Arrow A -> B: layer A depends on layer B, and the number counts distinct class pairs. Teal: also seen at runtime. Grey: code only. Red: against the layering.', width=100, size=7, color=palette['muted'], gap=10)
         y -= 6
 
     new_page()

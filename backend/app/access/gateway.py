@@ -105,11 +105,11 @@ def read_context(db, request, body, *, task_scope=False):
             if '\0' in content:
                 raise ValueError('Binary source context is not supported.')
             files.append(dict(path=name, content=content, sha256=digest(content), bytes=size))
-        outcome, reason = 'ALLOW', 'Explicit scope and workspace policy permit this pinned local context.'
+        outcome, reason = 'ALLOW', 'SCOPE_AND_POLICY_PERMIT: explicit scope and workspace policy permit this pinned local context.'
         details['permitted_files'] = paths
     except (ValueError, OSError, subprocess.SubprocessError, UnicodeError):
         details['denied_files'] = body.files
-        reason = 'Request denied: check repository, pinned commit, scope, policy and context limits.'
+        reason = 'REQUEST_DENIED: check repository, pinned commit, scope, policy and context limits.'
     details['reason'] = reason
     details['bytes'] = sum(f['bytes'] for f in files) if outcome == 'ALLOW' else 0
     # Close read transaction before separate durable audit commit (SQLite included).

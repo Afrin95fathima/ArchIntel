@@ -98,4 +98,4 @@ def source_query(body:SourceQuery,request:Request,db=Depends(db_session)):
         facts.append(dict(id=f'{r.file}:{r.start}-{r.end}',kind='source_range',text='\n'.join(content[r.file][r.start-1:r.end])))
     facts,info=select_facts(request,db,facts,body.question,'repository:'+body.repository_id,'SOURCE_READ',
         source_scope=dict(repository_id=body.repository_id,commit=body.commit,files=files))
-    return dict(facts=facts,**info,external_transfer=False,limitations=['Model selects authorized source ranges only; no generated code or execution. Detection is heuristic.'])
+    return dict(facts=facts,**info,external_transfer=False,limitations=['The model selects authorized source ranges only (MODEL_USE_LOCAL policy); it generates no code and executes nothing. Detection is heuristic.'])

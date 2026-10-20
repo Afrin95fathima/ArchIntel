@@ -149,15 +149,15 @@ def build(result: dict, static: dict, domains: list[dict], options: dict, eviden
                              f"{bn} {_plural(len(blocked), 'domain')} with hard blockers ({_list(F, [a['domain_name'] for a in blocked]) or 'none'}) can be fixed without changing deployment." if blocked else "No domain has a hard blocker."],
         'MICROSERVICES': [f"Turns {es} cross-domain dependency edges between {pairs} domain pairs into remote calls.",
                           (f"{F.num('shared_resources', 'Shared database resources', len(shared), 'plan: SHARED_PERSISTENCE_CANDIDATE findings')} shared database {_plural(len(shared), 'resource')} ({_list(F, shared)}) need an ownership split first.") if shared else 'No database resource is called by more than one domain in the selected evidence.',
-                          (f"{F.num('cycle_domains', 'Domains in dependency cycles', len(in_cycle), 'plan: waves[].coupled_groups')} {_plural(len(in_cycle), 'domain')} in cycles ({_list(F, [domain_name[d] for d in in_cycle])}) cannot be separated one by one.") if in_cycle else 'No domain is in a dependency cycle.'],
+                          (f"{F.num('cycle_domains', 'Domains in dependency cycles', len(in_cycle), 'plan: waves[].coupled_groups')} {_plural(len(in_cycle), 'domain')} in cycles ({_list(F, [domain_name[d] for d in in_cycle])}) cannot be separated one by one.") if in_cycle else f'None of the {ds} domains is in a dependency cycle.'],
         'HYBRID': [(f"{F.num('ready_domains', 'Domains ready to prepare for extraction', len(ready), 'plan: decisions')} of {ds} domains ({_list(F, [a['domain_name'] for a in ready])}) can be prepared for extraction; the remaining {F.num('in_process_domains', 'Domains kept in-process', D - len(ready), 'plan: decisions')} stay in-process.")
                    if ready else f"No domain is ready for extraction now; all {ds} stay in-process until their blockers are resolved."],
-        'CLOUD_REFACTOR': ["The target platform, deployment constraints and cost objectives were not supplied, so no cloud trade-off can be measured."],
+        'CLOUD_REFACTOR': [f"No target platform, deployment constraint or cost objective was supplied for {F.name(artifact)}, so no cloud trade-off can be measured."],
         'JAVA_UPGRADE': [(f"Class files target {F.name(str(java['version_found']))} ({java['status']}) in {F.num('java_classes', 'Classes at the current Java target', java['affected_class_count'], 'lifecycle rules: java-class-target')} classes; the rules recommend {F.name(java.get('recommended_alternative') or 'a supported LTS')}.")
                          if java else "Java target levels are not measured because this analysis has no bytecode facts."],
         'FRAMEWORK_UPGRADE': [(f"{F.num('aging_technologies', 'Aging or end-of-life technologies', len(aging), 'lifecycle rules')} {_plural(len(aging), 'technology', 'technologies')} flagged: "
                               + '; '.join(F.name(f['technology']) + ' ' + f['status'] + ' (' + F.num('aging_' + f['rule_id'], f['technology'] + ' affected classes', f['affected_class_count'], 'lifecycle rules: ' + f['rule_id']) + ' ' + _plural(f['affected_class_count'], 'class', 'classes') + ')' for f in aging[:4]) + '.') if aging
-                              else ('No aging or end-of-life framework was found by the lifecycle rules.' if lifecycle_findings is not None else 'Framework age is not measured because this analysis has no bytecode facts.')]
+                              else (f'The lifecycle rules flag no aging or end-of-life framework in {F.name(artifact)}.' if lifecycle_findings is not None else 'Framework age is not measured because this analysis has no bytecode facts.')]
                              + ([f"The javax namespace is used by {F.num('javax_classes', 'Classes using javax APIs', namespace['affected_class_count'], 'lifecycle rules: ' + namespace['rule_id'])} classes, which a Jakarta move would change."] if namespace and namespace['affected_class_count'] else []),
     }
     options_out = []
@@ -199,7 +199,7 @@ def build(result: dict, static: dict, domains: list[dict], options: dict, eviden
     else:
         unmeasured = []
     if blocked:
-        risks.append(dict(kind='plan', id='blocked-domains', text=f"{bn} of {ds} domains ({F.num('blocked_pct', 'Share of domains with a hard blocker', round(100 * len(blocked) / D, 1), 'plan: assessments', '%')}) have a hard blocker.",
+        risks.append(dict(kind='plan', id='blocked-domains', text=f"{bn} of {ds} domains ({F.num('blocked_pct', 'Hard-blocked domain share', round(100 * len(blocked) / D, 1), 'plan: assessments', '%')}) have a hard blocker.",
                           percentage=round(100 * len(blocked) / D, 1), numerator=len(blocked), denominator=D))
     risk_note = ('Not measured: ' + '; '.join(F.name(u) for u in unmeasured) + '.') if unmeasured else (f'Technical-debt rates could not be computed ({debt_error}).' if debt is None else None)
 
@@ -296,7 +296,7 @@ def merge(legacy: dict, extra: dict, result: dict) -> None:
         option = options[row['strategy']]
         row.update(rationale=' '.join(option['tradeoffs']), tradeoffs=option['tradeoffs'], recommended=option['recommended'])
         if row['strategy'] in ('CLOUD_REFACTOR', 'JAVA_UPGRADE', 'FRAMEWORK_UPGRADE'):
-            row['unknowns'] = [t for t in option['tradeoffs']] + ['The target version or platform is not chosen; dependency compatibility is not checked.']
+            row['unknowns'] = [t for t in option['tradeoffs']] + [f"No target version or platform is chosen for {row['strategy']}, and dependency compatibility is not checked."]
         else:
             row['unknowns'] = extra['questions'] + extra['unknowns'][:2]
     for key in ('decision', 'facts', 'names', 'sections', 'recommendation', 'options', 'scope', 'blockers', 'prerequisites', 'risks', 'confidence', 'unknowns', 'questions', 'evidence', 'numbers_check'):

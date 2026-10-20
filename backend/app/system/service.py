@@ -20,7 +20,7 @@ def diagnostics(config, engine, scanner):
     except Exception:
         checks.append(dict(id='database', label='Local database', state='ACTION_REQUIRED', required=True,
                            detail='ArchIntel could not connect to its configured local database.',
-                           action='Run Start-ArchIntel.cmd again. If the problem continues, check the database service and the backend log.'))
+                           action='Run Start-ArchIntel.cmd again. If the problem continues, check the PostgreSQL service and the backend log.'))
 
     try:
         scanner.command()
@@ -60,7 +60,7 @@ def diagnostics(config, engine, scanner):
     required_ready = all(item['state'] == 'READY' for item in checks if item['required'])
     runtime_state = 'BLOCKED' if not required_ready else 'READY' if agent_present else 'OPTIONAL_SETUP'
     return dict(mode='LOCAL_POC', core_ready=required_ready,
-        summary='Local static-analysis setup is ready.' if required_ready else 'Local setup needs attention before static analysis.',
+        summary='Local static-analysis setup is ready.' if required_ready else 'Local setup needs attention before static analysis can run.',
         checks=checks,
         workflows=dict(static_analysis='READY' if required_ready else 'BLOCKED',
             runtime_observation=runtime_state,

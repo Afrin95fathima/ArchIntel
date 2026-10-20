@@ -16,7 +16,7 @@ JDK_PREFIXES = ('java.', 'jdk.', 'sun.', 'com.sun.', 'org.w3c.dom.', 'org.xml.sa
 GENERATED = re.compile(r'(\$\$EnhancerBy|\$\$SpringCGLIB|\$\$FastClassBy|\$HibernateProxy|_\$\$_jvst|\$\$Lambda|^jdk\.proxy\d*\.|\$Proxy\d+|^com\.sun\.proxy\.)')
 CATEGORY_TEXT = {
     'JDK_CLASS': 'JDK class: part of the Java platform, not of the uploaded artifact.',
-    'EXTERNAL_LIBRARY': 'External library class not in the uploaded artifact (a dependency the application compiles against).',
+    'EXTERNAL_LIBRARY': 'External library class = a class outside the uploaded artifact that the application compiles against.',
     'RUNTIME_ONLY': 'Runtime-only class: observed at runtime but not found in the scanned artifact; the scanned build may differ from what runs.',
     'GENERATED_OR_PROXY': 'Generated or proxy class created at runtime (for example a Spring CGLIB proxy or a lambda class).',
     'UNMATCHED_NAME': 'Name could not be matched to any class: the telemetry identity is not a recognisable Java class name.',
@@ -162,5 +162,5 @@ def view(model, level: str = 'package', package: str | None = None, focus: str |
             nodes_shown=len(nodes), nodes_total=total_nodes, edges_shown=len(shown), edges_total=total_edges, hidden=hidden,
             aggregation=('Classes are aggregated into packages; edge weight = number of distinct class-to-class dependencies between the packages.'
                 if level == 'package' else 'Nested, anonymous and local classes are folded into their top-level class; edge weight = number of typed references.'),
-            runtime=('Runtime evidence included.' if observed is not None else 'No runtime session selected: coverage and runtime calls are not shown.'),
+            runtime=('Runtime evidence included.' if observed is not None else 'No runtime session selected, so coverage and runtime calls are not measured here.'),
             external=f"{external['total']} external or unresolved names are grouped in the 'External and unresolved' cluster, not drawn as nodes."))

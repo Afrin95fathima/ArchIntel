@@ -92,7 +92,7 @@ def inspect_artifact(path: Path, classes_dir: Path, static: dict) -> dict:
     if has_gradle_descriptor:
         build_tools.append(dict(name='Gradle',evidence='Gradle build/settings descriptor found in uploaded archive.'))
     if dependency_names:
-        build_tools.append(dict(name='Packaged Java libraries',evidence='Library JARs found in the archive. This does not identify the build tool.'))
+        build_tools.append(dict(name='Packaged Java libraries',evidence='Library JARs found in the archive. This does not identify the build tool (Maven or Gradle).'))
     return dict(schema_version='tech-inventory-1',status='PARTIAL' if all_deps or parsed_jars or majors else 'UNAVAILABLE',
         bytecode=dict(class_count=sum(majors.values()),major_versions=dict(sorted(majors.items())),java_targets=java_versions,
             mapping_note='Class-file major version N maps to Java N-44 for supported modern bytecode versions.'),
@@ -104,5 +104,5 @@ def inspect_artifact(path: Path, classes_dir: Path, static: dict) -> dict:
             vulnerability_advisories='OUT_OF_SCOPE',reason='Lifecycle status is evaluated against app/insight/rules/lifecycle-rules.yaml; vulnerability advisories are not assessed.'),
         limitations=['Maven property and parent-managed versions may be unresolved in the artifact metadata.',
             'Project ZIP files containing only target/classes may not include build descriptors or dependency versions.',
-            'Bundled library filenames are not a complete dependency lockfile.',
-            'End-of-life status comes from a dated rules file and is only as current as its review date; vulnerability advisories are not assessed.'])
+            'Bundled library filenames are not a complete dependency lockfile such as pom.xml.',
+            'End-of-life status comes from lifecycle-rules.yaml and is only as current as its review date; vulnerability advisories are not assessed.'])

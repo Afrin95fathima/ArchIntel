@@ -74,7 +74,7 @@ export function AssistantDock({ analysisId, applicationId, pageLabel, selectedNo
         {applicationId && <label>Runtime session<select aria-label="Runtime session" value={session} onChange={e => setSession(e.target.value)}><option value="">None: static analysis only</option>{sessions.data?.filter(s => s.analysis_id === analysisId).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>}
         <button type="button" className="secondary-button" onClick={() => { setScope('selection'); setSession(''); setEditing(false); }}>Reset to this page</button></div>}
     </div>
-    {!analysisId ? <p className="dock-empty" role="note">Open an application analysis to ask about it. The assistant reads one analysis at a time.</p>
+    {!analysisId ? <p className="dock-empty" role="note">Open an application analysis to ask about it. It reads 1 analysis at a time.</p>
       : <ConversationView turns={conversation.turns} onExample={text => void conversation.ask(text, context)} />}
     {conversation.error && <p role="alert" className="dock-error">{conversation.error}</p>}
     <form className="chat-input" onSubmit={e => { e.preventDefault(); send(); }}>

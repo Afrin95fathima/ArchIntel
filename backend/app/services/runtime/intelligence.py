@@ -77,11 +77,11 @@ def derive(static, runtime, coverage, events, structural_weight, weights=None, s
             extraction_difficulty='LOW' if combined>=80 else 'MEDIUM' if combined>=60 else 'HIGH' if combined>=40 else 'VERY_HIGH',
             metrics=metric,runtime_cycle=identity in cyclic,shared_persistence_candidate=identity in shared_domains,
             recommended_order=structural['recommended_order'],wave=structural['wave'],
-            risks=structural['risks']+(['Low observation coverage; conclusions have limited confidence.'] if ratio<.8 else []),
+            risks=structural['risks']+([f"Observation coverage is {round(100 * ratio, 1)}% of the domain's classes, under 80%; conclusions have limited confidence."] if ratio<.8 else []),
             formula='runtime = sum(component x weight) over the measured components, weights renormalized to sum to 1; cohesion = observed internal calls / observed calls from the domain x 100; cycles = 0 if the domain is in an observed domain cycle, otherwise 100; persistence = resources called by this domain alone / resources it calls x 100; combined = structural_weight x structural + (1 - structural_weight) x runtime; without runtime the structural score is kept',
             component_scores=components,component_weights=used,not_measured=not_measured,
             structural_weight=structural_weight,evidence={'coverage_domain_id':identity,'runtime_edge_ids':[e['id'] for e in runtime['edges'] if nodes[e['source']].get('domain_id')==identity]},
-            sequence_note='Static dependency-first order retained; runtime evidence adds review blockers, not automatic extraction approval.'))
+            sequence_note=f"Static dependency-first order retained (wave {structural['wave']}); runtime evidence adds review blockers, not automatic extraction approval."))
     # Generic "exercise another entry point" text was removed: specific, ranked suggestions come from
     # app.insight.test_suggestions (route, parameters, constraints, reachable classes).
     recommendations = []

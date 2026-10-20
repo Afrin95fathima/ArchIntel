@@ -154,9 +154,9 @@ def build(db, version, assessment, sessions, projection) -> dict:
     stack_clause = (f"uses {F.name(stack)}" if stack else 'its framework versions are not measured')
     sections.append(dict(id='summary', title='Summary', plain=[
         f"{F.name(artifact_name)} has {cs} classes{' in ' + ps + ' packages' if ps else ''}, grouped into {ds} candidate domains ({_names(F, domain_names, 5)})" + (f"; it is compiled for Java {F.num('java', 'Java class-file level', java, 'bytecode inventory')} and {stack_clause}." if java is not None else '; its Java level and framework versions are not measured for this analysis.'),
-        ('The largest technical problems are ' + '; '.join(rate_phrase(r) for r in top5[:3]) + '.') if top5 else 'No measured technical-debt rate is above zero.',
+        ('The largest technical problems are ' + '; '.join(rate_phrase(r) for r in top5[:3]) + '.') if top5 else f'No measured technical-debt rate of {F.name(artifact_name)} is above zero.',
         (f"Recommended approach: {F.name(brief['recommendation']['option'])}; first actions: " + '; '.join(f"({n}) {a}" for n, a in enumerate(actions, 1)) + '.') if brief.get('recommendation') and actions
-        else 'No approach or action is recommended because no finding or plan item was produced.'],
+        else f'No approach or action is recommended for {F.name(artifact_name)} because no finding or plan item was produced.'],
         technical=[table('Application facts', ['Fact', 'Value', 'Source'], [
             ['Artifact', artifact_name, 'artifact record'], ['SHA-256', manifest.get('artifact_sha256') or (artifact.sha256 if artifact else 'not measured'), 'version manifest'],
             ['Classes', classes, 'static summary'], ['Packages', packages if packages is not None else 'not measured', 'static summary'], ['Candidate domains', len(domains), 'version'],
@@ -196,7 +196,7 @@ def build(db, version, assessment, sessions, projection) -> dict:
     against = [e for e in layer_edges if e.get('against_layering')]
     sections.append(dict(id='architecture', title='Architecture', plain=[
         f"The code falls into {F.num('layers', 'Architecture layers', len(hld.get('layers', [])), 'diagram: HLD layers')} layers: " + _names(F, [l['label'].split(' (')[0] + ' ' + str(l['class_count']) for l in hld.get('layers', [])], 6) + ' classes.',
-        f"{F.num('layer_edges', 'Dependencies between layers or to external systems', len(layer_edges), 'diagram: HLD edges')} dependency groups connect them, and {F.num('against', 'Dependencies against the layering', len(against), 'diagram: HLD edges')} point against the intended layering.",
+        f"{F.num('layer_edges', 'Layer and external dependencies', len(layer_edges), 'diagram: HLD edges')} dependency groups connect them, and {F.num('against', 'Dependencies against the layering', len(against), 'diagram: HLD edges')} point against the intended layering.",
         f"Between the {ds} candidate domains, {F.num('cross_edges', 'Cross-domain dependency edges', cross, 'plan: domain_dependency_matrix')} dependency edges run across {F.num('domain_pairs', 'Domain pairs with a dependency', len(matrix.get('rows', [])), 'plan: domain_dependency_matrix')} domain pairs."],
         technical=[dict(type='hld', data={k: hld[k] for k in ('layers', 'edges', 'externals', 'entry_points') if k in hld}),
                    dict(type='domain_map', data=matrix),
@@ -217,8 +217,8 @@ def build(db, version, assessment, sessions, projection) -> dict:
     sections.append(dict(id='problems', title='Technical problems', plain=[
         (f"{F.num('problem_classes', 'Classes with a technical-debt finding', any_rate['numerator'], 'technical debt rates: any-class')} of {cs} classes ({F.num('problem_pct', 'Share of classes with a finding', any_rate['percentage'], 'technical debt rates: any-class', '%')}) have at least one finding.") if any_rate['status'] == 'MEASURED' else 'The share of classes with a finding is not measured.',
         ('The most common problem is ' + rate_phrase(top5[0]) + '.') if top5 else 'No problem rate is above zero.',
-        (f"{F.num('not_measured_rates', 'Problem rates that could not be measured', len(not_measured), 'technical debt rates: status')} {_plural(len(not_measured), 'rate')} could not be measured: {_names(F, [r['label'] for r in not_measured], 3)}." if not_measured else 'Every rate was measured.')],
-        technical=[table('Problems by share of the application', ['Problem', 'Share', 'Top 10 named'], problem_rows, note='The full list of counted items is in the appendix.'),
+        (f"{F.num('not_measured_rates', 'Unmeasured problem rates', len(not_measured), 'technical debt rates: status')} {_plural(len(not_measured), 'rate')} could not be measured: {_names(F, [r['label'] for r in not_measured], 3)}." if not_measured else 'Every rate was measured.')],
+        technical=[table('Problems by share of the application', ['Problem', 'Share', 'Top 10 named'], problem_rows, note='The full list of counted items is in section 10 (Appendix).'),
                    table('Highest-severity findings', ['Severity', 'Rule', 'Subject', 'Measured'], [[f['severity'], f['rule_id'], short_item(f['entity_id']), measured_text(f['measured'])] for f in debt['findings'][:10]]),
                    listing('Not measured', [f"{r['label']}: {r['reason']}" for r in not_measured])]))
 
@@ -230,7 +230,7 @@ def build(db, version, assessment, sessions, projection) -> dict:
                 F.num('java_' + key, label, plan['runtime'][key], 'technology plan: runtime')
     sections.append(dict(id='aging', title='Aging technology', plain=[
         (f"{F.num('aging_items', 'Aging or end-of-life technologies', len(plan_items), 'technology plan: items')} {_plural(len(plan_items), 'technology', 'technologies')} need replacing: {_names(F, [i['technology'] for i in plan_items], 4)}.") if plan_items else
-        ('No aging or end-of-life technology was found by the lifecycle rules.' if life is not None else 'Aging technology is not measured: this analysis has no bytecode facts.'),
+        (f'The lifecycle rules flag no aging or end-of-life technology in {F.name(artifact_name)}.' if life is not None else 'Aging technology is not measured: this analysis has no bytecode facts.'),
         (adopt(plan['runtime']['reason']) if phases and plan.get('runtime') else 'No Java upgrade is planned.'),
         (f"No language change is recommended because the {len(plan_items)} flagged {_plural(len(plan_items), 'item')} are library, framework, namespace or platform versions, not properties of the Java language." if phases and plan.get('language') else 'No language recommendation was produced.')],
         technical=[table('Replacement recommendations', ['Technology', 'Status', 'Classes', 'Replace with', 'Needs Java', 'Phase', 'Confidence'],
@@ -279,8 +279,8 @@ def build(db, version, assessment, sessions, projection) -> dict:
 
     # 9. Risks and unknowns
     sections.append(dict(id='risks', title='Risks and unknowns', plain=[
-        (adopt(brief['risks'][0]['text']) if brief.get('risks') else 'No measured risk rate is above zero.'),
-        (f"{F.num('unknown_groups', 'Inputs that are not measured', len(brief.get('unknowns', [])), 'decision brief: unknowns')} inputs are not measured, for example: {adopt(brief['unknowns'][0])}" if brief.get('unknowns') else 'Every input of the scores was measured.'),
+        (adopt(brief['risks'][0]['text']) if brief.get('risks') else f'No measured risk rate of {F.name(artifact_name)} is above zero.'),
+        (f"{F.num('unknown_groups', 'Inputs that are not measured', len(brief.get('unknowns', [])), 'decision brief: unknowns')} inputs are not measured, for example: {adopt(brief['unknowns'][0])}" if brief.get('unknowns') else f'Every input of the {ds} domain scores was measured.'),
         (adopt(brief['questions'][0]) if brief.get('questions') else 'No open question was raised.')],
         technical=[listing('Risks', [r['text'] for r in brief.get('risks', [])]), listing('Blockers', [f"{b['code']}: {b['meaning']} Affects {', '.join(b['domains'])}. Resolve: {b['resolve']}" for b in brief.get('blockers', [])]),
                    listing('What is not known', brief.get('unknowns', []) + brief.get('questions', []))]))
@@ -300,7 +300,7 @@ def build(db, version, assessment, sessions, projection) -> dict:
     appendix = sections[-1]
     appendix['plain'][1] = f"It contains {F.num('appendix_findings', 'Technical-debt findings', len(debt['findings']), 'technical debt: findings')} findings and {F.num('fact_count', 'Numbers in the fact table', len(F.rows), 'report: fact table')} numbers with their sources."
     model_out = dict(meta=dict(application=application.name, artifact=artifact_name, generated_at=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC'), analysis_id=run.id, version_id=version.id,
-                               proposal_id=assessment.id, fingerprint=version.fingerprint, notice='Confidential working report. Candidate boundaries and recommendations need engineering review.'),
+                               proposal_id=assessment.id, fingerprint=version.fingerprint, notice=f'Confidential working report. Candidate boundaries and recommendations for {artifact_name} need engineering review.'),
                      sections=[dict(s, number=n) for n, s in enumerate(sections, 1)], facts=F.table(), names=sorted(F.names))
     model_out['numbers_check'] = dict(unregistered=unregistered_plain_numbers(model_out))
     return model_out

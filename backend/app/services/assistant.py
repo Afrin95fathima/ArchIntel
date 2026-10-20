@@ -54,7 +54,7 @@ class ArchitectureContextBuilder:
                 facts.append(dict(id=cycle['id'],kind='cycle',text=f"{cycle['level']} cyclic cluster: {cycle['node_count']} nodes, {cycle['internal_edge_count']} edges; severity {cycle['severity']}. Members: {', '.join(cycle['members'][:8])}."))
             if not facts:
                 facts.append(dict(id='summary',kind='summary',text='No multi-node class or package SCCs were detected in the filtered static graph.'))
-            recommendations.append('Treat cyclic domains as a remediation group before attempting independent extraction.')
+            recommendations.append('Treat the domains of a dependency cycle as one remediation group before attempting independent extraction.')
         else:
             summary = result['summary']
             facts.append(dict(id='summary',kind='summary',text=f"Analysis found {summary['class_count']} classes, {summary['package_count']} packages, {summary['dependency_count']} distinct internal dependencies and {summary['domain_count']} candidate domains."))
@@ -68,7 +68,7 @@ def answer(result: dict, question: str, domain_id: str | None, settings, request
     facts, recommendations = ArchitectureContextBuilder().build(result, question, domain_id)
     mode, limits = 'LOCAL_EVIDENCE', list(result['limitations'][:2])
     if not facts:
-        return AssistantResponse(answer='I do not have analysis evidence to answer that question. Ask about a candidate domain, dependencies, cycles, issues, readiness or modernization order.',
+        return AssistantResponse(answer='I do not have analysis evidence for that question in the selected analysis. Ask about a candidate domain, its dependencies, cycles, issues, readiness or modernization order.',
             facts=[], recommendations=[], sources=[], mode=mode, limitations=limits)
     if request is not None:
         from app.ai.gateway import select_facts
@@ -78,7 +78,7 @@ def answer(result: dict, question: str, domain_id: str | None, settings, request
         if gateway['redaction_categories']:
             limits.append('Sensitive categories redacted: '+', '.join(gateway['redaction_categories']))
     elif settings.llm_url and settings.llm_model:
-        limits.append('Legacy model settings do not authorize dispatch. Register a provider and enable workspace policy.')
+        limits.append('Legacy model settings in config.py do not authorize dispatch. Register a provider and enable the workspace policy (MODEL_USE_LOCAL).')
     return AssistantResponse(answer='These findings come from this analysis. Recommendations below require architectural review.',
         facts=facts, recommendations=recommendations, sources=[{'id':f['id'],'kind':f['kind']} for f in facts],
         mode=mode, limitations=limits)

@@ -179,7 +179,7 @@ def test_discover_domains_returns_all_required_keys():
                     'package_count', 'classes', 'packages', 'evidence', 'confidence_note'):
             assert key in d, f'missing key {key}'
         assert d['domain_source'] == 'AUTO'
-        assert 'Heuristic confidence' in d['confidence_note']
+        assert 'it is a heuristic, not a calibrated probability' in d['confidence_note']
     # every class is a member of exactly one domain
     assert sorted(m for d in domains for m in d['classes']) == sorted(classes)
 

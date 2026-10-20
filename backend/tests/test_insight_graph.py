@@ -12,7 +12,7 @@ def test_unresolved_names_are_classified_with_first_reference():
     assert set(cats) == {'JDK_CLASS', 'EXTERNAL_LIBRARY'}
     repo = next(i for i in cats['EXTERNAL_LIBRARY']['items'] if i['name'] == 'org.springframework.data.jpa.repository.JpaRepository')
     assert repo['first_reference']['kind'] == 'STATIC' and repo['first_reference']['source'] == f'{PETCLINIC}.owner.OwnerRepository'
-    assert 'not in the uploaded artifact' in repo['explanation']
+    assert 'outside the uploaded artifact' in repo['explanation']
     assert classify_external('java.util.List') == 'JDK_CLASS' and classify_external('javax.sql.DataSource') == 'JDK_CLASS'
     assert classify_external('javax.persistence.Entity') == 'EXTERNAL_LIBRARY'
     assert classify_external('com.acme.Foo$$SpringCGLIB$$0') == 'GENERATED_OR_PROXY'

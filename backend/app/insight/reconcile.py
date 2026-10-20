@@ -33,4 +33,4 @@ def reconcile(result: dict) -> None:
     for item in items:
         by_domain.setdefault(item['domain_id'], []).append(item)
     result['entry_points'] = dict(items=items, by_domain=by_domain, source='BYTECODE',
-        limitation='Entry points are derived from class-file annotations and type hierarchy. HTTP paths combine class-level and method-level mappings.')
+        limitation='Entry points = methods with a routing annotation, a servlet override or a listener, read from class files. HTTP paths combine class-level and method-level @RequestMapping values.')

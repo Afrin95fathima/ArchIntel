@@ -19,6 +19,7 @@ from sqlalchemy import select, func
 
 from app.models import now
 from app.access.core import LOCK
+from app.content.check import check_text, load_rules
 from .filters import sanitize, FilterDenied, VERSION
 from .gateway import authorization, canonical, event
 from .models import ModelInvocation
@@ -118,6 +119,13 @@ def verify_sentences(sentences, allowed_ids: dict[str, str], known_names: set[st
         text, cites = item['text'].strip()[:600], item.get('cite') or []
         if not cites or any(c not in allowed_ids for c in cites):
             dropped.append(dict(text=text, reason='UNCITED_OR_UNKNOWN_CITATION'))
+            continue
+        content = check_text(text, 'model output', 0, load_rules())
+        if any(v.kind == 'BANNED' for v in content):
+            dropped.append(dict(text=text, reason='BANNED_PHRASE'))
+            continue
+        if content:
+            dropped.append(dict(text=text, reason='NOT_SPECIFIC'))
             continue
         unknown = sorted({n for n in FQN.findall(text) if n not in known_names} |
             {n for n in CAMEL.findall(text) if n not in simple_known} |

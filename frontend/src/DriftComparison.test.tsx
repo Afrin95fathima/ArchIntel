@@ -12,5 +12,5 @@ it('renders read-only drift counts and version context for saved analyses',async
  render(<QueryClientProvider client={new QueryClient({defaultOptions:{queries:{retry:false}}})}><DriftComparison analyses={analyses} applicationId="app"/></QueryClientProvider>);
  expect(await screen.findByText(/Algorithm versions/)).toBeTruthy();
  expect(screen.getAllByText('2').length).toBeGreaterThan(0);
- expect(screen.getByText(/Exact identity additions/)).toBeTruthy();
+ expect(screen.getByText(/Identity = class id, domain id/)).toBeTruthy();
 });

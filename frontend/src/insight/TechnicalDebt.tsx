@@ -33,7 +33,7 @@ function Subject({ finding }: { finding: DebtFinding }) {
 export function TechnicalDebt({ analysisId }: { analysisId: string }) {
   const query = useInsight<DebtResult>(analysisId, 'debt');
   return <>
-    <PageTitle eyebrow="TECHNICAL DEBT" title="Specific findings, each with its measured value and threshold." description="Every row names the class, method or dependency, the rule that fired, and what to do about it. Thresholds are documented in debt-rules.yaml." />
+    <PageTitle eyebrow="TECHNICAL DEBT" title="Findings with measured value and threshold." description="Row = one class, method or dependency, the rule that fired, its measured value and the suggested action. Thresholds are documented in debt-rules.yaml." />
     <InsightState query={query}>{() => <DebtBody data={query.data!} analysisId={analysisId} />}</InsightState>
   </>;
 }
@@ -57,7 +57,7 @@ function DebtBody({ data, analysisId }: { data: DebtResult; analysisId: string }
   }, [rows, group]);
   return <>
     <div className="insight-cards">{['HIGH', 'MEDIUM', 'LOW', 'INFO'].map(s => <article key={s}><strong>{data.counts[s] || 0}</strong><span>{s.toLowerCase()} findings</span></article>)}</div>
-    <p className="fine-print">Rules {data.rules_version}. {data.runtime_included ? 'Runtime evidence is included (unobserved classes are listed as INFO).' : 'No runtime session selected: the "unobserved at runtime" rule is not evaluated.'}{!data.facts_available && ' Method-level rules need bytecode facts, which this analysis does not have; run a new analysis.'}</p>
+    <p className="fine-print">Rules {data.rules_version}. {data.runtime_included ? 'Runtime evidence is included (unobserved classes are listed as INFO).' : 'No runtime session is selected: the DEBT-UNOBSERVED rule is not evaluated.'}{!data.facts_available && ' Method-level rules need bytecode facts, which this analysis does not have; run a new analysis.'}</p>
     {data.rates && <DebtRates data={data.rates} />}
     <section className="panel insight-panel"><h3>Debt by package</h3><Formula formula={data.packages[0]?.formula || 'debt index = 3 × HIGH + 2 × MEDIUM + 1 × LOW'} /><p className="fine-print">{data.effort_note}</p>
       <div className="insight-table-wrap"><table className="insight-table"><thead><tr><th>Package</th><th>Classes</th><th>High</th><th>Medium</th><th>Low</th><th>Debt index</th><th>Per class</th></tr></thead><tbody>

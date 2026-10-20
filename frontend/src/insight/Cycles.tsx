@@ -74,15 +74,15 @@ export function CircularDependencies({ analysisId }: { analysisId: string }) {
   const query = useInsight<CycleResult>(analysisId, 'cycles');
   const [level, setLevel] = useState('');
   return <>
-    <PageTitle eyebrow="CIRCULAR DEPENDENCIES" title="Which parts cannot change independently?" description="Every loop below lists the exact classes in order and the code references that create each step of the loop." />
+    <PageTitle eyebrow="CIRCULAR DEPENDENCIES" title="Which parts cannot change independently?" description="Loop = classes in order, each step backed by a code reference (field, call, parameter or inheritance)." />
     <InsightState query={query}>{() => {
       const data = query.data!;
       const shown = data.groups.filter(g => !level || g.level === level);
       return <>
-        <div className="insight-cards"><article><strong>{data.class_group_count}</strong><span>class-level cyclic groups</span></article><article><strong>{data.package_group_count}</strong><span>package-level cyclic groups</span></article><article><strong>{data.nested_or_self_references_ignored}</strong><span>nested-class or self references ignored (not cycles)</span></article></div>
-        <Expandable summary={<span>How cycles are found</span>}><ul className="evidence-list">{Object.values(data.method).map(v => <li key={v}>{v}</li>)}</ul><p className="fine-print">Runtime evidence {data.runtime_included ? 'is included: runtime-only edges are dashed.' : 'is not included (no runtime session selected).'}</p></Expandable>
+        <div className="insight-cards"><article><strong>{data.class_group_count}</strong><span>class-level cyclic groups</span></article><article><strong>{data.package_group_count}</strong><span>package-level cyclic groups</span></article><article><strong>{data.nested_or_self_references_ignored}</strong><span>nested-class and self references = ignored, not cycles</span></article></div>
+        <Expandable summary={<span>How cycles are found</span>}><ul className="evidence-list">{Object.values(data.method).map(v => <li key={v}>{v}</li>)}</ul><p className="fine-print">Runtime evidence {data.runtime_included ? 'is included: runtime-only edges are dashed.' : 'is not measured (no runtime session selected).'}</p></Expandable>
         <div className="insight-toolbar"><label>Level <select aria-label="Cycle level" value={level} onChange={e => setLevel(e.target.value)}><option value="">Classes and packages</option><option value="CLASS">Classes</option><option value="PACKAGE">Packages</option></select></label></div>
-        {shown.length ? shown.map(group => <GroupCard key={group.id} group={group} analysisId={analysisId} />) : <NotAvailable reason={data.groups.length ? 'No cycles at this level.' : 'No circular dependencies were found: the class and package dependency graphs contain no strongly connected component with more than one member.'} />}
+        {shown.length ? shown.map(group => <GroupCard key={group.id} group={group} analysisId={analysisId} />) : <NotAvailable reason={data.groups.length ? 'No cycles at this level.' : 'No circular dependencies were found: no strongly connected component with 2 or more members exists in the class or package graphs.'} />}
       </>;
     }}</InsightState>
   </>;

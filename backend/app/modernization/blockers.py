@@ -12,7 +12,7 @@ BLOCKERS = {
     'RUNTIME_QUALITY_REVIEW': ('Telemetry loss or mapping uncertainty weakens the runtime conclusions.', 'Resolve dropped, conflicting or unverified spans before relying on absence.', 'RUNTIME_QUALITY_LIMITATION'),
     'EVIDENCE_CONFLICT': ('Evidence sources disagree about a dependency.', 'Inspect the cited traces and static references and resolve the conflict.', 'CONFLICTING_EVIDENCE'),
     'CROSS_DOMAIN_CYCLE': ('The domain depends on other domains in a cycle.', 'Plan a joint cycle-remediation step before independent extraction.', 'CROSS_DOMAIN_CYCLE'),
-    'SHARED_PERSISTENCE_REVIEW': ('Several domains call the same observed database resource.', 'Confirm table and entity ownership and the transaction boundaries.', 'SHARED_PERSISTENCE_CANDIDATE'),
+    'SHARED_PERSISTENCE_REVIEW': ('More than one domain calls the same observed database resource.', 'Confirm table and entity ownership and the transaction boundaries.', 'SHARED_PERSISTENCE_CANDIDATE'),
     'COMPATIBILITY_INVENTORY_REQUIRED': ('Upgrade compatibility has not been checked against the technology inventory.', 'Review target versions against the lifecycle rules and the dependency inventory.', None),
 }
 

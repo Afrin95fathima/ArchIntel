@@ -42,7 +42,7 @@ def test_runtime_session_adds_ids_windows_traces_and_coverage_with_numerator_and
     assert (coverage['value'], coverage['observed'], coverage['total'], coverage['text']) == (75.0, 3, 4, '75.0% (3 of 4)')
     assert c['runtime']['entry_point_coverage']['not_measured']       # no method/entry-point evidence in this capture
     assert 'Runtime coverage: 75.0% of classes (3 of 4)' in ' '.join(c['takes_into_account'])
-    assert 'Unobserved classes and entry points lower the runtime coverage input of confidence' in ' '.join(c['takes_into_account'])
+    assert '1 unobserved classes lower the runtime coverage input of confidence; unobserved never counts as unused.' in ' '.join(c['takes_into_account'])
 
 
 def test_review_is_reported_when_recorded(live):

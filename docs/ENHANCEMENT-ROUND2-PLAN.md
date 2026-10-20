@@ -28,7 +28,7 @@ Item 12 supplies the percentages used by 6 and 8. Item 11 supplies readiness and
 
 **Files.** `services/runtime/intelligence.py` (chain walk, reason codes, depth, summary), `services/runtime/normalization.py` (allow `db.statement` only for table parsing, then discard the text; keep `peer.service`/thread attributes only if already allowed), `runtime/schemas.py`, `RuntimeAnalysis.tsx`.
 
-**Privacy note.** The current design discards SQL text. To parse table names the statement must be read in memory during normalization and only the operation and table names stored. The raw statement is never persisted. This keeps the existing guarantee shown in the UI.
+**Privacy note.** The current design discards SQL text. The db.statement attribute is read in memory during normalization (sql_tables.parse_statement) and only operation and table names are stored. The raw statement is never persisted. This keeps the existing guarantee shown in the UI.
 
 **Data source.** Events of the same session and trace; static class and method index.
 
@@ -36,7 +36,7 @@ Item 12 supplies the percentages used by 6 and 8. Item 11 supplies readiness and
 
 **Current behavior.** `modernization/engine.py` builds `decision_brief` with fixed sentences (`headline`, `next_step`, `unresolved_questions`, `ACTION[...]` text, `order_rationale`, strategy rationales). `services/modernization.py` builds `explanation=f"{name} scores {readiness}/100 from cohesion, decoupling, cycle participation and database signals."` and a generic `formula` string. The UI (`PlanningWorkspace.tsx`, `Insights.tsx`) prints those strings.
 
-**Root cause.** Text is assembled from templates that do not name the measured value or the blocker class, and several strings are identical for every application.
+**Root cause.** Text comes from templates (ACTION map, headline, next_step) that name neither the measured value nor the blocker class, and 6 strings are identical for every application.
 
 **Files.** `modernization/engine.py`, new `modernization/describe.py` (pure functions that turn assessment data into sentences), `services/modernization.py`, `PlanningWorkspace.tsx`, `Insights.tsx`.
 
@@ -60,7 +60,7 @@ Item 12 supplies the percentages used by 6 and 8. Item 11 supplies readiness and
 
 ## Item 6: Report
 
-**Current behavior.** `reports/modernization_pdf.py` (587 lines) is a hand-written PDF writer driven by `_report_lines()`; sections: executive overview, static, dynamic, plan. The HTML preview is `Reports.tsx` `ReportHtmlPreview`, built separately in the browser from several endpoints. The two do not share a data model.
+**Current behavior.** `reports/modernization_pdf.py` (587 lines) is a hand-written PDF writer driven by `_report_lines()`; sections: executive overview, static, dynamic, plan. The HTML preview is `Reports.tsx` `ReportHtmlPreview`, built in the browser from 4 endpoints. The PDF and the preview share no data model.
 
 **Root cause.** Two independent renderers; no single report model; generic "in everyday terms" sentences.
 
@@ -74,7 +74,7 @@ Item 12 supplies the percentages used by 6 and 8. Item 11 supplies readiness and
 
 **Files.** New `insight/modernization_plan.py` (deterministic plan + feasibility checks), extend `lifecycle-rules.yaml` with `replacements` (candidate, target version, minimum Java, namespace change, conflicts), `insight/routes.py` (endpoints), `ai/grounded.py` use for optional wording, `PlanningWorkspace.tsx` tab, tests on the PetClinic fixture and a new aging-dependency fixture.
 
-**Rule.** Every recommendation cites a class or rule id that exists; others are dropped. Anything outside the curated candidates is labelled "unverified, confirm before use". A review state (`PROPOSED`, `APPROVED`) gates "active plan".
+**Rule.** Every recommendation cites a class or rule id that exists; others are dropped. A candidate outside modernization-candidates.yaml is labelled "unverified, confirm before use". A review state (`PROPOSED`, `APPROVED`) gates "active plan".
 
 ## Item 8: Decision brief
 
@@ -88,7 +88,7 @@ No glossary and no content check exist today (`grep -ri glossary` finds nothing)
 
 ## Item 10: "Explain why" button
 
-**Current behavior (found).** `PlanningWorkspace.tsx:59-60`: every button renders `disabled={busy}` and calls `action()`, which sets the single component-level `busy` flag and the single `explanation` state. Clicking one button disables all of them (looks like all were triggered), and the result is rendered once below the whole list, not under the clicked item, so the user sees "no output" next to the item.
+**Current behavior (found).** `PlanningWorkspace.tsx:59-60`: every button renders `disabled={busy}` and calls `action()`, which sets the single component-level `busy` flag and the single `explanation` state. Clicking 1 button disables all buttons (the shared busy flag), and the result renders once below the list instead of under the clicked decision, so the clicked row shows no output.
 
 **Same pattern elsewhere.** `AiExplain` is used by `TechnicalDebt.tsx`, `Cycles.tsx` and `TechnologyLifecycle.tsx`; its state will be checked in the same pass.
 

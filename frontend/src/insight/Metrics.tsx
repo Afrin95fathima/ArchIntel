@@ -37,7 +37,7 @@ function Detail({ row, definitions, level }: { row: Row; definitions: Record<str
 
 function Scatter({ packages }: { packages: Row[] }) {
   const points = packages.filter(p => p.metrics['package.D'].value !== null);
-  if (!points.length) return <NotAvailable reason="No package has internal dependencies, so instability and distance are not meaningful." />;
+  if (!points.length) return <NotAvailable reason="No package has internal dependencies, so instability I and distance D = |A + I - 1| are not measured." />;
   return <svg className="metric-scatter" viewBox="0 0 320 240" role="img" aria-label="Abstractness versus instability for each package">
     <line x1="40" y1="200" x2="300" y2="200" className="axis" /><line x1="40" y1="200" x2="40" y2="20" className="axis" />
     <line x1="40" y1="20" x2="300" y2="200" className="main-sequence" />
@@ -49,7 +49,7 @@ function Scatter({ packages }: { packages: Row[] }) {
 export function ArchitectureMetrics({ analysisId }: { analysisId: string }) {
   const query = useInsight<MetricsResult>(analysisId, 'metrics');
   return <>
-    <PageTitle eyebrow="ARCHITECTURE METRICS" title="Measured structure, with the formula behind every number." description="Coupling, instability, abstractness, cycles, layer violations, size and bytecode complexity per package and class. Click a row for inputs and meaning." />
+    <PageTitle eyebrow="ARCHITECTURE METRICS" title="Metrics = measured structure with its formula." description="Metrics per package and class: Ca, Ce, I, A, D, cycles, layer violations, size and bytecode complexity. Click a row for inputs and meaning." />
     <InsightState query={query}>{() => <MetricsBody data={query.data!} />}</InsightState>
   </>;
 }
