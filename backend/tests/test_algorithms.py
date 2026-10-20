@@ -133,7 +133,15 @@ def test_shared_repository_and_entity_mapping():
 def test_no_edges_and_one_class_are_valid():
     result=analyze([cls('Only')],[],config())
     assert result['summary']['class_count']==1
-    assert result['modernization'][0]['component_scores']['cohesion']==50
+    a=result['modernization'][0]
+    # No dependency edges: cohesion and decoupling have no denominator, so they are excluded, not scored as 50.
+    assert 'cohesion' not in a['component_scores'] and 'decoupling' not in a['component_scores']
+    assert [(e['input'],e['reason']) for e in a['not_measured']][:2]==[('cohesion','the domain has no dependency edges, so the internal share has no denominator'),('decoupling','the domain has no dependency edges, so the outgoing share has no denominator')]
+    assert {e['input'] for e in a['not_measured']}=={'cohesion','decoupling','database'}
+    assert set(a['component_scores'])==set(a['weights'])=={'cycles','boundary_scale','class_concentration'}
+    assert sum(a['weights'].values())==pytest.approx(1)
+    # cycles 100, boundary size 100, class concentration 100 -> 100 whatever the renormalized weights are
+    assert a['readiness_score']==100 and 'Not measured' in a['explanation']
 
 
 def test_assistant_abstains_and_cites_only_context():

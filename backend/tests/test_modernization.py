@@ -232,16 +232,40 @@ def test_projection_outage_preserves_saved_proposal_and_redacts_error(live,monke
 
 
 def test_confidence_fixture_arithmetic_and_telemetry_quality_do_not_change_readiness():
+    """Hand-computed. Policy weights: static .30, runtime coverage .30, review .15, unresolved references .15, runtime data quality .10;
+    unmeasured inputs are dropped and the rest renormalized."""
     low, _, _, _, _ = pure()
-    assert all(a['confidence_score'] == 22.5 for a in low['assessments'])
+    # static 90 (x.30) + review 0 (x.15) + resolved references 3/3 = 100 (x.15), divided by .60 = 42 / .6
+    assert all(a['confidence_score'] == 70.0 for a in low['assessments'])
+    assert {e['input'] for e in low['assessments'][0]['confidence_not_measured']} == {'runtime_coverage', 'runtime_data_quality', 'behavioral_validation', 'data_ownership'}
     high, facts, evidence, version, static = pure(observations=1, reviewed=True)
-    assert all(a['confidence_score'] == 77.5 for a in high['assessments'])
-    version.document['quality'] = dict(dropped_spans=5, warnings=['Dropped spans'])
+    # static 90 (x.30) + runtime 4/4 = 100 (x.30) + review 100 (x.15) + references 100 (x.15), divided by .90 = 87 / .9
+    assert all(a['confidence_score'] == 96.7 for a in high['assessments'])
+    assert high['assessments'][0]['confidence_components'].keys() == {'static_support', 'runtime_coverage', 'review_status', 'unresolved_references'}
+    assert 'behavioral_validation' not in high['assessments'][0]['confidence_components']
+    version.document['quality'] = dict(dropped_spans=5, warnings=['Dropped spans'], accepted_spans=100)
     degraded = engine.build(str(uuid4()), version, static, facts, evidence, dict(strategy='MODULAR_MONOLITH',objective='Fixture'))
     for a, b in zip(high['assessments'], degraded['assessments']):
         assert b['combined_score'] == a['combined_score']
-        assert b['confidence_score'] == 62.5
+        # data quality = 100 x (1 - (5 dropped + 1 for unverified/warnings) / 100 spans) = 94; (27 + 30 + 15 + 15 + 9.4) / 1.0 = 96.4
+        assert b['confidence_inputs']['runtime_data_quality']['value'] == 94.0 and b['confidence_score'] == 96.4
         assert 'RUNTIME_QUALITY_REVIEW' in b['blockers']
+
+
+def test_validator_requires_unmeasured_inputs_to_be_disclosed():
+    doc, facts, evidence, _, _ = pure()
+    doc['assessments'][0]['confidence_not_measured'] = []
+    assert 'UNMEASURED_INPUT_NOT_DISCLOSED' in validation.validate(doc, facts, evidence)['errors']
+
+
+def test_no_runtime_adds_no_invented_cost_or_risk():
+    low, _, _, _, static = pure()
+    baseline = {a['domain_id']: a for a in static['modernization']}
+    for a in low['assessments']:
+        assert a['cost_index'] == baseline[a['domain_id']]['heuristic_cost_index']
+        assert a['risk_band'] == baseline[a['domain_id']]['risk_band']
+        assert a['cost_drivers'][-1].startswith('Runtime gap is not measured')
+        assert a['runtime_score'] is None
 
 
 def test_known_shared_resource_requires_data_review():

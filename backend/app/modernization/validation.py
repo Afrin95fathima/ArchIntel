@@ -53,7 +53,8 @@ def validate(document, facts, evidence):
             check(abs(sum(components[k] * w for k, w in weights.items()) - score) <= .06, 'SCORE_ARITHMETIC')
         expected = a['structural_score'] if a['runtime_score'] is None else round(.6 * a['structural_score'] + .4 * a['runtime_score'], 1)
         check(a['combined_score'] == expected, 'COMBINED_ARITHMETIC')
-        check(a['confidence_components']['behavioral_validation'] == 0 and a['confidence_components']['data_ownership'] == 0, 'INVENTED_VALIDATION')
+        check('behavioral_validation' not in a['confidence_components'] and 'data_ownership' not in a['confidence_components'], 'INVENTED_VALIDATION')
+        check({'behavioral_validation', 'data_ownership'} <= {e['input'] for e in a.get('confidence_not_measured', [])}, 'UNMEASURED_INPUT_NOT_DISCLOSED')
         if a.get('readiness_label') == 'READY_TO_PLAN':
             check(a['confidence_score'] >= 50 and not a.get('hard_blockers'), 'UNSUPPORTED_READY_LABEL')
         check(a.get('confidence_adjusted_score') == round(a['combined_score'] * a['confidence_score'] / 100, 1), 'CONFIDENCE_ADJUSTMENT_MISMATCH')

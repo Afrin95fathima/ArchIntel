@@ -43,11 +43,13 @@ def derive(static, runtime, coverage, events, structural_weight, weights=None, s
             metrics[target]['incoming_calls'] += count
             domain_graph.add_edge(source,target)
     cyclic = {n for group in nx.strongly_connected_components(domain_graph) if len(group)>1 for n in group}
-    shared = defaultdict(set)
+    resources = defaultdict(set)         # (system, server, namespace, resource) -> domains calling it
+    called_by = defaultdict(set)         # domain -> resources it calls
     for item in database.values():
         if item['resource'] and item['namespace'] and item['server'] and item['domain_id']:
-            shared[(item['system'],item['server'],item['namespace'],item['resource'])].add(item['domain_id'])
-    shared_domains = {d for group in shared.values() if len(group)>1 for d in group}
+            key = (item['system'], item['server'], item['namespace'], item['resource'])
+            resources[key].add(item['domain_id']); called_by[item['domain_id']].add(key)
+    shared_domains = {d for group in resources.values() if len(group)>1 for d in group}
     assessments = []
     for structural in static['modernization']:
         identity = structural['domain_id']
@@ -56,8 +58,19 @@ def derive(static, runtime, coverage, events, structural_weight, weights=None, s
         ratio = observation['observed']/observation['total'] if observation['total'] else 0
         # Absence of mapped calls is unknown, not zero readiness.
         total = metric['total_calls']
-        components = dict(cohesion=100*metric['internal_calls']/total if total else None,cycles=0 if identity in cyclic else 100,persistence=25 if identity in shared_domains else 50)
-        runtime_score = round(sum(components[k]*w for k,w in weights.items()),1) if total else None
+        # Each runtime input is measured or left out; none is replaced by a default.
+        components, not_measured = {}, []
+        if total: components['cohesion'] = 100*metric['internal_calls']/total
+        else: not_measured.append(dict(input='cohesion',reason='no mapped runtime call leaves or stays inside this domain'))
+        if total: components['cycles'] = 0 if identity in cyclic else 100
+        else: not_measured.append(dict(input='cycles',reason='no mapped runtime call involves this domain'))
+        own = called_by.get(identity,set())
+        if own: components['persistence'] = 100*sum(len(resources[k])==1 for k in own)/len(own)
+        else: not_measured.append(dict(input='persistence',reason='no database call with a complete system, server, namespace and resource identity was attributed to this domain'))
+        used = {k:w for k,w in weights.items() if k in components}
+        scale = sum(used.values())
+        used = {k:w/scale for k,w in used.items()} if scale else {}
+        runtime_score = round(sum(components[k]*used[k] for k in used),1) if used and total else None
         combined = round(structural_weight*structural['readiness_score']+(1-structural_weight)*runtime_score,1) if runtime_score is not None else structural['readiness_score']
         assessments.append(dict(domain_id=identity,domain_name=structural['domain_name'],structural_score=structural['readiness_score'],runtime_score=runtime_score,
             combined_score=combined,coverage_confidence=round(ratio,3),confidence='LIMITED_OBSERVATION' if ratio<.8 else 'OBSERVED_SAMPLE',
@@ -65,8 +78,8 @@ def derive(static, runtime, coverage, events, structural_weight, weights=None, s
             metrics=metric,runtime_cycle=identity in cyclic,shared_persistence_candidate=identity in shared_domains,
             recommended_order=structural['recommended_order'],wave=structural['wave'],
             risks=structural['risks']+(['Low observation coverage; conclusions have limited confidence.'] if ratio<.8 else []),
-            formula='runtime = sum(component * configured weight); cohesion=observed internal-call percentage; cycles=0 if observed cyclic, otherwise 100; persistence=25 shared candidate, otherwise 50 unknown; combined = structural_weight * structural + (1 - structural_weight) * runtime; unknown runtime retains structural',
-            component_scores=components,component_weights=weights,
+            formula='runtime = sum(component x weight) over the measured components, weights renormalized to sum to 1; cohesion = observed internal calls / observed calls from the domain x 100; cycles = 0 if the domain is in an observed domain cycle, otherwise 100; persistence = resources called by this domain alone / resources it calls x 100; combined = structural_weight x structural + (1 - structural_weight) x runtime; without runtime the structural score is kept',
+            component_scores=components,component_weights=used,not_measured=not_measured,
             structural_weight=structural_weight,evidence={'coverage_domain_id':identity,'runtime_edge_ids':[e['id'] for e in runtime['edges'] if nodes[e['source']].get('domain_id')==identity]},
             sequence_note='Static dependency-first order retained; runtime evidence adds review blockers, not automatic extraction approval.'))
     # Generic "exercise another entry point" text was removed: specific, ranked suggestions come from

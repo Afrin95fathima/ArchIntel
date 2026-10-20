@@ -17,6 +17,11 @@ RULE_VERSION = 'modernization-intelligence-4'
 CALIBRATION = 'fixture-calibration-1'
 STRATEGIES = ['MODULAR_MONOLITH', 'MICROSERVICES', 'HYBRID', 'CLOUD_REFACTOR', 'JAVA_UPGRADE', 'FRAMEWORK_UPGRADE']
 PREREQUISITES = ['PINNED_SOURCE_AND_PASSING_BUILD', 'BEHAVIORAL_CONTRACTS', 'DATA_OWNERSHIP_REVIEW', 'HUMAN_CHANGE_APPROVAL']
+# Evidence confidence: share of each measured input, weighted by this policy and renormalized over the inputs that are measured.
+CONFIDENCE_WEIGHTS = dict(static_support=.30, runtime_coverage=.30, review_status=.15, unresolved_references=.15, runtime_data_quality=.10)
+CONFIDENCE_LABELS = dict(static_support='Static boundary evidence', runtime_coverage='Runtime class coverage', review_status='Domain review recorded',
+    unresolved_references='Resolved dependency references', runtime_data_quality='Runtime data quality',
+    behavioral_validation='Behavioral validation', data_ownership='Data ownership review')
 ACTION = {
     'BREAK_CYCLE_FIRST': 'Review and break the evidenced cyclic boundary before separating its members.',
     'ISOLATE_DATA_FIRST': 'Review shared persistence and transaction ownership before changing the boundary.',
@@ -44,7 +49,9 @@ def structural(version, static):
     cycles = copy.deepcopy([c for c in static.get('cycles', []) if c['level'] == 'CLASS'])
     for c in cycles:
         c['impacted_domains'] = sorted({membership[n] for n in c['members']})
-    return assess_and_rank(domains, membership, graph, cycles, [], static['configuration']['readiness_weights'])
+    # Reviewed membership changes domains, so only class-level God-class findings are reused; domain-boundary violations are not recomputed here.
+    god_classes = [i for i in static.get('issues', []) if i['issue_type'] == 'GOD_CLASS']
+    return assess_and_rank(domains, membership, graph, cycles, god_classes, static['configuration']['readiness_weights'], boundary_available=False)
 
 
 def build(assessment_id, version, static, facts, evidence, options):
@@ -186,11 +193,47 @@ def build(assessment_id, version, static, facts, evidence, options):
                 measured={'quality_issue_count': quality_issues, 'missing_parent_count': cov.get('missing_parent_count', 0), 'unresolved_node_count': cov.get('unresolved_node_count', 0),
                           **{k: diagnostics.get(k, 0) for k in issue_keys}, 'unverified_spans_or_warnings': unverified},
                 threshold={'allowed_quality_issues': 0}, subjects=[domain['name']])
-        quality = max(0, 100 - quality_penalty) if has_runtime else 0
-        confidence_components = dict(static_support=round(float(domain.get('confidence', 0)) * 100, 1), runtime_observation=observation_score, mapping_quality=quality,
-            boundary_review=100 if version.manifest.get('domain_review') else 0, behavioral_validation=0, data_ownership=0)
-        confidence_weights = dict(static_support=.25, runtime_observation=.25, mapping_quality=.15, boundary_review=.15, behavioral_validation=.1, data_ownership=.1)
-        confidence = round(sum(confidence_components[k] * w for k, w in confidence_weights.items()), 1)
+        accepted_spans = diagnostics.get('accepted_spans')
+        confidence_inputs, confidence_not_measured = {}, []
+        def conf(key, value, numerator, denominator, text, raise_by=()):
+            confidence_inputs[key] = dict(label=CONFIDENCE_LABELS[key], value=round(value, 1), numerator=numerator, denominator=denominator, text=text,
+                                          weight=CONFIDENCE_WEIGHTS[key], how_to_raise=list(raise_by))
+        def conf_skip(key, reason, measure_by=None):
+            confidence_not_measured.append(dict(input=key, label=CONFIDENCE_LABELS[key], reason=reason, how_to_measure=measure_by))
+        unobserved_names = [c.rsplit('.', 1)[-1] for c in observed.get('unobserved_classes', [])]
+        unresolved_names = sorted({n.rsplit('.', 1)[-1] for f in unresolved for n in (f['source'], f['target']) if n not in membership})
+        if domain.get('confidence') is not None:
+            conf('static_support', float(domain['confidence']) * 100, None, None, f"clustering confidence {domain['confidence']} (stability, conductance and size of the candidate boundary)",
+                 [f"Review the {len(domain['classes'])} classes of {domain['name']}; the value comes from " + '; '.join(domain.get('evidence', [])[:2]) + '.'])
+        else:
+            conf_skip('static_support', 'the domain record has no clustering confidence')
+        if class_pct is not None:
+            conf('runtime_coverage', class_pct, observed_domain_classes, len(domain_classes), f"{observed_domain_classes} of {len(domain_classes)} classes of {domain['name']} have a mapped span",
+                 [f"Exercise code that reaches {', '.join(unobserved_names[:5])}." + (f" {len(unobserved_names) - 5} more are listed in Dynamic analysis." if len(unobserved_names) > 5 else '')] if unobserved_names else [])
+        else:
+            conf_skip('runtime_coverage', 'no runtime session is attached to this version' if not has_runtime else 'the domain has no classes',
+                      'Attach a runtime session in Dynamic analysis, exercise the application, then capture a new architecture version.' if not has_runtime else None)
+        conf('review_status', 100.0 if version.manifest.get('domain_review') else 0.0, None, None,
+             'a domain review is recorded for this version' if version.manifest.get('domain_review') else 'no domain review is recorded for this version',
+             [] if version.manifest.get('domain_review') else [f"Review the membership of {domain['name']} in Evidence & digital twin and save the review."])
+        if fs:
+            conf('unresolved_references', 100 * (1 - len(unresolved) / len(fs)), len(fs) - len(unresolved), len(fs), f"{len(fs) - len(unresolved)} of {len(fs)} dependency facts of {domain['name']} connect two classes that have a domain",
+                 [f"Assign {', '.join(unresolved_names[:5])} to a domain."] if unresolved_names else [])
+        else:
+            conf_skip('unresolved_references', f"{domain['name']} has no dependency facts")
+        if has_runtime and accepted_spans:
+            conf('runtime_data_quality', 100 * (1 - min(1, (quality_issues + (1 if unverified else 0)) / accepted_spans)), accepted_spans - quality_issues, accepted_spans,
+                 f"{quality_issues} counted quality issue(s)" + (" plus unverified spans or warnings" if unverified else "") + f" against {accepted_spans} accepted spans",
+                 ([f"Resolve the {cov.get('missing_parent_count', 0)} missing parent span(s) and {diagnostics.get('dropped_spans', 0)} dropped span(s) in the runtime capture."] if quality_issues else []) + (['Provide the service name and artifact hash resource attributes so spans are verified.'] if unverified else []))
+        else:
+            conf_skip('runtime_data_quality', 'no runtime session is attached to this version' if not has_runtime else 'the accepted span count is not recorded in this version',
+                      'Attach a runtime session and capture a new architecture version.' if not has_runtime else None)
+        conf_skip('behavioral_validation', 'no behavioral contract tests are recorded for this version', 'Add reviewed behavioral contracts to a source task for this domain (Source tasks > Contracts).')
+        conf_skip('data_ownership', 'no data-ownership review is recorded for this version', 'Review the shared repositories and entities of this domain with their owners and record the result.')
+        confidence_components = {k: v['value'] for k, v in confidence_inputs.items()}
+        weight_total = sum(CONFIDENCE_WEIGHTS[k] for k in confidence_components)
+        confidence_weights = {k: round(CONFIDENCE_WEIGHTS[k] / weight_total, 6) for k in confidence_components}
+        confidence = round(sum(confidence_components[k] * confidence_weights[k] for k in confidence_components), 1)
         blockers = list(PREREQUISITES)
         if observation_score < 80: blockers.append('RUNTIME_OBSERVATION_GAP')
         if not version.manifest.get('domain_review'): blockers.append('DOMAIN_REVIEW_REQUIRED')
@@ -205,17 +248,17 @@ def build(assessment_id, version, static, facts, evidence, options):
         elif did in cyclic: decision = 'BREAK_CYCLE_FIRST'
         elif shared[did]: decision = 'ISOLATE_DATA_FIRST'
         elif baseline['external_coupling'] > .5: decision = 'REDUCE_COUPLING_FIRST'
-        elif observation_score < 80 or unresolved or quality_penalty or not version.manifest.get('domain_review'): decision = 'COLLECT_MORE_EVIDENCE'
+        elif not has_runtime or observation_score < 80 or unresolved or quality_penalty or not version.manifest.get('domain_review'): decision = 'COLLECT_MORE_EVIDENCE'
         elif options['strategy'] == 'MODULAR_MONOLITH': decision = 'RETAIN_MODULAR_MONOLITH'
         else: decision = 'PREPARE_FOR_EXTRACTION'
         readiness_score = round(combined * confidence / 100, 1)
         hard_blockers = sorted(set((['CROSS_DOMAIN_CYCLE'] if did in cyclic else []) + (['SHARED_PERSISTENCE_REVIEW'] if shared[did] else []) + (['EVIDENCE_CONFLICT'] if conflicts else [])))
         readiness_label = 'BLOCKED' if hard_blockers else 'READY_TO_PLAN' if confidence >= 60 and readiness_score >= 70 and not unresolved else 'NEEDS_EVIDENCE'
-        runtime_gap_cost = round(max(0,100-observation_score)/25,1)
+        runtime_gap_cost = round(max(0,100-observation_score)/25,1) if has_runtime else 0.0
         cost_index = round((baseline.get('heuristic_cost_index') or 0) + runtime_gap_cost,1)
         effort_band = 'S' if cost_index <= 8 else 'M' if cost_index <= 18 else 'L' if cost_index <= 35 else 'XL'
-        risk_band = 'HIGH' if hard_blockers or observation_score < 50 else baseline.get('risk_band','MEDIUM')
-        cost_drivers = list(baseline.get('risk_drivers', [])) + ([f'{100-observation_score:.1f}% class observation gap adds {runtime_gap_cost:.1f} heuristic cost points'] if has_runtime else ['No runtime session attached; runtime gap remains unmeasured.'])
+        risk_band = 'HIGH' if hard_blockers or (has_runtime and observation_score < 50) else baseline.get('risk_band','MEDIUM')
+        cost_drivers = list(baseline.get('risk_drivers', [])) + ([f'{100-observation_score:.1f}% class observation gap adds {runtime_gap_cost:.1f} heuristic cost points'] if has_runtime else ['Runtime gap is not measured: no runtime session is attached, so it adds no cost points.'])
         seams = [f for f in fs if membership.get(f['source']) == did and membership.get(f['target']) in domain_ids and membership[f['target']] != did]
         seam_targets = sorted({membership[f['target']] for f in seams})
         seam_classes = sorted({name for f in seams for name in (f['source'],f['target'])})
@@ -231,7 +274,8 @@ def build(assessment_id, version, static, facts, evidence, options):
                 affected_classes=sorted(domain_classes), dependency_pairs=[], proposed_interface=None, target_domains=[],
                     finding_ids=list(local_findings), missing_evidence=['observed method coverage','confirmed business boundary'])
         assessments.append(dict(domain_id=did, domain_name=domain['name'], structural_score=baseline['readiness_score'],
-            structural_components=baseline['component_scores'], structural_weights=baseline['weights'], structural_source='RECOMPUTED_REVIEWED_DOMAINS' if version.manifest.get('domain_review') else 'PRESERVED_BASELINE',
+            structural_components=baseline['component_scores'], structural_weights=baseline['weights'], structural_details=baseline.get('component_details'),
+            structural_not_measured=baseline.get('not_measured', []), structural_formula=baseline.get('formula'), structural_source='RECOMPUTED_REVIEWED_DOMAINS' if version.manifest.get('domain_review') else 'PRESERVED_BASELINE',
             runtime_score=runtime_score, runtime_components=runtime_components, runtime_weights=runtime_weights, combined_score=combined,
             readiness_formula='Combined readiness retains the structural baseline when runtime is unavailable. Confidence-adjusted readiness = combined readiness × evidence confidence / 100.',
             confidence_adjusted_score=readiness_score, readiness_score=readiness_score, readiness_label=readiness_label, hard_blockers=hard_blockers,
@@ -239,7 +283,10 @@ def build(assessment_id, version, static, facts, evidence, options):
                                   methods=dict(observed=observed_domain_methods,total=method_coverage.get('total') if methods_available else None,percentage=method_pct),
                                   entry_points=dict(observed=observed_entry_count,total=len(domain_entry_methods) if methods_available else None,percentage=entry_pct)),
             confidence_score=confidence, confidence_components=confidence_components, confidence_weights=confidence_weights,
-            confidence_label='LIMITED' if confidence < 50 else 'PARTIAL', confidence_note='Heuristic evidence index, not a calibrated probability. Behavioral validation and data ownership remain unknown.',
+            confidence_inputs=confidence_inputs, confidence_not_measured=confidence_not_measured,
+            confidence_label='LIMITED' if confidence < 50 else 'PARTIAL',
+            confidence_note=f"Confidence {confidence}/100 for {domain['name']} = sum(input x weight) over {len(confidence_inputs)} measured input(s): " + '; '.join(f"{v['label'].lower()} {v['value']} ({v['text']})" for v in confidence_inputs.values())
+                + ". Not measured, so excluded: " + '; '.join(f"{e['label'].lower()} ({e['reason']})" for e in confidence_not_measured) + '. Heuristic evidence index, not a calibrated probability.',
             observation=observed, evidence_ids=support, fact_ids=fact_ids, blockers=blockers,
             recommendations=[recommendation], effort_band=effort_band, risk_band=risk_band,
             cost_index=cost_index, cost_drivers=cost_drivers,
