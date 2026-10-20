@@ -18,6 +18,12 @@ from . import service
 router = APIRouter(prefix='/api/v1/architecture-versions/{vid}/modernization', tags=['Modernization intelligence'])
 
 
+@router.get('/context')
+def planning_context(vid: str, request: Request, db=Depends(session)):
+    from . import context
+    return context.build(db, version_owned(db, request, vid))
+
+
 @router.post('/preview')
 def preview(vid: str, body: PlanInput, request: Request, db=Depends(session)):
     with LOCK:

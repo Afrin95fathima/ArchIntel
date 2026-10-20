@@ -28,6 +28,10 @@ beforeEach(() => {
   vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => {
     const json = (body: unknown, ok = true) => ({ ok, status: ok ? 200 : 500, json: async () => body });
     if (url.endsWith('/applications/a1/architecture-versions')) return json([{ id: 'v1', name: 'Version one' }]);
+    if (url.endsWith('/architecture-versions/v1/modernization/context')) return json({ version: { id: { value: 'v1' }, name: { value: 'Version one' }, fingerprint: { value: 'fp' }, captured_at: { value: null, not_measured: 'x' } }, scan: { analysis_id: { value: 'a' }, scan_date: { value: null, not_measured: 'x' }, algorithm_version: { value: null, not_measured: 'x' } },
+      artifact: { name: { value: 'a.jar' }, sha256: { value: null, not_measured: 'x' } }, counts: { classes: { value: 1 }, packages: { value: 1 }, domains: { value: 1 }, class_cycle_groups: { value: 0 }, aging_technology_findings: { value: 0 }, entry_points: { value: 0 } },
+      runtime: { sessions: [], session_count: 0, traces: { value: null, not_measured: 'x' }, class_coverage: { value: null, not_measured: 'x' }, entry_point_coverage: { value: null, not_measured: 'x' }, method_coverage: { value: null, not_measured: 'x' } },
+      review: { domain_review: { value: null, not_measured: 'x' } }, changes: { text: 'none' }, takes_into_account: [], does_not_take_into_account: [] });
     if (url.endsWith('/architecture-versions/v1/modernization')) return json([{ id: 'p1', strategy: 'MODULAR_MONOLITH', objective: 'o' }]);
     if (url.endsWith('/architecture-versions/v1/modernization/p1')) return json({ id: 'p1', document, context: { state: 'CURRENT' }, reviews: [], projection: { state: 'APPLIED', attempts: 1, error_code: null } });
     if (url.endsWith('/explain') && init?.method === 'POST') {

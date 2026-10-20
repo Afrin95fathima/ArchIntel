@@ -101,3 +101,7 @@
 .glossary-entry{margin:0 0 12px}
 .glossary-entry dt{font-weight:600}
 .glossary-entry dd{margin:2px 0 0}
+
+.context-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 16px}
+.context-facts dt{font-size:var(--text-12);color:var(--neutral-600)}
+.context-facts dd{margin:0;overflow-wrap:anywhere}
