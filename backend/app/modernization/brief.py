@@ -85,7 +85,7 @@ def build(result: dict, static: dict, domains: list[dict], options: dict, eviden
     assessments = result['assessments']
     D = len(assessments)
     summary = static.get('summary', {})
-    artifact = (summary.get('artifact') or {}).get('filename') or 'the analyzed artifact'
+    artifact = (static.get('artifact') or {}).get('filename') or 'the analyzed artifact'
     strategy = options['strategy']
     domain_name = {a['domain_id']: a['domain_name'] for a in assessments}
     findings = result['findings']

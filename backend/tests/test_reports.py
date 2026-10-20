@@ -1,35 +1,15 @@
-from types import SimpleNamespace
+"""Item 6: the report is one model rendered to HTML and PDF; its figures equal the application's own API data."""
 import re
 import zlib
 
-from app.reports.modernization_pdf import render_modernization_report
+import pytest
 
+from app.models import AnalysisRun
+from insight_fixtures import snapshot
+from test_runtime import live, span
+from test_evidence import make, capture
 
-def fixture(runtime=True):
-    app = SimpleNamespace(name='Concord')
-    run = SimpleNamespace(id='analysis-id', result={
-        'summary': {'class_count': 25, 'package_count': 4, 'dependency_count': 31, 'domain_count': 2,
-                    'artifact': {'filename': 'concord.jar', 'sha256': 'a' * 64}, 'issue_counts': {'HIGH': 1}},
-        'domains': [{'id': 'd1', 'name': 'Console', 'class_count': 15}],
-        'issues': [{'severity': 'HIGH', 'title': 'Cross-domain cycle', 'description': 'Review before extraction.'}],
-    })
-    coverage = {key: {'observed': 3, 'total': 10, 'percentage': 30.0} for key in ('classes', 'entry_points', 'methods', 'dependencies', 'domains')}
-    version = SimpleNamespace(name='Concord runtime capture', id='version-id', fingerprint='b' * 64,
-        manifest={'runtime_session_ids': ['session-id'] if runtime else [], 'artifact_sha256': 'a' * 64},
-        document={'coverage': coverage, 'quality': {'dropped_spans': 0}, 'graph': {'nodes': [{}] * 4, 'edges': [{}] * 3},
-                  'evidence_count': 5, 'facts_count': 2, 'unknowns': ['Data ownership is unconfirmed.']})
-    assessment = SimpleNamespace(id='proposal-id', document={
-        'decision_brief': {'summary': 'A reviewable plan.', 'selected_strategy': 'MICROSERVICES', 'objective': 'Modernize safely.',
-                           'strategy_comparison': [], 'unresolved_questions': ['Who owns the database?'], 'next_step': 'Review boundaries.'},
-        'validation': {'status': 'VALIDATED'}, 'assessments': [{'domain_id': 'd1', 'domain_name': 'Console', 'structural_score': 70,
-            'runtime_score': 60, 'combined_score': 66, 'confidence_score': 40, 'confidence_label': 'LIMITED', 'blockers': ['DOMAIN_REVIEW_REQUIRED']}],
-        'decisions': [{'domain_id': 'd1', 'action': 'Collect more evidence.', 'blockers': ['DOMAIN_REVIEW_REQUIRED']}],
-        'waves': [{'number': 1, 'domains': ['d1'], 'reason': 'Review dependencies.', 'blockers': []}],
-        'limitations': ['Scores are heuristic.'], 'rule_version': 'rules-v1', 'calibration_version': 'cal-v1',
-        'target': {'strategy': 'MICROSERVICES', 'objective': 'Modernize safely.'},
-    })
-    sessions = [SimpleNamespace(name='Demo session', environment='LOCAL', status='COMPLETED', trace_count=2, span_count=3, id='session-id')] if runtime else []
-    return app, run, version, assessment, sessions
+SECTION_IDS = ['summary', 'profile', 'architecture', 'problems', 'aging', 'cycles', 'runtime', 'plan', 'risks', 'appendix']
 
 
 def pdf_text(pdf):
@@ -66,26 +46,121 @@ def pdf_page_count(pdf):
     return int(pages.group(2))
 
 
-def test_consolidated_pdf_includes_all_four_evidence_layers_and_plan_caveats():
-    values = fixture()
-    pdf = render_modernization_report(*values[:4], values[4], {'state': 'PENDING'})
+
+
+def sentences(text):
+    return [s for s in re.split(r'(?<=[.!?])\s+(?=[A-Z0-9(])', text.strip()) if s]
+
+
+def petclinic_report(live, with_runtime=False):
+    with live.app.state.sessions() as db:
+        original = db.get(AnalysisRun, live.run_id)
+        result = dict(snapshot('petclinic'), artifact=dict(filename='petclinic.jar', sha256='f' * 64, size=1), scanner=dict(name='fixture', version='1'), limitations=[])
+        run = AnalysisRun(application_id=original.application_id, artifact_id=original.artifact_id, status='COMPLETED', result=result)
+        db.add(run); db.commit(); analysis = run.id
+    response = live.post(f'/api/v1/applications/{live.app_id}/architecture-versions', json=dict(analysis_id=analysis, name='PetClinic', runtime_session_ids=[]))
+    assert response.status_code == 201, response.text
+    version = response.json()
+    base = f"/api/v1/architecture-versions/{version['id']}/modernization"
+    created = live.post(base, json=dict(strategy='MODULAR_MONOLITH', objective='Produce the report'))
+    assert created.status_code == 201, created.text
+    return base, created.json()['id'], analysis, version
+
+
+def test_report_has_ten_sections_each_with_plain_terms_and_technical_detail(live):
+    base, aid, *_ = petclinic_report(live)
+    report = live.get(f'{base}/{aid}/report.json').json()
+    assert [s['id'] for s in report['sections']] == SECTION_IDS and [s['number'] for s in report['sections']] == list(range(1, 11))
+    for section in report['sections']:
+        count = sum(len(sentences(p)) for p in section['plain'])
+        assert 2 <= count <= 4, (section['id'], count, section['plain'])
+        assert section['technical'], section['id']
+    assert report['numbers_check']['unregistered'] == []
+
+
+def test_the_plain_text_names_the_applications_own_classes_domains_and_numbers(live):
+    base, aid, *_ = petclinic_report(live)
+    text = {s['id']: ' '.join(s['plain']) for s in live.get(f'{base}/{aid}/report.json').json()['sections']}
+    assert '24 classes in 5 packages, grouped into 5 candidate domains' in text['summary'] and 'Type Owner' in text['summary'] and 'Vet' in text['summary']
+    assert 'controller dependencies on entities (8 of 15 dependency edges, 53.3%)' in text['summary']
+    assert 'Java 17' in text['summary'] or 'compiled for Java 17' in text['summary']
+    assert '18 entry points were detected (17 HTTP endpoints, 1 main method)' in text['profile']
+    assert 'Database tables seen at runtime are not measured: no runtime session is attached.' in text['profile']
+    assert 'The code falls into 5 layers: Presentation 6, Services and application logic 2, Data access 3, Domain model 10, Configuration and bootstrap 3 classes.' in text['architecture'] and '15 dependency edges run across 3 domain pairs' in text['architecture']
+    assert '2 technologies need replacing: Java bytecode target level, Spring Boot' in text['aging'] and 'Class files target Java 17' in text['aging'] and 'no language change' in text['aging'].lower()
+    assert 'No runtime session is attached, so nothing was observed' in text['runtime']
+
+
+def test_report_figures_equal_the_application_api_data(live):
+    base, aid, analysis, version = petclinic_report(live)
+    report = live.get(f'{base}/{aid}/report.json').json()
+    facts = {f['id']: f for f in report['facts']}
+    summary = live.get(f'/api/v1/analyses/{analysis}/summary').json()
+    debt = live.get(f'/api/v1/analyses/{analysis}/insight/debt').json()
+    cycles = live.get(f'/api/v1/analyses/{analysis}/insight/cycles').json()
+    context = live.get(f"/api/v1/architecture-versions/{version['id']}/modernization/context").json()
+    plan = live.get(f'{base}/{aid}').json()['document']
+    assert facts['classes']['value'] == summary['class_count'] == context['counts']['classes']['value']
+    assert facts['packages']['value'] == summary['package_count'] and facts['domains']['value'] == summary['domain_count']
+    assert facts['entry_points']['value'] == context['counts']['entry_points']['value']
+    rates = {r['id']: r for r in debt['rates']['rates']}
+    cited = [rid for rid in rates if f'rate_{rid}_n' in facts]
+    assert cited
+    for rid in cited:
+        assert (facts[f'rate_{rid}_n']['value'], facts[f'rate_{rid}_d']['value'], facts[f'rate_{rid}_pct']['value']) == (rates[rid]['numerator'], rates[rid]['denominator'], rates[rid]['percentage'])
+    assert facts['aging_items']['value'] == len(plan['technology_plan']['items']) == 2
+    assert facts['waves']['value'] == len(plan['waves']) and facts['cross_edges']['value'] == sum(r['edge_count'] for r in plan['domain_dependency_matrix']['rows'])
+    problems = next(t for t in next(s for s in report['sections'] if s['id'] == 'summary')['technical'] if t.get('caption') == 'Top five technical problems')
+    for row in problems['rows']:
+        rate = next(r for r in debt['rates']['rates'] if r['label'] == row[0])
+        assert row[1:4] == [str(rate['numerator']), f"{rate['denominator']} {rate['unit']}", f"{rate['percentage']}%"]
+    assert len([c for c in cycles['groups'] if c['level'] == 'CLASS']) == 0 and 'No class-level dependency cycle was found.' in ' '.join(next(s for s in report['sections'] if s['id'] == 'cycles')['plain'])
+
+
+def test_html_report_is_self_contained_with_both_diagrams_and_every_plain_sentence(live):
+    base, aid, *_ = petclinic_report(live)
+    report = live.get(f'{base}/{aid}/report.json').json()
+    response = live.get(f'{base}/{aid}/report.html')
+    assert response.status_code == 200 and response.headers['content-type'].startswith('text/html')
+    html = response.text
+    assert '<script' not in html and html.count('In plain terms') == 10 and html.count('Technical detail') == 10
+    ids = re.findall(r' id="([^"]+)"', html)
+    assert len(ids) == len(set(ids)), 'duplicate element ids in the report'
+    assert html.count('<svg') == 2 and 'aria-labelledby="hld-title hld-desc"' in html and 'aria-labelledby="map-title map-desc"' in html
+    assert [m for m in re.findall(r'<h2 id="h-(\w+)"', html)] == SECTION_IDS
+    from html import escape
+    for section in report['sections']:
+        for paragraph in section['plain']:
+            assert escape(paragraph, quote=True) in html
+    assert 'Owner Visit' in html and 'Type Owner' in html and '>24<' in html
+    assert live.get(f'{base}/{aid}/report.html?download=true').headers['content-disposition'].startswith('attachment; filename="archintel-Test-')
+
+
+def test_pdf_report_is_valid_and_carries_the_same_text(live):
+    base, aid, *_ = petclinic_report(live)
+    report = live.get(f'{base}/{aid}/report.json').json()
+    response = live.get(f'{base}/{aid}/report.pdf')
+    assert response.status_code == 200 and response.headers['content-type'].startswith('application/pdf')
+    assert 'attachment; filename="archintel-Test-' in response.headers['content-disposition']
+    pdf = response.content
     assert pdf.startswith(b'%PDF-1.4') and pdf.endswith(b'%%EOF\n')
     assert_pdf_pages_resolve(pdf)
-    assert 8 <= pdf_page_count(pdf) <= 14
-    text = pdf_text(pdf)
-    for expected in (b'Static analysis', b'Dynamic analysis', b'Digital twin', b'Modernization proposal',
-                     b'Cross-domain cycle', b'Demo session', b'MICROSERVICES', b'heuristic', b'ownership'):
-        assert expected.lower() in text.lower()
-    for expected in (b'Architecture scale', b'Findings by severity', b'Candidate domain size',
-                     b'Observed runtime coverage', b'Digital twin evidence',
-                         b'Readiness and confidence by domain',
-                     b'Proposed modernization waves'):
-        assert expected.lower() in text.lower()
-    assert b'proposal schema check' in text.lower() and b'passed' in text.lower()
+    assert pdf_page_count(pdf) >= 12
+    text = pdf_text(pdf).lower()
+    for section in report['sections']:
+        assert f"{section['number']}. {section['title']}".lower().encode('ascii') in text
+    assert text.count(b'in plain terms') == 10 and b'technical detail' in text
+    assert b'type owner' in text and b'high-level architecture' in text and b'domain dependency matrix' in text and b'fact table' in text
 
 
-def test_report_marks_dynamic_layer_unavailable_when_snapshot_is_static_only():
-    app, run, version, assessment, sessions = fixture(runtime=False)
-    pdf = render_modernization_report(app, run, version, assessment, sessions, {'state': 'UNAVAILABLE'})
-    assert b'runtime coverage is not' in pdf_text(pdf).lower()
-
+def test_runtime_sections_report_the_session_numbers_when_a_session_is_attached(live):
+    sid = capture(live, span(1, 'app.a.A'), span(2, 'app.b.B', 1), span(3, 'app.d.D', 2), span(4, 'app.x.X'), span(5, 'app.b.B', 4))
+    version = make(live, [sid])
+    created = live.post(f"/api/v1/architecture-versions/{version['id']}/modernization", json=dict(strategy='MODULAR_MONOLITH', objective='Runtime report'))
+    assert created.status_code == 201, created.text
+    report = live.get(f"/api/v1/architecture-versions/{version['id']}/modernization/{created.json()['id']}/report.json").json()
+    text = {s['id']: ' '.join(s['plain']) for s in report['sections']}
+    assert '1 runtime session observed 3 of 4 classes (75.0%)' in text['runtime']
+    sessions = next(t for t in next(s for s in report['sections'] if s['id'] == 'runtime')['technical'] if t.get('caption') == 'Sessions')
+    assert sessions['rows'][0][0] == 'Test' and sessions['rows'][0][3:5] == ['1', '5'] and sessions['rows'][0][5] == sid
+    assert report['numbers_check']['unregistered'] == []

@@ -34,9 +34,9 @@ def test_downloadable_pdf_report_is_version_bound_and_contains_all_layers(live):
     assert 'attachment; filename="archintel-Test-' in response.headers['content-disposition']
     assert response.content.startswith(b'%PDF-1.4') and response.content.endswith(b'%%EOF\n')
     content = b''.join(zlib.decompress(match.group(2)) for match in re.finditer(rb'/Length (\d+) /Filter /FlateDecode >>\nstream\n(.*?)\nendstream', response.content, re.S))
-    assert b'Static analysis' in content and b'Dynamic analysis' in content
-    assert b'Digital twin' in content and b'Modernization proposal' in content
-    assert b'No completed runtime sessions' in content
+    for title in (b'1. Summary', b'3. Architecture', b'7. Runtime coverage', b'8. Modernization plan', b'10. Appendix'):
+        assert title in content, title
+    assert content.count(b'In plain terms') == 10 and b'No runtime session is attached' in content
 
 
 def pure(static=None, observations=0, reviewed=False):

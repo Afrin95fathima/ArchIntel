@@ -11,309 +11,36 @@ def _plain(value):
     return unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
 
 
-def _coverage_line(label, record):
-    if not isinstance(record, dict):
-        return f'{label}: Unavailable'
-    if record.get('percentage') is not None:
-        return f"{label}: {record.get('observed', '?')} / {record.get('total', '?')} ({record['percentage']}%)"
-    return f"{label}: {record.get('status', 'UNAVAILABLE')} - {record.get('reason', 'No percentage available')}"
-
-
-def _humanize(value):
-    labels={
-        'EVIDENCE_SUPPORTS_REVIEW':'Evidence supports a review',
-        'INVENTORY_AVAILABLE_REVIEW_REQUIRED':'Inventory available; compatibility review required',
-        'INSUFFICIENT_EVIDENCE':'Not enough evidence to assess',
-        'CONDITIONAL':'Conditional on listed checks',
-        'READY_TO_PLAN':'Ready to plan', 'NEEDS_EVIDENCE':'Needs more evidence', 'BLOCKED':'Blocked by a hard risk',
-        'UNKNOWN':'Unknown', 'UNCONFIRMED':'Not confirmed', 'NOT_CHECKED':'Not checked',
-        'OBSERVED':'Observed in selected sessions', 'UNOBSERVED':'Not observed in selected sessions',
-        'METHOD_CALL':'Method call', 'FIELD_TYPE':'Field or type reference', 'EXTENDS':'Inheritance',
-        'IMPLEMENTS':'Interface implementation', 'ANNOTATION':'Annotation reference',
-        'STATIC_ONLY':'Found in code structure only', 'STATIC_AND_DYNAMIC':'Found in code and runtime',
-        'DYNAMIC_ONLY':'Observed at runtime only',
-    }
-    text=str(value if value is not None else 'Unavailable')
-    return labels.get(text,text.replace('_',' ').title())
-
-
-def _report_lines(application, run, version, assessment, sessions, projection):
-    static = run.result or {}
-    summary = static.get('summary') or {}
-    twin = version.document or {}
-    plan = assessment.document or {}
-    brief = plan.get('decision_brief') or {}
-    coverage = twin.get('coverage') or {}
-    yield ('cover', 'ArchIntel Modernization Intelligence Report')
-    yield ('subtitle', application.name)
-    yield ('meta', f"Generated {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')} | Evidence baseline {run.id}")
-    yield ('meta', f"Architecture version {version.id} | Proposal {assessment.id}")
-    yield ('notice', 'Confidential working report. Candidate boundaries and modernization recommendations require engineering review.')
-
+def report_lines(report):
+    """Line stream for the renderer, from the report model (the same model the HTML renders)."""
+    meta = report['meta']
+    yield ('cover', meta['application'] + ': modernization report')
+    yield ('subtitle', meta['artifact'])
+    yield ('meta', f"Generated {meta['generated_at']} | analysis {meta['analysis_id']}")
+    yield ('meta', f"Architecture version {meta['version_id']} | proposal {meta['proposal_id']}")
+    yield ('notice', meta['notice'])
+    for section in report['sections']:
+        yield ('page', '')
+        yield ('h1', f"{section['number']}. {section['title']}")
+        yield ('h2', 'In plain terms')
+        for sentence in section['plain']:
+            yield ('p', sentence)
+        yield ('h2', 'Technical detail')
+        for block in section['technical']:
+            if block['type'] == 'table':
+                yield ('table', block)
+            elif block['type'] == 'list':
+                yield ('sub', block['title'])
+                for item in block['items']:
+                    yield ('bullet', item)
+            elif block['type'] == 'hld':
+                yield ('hld', block['data'])
+            elif block['type'] == 'domain_map':
+                yield ('domain_graph', block['data'])
+                yield ('matrix', block['data'])
     yield ('page', '')
-    yield ('h1', 'Executive overview')
-    fit = brief.get('strategy_fit') or {}
-    yield ('p', fit.get('rationale') or brief.get('summary') or f"The saved proposal contains {len(plan.get('assessments', []))} domain assessments and {len(plan.get('waves', []))} planning waves.")
-    yield ('kv', 'Strategy fit\x00' + _plain(fit.get('recommendation','REVIEW_REQUIRED')).replace('_',' ').title())
-    yield ('kv', 'Overall evidence confidence\x00' + _plain(brief.get('overall_confidence','Unavailable')))
-    yield ('kv', 'Effort estimate\x00' + _plain(brief.get('effort_range','Heuristic bands unavailable; no duration forecast')))
-    for action in brief.get('top_actions', [])[:3]: yield ('bullet', 'Priority action: ' + action)
-    if brief.get('top_risks'):
-        for risk in brief['top_risks'][:3]: yield ('bullet', 'Top risk: ' + risk)
-    yield ('kv', 'Requested strategy\x00' + _humanize(brief.get('selected_strategy') or plan.get('target', {}).get('strategy')))
-    yield ('kv', 'Planning objective\x00' + _plain(brief.get('objective') or plan.get('target', {}).get('objective')))
-    validation_state = (plan.get('validation') or {}).get('status')
-    yield ('kv', 'Proposal schema check\x00' + ('Passed' if validation_state == 'VALIDATED' else _plain(validation_state or 'Not detected')))
-    yield ('kv', 'Architecture observation scope\x00' + f"{len(version.manifest.get('runtime_session_ids', []))} runtime session(s)")
-    yield ('notice', 'Plain-language note: this is a decision aid. It describes possible modernization steps; it has not changed the application or proved that a proposed move is safe.')
-    blocker_meanings = {
-        'PINNED_SOURCE_AND_PASSING_BUILD': ('Pin the exact source revision and confirm a clean build.', 'Record the repository commit and run the normal build pipeline.'),
-        'BEHAVIORAL_CONTRACTS': ('Expected user-visible behavior has not been protected by contracts.', 'Add representative API and workflow tests before changing boundaries.'),
-        'DATA_OWNERSHIP_REVIEW': ('Business ownership and write authority for data are not confirmed.', 'Review entities, repositories, transactions and database permissions with owners.'),
-        'HUMAN_CHANGE_APPROVAL': ('A reviewer has not approved this proposal for implementation.', 'Obtain explicit architecture and product-owner review.'),
-        'RUNTIME_OBSERVATION_GAP': ('Selected sessions cover only part of the domain.', 'Exercise the missing entry points and retain method-level telemetry.'),
-        'DOMAIN_REVIEW_REQUIRED': ('Candidate domain membership remains heuristic.', 'Review and save class membership with an architect.'),
-        'UNRESOLVED_MAPPING': ('Some runtime observations do not map to known classes.', 'Resolve class/method identities and capture a new version.'),
-        'RUNTIME_QUALITY_REVIEW': ('Telemetry loss or mapping uncertainty weakens conclusions.', 'Resolve dropped, conflicting or unverified spans before relying on absence.'),
-        'EVIDENCE_CONFLICT': ('Evidence sources disagree.', 'Inspect cited traces and static references, then resolve the conflict.'),
-        'CROSS_DOMAIN_CYCLE': ('Candidate domains depend on each other in a cycle.', 'Plan a joint cycle-remediation step before independent extraction.'),
-        'SHARED_PERSISTENCE_REVIEW': ('Multiple domains access a common observed data resource.', 'Confirm table/entity ownership and transaction boundaries.'),
-        'COMPATIBILITY_INVENTORY_REQUIRED': ('Upgrade compatibility has not been fully checked.', 'Review target versions against authoritative compatibility and security data.'),
-    }
-    all_blockers = list(dict.fromkeys(blocker for row in plan.get('assessments', []) for blocker in row.get('blockers', [])))
-    blockers = all_blockers[:3]
-    if blockers:
-        yield ('h2', 'Top blockers to resolve')
-        for blocker in blockers: yield ('bullet', blocker_meanings.get(blocker,('Review the cited evidence and record a resolution.',))[0])
-    if all_blockers:
-        yield ('h2', 'Blocker guide')
-        domain_names_by_id = {row.get('domain_id'): row.get('domain_name', row.get('domain_id')) for row in plan.get('assessments', [])}
-        for blocker in all_blockers:
-            meaning, remediation = blocker_meanings.get(blocker, ('This condition needs review before relying on the proposal.', 'Review the cited evidence and record a resolution.'))
-            affected = ', '.join(domain_names_by_id.get(row.get('domain_id'), row.get('domain_id')) for row in plan.get('assessments', []) if blocker in row.get('blockers', []))
-            yield ('row', f'{blocker.replace("_"," ").title()} | {meaning} | Affected: {affected or "System-wide"} | Resolve: {remediation}')
-
-    yield ('page', '')
-    yield ('h1', '1. Static analysis: what the code scan found')
-    yield ('p', 'In everyday terms: this section counts and examines the structure present in the submitted application files. It does not show what users actually do at runtime.')
-    artifact = summary.get('artifact') or {}
-    yield ('kv', 'Source artifact\x00' + _plain(artifact.get('filename', 'Unavailable')))
-    yield ('kv', 'Artifact SHA-256\x00' + _plain(artifact.get('sha256', version.manifest.get('artifact_sha256', 'Unavailable'))))
-    yield ('kv', 'Discovered structure\x00' + f"{summary.get('class_count', len(static.get('classes', [])))} classes | {summary.get('package_count', '?')} packages | {summary.get('dependency_count', '?')} dependencies | {summary.get('domain_count', len(static.get('domains', [])))} candidate domains")
-    scale = [(label, summary.get(key)) for label, key in (('Classes', 'class_count'), ('Packages', 'package_count'), ('Dependencies', 'dependency_count'), ('Candidate domains', 'domain_count')) if isinstance(summary.get(key), (int, float))]
-    if scale: yield ('chart', ('Architecture scale', 'The submitted artifact contains the counts shown below.', 'Source: static analysis summary.', scale))
-    counts = summary.get('issue_counts') or {}
-    if counts:
-        yield ('kv', 'Static findings by severity/type\x00' + ', '.join(f'{k}: {v}' for k, v in sorted(counts.items())))
-        severity = [(str(k).title(), v) for k, v in sorted(counts.items(), key=lambda item: ({'CRITICAL': 0, 'HIGH': 1, 'MEDIUM': 2, 'LOW': 3}.get(item[0], 4))) if isinstance(v, (int, float))]
-        if severity: yield ('chart', ('Findings by severity', 'Severity counts are reported as returned by the static analyzer.', 'Source: static analysis summary.', severity))
-    yield ('p', 'Scope: this layer reflects structures discovered in the submitted compiled artifact.')
-    baseline_by_domain = {a.get('domain_id'): a for a in static.get('modernization', []) if isinstance(a, dict)}
-    domain_sizes = [(d.get('name', d.get('id', 'Domain')), d.get('class_count', len(d.get('classes', [])))) for d in static.get('domains', []) if isinstance(d.get('class_count', len(d.get('classes', []))), (int, float))]
-    if static.get('domains'):
-        yield ('page', '')
-        yield ('h1', 'Candidate domains')
-    if domain_sizes: yield ('chart', ('Candidate domain size', 'Class counts show how the current structural candidates are distributed.', 'Source: static domain discovery.', domain_sizes))
-    for domain in static.get('domains', []):
-        baseline = baseline_by_domain.get(domain.get('id'), {})
-        yield ('row', f"{domain.get('name', domain.get('id', 'Domain'))} | {domain.get('class_count', len(domain.get('classes', [])))} classes | readiness {baseline.get('readiness_score', domain.get('readiness_score', domain.get('score', 'Unavailable')))} | evidence confidence {domain.get('confidence', 'Unavailable')} | difficulty {baseline.get('extraction_difficulty', 'Unavailable')}")
-    issues = sorted(static.get('issues', []), key=lambda x: ({'CRITICAL': 0, 'HIGH': 1, 'MEDIUM': 2, 'LOW': 3}.get(x.get('severity'), 4), x.get('title', '')))
-    if issues:
-        yield ('page', '')
-        yield ('h2', f'All static findings ({len(issues)} total)')
-        for issue in issues:
-            yield ('finding', issue)
-    else:
-        yield ('p', 'No static findings were returned for this baseline.')
-
-    yield ('page', '')
-    yield ('h1', '2. Dynamic analysis: what was observed while running')
-    yield ('p', 'In everyday terms: these measurements show which parts were seen during the selected test sessions. A low percentage means more testing may be needed; an unobserved part is not proof that it is unused.')
-    if sessions:
-        for session in sessions:
-            yield ('row', f"{session.name} | {session.environment} | {session.status} | {session.trace_count} traces / {session.span_count} spans | session {session.id}")
-        for key, label in (('classes', 'Classes'), ('entry_points', 'Entry points'), ('methods', 'Methods'), ('dependencies', 'Dependencies'), ('domains', 'Domains')):
-            yield ('kv', label + '\x00' + _coverage_line(label, coverage.get(key)))
-        coverage_values = [(label, record.get('percentage')) for key, label in (('classes', 'Classes'), ('entry_points', 'Entry points'), ('methods', 'Methods'), ('dependencies', 'Dependencies'), ('domains', 'Domains')) if isinstance((record := coverage.get(key)), dict) and isinstance(record.get('percentage'), (int, float))]
-        if coverage_values: yield ('chart', ('Observed runtime coverage', 'These values describe only the selected sessions and exercised workloads.', 'Source: selected runtime session coverage.', coverage_values))
-        quality = twin.get('quality') or {}
-        yield ('kv', 'Telemetry quality\x00' + (', '.join(f'{k}: {v}' for k, v in sorted(quality.items())) or 'No quality summary available'))
-        yield ('p', 'Coverage is limited to telemetry received from the listed sessions and workloads. Unobserved means not seen in these sessions.')
-    else:
-        yield ('p', 'No completed runtime sessions are bound to this architecture version. Runtime coverage is not observed for this snapshot.')
-
-    yield ('page', '')
-    yield ('h1', '3. Saved architecture picture (Digital twin)')
-    yield ('p', 'This is ArchIntel’s saved picture of the application and its evidence at one point in time. It is a snapshot, not a live model.')
-    yield ('kv', 'Version name and ID\x00' + f'{version.name} | {version.id}')
-    yield ('kv', 'Snapshot fingerprint\x00' + version.fingerprint)
-    yield ('kv', 'Canonical graph\x00' + f"{len(twin.get('graph', {}).get('nodes', []))} nodes | {len(twin.get('graph', {}).get('edges', []))} relationships")
-    yield ('kv', 'Evidence records / architecture facts\x00' + f"{twin.get('evidence_count', 0)} evidence records | {twin.get('facts_count', 0)} facts")
-    yield ('kv', 'Knowledge graph projection\x00' + projection.get('state', 'Unavailable'))
-    twin_counts = [(label, value) for label, value in (('Graph nodes', len(twin.get('graph', {}).get('nodes', []))), ('Relationships', len(twin.get('graph', {}).get('edges', []))), ('Evidence records', twin.get('evidence_count')), ('Architecture facts', twin.get('facts_count'))) if isinstance(value, (int, float))]
-    if twin_counts: yield ('chart', ('Digital twin evidence', 'Canonical graph and evidence counts describe this saved architecture version.', 'Source: architecture version snapshot.', twin_counts))
-    tech = twin.get('tech_inventory') or static.get('tech_inventory') or {}
-    if tech:
-        yield ('h2','Technology and upgrade inventory')
-        yield ('kv','Inventory state\x00'+_plain(tech.get('status','UNAVAILABLE')))
-        bytecode=tech.get('bytecode',{})
-        yield ('kv','Java bytecode target(s)\x00'+(', '.join(map(str,bytecode.get('java_targets',[]))) or 'Not detected'))
-        yield ('kv','Build tools\x00'+(', '.join(x.get('name','Unknown') for x in tech.get('build_tools',[])) or 'Not detected'))
-        yield ('kv','Frameworks\x00'+('; '.join(x.get('name','Unknown')+' '+','.join(x.get('versions',[])) for x in tech.get('frameworks',[])) or 'Not detected'))
-        yield ('kv','Dependency records\x00'+str(len(tech.get('dependencies',[])))+' versioned metadata record(s); bundled libraries: '+str(len(tech.get('bundled_libraries',[]))))
-        for dep in tech.get('dependencies',[]):
-            yield ('bullet',f"Dependency: {dep.get('group_id')}:{dep.get('artifact_id')} {dep.get('version') or 'version unknown'} ({_humanize(dep.get('version_status','UNKNOWN'))})")
-        for dep in tech.get('bundled_libraries',[]):
-            yield ('bullet',f"Bundled library: {dep.get('artifact_id')} {dep.get('version') or 'version not encoded in filename'}")
-        compat=tech.get('compatibility',{})
-        yield ('kv','Lifecycle / vulnerability checks\x00'+f"Java {compat.get('java_lifecycle','NOT_CHECKED')} | framework {compat.get('framework_lifecycle','NOT_CHECKED')} | vulnerabilities {compat.get('vulnerability_advisories','NOT_CHECKED')}")
-        for limitation in tech.get('limitations',[]): yield ('sub',limitation)
-    if projection.get('state') not in ('APPLIED', 'CURRENT'):
-        yield ('notice', 'The graph projection is not available. Canonical evidence remains in the saved version and can still be reviewed or exported.')
-    unknowns = twin.get('unknowns') or []
-    if unknowns:
-        yield ('h2', 'Known unknowns')
-        for item in unknowns:
-            yield ('bullet', item)
-
-    quality = plan.get('data_quality') or {}
-    yield ('page','')
-    yield ('h1','Data quality and failure remediation')
-    yield ('kv','Source artifact\x00'+str(quality.get('artifact_state','UNAVAILABLE'))+' - '+str(quality.get('artifact_impact','Artifact availability was not recorded.')))
-    if quality.get('artifact_remediation'): yield ('sub','Remediation: '+quality['artifact_remediation'])
-    projection_state=projection.get('state',quality.get('graph_projection_state','UNAVAILABLE'))
-    yield ('kv','Knowledge graph projection\x00'+str(projection_state))
-    if projection_state not in ('APPLIED','CURRENT'):
-        yield ('sub','Impact: graph exploration may be incomplete; the canonical architecture version and evidence store remain the source of truth.')
-        yield ('sub','Remediation: inspect the projection error and attempts in Local setup, fix the graph connection or schema issue, then use Projection rebuild for this version.')
-    yield ('kv','Method mapping\x00'+str(quality.get('method_mapping_state','UNKNOWN')))
-    if quality.get('method_mapping_impact'): yield ('sub','Impact: '+quality['method_mapping_impact'])
-    if quality.get('method_mapping_remediation'): yield ('sub','Remediation: '+quality['method_mapping_remediation'])
-
-    yield ('page', '')
-    yield ('h1', '4. Modernization proposal: possible plan')
-    yield ('p', 'The steps below are proposals to review with the people who own the application. Scores help compare areas; they are not guarantees of effort, safety, or business fit.')
-    yield ('kv', 'Planning rule / calibration\x00' + f"{plan.get('rule_version', 'Unavailable')} / {plan.get('calibration_version', 'Unavailable')}")
-    yield ('kv', 'Currentness\x00Saved against the selected immutable architecture version')
-    if brief.get('headline'):
-        yield ('p', brief['headline'])
-    for assessment_row in plan.get('assessments', []):
-        yield ('row', f"{assessment_row.get('domain_name', assessment_row.get('domain_id'))} | structural {assessment_row.get('structural_score', '?')} | runtime observation {assessment_row.get('runtime_score', 'Unavailable')} | combined {assessment_row.get('combined_score', '?')} | confidence {assessment_row.get('confidence_score', '?')}% | adjusted readiness {assessment_row.get('confidence_adjusted_score', '?')} ({_humanize(assessment_row.get('readiness_label','NEEDS_EVIDENCE'))}) | effort {assessment_row.get('effort_band','Unknown')} | risk {assessment_row.get('risk_band','Unknown')}")
-        if assessment_row.get('cost_drivers'):
-            yield ('sub', 'Heuristic estimate drivers: ' + '; '.join(assessment_row['cost_drivers']))
-        for recommendation in assessment_row.get('recommendations', []):
-            yield ('bullet', f"Recommended for {assessment_row.get('domain_name', assessment_row.get('domain_id'))}: {recommendation.get('text')}")
-            if recommendation.get('affected_classes'):
-                yield ('sub', 'Affected classes: ' + ', '.join(recommendation['affected_classes'][:20]))
-            if recommendation.get('proposed_interface'):
-                yield ('sub', 'Candidate interface: ' + recommendation['proposed_interface'])
-            if recommendation.get('finding_ids'):
-                yield ('sub', 'Supporting finding IDs: ' + ', '.join(recommendation['finding_ids']))
-            if recommendation.get('missing_evidence'):
-                yield ('sub', 'Still needed: ' + '; '.join(recommendation['missing_evidence']))
-    paired = [(str(row.get('domain_name', row.get('domain_id', 'Domain'))), row.get('confidence_adjusted_score', row.get('combined_score')), row.get('confidence_score'), row.get('readiness_label','NEEDS REVIEW')) for row in plan.get('assessments', [])]
-    if paired: yield ('paired', ('Readiness and confidence by domain', 'Paired bars expose high scores with weak evidence; readiness is confidence-adjusted.', 'Source: saved modernization proposal.', paired))
-    matrix = plan.get('domain_dependency_matrix') or {}
-    if matrix.get('domain_ids'):
-        yield ('page','')
-        yield ('h2','Cross-domain dependency map')
-        yield ('p','Each cell counts static class-level dependency edges from the row domain to the column domain. Blank or zero means no edge was found in this scan, not proof of no runtime interaction.')
-        yield ('matrix', matrix)
-        yield ('domain_graph', matrix)
-        for row in matrix.get('rows', []):
-            kinds=', '.join(f"{_humanize(kind)} {count}" for kind,count in sorted(row.get('edge_types',{}).items()))
-            yield ('row', f"{row.get('source_domain')} -> {row.get('target_domain')}: {row.get('edge_count')} class-level edges; {row.get('distinct_source_classes')} source classes and {row.get('distinct_target_classes')} target classes. Types: {kinds or 'not classified'}")
-        for item in matrix.get('top_boundary_classes', [])[:10]:
-            yield ('bullet', f"Boundary class: {item.get('class_name')} | {item.get('boundary_edges')} edge(s) | {item.get('domain')}")
-    ownership = plan.get('data_ownership') or {}
-    if ownership:
-        yield ('h2','Data ownership evidence')
-        for item in ownership.get('per_domain', {}).values():
-            yield ('bullet', f"{item.get('domain','Domain')}: {len(item.get('entities',[]))} entity candidate(s), {len(item.get('repositories',[]))} repository reference(s); ownership {_humanize(item.get('ownership','UNKNOWN'))}.")
-            if item.get('leakage_candidates'):
-                for leak in item['leakage_candidates']:
-                    yield ('sub',f"Possible concept leakage: {leak.get('class_name')} is in {leak.get('current_domain')} but its name matches {leak.get('likely_concept_domain')} ({_humanize(leak.get('confidence'))}).")
-        for item in ownership.get('duplicated_models', []): yield ('bullet', f"Possible duplicated model {item.get('concept')}: {', '.join(item.get('classes',[]))} ({item.get('confidence')}).")
-        for item in ownership.get('limitations', []): yield ('sub', item)
-    entry_inventory = plan.get('entry_points') or {}
-    if entry_inventory.get('items'):
-        yield ('h2','Entry points and domain observation')
-        for assessment_row in plan.get('assessments', []):
-            per_domain=assessment_row.get('runtime_coverage',{})
-            for measure,record in per_domain.items():
-                if record.get('total') is not None:
-                    yield ('row',f"{assessment_row.get('domain_name')}: observed {measure.replace('_',' ')} {record.get('observed')} / {record.get('total')} ({record.get('percentage')}%)")
-        for item in entry_inventory['items'][:100]:
-            yield ('row', f"{item.get('domain')}: {_humanize(item.get('kind'))} | {item.get('http_method')} {item.get('path')} | {item.get('handler_class')}.{item.get('handler_signature')} | {_humanize(item.get('observation_state'))}")
-        yield ('p', entry_inventory.get('limitation','Route annotation values may be unavailable.'))
-    if plan.get('dead_code_candidates'):
-        yield ('h2','Unobserved and unreferenced candidates')
-        yield ('p','These are investigation candidates only; reflection, configuration wiring and unselected workloads can create false negatives.')
-        for item in plan['dead_code_candidates'][:50]: yield ('bullet', f"{item.get('class_name')} ({item.get('domain_id')}): {item.get('reason')}")
-    baseline_metrics=brief.get('baseline_metrics') or {}
-    targets=brief.get('proposed_targets') or {}
-    if baseline_metrics:
-        yield ('h2','Before-and-after measures')
-        yield ('p','The baseline values come from this static scan. Target values are proposed planning targets, not forecasts.')
-        for key,label in (('cycle_count','Dependency cycle count'),('god_class_count','God-class candidates'),('cross_domain_edge_count','Cross-domain class edges'),('shared_entity_count','Duplicated model candidates'),('average_cross_domain_coupling','Average cross-domain coupling')):
-            target=targets.get(key,{})
-            yield ('row',f"{label}: baseline {baseline_metrics.get(key,'Unavailable')} | proposed target {target.get('target','Not set')} | {target.get('basis','No target basis recorded.')}")
-    decisions = plan.get('decisions', [])
-    if decisions:
-        yield ('h2', 'Proposed actions and blockers')
-        for decision in decisions:
-            domain = next((a.get('domain_name') for a in plan.get('assessments', []) if a.get('domain_id') == decision.get('domain_id')), decision.get('domain_id', 'Domain'))
-            yield ('bullet', f"{domain}: {decision.get('action', 'Review proposal')}")
-    if plan.get('waves'):
-        yield ('page', '')
-        yield ('h2', 'Proposed roadmap')
-    for wave in plan.get('waves', []):
-        yield ('h2', f"Planning wave {wave.get('number', '?')}")
-        wave_domain_names = {domain.get('id'): domain.get('name', domain.get('id')) for domain in static.get('domains', [])}
-        yield ('p', f"Domains: {', '.join(wave_domain_names.get(domain, domain) for domain in wave.get('domains', [])) or 'None listed'}. {wave.get('reason', '')}")
-        if wave.get('blockers'):
-            yield ('sub', 'Blocker codes are explained once in the Blocker guide above.')
-        yield ('sub', 'Entry criteria: ' + '; '.join(wave.get('entry_criteria',[])))
-        yield ('sub', 'Exit criteria: ' + '; '.join(wave.get('exit_criteria',[])))
-    domain_names = {domain.get('id'): domain.get('name', domain.get('id')) for domain in static.get('domains', [])}
-    wave_sizes = [(f"Wave {wave.get('number', '?')}: {', '.join(domain_names.get(d, d) for d in wave.get('domains', [])) or 'No domains'}", len(wave.get('domains', []))) for wave in plan.get('waves', [])]
-    if wave_sizes: yield ('chart', ('Proposed modernization waves', 'Wave sizes reflect the saved proposal; sequence and boundaries remain reviewable proposals.', 'Source: saved modernization proposal.', wave_sizes))
-    decomposition = plan.get('microservice_decomposition') or {}
-    candidates = decomposition.get('service_candidates') or []
-    if candidates:
-        yield ('h2', f'Candidate service boundaries ({len(candidates)} proposed)')
-        yield ('p', 'These are architecture-derived candidates for review, not confirmed business capabilities or generated standalone services.')
-        for candidate in candidates:
-            yield ('bullet', f"{candidate.get('name', candidate.get('id'))}: {_humanize(candidate.get('proposal_state', candidate.get('decision', 'REVIEW')))}; {len(candidate.get('class_ids', []))} classes; readiness {candidate.get('readiness', 'Unavailable')}; confidence {candidate.get('evidence_confidence', 'Unavailable')}; blockers listed in proposal export.")
-        execution = decomposition.get('execution') or {}
-        yield ('kv', 'Code-generation/execution state\x00' + _humanize(execution.get('state', 'Not reported')))
-        for setup in decomposition.get('shared_setup', [])[:20]:
-            yield ('bullet', 'Shared setup: ' + setup)
-    comparison = brief.get('strategy_comparison') or []
-    if comparison:
-        yield ('page', '')
-        yield ('h2', 'Strategy comparison')
-        for candidate in comparison:
-            yield ('bullet', f"{_humanize(candidate.get('strategy'))}: {_humanize(candidate.get('status'))} - {candidate.get('rationale', '')} Unknowns: {' '.join(candidate.get('unknowns', []))}")
-    questions = brief.get('unresolved_questions') or []
-    if questions:
-        yield ('page', '')
-        yield ('h2', 'Questions requiring customer or engineering input')
-        for question in questions:
-            yield ('bullet', question)
-    if brief.get('next_step'):
-        yield ('kv', 'Suggested next step\x00' + brief['next_step'])
-    reviews = getattr(assessment, 'reviews', [])
-    yield ('kv', 'Human review state\x00' + (', '.join(_humanize(r.get('state', 'UNKNOWN')) for r in reviews) if reviews else 'No human review recorded'))
-    yield ('p', 'The saved proposal records planning intent and review state; it does not authorize code changes, extraction, data migration or deployment.')
-    limitations = list(dict.fromkeys((plan.get('limitations') or []) + (version.document.get('unknowns') or [])))
-    if limitations:
-        yield ('page', '')
-        yield ('h1', 'Appendix - scope and limitations')
-        yield ('h2', 'Limitations')
-        for item in limitations:
-            yield ('bullet', item)
-    yield ('footer_note', 'Report provenance: ArchIntel analysis, architecture version, runtime session IDs, evidence fingerprint, and saved modernization proposal are identified above. Use the workspace exports for full machine-readable evidence and all findings.')
+    yield ('h1', 'Numbers used in the plain-terms text')
+    yield ('table', dict(caption='Fact table', columns=['Number', 'Value', 'Source'], rows=[[f['label'], str(f.get('text', f['value'])) + f['unit'], f['source']] for f in report['facts']], note=None))
 
 
 def _escape(text):
@@ -329,8 +56,8 @@ def _escape(text):
     return bytes(out)
 
 
-def render_modernization_report(application, run, version, assessment, sessions, projection):
-    """Render an accessible, visual PDF with a plain-language layer and full evidence detail."""
+def render_report(report):
+    """Render the report model as a PDF with a plain-terms layer and the technical detail beneath it."""
     page_width, page_height = 612, 792
     margin, bottom = 48, 52
     pages, commands = [], []
@@ -454,8 +181,8 @@ def render_modernization_report(application, run, version, assessment, sessions,
         nonlocal y
         ids=matrix.get('domain_ids',[]); rows=matrix.get('rows',[])
         if not ids:return
-        if y < bottom+245:new_page()
-        names={d['id']:d['name'] for d in ids}; cx=306; cy=y-112; radius=76
+        if y < bottom+275:new_page()
+        names={d['id']:d['name'] for d in ids}; cx=306; cy=y-128; radius=98
         line('Directed domain graph (edge labels show class-pair counts)',size=10,font='F2',color=palette['navy'],gap=18)
         order=[d['id'] for d in ids]
         positions={did:(cx+radius*__import__('math').cos(2*__import__('math').pi*i/len(order)),cy+radius*__import__('math').sin(2*__import__('math').pi*i/len(order))) for i,did in enumerate(order)}
@@ -465,10 +192,104 @@ def render_modernization_report(application, run, version, assessment, sessions,
             commands.append(f'{palette["blue"]} RG {0.6+1.4*row["edge_count"]/maximum:.1f} w {x1:.1f} {y1:.1f} m {x2:.1f} {y2:.1f} l S'.encode('ascii'))
             text_at(str(row['edge_count']),(x1+x2)/2,(y1+y2)/2,7,'F2',palette['coral'])
         for did,(x,y0) in positions.items():
-            rect(x-29,y0-10,58,20,palette['pale_teal']); text_at(names[did][:12],x-25,y0-3,6,'F2',palette['navy'])
+            rect(x-40,y0-10,80,20,palette['pale_teal']); text_at(names[did][:18],x-37,y0-3,6,'F2',palette['navy'])
         if not rows:
             text_at('No cross-domain edges were found in the static graph.',margin,cy-radius-17,7,'F1',palette['muted'])
         y=cy-radius-20
+
+    def table_block(block):
+        nonlocal y
+        columns, rows = block['columns'], block['rows'][:400]
+        weights = [min(38, max(6, max([len(str(col))] + [len(str(r[i])) for r in rows[:60]]))) for i, col in enumerate(columns)]
+        usable, total = 508, sum(weights)
+        widths = [usable * w / total for w in weights]
+        chars = [max(4, int(w / 3.7)) for w in widths]
+        if y < bottom + 60:
+            new_page()
+        line(block['caption'], size=10, font='F2', color=palette['navy'], gap=15)
+
+        def header():
+            nonlocal y
+            rect(46, y - 9, 510, 13, palette['pale_teal'])
+            x = 48
+            for column, width, limit in zip(columns, widths, chars):
+                text_at(str(column)[:limit], x, y - 5, 7, 'F2', palette['navy'])
+                x += width
+            y -= 15
+        header()
+        if not rows:
+            line('none', size=8, color=palette['muted'], gap=12)
+        for number, row in enumerate(rows):
+            cells = [textwrap.wrap(_plain(cell), width=limit, break_long_words=True) or [''] for cell, limit in zip(row, chars)]
+            height = 9 * max(len(c) for c in cells) + 4
+            if y - height < bottom:
+                new_page()
+                header()
+            if number % 2 == 0:
+                rect(46, y - height + 8, 510, height, palette['pale'])
+            x = 48
+            for lines_, width in zip(cells, widths):
+                for offset, piece in enumerate(lines_):
+                    text_at(piece, x, y - 2 - 9 * offset, 7, 'F1', palette['ink'])
+                x += width
+            y -= height
+        if len(block['rows']) > 400:
+            line(f"{len(block['rows']) - 400} more rows are in the HTML report and the JSON export.", size=7, color=palette['muted'], gap=10)
+        if block.get('note'):
+            wrapped(block['note'], width=100, size=7, color=palette['muted'], gap=10)
+        y -= 8
+
+    def hld_diagram(data):
+        nonlocal y
+        layers, edges, externals, entries = data.get('layers', []), data.get('edges', []), data.get('externals', []), data.get('entry_points', [])
+        body = max(len(layers) * 44, len(externals) * 40)
+        if y < bottom + 70 + body:
+            new_page()
+        line('High-level architecture', size=10, font='F2', color=palette['navy'], gap=16)
+        top = y
+        if entries:
+            width = 500 / len(entries)
+            for n, entry in enumerate(entries):
+                x = 48 + n * width
+                rect(x, top - 26, width - 6, 26, palette['pale'])
+                text_at(entry['label'][:int(width / 4.2)], x + 3, top - 11, 7, 'F2', palette['navy'])
+                text_at(f"{entry['count']} entry point(s)", x + 3, top - 22, 6, 'F1', palette['muted'])
+            top -= 40
+        boxes = {}
+        left, box_w = 120, 250
+        for i, layer in enumerate(layers):
+            y0 = top - i * 44
+            boxes[layer['id']] = (left, y0, box_w, 30)
+            rect(left, y0 - 30, box_w, 30, palette['pale_teal'])
+            text_at(layer['label'][:58], left + 6, y0 - 12, 8, 'F2', palette['navy'])
+            text_at(f"{layer['class_count']} classes in {layer['package_count']} package(s)", left + 6, y0 - 24, 6, 'F1', palette['muted'])
+        ext_x, ext_w = left + box_w + 70, 120
+        for n, ext in enumerate(externals):
+            y0 = top - n * 44
+            boxes[ext['id']] = (ext_x, y0, ext_w, 30)
+            rect(ext_x, y0 - 30, ext_w, 30, palette['pale_gold'])
+            text_at(ext['label'][:28], ext_x + 4, y0 - 12, 7, 'F2', palette['navy'])
+            text_at(f"{ext['class_count']} classes", ext_x + 4, y0 - 24, 6, 'F1', palette['muted'])
+        lane = 0
+        for edge in edges:
+            if edge['source'] not in boxes or edge['target'] not in boxes:
+                continue
+            sx, sy, sw, sh = boxes[edge['source']]
+            tx, ty, tw, th = boxes[edge['target']]
+            colour = palette['coral'] if edge.get('against_layering') else palette['teal'] if edge.get('observed') else palette['muted']
+            if edge['target'].startswith('external'):
+                x1, y1, x2, y2 = sx + sw, sy - sh / 2, tx, ty - th / 2
+                commands.append(f'{colour} RG 0.9 w {x1:.1f} {y1:.1f} m {x2:.1f} {y2:.1f} l S'.encode('ascii'))
+                text_at(str(edge['class_pairs']), x1 + (x2 - x1) * .35, y1 + (y2 - y1) * .35 + 2, 6, 'F2', colour)
+                continue
+            lane += 1
+            gx = left - 8 - (lane % 7) * 11
+            y1, y2 = sy - sh / 2, ty - th / 2
+            commands.append(f'{colour} RG 0.9 w {sx:.1f} {y1:.1f} m {gx:.1f} {y1:.1f} l {gx:.1f} {y2:.1f} l {tx - 1:.1f} {y2:.1f} l S'.encode('ascii'))
+            text_at(str(edge['class_pairs']), gx - 8, (y1 + y2) / 2, 6, 'F2', colour)
+        y = top - body - 6
+        wrapped('Arrows point from the depending layer to what it uses; numbers are distinct class pairs. Teal: also seen at runtime. Grey: code only. Red: against the layering.', width=100, size=7, color=palette['muted'], gap=10)
+        y -= 6
 
     new_page()
     # The report opens with a designed cover, then uses a consistent high-contrast
@@ -476,10 +297,14 @@ def render_modernization_report(application, run, version, assessment, sessions,
     pages.clear()
     commands = []
     y = 700
-    for kind, text in _report_lines(application, run, version, assessment, sessions, projection):
+    for kind, text in report_lines(report):
         if kind == 'page':
             if len(commands) > 4:
                 new_page()
+        elif kind == 'table':
+            table_block(text)
+        elif kind == 'hld':
+            hld_diagram(text)
         elif kind == 'chart':
             chart(text)
         elif kind == 'paired':
@@ -498,7 +323,7 @@ def render_modernization_report(application, run, version, assessment, sessions,
             rect(506, 608, 42, 42, palette['gold'])
             text_at('ARCHINTEL  |  ARCHITECTURE INTELLIGENCE', 48, 718, 10, 'F2', palette['teal'])
             y = 625
-            wrapped(text, width=37, size=27, font='F2', color=palette['white'], gap=34)
+            wrapped(text, width=24, size=27, font='F2', color=palette['white'], gap=34)
         elif kind == 'subtitle':
             wrapped(text, width=55, size=18, font='F2', color=palette['teal'], gap=24)
         elif kind == 'meta':

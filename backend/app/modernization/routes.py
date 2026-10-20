@@ -10,7 +10,9 @@ from app.evidence.models import Projection
 from app.evidence.service import LOCK
 from app.evidence import projection
 from app.runtime.models import RuntimeSession
-from app.reports.modernization_pdf import render_modernization_report
+from app.reports import model as report_model
+from app.reports.modernization_pdf import render_report
+from app.reports.render_html import to_html
 from .models import Assessment
 from .schemas import PlanInput, ReviewInput, Question
 from . import service
@@ -58,20 +60,36 @@ def export(vid: str, aid: str, request: Request, db=Depends(session)):
     return service.owned(db, version, aid).document
 
 
-@router.get('/{aid}/report.pdf')
-def report_pdf(vid: str, aid: str, request: Request, db=Depends(session)):
-    version = version_owned(db, request, vid)
+def _report(db, version, aid):
     assessment = service.owned(db, version, aid)
-    run = get(db, AnalysisRun, version.analysis_id)
     application = get(db, Application, version.application_id)
     session_ids = version.manifest.get('runtime_session_ids', [])
     sessions = list(db.scalars(select(RuntimeSession).where(RuntimeSession.id.in_(session_ids)).order_by(RuntimeSession.created_at))) if session_ids else []
     job = db.scalar(select(Projection).where(Projection.version_id == version.id))
     projection_state = dict(state=job.state, attempts=job.attempts, error_code=job.error_code) if job else dict(state='UNAVAILABLE')
-    assessment_report = SimpleNamespace(id=assessment.id, document=assessment.document, reviews=service.reviews(db, assessment.id))
-    pdf = render_modernization_report(application, run, version, assessment_report, sessions, projection_state)
+    report = report_model.build(db, version, SimpleNamespace(id=assessment.id, document=assessment.document), sessions, projection_state)
     safe_name = re.sub(r'[^A-Za-z0-9_-]+', '-', application.name).strip('-')[:60] or 'application'
-    return Response(pdf, media_type='application/pdf', headers={'Content-Disposition': f'attachment; filename="archintel-{safe_name}-{aid[:8]}-report.pdf"'})
+    return report, f'archintel-{safe_name}-{aid[:8]}-report'
+
+
+@router.get('/{aid}/report.pdf')
+def report_pdf(vid: str, aid: str, request: Request, db=Depends(session)):
+    report, name = _report(db, version_owned(db, request, vid), aid)
+    return Response(render_report(report), media_type='application/pdf', headers={'Content-Disposition': f'attachment; filename="{name}.pdf"'})
+
+
+@router.get('/{aid}/report.html')
+def report_html(vid: str, aid: str, request: Request, download: bool = Query(False), db=Depends(session)):
+    report, name = _report(db, version_owned(db, request, vid), aid)
+    headers = {}
+    if download:
+        headers['Content-Disposition'] = f'attachment; filename="{name}.html"'
+    return Response(to_html(report), media_type='text/html; charset=utf-8', headers=headers)
+
+
+@router.get('/{aid}/report.json')
+def report_json(vid: str, aid: str, request: Request, db=Depends(session)):
+    return _report(db, version_owned(db, request, vid), aid)[0]
 
 
 @router.post('/{aid}/review')
