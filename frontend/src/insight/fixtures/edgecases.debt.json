@@ -1538,7 +1538,7 @@
     "id": "any-class",
     "label": "Classes with at least one finding",
     "numerator": 12,
-    "numerator_definition": "distinct classes named by any technical-debt finding",
+    "numerator_definition": "distinct classes named by a technical-debt finding of severity LOW or higher (INFO findings such as \"never observed\" describe missing evidence and are not counted)",
     "percentage": 63.2,
     "reason": null,
     "rule_ids": [],

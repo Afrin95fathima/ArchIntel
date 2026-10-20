@@ -38,9 +38,17 @@ def brief_fixture():
     return {'decision_brief': document['decision_brief'], 'assessments': [{k: a[k] for k in ('domain_id', 'domain_name')} for a in document['assessments']]}
 
 
+def technology_plan_fixture():
+    """The technology plan for the edge-case fixture, which has deliberately aging dependencies."""
+    from test_modernization import pure  # noqa: E402
+    from insight_fixtures import snapshot  # noqa: E402
+    return pure(snapshot('edgecases'), observations=.5, reviewed=True)[0]['technology_plan']
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     (ROOT / 'frontend' / 'src' / 'modernization' / 'fixtures').mkdir(exist_ok=True)
+    (ROOT / 'frontend' / 'src' / 'modernization' / 'fixtures' / 'edgecases.technology-plan.json').write_text(json.dumps(technology_plan_fixture(), indent=1, sort_keys=True, default=str) + '\n', encoding='utf-8')
     (ROOT / 'frontend' / 'src' / 'modernization' / 'fixtures' / 'petclinic.brief.json').write_text(json.dumps(brief_fixture(), indent=1, sort_keys=True, default=str) + '\n', encoding='utf-8')
     for name in ('petclinic', 'edgecases'):
         for view, data in views(name).items():

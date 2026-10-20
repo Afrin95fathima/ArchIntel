@@ -112,194 +112,195 @@
   "confidence": [
    "Domain confidence runs from 40.0 (Application Clinic) to 80.0 (Vet) out of 100.",
    "Runtime sessions observed 12 of 24 classes (50.0%).",
-   "5 domains below 80% observed: Application Clinic, Type Owner, Vet, Owner Visit and 1 more. Unobserved never means unused."
+   "5 domains below 80% observed: Application Clinic, Type Owner, Vet, Owner Visit and 1 more. Unobserved never means unused.",
+   "9 of 18 entry points were never observed (50.0%)."
   ],
   "decision": "Decide how to modernize the analyzed artifact (24 classes, 5 packages, 5 candidate domains: Application Clinic, Type Owner, Vet, Owner Visit, System Configuration). You requested MODULAR_MONOLITH with the objective: Fixture",
   "effort_range": "Heuristic bands: M, S",
   "evidence": [
    {
-    "id": "01be0bfa-5509-5c58-8cff-6b8e35408b68",
+    "id": "00c3fd5c-e556-5b0f-911a-fcbfd5739255",
     "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.Pet",
-    "target": "org.springframework.samples.petclinic.owner.PetType"
+    "source": "org.springframework.samples.petclinic.owner.Visit",
+    "target": "org.springframework.samples.petclinic.model.BaseEntity"
    },
    {
-    "id": "03e4a86e-02f8-54ed-84f8-659c93cb34c1",
+    "id": "08ea4f4a-9e85-5602-bbbb-997815b7ba22",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.Visit",
+    "target": "org.springframework.samples.petclinic.model.BaseEntity"
+   },
+   {
+    "id": "0fcc0528-41d5-5855-94bc-e69962b0b2d7",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.model.Person",
+    "target": "org.springframework.samples.petclinic.model.BaseEntity"
+   },
+   {
+    "id": "1683d88e-f55a-5eba-acb8-c9534c8cb0dc",
+    "kind": "STATIC",
+    "source": "analysis",
+    "target": "org.springframework.samples.petclinic.vet.Vet"
+   },
+   {
+    "id": "222ccc7e-90aa-5ee6-a34c-d53871a58699",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.vet.VetRepository",
+    "target": "org.springframework.samples.petclinic.vet.Vet"
+   },
+   {
+    "id": "23891a6e-b06a-5758-8ae2-9f578bd3c68e",
+    "kind": "STATIC",
+    "source": "analysis",
+    "target": "org.springframework.samples.petclinic.vet.Specialty"
+   },
+   {
+    "id": "2a4df973-1d0f-5572-8b4b-bf1b903b8c89",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.model.NamedEntity",
+    "target": "org.springframework.samples.petclinic.model.BaseEntity"
+   },
+   {
+    "id": "38571f3a-e446-5335-95f0-72b800dbf554",
+    "kind": "COVERAGE",
+    "source": "analysis",
+    "target": "domain-88320003e6c6ba0d"
+   },
+   {
+    "id": "4404fc59-2950-5a4f-96a6-9d23e07b5273",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.vet.VetController",
+    "target": "org.springframework.samples.petclinic.vet.Vets"
+   },
+   {
+    "id": "490598bb-9478-5c0e-a2e9-df0d3139ea69",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.Pet",
+    "target": "org.springframework.samples.petclinic.model.NamedEntity"
+   },
+   {
+    "id": "4d8b987d-8bca-5ce9-9344-bb9607809173",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.model.Person",
+    "target": "org.springframework.samples.petclinic.model.BaseEntity"
+   },
+   {
+    "id": "537fe663-9f7c-5fe7-98ff-c663c969e2ce",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.vet.VetController",
+    "target": "org.springframework.samples.petclinic.vet.VetRepository"
+   },
+   {
+    "id": "54622956-46d3-5225-8106-fce4f1f0cfef",
+    "kind": "STATIC",
+    "source": "analysis",
+    "target": "org.springframework.samples.petclinic.vet.VetRepository"
+   },
+   {
+    "id": "5599c77d-242e-54d1-8069-baf060defef2",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.vet.Vet",
+    "target": "org.springframework.samples.petclinic.vet.Specialty"
+   },
+   {
+    "id": "56b88363-c5cf-529e-a07d-d23eefa517ea",
     "kind": "STATIC",
     "source": "org.springframework.samples.petclinic.owner.PetType",
     "target": "org.springframework.samples.petclinic.model.NamedEntity"
    },
    {
-    "id": "126fd6d1-44f1-5fe9-b287-24d5b935b7ee",
-    "kind": "COVERAGE",
-    "source": "analysis",
-    "target": "domain-663f102c0b38921a"
-   },
-   {
-    "id": "264cedba-5aeb-515d-846b-31e2ea91e839",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.PetController",
-    "target": "org.springframework.samples.petclinic.owner.PetType"
-   },
-   {
-    "id": "2cd6b13e-101d-5889-8e91-9c7307961e06",
-    "kind": "STATIC",
-    "source": "analysis",
-    "target": "org.springframework.samples.petclinic.owner.PetTypeRepository"
-   },
-   {
-    "id": "344e7999-0604-578c-bf1a-41cec3e7a0b1",
+    "id": "5990b38f-3251-5e53-be49-1cbb07a1559c",
     "kind": "STATIC",
     "source": "org.springframework.samples.petclinic.owner.Pet",
-    "target": "org.springframework.samples.petclinic.owner.PetType"
+    "target": "org.springframework.samples.petclinic.model.NamedEntity"
    },
    {
-    "id": "3a18427d-f066-5d92-9411-52abbc990b80",
+    "id": "61c1a84a-60ca-5df5-97b7-ffdf99019871",
     "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
-    "target": "org.springframework.samples.petclinic.owner.PetType"
+    "source": "org.springframework.samples.petclinic.vet.VetController",
+    "target": "org.springframework.samples.petclinic.vet.VetRepository"
    },
    {
-    "id": "5c67a76b-02fc-5b1f-a09a-5df0d5e1eb60",
+    "id": "680b81f9-47f1-574d-a36f-4f903ab42146",
     "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
-    "target": "org.springframework.samples.petclinic.owner.PetType"
+    "source": "org.springframework.samples.petclinic.owner.Owner",
+    "target": "org.springframework.samples.petclinic.model.Person"
    },
    {
-    "id": "6a28f0f0-ac67-552c-a08c-f62dd002f524",
+    "id": "6bbf14f9-1a41-5546-a3b9-be620ed682ce",
     "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
-    "target": "org.springframework.samples.petclinic.owner.PetTypeRepository"
+    "source": "org.springframework.samples.petclinic.model.NamedEntity",
+    "target": "org.springframework.samples.petclinic.model.BaseEntity"
    },
    {
-    "id": "6aea852a-3a1d-5768-98ed-1b9074e8dcaf",
+    "id": "6fe1f983-bf04-5e2f-85b5-ba64d97141f7",
     "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
-    "target": "org.springframework.samples.petclinic.owner.PetType"
+    "source": "org.springframework.samples.petclinic.vet.VetController",
+    "target": "org.springframework.samples.petclinic.vet.Vet"
    },
    {
-    "id": "71c9af50-6e18-5940-b14b-30e90e62354a",
+    "id": "8b1b8fea-8c9f-5e06-90ff-b3cc954de92c",
     "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.PetController",
-    "target": "org.springframework.samples.petclinic.owner.PetTypeRepository"
+    "source": "org.springframework.samples.petclinic.vet.VetController",
+    "target": "org.springframework.samples.petclinic.vet.VetRepository"
    },
    {
-    "id": "771cb8dc-b1fd-5738-9dc1-d14c9ef96346",
+    "id": "8d37b2ef-2246-53b1-a304-da951347afea",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.vet.Specialty",
+    "target": "org.springframework.samples.petclinic.model.NamedEntity"
+   },
+   {
+    "id": "94fe9a13-7db5-5f86-ac3e-c1f7c0ac6a3c",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.vet.Vet",
+    "target": "org.springframework.samples.petclinic.model.Person"
+   },
+   {
+    "id": "97bf88b2-c951-568d-988c-d4e92cc94a57",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.vet.Vet",
+    "target": "org.springframework.samples.petclinic.vet.Specialty"
+   },
+   {
+    "id": "a13275ca-8fd3-5eb2-a887-efbb64e28af5",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.vet.Vets",
+    "target": "org.springframework.samples.petclinic.vet.Vet"
+   },
+   {
+    "id": "a727172e-415e-56ee-b30a-682cc13d4a2e",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.vet.Vet",
+    "target": "org.springframework.samples.petclinic.model.Person"
+   },
+   {
+    "id": "b0d5f990-3f65-5a84-8ffa-aa71265ed106",
+    "kind": "STATIC",
+    "source": "analysis",
+    "target": "org.springframework.samples.petclinic.vet.VetController"
+   },
+   {
+    "id": "c06ecc94-e4d4-5aa9-b435-7f06af540fdf",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.vet.Vet",
+    "target": "org.springframework.samples.petclinic.vet.Specialty"
+   },
+   {
+    "id": "c33be47e-26e2-5674-baa9-2f528dcad886",
     "kind": "STATIC",
     "source": "org.springframework.samples.petclinic.owner.PetType",
     "target": "org.springframework.samples.petclinic.model.NamedEntity"
    },
    {
-    "id": "7c5eb550-7649-54e4-adc3-8dc94b500787",
+    "id": "c3eedf69-3d5c-5864-bec2-1b8181d1bfde",
     "kind": "STATIC",
-    "source": "analysis",
-    "target": "org.springframework.samples.petclinic.owner.PetType"
-   },
-   {
-    "id": "83562c9b-20a6-54e0-8881-1eb1499eb9c2",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
-    "target": "org.springframework.samples.petclinic.owner.PetType"
-   },
-   {
-    "id": "a70e4563-fee8-5e66-989e-1201b60b14d9",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.PetTypeRepository",
-    "target": "org.springframework.samples.petclinic.owner.PetType"
-   },
-   {
-    "id": "ba7bf1aa-e784-5ff6-86cf-c94021ba00e7",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.Pet",
-    "target": "org.springframework.samples.petclinic.owner.PetType"
-   },
-   {
-    "id": "c6ecb1d9-ff4e-5105-9f17-5b5b83d440b4",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
-    "target": "org.springframework.samples.petclinic.owner.PetTypeRepository"
-   },
-   {
-    "id": "d87d7e8d-7a13-56b3-913d-64975e7be16e",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
-    "target": "org.springframework.samples.petclinic.owner.PetTypeRepository"
-   },
-   {
-    "id": "e133cc78-d699-5fd9-8d59-47161f11338b",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.PetController",
-    "target": "org.springframework.samples.petclinic.owner.PetTypeRepository"
-   },
-   {
-    "id": "e459c3b8-6ebc-501d-a4db-01c2e4f06715",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
-    "target": "org.springframework.samples.petclinic.owner.PetType"
-   },
-   {
-    "id": "e813c44c-c935-5a90-a3c1-4c2036fb404f",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.PetController",
-    "target": "org.springframework.samples.petclinic.owner.PetTypeRepository"
-   },
-   {
-    "id": "ea046263-78dd-5198-ada0-2ac93eca3baa",
-    "kind": "STATIC",
-    "source": "analysis",
-    "target": "org.springframework.samples.petclinic.owner.PetTypeFormatter"
-   },
-   {
-    "id": "0ffc873d-3086-5cfd-a0c2-3561a8d3e9dd",
-    "kind": "COVERAGE",
-    "source": "analysis",
-    "target": "domain-22c6bf723d668df4"
-   },
-   {
-    "id": "df2b7d8a-6dd6-53c6-afba-82cbe146f695",
-    "kind": "STATIC",
-    "source": "analysis",
-    "target": "org.springframework.samples.petclinic.PetClinicApplication"
-   },
-   {
-    "id": "179a875e-4002-5ea6-b9ce-1eb094cf6d56",
-    "kind": "STATIC",
-    "source": "analysis",
-    "target": "org.springframework.samples.petclinic.system.CrashController"
-   },
-   {
-    "id": "2f916516-768c-5d3e-b028-671084bbc7a3",
-    "kind": "COVERAGE",
-    "source": "analysis",
-    "target": "domain-c8fb47353d19fc72"
-   },
-   {
-    "id": "50c3c772-11a2-5174-a510-7031f1df3504",
-    "kind": "STATIC",
-    "source": "analysis",
-    "target": "org.springframework.samples.petclinic.system.WebConfiguration"
-   },
-   {
-    "id": "6038daa2-6237-5d50-a6c6-aa506dc0b281",
-    "kind": "STATIC",
-    "source": "analysis",
-    "target": "org.springframework.samples.petclinic.system.CacheConfiguration"
-   },
-   {
-    "id": "aa676978-669a-51aa-a8e6-0e36d10a776a",
-    "kind": "STATIC",
-    "source": "analysis",
-    "target": "org.springframework.samples.petclinic.system.WelcomeController"
-   },
-   {
-    "id": "0e371a21-210c-57b3-9887-9b93b537d029",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.PetController",
-    "target": "org.springframework.samples.petclinic.owner.Pet"
+    "source": "org.springframework.samples.petclinic.vet.Specialty",
+    "target": "org.springframework.samples.petclinic.model.NamedEntity"
    }
   ],
   "evidence_scope": {
-   "architecture_version_id": "8ff4f1cd-18d6-43fd-815b-878bfdee974a",
+   "architecture_version_id": "489c989f-ec39-43d0-ae59-1f1d1eaf6045",
    "domain_count": 5,
    "evidence_count": 441,
    "fact_count": 35,
@@ -413,7 +414,7 @@
    {
     "id": "entry_points",
     "label": "Detected entry points",
-    "source": "insight: entry-point detection",
+    "source": "technical debt rates: entry-points-unobserved",
     "text": "18",
     "unit": "",
     "value": 18
@@ -499,30 +500,6 @@
     "value": 24
    },
    {
-    "id": "rate_aging-framework_d",
-    "label": "Classes using aging frameworks population",
-    "source": "technical debt rates: aging-framework",
-    "text": "24",
-    "unit": "",
-    "value": 24
-   },
-   {
-    "id": "rate_aging-framework_n",
-    "label": "Classes using aging frameworks count",
-    "source": "technical debt rates: aging-framework",
-    "text": "1",
-    "unit": "",
-    "value": 1
-   },
-   {
-    "id": "rate_aging-framework_pct",
-    "label": "Classes using aging frameworks percentage",
-    "source": "technical debt rates: aging-framework",
-    "text": "4.2",
-    "unit": "%",
-    "value": 4.2
-   },
-   {
     "id": "rate_any-class_d",
     "label": "Classes with at least one finding population",
     "source": "technical debt rates: any-class",
@@ -595,6 +572,54 @@
     "value": 53.3
    },
    {
+    "id": "rate_entry-points-unobserved_d",
+    "label": "Entry points never observed population",
+    "source": "technical debt rates: entry-points-unobserved",
+    "text": "18",
+    "unit": "",
+    "value": 18
+   },
+   {
+    "id": "rate_entry-points-unobserved_n",
+    "label": "Entry points never observed count",
+    "source": "technical debt rates: entry-points-unobserved",
+    "text": "9",
+    "unit": "",
+    "value": 9
+   },
+   {
+    "id": "rate_entry-points-unobserved_pct",
+    "label": "Entry points never observed percentage",
+    "source": "technical debt rates: entry-points-unobserved",
+    "text": "50.0",
+    "unit": "%",
+    "value": 50.0
+   },
+   {
+    "id": "rate_unobserved_d",
+    "label": "Classes never observed at runtime population",
+    "source": "technical debt rates: unobserved",
+    "text": "24",
+    "unit": "",
+    "value": 24
+   },
+   {
+    "id": "rate_unobserved_n",
+    "label": "Classes never observed at runtime count",
+    "source": "technical debt rates: unobserved",
+    "text": "12",
+    "unit": "",
+    "value": 12
+   },
+   {
+    "id": "rate_unobserved_pct",
+    "label": "Classes never observed at runtime percentage",
+    "source": "technical debt rates: unobserved",
+    "text": "50.0",
+    "unit": "%",
+    "value": 50.0
+   },
+   {
     "id": "score_scale",
     "label": "Score scale maximum",
     "source": "score definitions (glossary: readiness, confidence)",
@@ -657,17 +682,33 @@
     "text": "5",
     "unit": "",
     "value": 5
+   },
+   {
+    "id": "unobserved_entry_pct",
+    "label": "Entry points never observed percentage",
+    "source": "technical debt rates: entry-points-unobserved",
+    "text": "50.0",
+    "unit": "%",
+    "value": 50.0
+   },
+   {
+    "id": "unobserved_entry_points",
+    "label": "Entry points never observed",
+    "source": "technical debt rates: entry-points-unobserved",
+    "text": "9",
+    "unit": "",
+    "value": 9
    }
   ],
   "headline": "Decide how to modernize the analyzed artifact (24 classes, 5 packages, 5 candidate domains: Application Clinic, Type Owner, Vet, Owner Visit, System Configuration). You requested MODULAR_MONOLITH with the objective: Fixture",
   "material_risks": [
    {
     "finding_ids": [
-     "1cdc6264-a887-5324-8ff5-6cb647f8c552",
-     "27c05011-d9df-5a98-ba6d-d211b92f79f6",
-     "a1a8c583-04b3-5382-b758-45a157c707de",
-     "cdc9afef-3feb-5d84-9d07-c5b249535f2b",
-     "f2d5dd5c-fdab-55f6-9ecf-4354af5749fa"
+     "02949143-0fb8-55e2-8d5c-8d8da343c4da",
+     "7e0cb66b-fc93-5e0a-83b1-1e72d50fe358",
+     "80f804cc-297d-501b-856f-020eccac7e72",
+     "bfdbacf5-df89-51be-8c2c-317041e50372",
+     "fa87b162-7303-5647-bc12-968324e6a5a6"
     ],
     "message": "LIMITED_OBSERVATION in Application Clinic, Owner Visit, System Configuration, Type Owner, Vet: Selected sessions observed 0 of 1 classes of Application Clinic (0.0%, minimum 80%)."
    }
@@ -676,10 +717,8 @@
    "Application Clinic",
    "BEHAVIORAL_CONTRACTS",
    "CLOUD_REFACTOR",
-   "Classes never observed at runtime",
    "CrashController.triggerException()",
    "DATA_OWNERSHIP_REVIEW",
-   "Entry points never observed",
    "FRAMEWORK_UPGRADE",
    "HUMAN_CHANGE_APPROVAL",
    "HYBRID",
@@ -735,11 +774,11 @@
    {
     "blockers": [],
     "finding_ids": [
-     "78aed7f0-6e29-55b0-bc10-07ddac3a3465",
-     "80d35c5c-72f1-55d6-89bf-bd80aecd8ecc",
-     "baf54c77-5bee-54ec-8b44-7e8f93c1f9c0",
-     "c52898d7-9de5-55b1-b6ab-cb2f560beb48",
-     "d865d33e-011e-51a0-9af4-d37f4252b297"
+     "33783b81-7bbc-5fb7-b51f-bb8aff4d6ee5",
+     "48481eec-213b-58b1-9c63-710ee149ce2b",
+     "63fbef2a-c9b9-5ab4-9bbb-e5765178144e",
+     "7c3846e9-96a5-5494-8e48-cb4194213151",
+     "7e445a50-68ff-56bb-9191-f1632f555e4a"
     ],
     "recommended": false,
     "selected_by_user": false,
@@ -754,11 +793,11 @@
    {
     "blockers": [],
     "finding_ids": [
-     "78aed7f0-6e29-55b0-bc10-07ddac3a3465",
-     "80d35c5c-72f1-55d6-89bf-bd80aecd8ecc",
-     "baf54c77-5bee-54ec-8b44-7e8f93c1f9c0",
-     "c52898d7-9de5-55b1-b6ab-cb2f560beb48",
-     "d865d33e-011e-51a0-9af4-d37f4252b297"
+     "33783b81-7bbc-5fb7-b51f-bb8aff4d6ee5",
+     "48481eec-213b-58b1-9c63-710ee149ce2b",
+     "63fbef2a-c9b9-5ab4-9bbb-e5765178144e",
+     "7c3846e9-96a5-5494-8e48-cb4194213151",
+     "7e445a50-68ff-56bb-9191-f1632f555e4a"
     ],
     "recommended": false,
     "selected_by_user": false,
@@ -867,6 +906,22 @@
     "text": "Controller dependencies on entities: 8 of 15 dependency edges (53.3%)."
    },
    {
+    "denominator": 18,
+    "id": "entry-points-unobserved",
+    "kind": "technical-debt",
+    "numerator": 9,
+    "percentage": 50.0,
+    "text": "Entry points never observed: 9 of 18 entry points (50.0%)."
+   },
+   {
+    "denominator": 24,
+    "id": "unobserved",
+    "kind": "technical-debt",
+    "numerator": 12,
+    "percentage": 50.0,
+    "text": "Classes never observed at runtime: 12 of 24 classes (50.0%)."
+   },
+   {
     "denominator": 24,
     "id": "any-class",
     "kind": "technical-debt",
@@ -881,14 +936,6 @@
     "numerator": 7,
     "percentage": 20.0,
     "text": "Cross-domain dependencies: 7 of 35 dependency edges (20.0%)."
-   },
-   {
-    "denominator": 24,
-    "id": "aging-framework",
-    "kind": "technical-debt",
-    "numerator": 1,
-    "percentage": 4.2,
-    "text": "Classes using aging frameworks: 1 of 24 classes (4.2%)."
    }
   ],
   "scope": {
@@ -955,10 +1002,10 @@
     "id": "risks",
     "paragraphs": [
      "Controller dependencies on entities: 8 of 15 dependency edges (53.3%).",
+     "Entry points never observed: 9 of 18 entry points (50.0%).",
+     "Classes never observed at runtime: 12 of 24 classes (50.0%).",
      "Classes with at least one finding: 5 of 24 classes (20.8%).",
-     "Cross-domain dependencies: 7 of 35 dependency edges (20.0%).",
-     "Classes using aging frameworks: 1 of 24 classes (4.2%).",
-     "Not measured: Classes never observed at runtime; Entry points never observed."
+     "Cross-domain dependencies: 7 of 35 dependency edges (20.0%)."
     ],
     "title": "Risks"
    },
@@ -967,7 +1014,8 @@
     "paragraphs": [
      "Domain confidence runs from 40.0 (Application Clinic) to 80.0 (Vet) out of 100.",
      "Runtime sessions observed 12 of 24 classes (50.0%).",
-     "5 domains below 80% observed: Application Clinic, Type Owner, Vet, Owner Visit and 1 more. Unobserved never means unused."
+     "5 domains below 80% observed: Application Clinic, Type Owner, Vet, Owner Visit and 1 more. Unobserved never means unused.",
+     "9 of 18 entry points were never observed (50.0%)."
     ],
     "title": "Confidence and what was not observed"
    },
@@ -1008,11 +1056,11 @@
    },
    {
     "finding_ids": [
-     "78aed7f0-6e29-55b0-bc10-07ddac3a3465",
-     "80d35c5c-72f1-55d6-89bf-bd80aecd8ecc",
-     "baf54c77-5bee-54ec-8b44-7e8f93c1f9c0",
-     "c52898d7-9de5-55b1-b6ab-cb2f560beb48",
-     "d865d33e-011e-51a0-9af4-d37f4252b297"
+     "33783b81-7bbc-5fb7-b51f-bb8aff4d6ee5",
+     "48481eec-213b-58b1-9c63-710ee149ce2b",
+     "63fbef2a-c9b9-5ab4-9bbb-e5765178144e",
+     "7c3846e9-96a5-5494-8e48-cb4194213151",
+     "7e445a50-68ff-56bb-9191-f1632f555e4a"
     ],
     "rationale": "Turns 15 cross-domain dependency edges between 3 domain pairs into remote calls. No database resource is called by more than one domain in the selected evidence. No domain is in a dependency cycle.",
     "recommended": false,
@@ -1032,11 +1080,11 @@
    },
    {
     "finding_ids": [
-     "78aed7f0-6e29-55b0-bc10-07ddac3a3465",
-     "80d35c5c-72f1-55d6-89bf-bd80aecd8ecc",
-     "baf54c77-5bee-54ec-8b44-7e8f93c1f9c0",
-     "c52898d7-9de5-55b1-b6ab-cb2f560beb48",
-     "d865d33e-011e-51a0-9af4-d37f4252b297"
+     "33783b81-7bbc-5fb7-b51f-bb8aff4d6ee5",
+     "48481eec-213b-58b1-9c63-710ee149ce2b",
+     "63fbef2a-c9b9-5ab4-9bbb-e5765178144e",
+     "7c3846e9-96a5-5494-8e48-cb4194213151",
+     "7e445a50-68ff-56bb-9191-f1632f555e4a"
     ],
     "rationale": "No domain is ready for extraction now; all 5 stay in-process until their blockers are resolved.",
     "recommended": false,
@@ -1121,8 +1169,8 @@
   ],
   "top_risks": [
    "Controller dependencies on entities: 8 of 15 dependency edges (53.3%).",
-   "Classes with at least one finding: 5 of 24 classes (20.8%).",
-   "Cross-domain dependencies: 7 of 35 dependency edges (20.0%)."
+   "Entry points never observed: 9 of 18 entry points (50.0%).",
+   "Classes never observed at runtime: 12 of 24 classes (50.0%)."
   ],
   "unknowns": [
    "Behavioral validation is not measured for 5 of 5 domains: no behavioral contract tests are recorded for this version.",

@@ -87,6 +87,12 @@ def explain(vid: str, aid: str, body: Question, request: Request, db=Depends(ses
     return service.answer(service.owned(db, version, aid), body, request, db)
 
 
+@router.post('/{aid}/technology-plan/explain')
+def technology_plan_explain(vid: str, aid: str, request: Request, db=Depends(session)):
+    version = version_owned(db, request, vid)
+    return dict(ai=service.technology_ai(service.owned(db, version, aid), request, db))
+
+
 @router.get('/{aid}/graph')
 def graph(vid: str, aid: str, request: Request, limit: int = Query(150, ge=1, le=500), root: str | None = Query(None, max_length=36), db=Depends(session)):
     version = version_owned(db, request, vid)

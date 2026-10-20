@@ -44,12 +44,23 @@ def test_fact_values_equal_the_api_values(petclinic):
     assert f['classes']['value'] == static['summary']['class_count'] == 24 and f['packages']['value'] == static['summary']['package_count'] == 5
     assert f['domains']['value'] == len(static['domains']) == len(doc['assessments'])
     assert f['cross_domain_edges']['value'] == sum(r['edge_count'] for r in doc['domain_dependency_matrix']['rows']) == 15
-    rates = {r['id']: r for r in debt.detect(model('petclinic'))['rates']['rates']}      # what /insight/debt returns
-    for rate_id in ('entity-in-controller', 'cross-domain-edges', 'any-class', 'aging-framework'):
+    rates = {r['id']: r for r in debt.detect(model('petclinic'))['rates']['rates']}      # what /insight/debt returns without a runtime session
+    shown = [rate_id for rate_id in rates if 'rate_' + rate_id + '_n' in f]
+    assert {'entity-in-controller', 'cross-domain-edges', 'any-class'} <= set(shown)
+    for rate_id in shown:
+        if rate_id in ('unobserved', 'entry-points-unobserved'):
+            continue                                                  # runtime rates are checked against hand counts below
         rate = rates[rate_id]
         assert f['rate_' + rate_id + '_n']['value'] == rate['numerator'] and f['rate_' + rate_id + '_d']['value'] == rate['denominator'] and f['rate_' + rate_id + '_pct']['value'] == rate['percentage']
     observed = sum(a['runtime_coverage']['classes']['observed'] for a in doc['assessments'])
     assert f['observed_classes']['value'] == observed == 12 and f['observed_total']['value'] == 24
+    _, _, _, version, _ = petclinic
+    unobserved = {c for d in version.document['coverage']['domain_observations'] for c in d['unobserved_classes']}
+    assert len(unobserved) == 12                                                             # 24 classes, half observed
+    entries = model('petclinic').entry_points['items']
+    assert len(entries) == 18 and f['entry_points']['value'] == 18
+    assert f['unobserved_entry_points']['value'] == sum(1 for e in entries if e['handler_class'] in unobserved)      # hand count from the handler classes
+    assert f['rate_unobserved_n']['value'] == 12 and f['rate_unobserved_d']['value'] == 24 and f['rate_unobserved_pct']['value'] == 50.0
     assert f['confidence_min']['value'] == min(a['confidence_score'] for a in doc['assessments']) and f['confidence_max']['value'] == max(a['confidence_score'] for a in doc['assessments'])
 
 

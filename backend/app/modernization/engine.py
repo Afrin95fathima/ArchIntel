@@ -11,6 +11,8 @@ from app.services.domains import enrich_domains
 from app.services.modernization import assess_and_rank
 from app.services.runtime.entry_points import is_method_entry_point
 from app.services.domain_analysis import dependency_matrix, model_overlap, entry_point_inventory
+from app.insight import lifecycle as lifecycle_module, modernization_plan as technology_plan
+from app.insight.model import InsightModel
 from . import brief as brief_module, decomposition, describe
 
 RULE_VERSION = 'modernization-intelligence-4'
@@ -53,6 +55,18 @@ def structural(version, static):
     # Reviewed membership changes domains, so only class-level God-class findings are reused; domain-boundary violations are not recomputed here.
     god_classes = [i for i in static.get('issues', []) if i['issue_type'] == 'GOD_CLASS']
     return assess_and_rank(domains, membership, graph, cycles, god_classes, static['configuration']['readiness_weights'], boundary_available=False)
+
+
+def analysis_context(version, static, domains, has_runtime):
+    """One insight model for the plan, with the runtime classes of the captured sessions, and its lifecycle evaluation."""
+    runtime = None
+    if has_runtime:
+        unobserved = {c for d in version.document['coverage']['domain_observations'] for c in d.get('unobserved_classes', [])}
+        observed = sorted({c for d in domains for c in d['classes']} - unobserved)
+        runtime = dict(runtime_graph=dict(nodes=[dict(id=c, static_id=c) for c in observed], edges=[]),
+                       observed_methods=version.document.get('observed_methods') if version.manifest.get('method_observations_available') else None)
+    model = InsightModel('plan', static, runtime)
+    return dict(model=model, lifecycle=lifecycle_module.evaluate(model, static.get('tech_inventory')) if model.facts_available else None)
 
 
 def wave_reason(number, members, dependencies, names, candidates, coupled):
@@ -448,7 +462,9 @@ def build(assessment_id, version, static, facts, evidence, options):
             'Data ownership, behavioral equivalence and extraction authorization remain unavailable.',
             'Cloud, Java and framework strategies are review proposals; compatibility validation is not implemented in Phase 5.'])
     describe.apply(result, domains)
-    brief_module.merge(result['decision_brief'], brief_module.build(result, static, domains, options, by_evidence), result)
+    shared = analysis_context(version, static, domains, bool(version.manifest['runtime_session_ids']))
+    result['technology_plan'] = technology_plan.build(shared['model'], shared['lifecycle']) if shared['lifecycle'] is not None else dict(status='NOT_AVAILABLE', reason='This analysis has no bytecode facts, so aging technology cannot be assessed; run a new analysis.')
+    brief_module.merge(result['decision_brief'], brief_module.build(result, static, domains, options, by_evidence, shared), result)
     result['microservice_decomposition'] = decomposition.build(static, result)
     result['graph'] = planning_graph(assessment_id, result, facts, by_evidence)
     return result

@@ -47,6 +47,7 @@ def pure(static=None, observations=0, reviewed=False):
     runtime['coverage'] = calculate(static, runtime['runtime_graph'])
     for d in runtime['coverage']['domain_observations']:
         d['observed'] = round(d['total'] * observations); d['state'] = 'OBSERVED' if observations == 1 else 'UNOBSERVED'
+        d['unobserved_classes'] = d['unobserved_classes'][:d['total'] - d['observed']]      # keep the list consistent with the count, as real coverage does
     vid = str(uuid4())
     manifest = dict(analysis_id='analysis', application_id='app', captured_at='2026-10-04T00:00:00Z', runtime_session_ids=['session'] if observations else [],
                     method_observations_available=False, domain_review={'actor':'test','reason':'fixture'} if reviewed else None)

@@ -78,6 +78,21 @@ def validate(document, facts, evidence):
         if 'CROSS_DOMAIN_CYCLE' in kinds: check(d['kind'] in {'BREAK_CYCLE_FIRST', 'MANUAL_REVIEW_REQUIRED'}, 'CYCLE_NOT_BLOCKED')
         if d['kind'] in {'RETAIN_MODULAR_MONOLITH', 'PREPARE_FOR_EXTRACTION'}:
             check(not kinds.intersection({'LIMITED_OBSERVATION', 'UNREVIEWED_BOUNDARY', 'UNRESOLVED_RUNTIME_BOUNDARY', 'RUNTIME_QUALITY_LIMITATION', 'CONFLICTING_EVIDENCE', 'HIGH_STRUCTURAL_COUPLING', 'SHARED_PERSISTENCE_CANDIDATE'}), 'UNRESOLVED_FINDING_NOT_BLOCKED')
+    plan = document.get('technology_plan') or {}
+    if plan.get('items') is not None:
+        from app.insight.modernization_plan import load_candidates
+        from app.insight.lifecycle import load_rules
+        curated = {c['id'] for rows in load_candidates()['items'].values() for c in rows}
+        rule_ids = {r['id'] for r in load_rules()['rules']}
+        check(plan.get('status') == 'PROPOSED' and plan.get('review', {}).get('required') is True, 'TECH_PLAN_NOT_A_PROPOSAL')
+        placed = [rule for phase in plan.get('phases', []) for rule in phase['items']]
+        check(sorted(placed) == sorted(i['rule_id'] for i in plan['items']), 'TECH_PLAN_PHASE_MISSING')
+        for entry in plan['items']:
+            check(entry['rule_id'] in rule_ids, 'TECH_PLAN_UNKNOWN_RULE')
+            check(entry['recommended']['id'] in curated and entry.get('verification') == 'CURATED', 'TECH_PLAN_UNKNOWN_CANDIDATE')
+            check(entry['feasible'] == all(c['status'] != 'FAIL' for c in entry['feasibility']), 'TECH_PLAN_FEASIBILITY_MISMATCH')
+            check(bool(entry['citations']) and entry['citations'][0] == 'rule:' + entry['rule_id'], 'TECH_PLAN_UNCITED')
+        check(plan.get('feasible') == all(i['feasible'] for i in plan['items']), 'TECH_PLAN_FEASIBILITY_MISMATCH')
     graph = nx.DiGraph(); graph.add_nodes_from(domains)
     graph.add_edges_from((e['source'], e['target']) for e in document['dependency_edges'])
     wave_by = {}; groups = []

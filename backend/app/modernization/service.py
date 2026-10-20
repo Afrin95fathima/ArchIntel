@@ -122,3 +122,39 @@ def answer(item, body, request=None, db=None):
         result['ai'] = explain(request, db, 'DECISION_EXPLANATION', evidence, 'Explain in plain language why this decision was made for this domain, using only the supplied findings.',
             'assessment:' + item.id, known)
     return result
+
+
+def technology_ai(item, request, db):
+    """Optional model wording for the technology plan. The plan and every choice in it are deterministic; the model may only add a cited rationale
+    or propose an alternative, and a proposal outside the curated candidates is labelled unverified."""
+    from app.ai.grounded import model_call, verify_sentences, SYSTEM
+    from app.insight import modernization_plan as mp
+    plan = item.document.get('technology_plan') or {}
+    if not plan.get('items'):
+        return dict(status='NOT_AVAILABLE', reason='NO_PLAN_ITEMS', recommendations=[], dropped=[])
+    evidence = []
+    for i in plan['items'][:24]:
+        names = ', '.join(c.rsplit('.', 1)[-1] for c in i['affected_classes'][:6])
+        evidence.append(dict(id='rule:' + i['rule_id'], text=f"{i['technology']} is {i['status']}; {len(i['affected_classes'])} classes use it ({names}). Chosen: {i['recommended']['name']} (needs Java {i['recommended']['requires_java']}). "
+                             f"Alternatives: {'; '.join(a['name'] + ' - ' + a['reason'] for a in i['alternatives']) or 'none'}. Phase {i['phase']}."))
+    local = {f'e{n}': e['id'] for n, e in enumerate(evidence)}
+    envelope = dict(instruction='For each rule, explain in one or two sentences why the chosen candidate fits this application, or propose a different candidate from your knowledge and say so. Cite the evidence ids. Choose among the listed candidate ids when you agree with the plan.',
+                    evidence=[dict(id=k, text=e['text']) for (k, _), e in zip(local.items(), evidence)])
+    schema = {'type': 'object', 'properties': {'recommendations': {'type': 'array', 'maxItems': 24, 'items': {'type': 'object', 'properties': {
+        'rule_id': {'type': 'string', 'enum': [i['rule_id'] for i in plan['items']]}, 'choice': {'type': 'string'}, 'rationale': {'type': 'string'},
+        'cite': {'type': 'array', 'items': {'type': 'string', 'enum': sorted(local)}}}, 'required': ['rule_id', 'choice', 'rationale', 'cite'], 'additionalProperties': False}}},
+        'required': ['recommendations'], 'additionalProperties': False}
+    output, info = model_call(request, db, 'TECHNOLOGY_PLAN', envelope, schema, SYSTEM, 'assessment:' + item.id, max_tokens=900)
+    if output is None:
+        return dict(status='NOT_AVAILABLE', reason=info['reason'], request_id=info['request_id'], recommendations=[], dropped=[])
+    kept, dropped = mp.verify_ai(output, plan, local)
+    known = {c for i in plan['items'] for c in i['affected_classes']} | {i['technology'] for i in plan['items']} | {i['recommended']['name'] for i in plan['items']} | {a['name'] for i in plan['items'] for a in i['alternatives']}
+    final = []
+    for row in kept:
+        ok, bad = verify_sentences([dict(text=row['rationale'], cite=[k for k, v in local.items() if v in row['citations']])], local, known)
+        if ok:
+            final.append(row)
+        else:
+            dropped.append(dict(text=row['rationale'][:200], reason='UNVERIFIED_IDENTIFIER'))
+    return dict(status='AI_GENERATED' if final else 'NOT_AVAILABLE', reason=None if final else 'NO_VERIFIED_RECOMMENDATIONS', recommendations=final, dropped=dropped, request_id=info['request_id'],
+                label='AI-written wording. Each recommendation cites the rule it rephrases; a choice outside the curated candidates is marked unverified, confirm before use. The plan above does not depend on it.')

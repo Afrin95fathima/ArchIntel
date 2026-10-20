@@ -39,7 +39,7 @@ DERIVED = [
     dict(id='entry-points-unobserved', label='Entry points never observed', unit='entry points',
         numerator='entry points whose handler method (or, without method evidence, handler class) has no mapped span', denominator='all detected entry points'),
     dict(id='any-class', label='Classes with at least one finding', unit='classes',
-        numerator='distinct classes named by any technical-debt finding', denominator='all analysed top-level classes'),
+        numerator='distinct classes named by a technical-debt finding of severity LOW or higher (INFO findings such as "never observed" describe missing evidence and are not counted)', denominator='all analysed top-level classes'),
 ]
 BY_ID = {d['id']: d for d in RATE_DEFS + DERIVED}
 
@@ -107,9 +107,10 @@ def compute(model, findings, class_ids, populations, runtime_included, facts_ava
         rates.append(_rate(definition, len(unobserved), len(items), [f"{e['handler_class']}.{e['handler_method']}()" for e in unobserved], {e['handler_class'] for e in unobserved}, None))
         rates[-1]['basis'] = 'method-level spans' if methods is not None else 'class-level spans (no method-level evidence)'
     # derived: any class
-    any_members = {_class_of(f) for f in findings} & classes
+    problems = [f for f in findings if f['severity'] != 'INFO']
+    any_members = {_class_of(f) for f in problems} & classes
     class_rate_members['any-class'] = any_members
-    severity = min((f['severity'] for f in findings), key=lambda s: SEVERITY_ORDER.get(s, 9), default=None)
+    severity = min((f['severity'] for f in problems), key=lambda s: SEVERITY_ORDER.get(s, 9), default=None)
     rates.append(_rate(BY_ID['any-class'], len(any_members), len(classes), any_members, any_members, severity))
 
     def breakdown(key_of, names):

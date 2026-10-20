@@ -80,7 +80,7 @@ def unregistered_numbers(brief: dict) -> list[str]:
     return sorted(set(problems))
 
 
-def build(result: dict, static: dict, domains: list[dict], options: dict, evidence_by_id: dict) -> dict:
+def build(result: dict, static: dict, domains: list[dict], options: dict, evidence_by_id: dict, shared: dict | None = None) -> dict:
     F = Facts()
     assessments = result['assessments']
     D = len(assessments)
@@ -89,13 +89,13 @@ def build(result: dict, static: dict, domains: list[dict], options: dict, eviden
     strategy = options['strategy']
     domain_name = {a['domain_id']: a['domain_name'] for a in assessments}
     findings = result['findings']
-    model = InsightModel('brief', static)
+    model = shared['model'] if shared else InsightModel('brief', static)
     try:
         debt = debt_module.detect(model)
     except Exception as error:      # the brief must not block plan creation; the gap is stated in the text
         debt = None
         debt_error = type(error).__name__
-    lifecycle_findings = lifecycle.evaluate(model, static.get('tech_inventory'))['findings'] if model.facts_available else None
+    lifecycle_findings = (shared['lifecycle']['findings'] if shared else lifecycle.evaluate(model, static.get('tech_inventory'))['findings']) if model.facts_available else None
     rows = result['domain_dependency_matrix'].get('rows', [])
     cross_edges = sum(r['edge_count'] for r in rows)
     domain_pairs = len(rows)

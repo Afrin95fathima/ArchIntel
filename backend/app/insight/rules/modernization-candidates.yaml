@@ -1,0 +1,136 @@
+# Curated replacement candidates for the technology modernization plan.
+#
+# Each lifecycle rule (lifecycle-rules.yaml) maps to one or more candidates. The plan only recommends a candidate listed
+# here; anything else a model suggests is shown as "unverified, confirm before use".
+#
+#   requires_java   minimum Java level the candidate runs on (integer feature release)
+#   lifecycle       {rule, version}: status and date come from that rule in lifecycle-rules.yaml. null means the rules file does not cover this
+#                   candidate; the plan then says so instead of borrowing another technology's status.
+#   namespace       {from, to}: package rename the candidate forces on application code
+#   needs           technologies that must move together with it: {rule, versions} is the incompatible range of that technology
+#   phase           platform | library | framework: how the plan orders the item
+#   steps           ordered migration steps
+#   fit             a short statement of when it is the better choice; the plan adds measured numbers
+# Facts here are compatibility baselines taken from each project's documentation; verify before relying on them (see reviewed).
+schema_version: 1
+candidates_version: 2026.10.0
+reviewed: 2026-10-19
+max_age_days: 180
+java:
+  lts_candidates: [21, 25]
+  note: "Java feature releases; only LTS lines are offered as targets."
+items:
+  java-class-target:
+    - {id: java-21, name: "Java 21 (LTS)", target_version: "21", requires_java: 21, phase: platform, lifecycle: {rule: java-class-target, version: "21"},
+       steps: ["Recompile with --release 21 and run the existing tests.", "Replace removed JDK APIs (JAXB, JAX-WS, CORBA, javax.annotation were removed in 11; internal sun.* APIs are encapsulated).", "Update build plugins and the CI JDK to 21."],
+       fit: "Smallest step to a line the rules file marks current."}
+    - {id: java-25, name: "Java 25 (LTS)", target_version: "25", requires_java: 25, phase: platform, lifecycle: {rule: java-class-target, version: "25"},
+       steps: ["Recompile with --release 25 and run the existing tests.", "Check frameworks and build plugins for Java 25 support.", "Remove use of the Security Manager (disabled since Java 24)."],
+       fit: "Latest LTS; choose it when every other target supports it."}
+  spring-boot:
+    - {id: spring-boot-3.5, name: "Spring Boot 3.5.x", target_version: "3.5", requires_java: 17, phase: framework, lifecycle: {rule: spring-boot, version: "3.5"},
+       namespace: {from: "javax.", to: "jakarta."},
+       needs: [{rule: hibernate-orm, versions: "<6.0", reason: "Spring Boot 3 manages Hibernate ORM 6, which uses jakarta.persistence."}],
+       steps: ["Move to the latest 2.7.x first and fix its deprecation warnings.", "Raise the Java level to 17 or higher.", "Run the OpenRewrite Spring Boot 3 and javax-to-jakarta recipes.", "Upgrade Hibernate ORM, Tomcat and other managed dependencies together with the Boot version."],
+       fit: "Intermediate step when Spring Boot 4 is not yet supported by the other dependencies."}
+    - {id: spring-boot-4, name: "Spring Boot 4.x", target_version: "4.0", requires_java: 17, phase: framework, lifecycle: {rule: spring-boot, version: "4.0"},
+       namespace: {from: "javax.", to: "jakarta."},
+       needs: [{rule: hibernate-orm, versions: "<6.0", reason: "Spring Boot 4 manages Hibernate ORM 7, which uses jakarta.persistence."}],
+       steps: ["Move to Spring Boot 3.5.x first (see that candidate).", "Update to the Spring Boot 4 release train and read its migration guide.", "Re-run the test suite and the runtime smoke session."],
+       fit: "Chosen when the rules file marks 3.5.x aging and the application has no dependency that blocks 4.x."}
+  spring-framework:
+    - {id: spring-framework-6.2, name: "Spring Framework 6.2.x", target_version: "6.2", requires_java: 17, phase: framework, lifecycle: {rule: spring-framework, version: "6.2"},
+       namespace: {from: "javax.", to: "jakarta."},
+       steps: ["Upgrade to the latest 5.3.x and remove deprecated API use.", "Raise the Java level to 17.", "Rename javax.* imports to jakarta.*.", "Move to 6.2.x and review removed APIs in the upgrade guide."],
+       fit: "Direct target for applications on Spring Framework without Spring Boot."}
+    - {id: spring-framework-7, name: "Spring Framework 7.x", target_version: "7.0", requires_java: 17, phase: framework, lifecycle: {rule: spring-framework, version: "7.0"},
+       namespace: {from: "javax.", to: "jakarta."},
+       steps: ["Move to Spring Framework 6.2.x first.", "Update to 7.x and read its upgrade guide."],
+       fit: "Chosen when the rules file marks 6.2.x aging."}
+  javax-persistence:
+    - {id: jakarta-persistence-3.1, name: "jakarta.persistence 3.1 with Hibernate ORM 6.6", target_version: "3.1", requires_java: 11, phase: framework, lifecycle: {rule: hibernate-orm, version: "6.6"},
+       namespace: {from: "javax.persistence", to: "jakarta.persistence"},
+       steps: ["Upgrade Hibernate ORM to 6.6 and fix HQL and mapping changes.", "Rename javax.persistence.* to jakarta.persistence.* with the Eclipse Transformer or the OpenRewrite JavaxMigrationToJakarta recipe.", "Re-run the persistence tests against the real database."],
+       fit: "Namespace move that runs on Java 11."}
+  javax-servlet:
+    - {id: jakarta-servlet-6, name: "jakarta.servlet 6 on Tomcat 10.1", target_version: "6.0", requires_java: 11, phase: framework, lifecycle: null,
+       namespace: {from: "javax.servlet", to: "jakarta.servlet"},
+       steps: ["Move the container to Tomcat 10.1 (or Jetty 11+).", "Rename javax.servlet.* to jakarta.servlet.*.", "Update filters, listeners and web.xml namespaces."],
+       fit: "Required by Spring Boot 3 and Spring Framework 6."}
+  javax-validation:
+    - {id: jakarta-validation-3, name: "jakarta.validation 3 with Hibernate Validator 8", target_version: "3.0", requires_java: 11, phase: framework, lifecycle: null,
+       namespace: {from: "javax.validation", to: "jakarta.validation"},
+       steps: ["Upgrade to Hibernate Validator 8.", "Rename javax.validation.* to jakarta.validation.*."],
+       fit: "Small rename that moves with the framework upgrade."}
+  javax-ws-rs:
+    - {id: jakarta-ws-rs-3.1, name: "jakarta.ws.rs 3.1 with Jersey 3.1", target_version: "3.1", requires_java: 11, phase: framework, lifecycle: null,
+       namespace: {from: "javax.ws.rs", to: "jakarta.ws.rs"},
+       steps: ["Move to Jersey 3.1 or RESTEasy 6.", "Rename javax.ws.rs.* to jakarta.ws.rs.*."],
+       fit: "Keeps JAX-RS resources; the alternative is rewriting them as Spring MVC controllers."}
+  javax-faces:
+    - {id: jakarta-faces-4, name: "Jakarta Faces 4", target_version: "4.0", requires_java: 11, phase: framework, lifecycle: null,
+       namespace: {from: "javax.faces", to: "jakarta.faces"},
+       steps: ["Move to Mojarra 4 or MyFaces 4.", "Rename javax.faces.* to jakarta.faces.* and update faces-config.xml."],
+       fit: "Keeps the Faces views."}
+  javax-jms-ejb-transaction:
+    - {id: jakarta-ee-10, name: "Jakarta EE 10 (jakarta.* namespace)", target_version: "10", requires_java: 11, phase: framework, lifecycle: null,
+       namespace: {from: "javax.", to: "jakarta."},
+       steps: ["Move to a Jakarta EE 10 runtime.", "Rename javax.jms, javax.ejb and javax.transaction imports to jakarta.*."],
+       fit: "Runtime and namespace move together."}
+  jdk-removed-ee-modules:
+    - {id: jakarta-xml-bind-4, name: "Jakarta XML Binding 4 with jakarta.annotation", target_version: "4.0", requires_java: 11, phase: library, lifecycle: null,
+       namespace: {from: "javax.xml.bind", to: "jakarta.xml.bind"},
+       steps: ["Add the jakarta.xml.bind-api and a runtime such as jaxb-runtime as dependencies.", "Add jakarta.annotation-api where javax.annotation is used.", "Rename the imports."],
+       fit: "The JDK no longer ships these modules."}
+  log4j-1:
+    - {id: log4j-2, name: "Log4j 2", target_version: "2", requires_java: 8, phase: library, lifecycle: null,
+       steps: ["Add log4j-api and log4j-core and the log4j-1.2-api bridge.", "Convert log4j.properties to a Log4j 2 configuration.", "Replace org.apache.log4j imports with org.apache.logging.log4j."],
+       fit: "Closest API; runs on the current Java level."}
+    - {id: slf4j-logback, name: "SLF4J 2 with Logback 1.5", target_version: "2", requires_java: 11, phase: library, lifecycle: null,
+       steps: ["Replace direct Logger use with the SLF4J API.", "Configure Logback.", "Remove log4j 1.x from the dependency list."],
+       fit: "Preferred when the application already uses SLF4J."}
+  commons-lang-2:
+    - {id: commons-lang3, name: "Apache Commons Lang 3", target_version: "3", requires_java: 8, phase: library, lifecycle: null,
+       namespace: {from: "org.apache.commons.lang", to: "org.apache.commons.lang3"},
+       steps: ["Replace the dependency with commons-lang3.", "Rename org.apache.commons.lang imports to org.apache.commons.lang3.", "Fix removed or changed methods."],
+       fit: "Drop-in rename for most uses."}
+  commons-collections-3:
+    - {id: commons-collections4, name: "Apache Commons Collections 4", target_version: "4", requires_java: 8, phase: library, lifecycle: null,
+       namespace: {from: "org.apache.commons.collections", to: "org.apache.commons.collections4"},
+       steps: ["Replace the dependency with commons-collections4.", "Rename the imports and fix generics changes."],
+       fit: "Rename plus generics."}
+  commons-httpclient-3:
+    - {id: apache-httpclient-5, name: "Apache HttpClient 5", target_version: "5", requires_java: 8, phase: library, lifecycle: null,
+       steps: ["Replace commons-httpclient with httpclient5.", "Rewrite the call sites to the 5.x API."],
+       fit: "Closest feature set."}
+    - {id: java-net-http, name: "java.net.http.HttpClient", target_version: "11", requires_java: 11, phase: library, lifecycle: null,
+       steps: ["Rewrite the call sites with java.net.http.HttpClient.", "Remove the dependency."],
+       fit: "No extra dependency; only simple requests."}
+  struts-1:
+    - {id: spring-mvc, name: "Spring MVC controllers", target_version: "6", requires_java: 17, phase: framework, lifecycle: {rule: spring-framework, version: "6.2"},
+       namespace: {from: "javax.", to: "jakarta."},
+       steps: ["Map each Struts action to a controller method.", "Move form beans to request objects.", "Replace JSP tags and struts-config.xml mappings."],
+       fit: "Replaces the action layer; moves in the same phase as the framework upgrade."}
+  jackson-1:
+    - {id: jackson-2, name: "Jackson 2.x", target_version: "2", requires_java: 8, phase: library, lifecycle: null,
+       namespace: {from: "org.codehaus.jackson", to: "com.fasterxml.jackson"},
+       steps: ["Replace the org.codehaus.jackson dependencies with com.fasterxml.jackson.", "Rename the imports and review annotation changes."],
+       fit: "Mechanical rename."}
+  joda-time:
+    - {id: java-time, name: "java.time (JSR-310)", target_version: "8", requires_java: 8, phase: library, lifecycle: null,
+       namespace: {from: "org.joda.time", to: "java.time"},
+       steps: ["Map DateTime, LocalDate and Period to java.time types.", "Replace formatters with DateTimeFormatter."],
+       fit: "No dependency; part of the JDK."}
+  hibernate-orm:
+    - {id: hibernate-6.6, name: "Hibernate ORM 6.6", target_version: "6.6", requires_java: 11, phase: framework, lifecycle: {rule: hibernate-orm, version: "6.6"},
+       namespace: {from: "javax.persistence", to: "jakarta.persistence"},
+       steps: ["Upgrade to 6.6 and fix HQL, type mapping and id generation changes.", "Rename javax.persistence to jakarta.persistence."],
+       fit: "Runs on Java 11 and is the base for Spring Boot 3."}
+    - {id: hibernate-7, name: "Hibernate ORM 7", target_version: "7.0", requires_java: 17, phase: framework, lifecycle: {rule: hibernate-orm, version: "7.0"},
+       namespace: {from: "javax.persistence", to: "jakarta.persistence"},
+       steps: ["Move to 6.6 first.", "Upgrade to 7 and review removed APIs."],
+       fit: "Base for Spring Boot 4; needs Java 17."}
+  sun-internal-apis:
+    - {id: supported-jdk-apis, name: "Supported JDK APIs", target_version: "8", requires_java: 8, phase: library, lifecycle: null,
+       steps: ["Replace sun.misc.BASE64Encoder with java.util.Base64.", "Replace Unsafe use with VarHandle or a supported API."],
+       fit: "Required before running on Java 17 or later."}
