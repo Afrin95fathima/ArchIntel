@@ -102,6 +102,11 @@ async def access_boundary(request, call_next):
     except Exception as error:
         # Authentication/audit storage failure must never permit dispatch.
         # Do not log exception text: database parameters may contain credentials.
-        logging.getLogger('archintel.access').error('Request failed closed (%s).', type(error).__name__)
+        # The innermost frame (file:line in function) locates the fault without exposing the message.
+        frame = error.__traceback__
+        while frame and frame.tb_next:
+            frame = frame.tb_next
+        where = f'{frame.tb_frame.f_code.co_filename.rsplit("/", 1)[-1]}:{frame.tb_lineno} in {frame.tb_frame.f_code.co_name}' if frame else 'unknown'
+        logging.getLogger('archintel.access').error('Request failed closed (%s) at %s on %s.', type(error).__name__, where, path)
         return JSONResponse({'detail': 'Request could not complete. Check its status before retrying.'}, status_code=503,
                             headers={'Cache-Control':'no-store'})
