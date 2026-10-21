@@ -1,0 +1,11 @@
+.evidence-verdict{border-left:4px solid var(--border,#c9d1d9)}
+.evidence-verdict.strength-enough{border-left-color:#1a7f37}
+.evidence-verdict.strength-partial{border-left-color:#b08800}
+.evidence-verdict.strength-thin,.evidence-verdict.strength-none{border-left-color:#cf222e}
+.evidence-next{margin-top:8px}
+.evidence-chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.evidence-chips button{border:1px solid var(--border,#c9d1d9);border-radius:16px;background:transparent;padding:4px 12px;cursor:pointer;color:inherit}
+.evidence-chips button.active{background:var(--accent,#0969da);border-color:var(--accent,#0969da);color:#fff}
+.evidence-drawer{margin-top:12px;padding:12px;border:1px solid var(--border,#c9d1d9);border-radius:8px}
+.evidence-capture>summary{cursor:pointer;margin-bottom:8px}
+.evidence-page{display:flex;flex-direction:column}

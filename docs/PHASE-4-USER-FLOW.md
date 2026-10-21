@@ -16,7 +16,7 @@ An account needs ANALYSIS_WRITE to capture/review versions or update discovery, 
 
 ## Inspect facts and provenance
 
-Open **Facts**. Each directed dependency is classified as:
+The capture form (**Step 1** choose evidence, **Step 2** review domains, **Step 3** preview and save) collapses once a version exists. **How it connects** shows the optional persistent graph. Open **What we know** (the facts view). The panel above the tabs, "What this version tells you", states the class and entry-point coverage, compares it with the plan's 80% runtime rule and gives the next step. Each directed dependency is classified as:
 
 - **STATIC_ONLY:** present in bytecode evidence, not observed in the selected runtime graph. This never means unused.
 - **DYNAMIC_ONLY:** observed at runtime without the corresponding internal static dependency.
@@ -28,7 +28,7 @@ The evidence record timestamp is the version's derivation time. Runtime source o
 
 ## Plan guided runtime discovery
 
-Open **Discovery** to review prioritized suggestions for unobserved entry points, scheduled jobs, message consumers, dependencies, domains and high-risk findings. UNKNOWN means reliable signature-level observation is unavailable, for example after raw retention expiry. Suggestions do not claim to know a complete business workflow.
+Open **What is missing** (discovery) to review prioritized suggestions for unobserved entry points, scheduled jobs, message consumers, dependencies, domains and high-risk findings. UNKNOWN means reliable signature-level observation is unavailable, for example after raw retention expiry. Suggestions do not claim to know a complete business workflow.
 
 Enter a **Discovery update note**, then change an item's status to OPEN, PLANNED, EXERCISED or DISMISSED. Expand Update history to review previous changes. Concurrent changes require a refresh before saving.
 
@@ -40,7 +40,7 @@ The graph is a separate authenticated Neo4j service on local port 17687; it is n
 
 Open **Graph**. A CURRENT result confirms that the stored version digest and projection counts match. The UI displays a bounded sample, and the neighborhood selector follows one hop around a selected node. The graph includes version/application/session references, domains, packages, classes, methods/entry points, external type references, observed resources/flows, evidence, facts and existing findings/cycles.
 
-Open **Twin** for version scope, reviewed domains, observation coverage and explicit unknowns. Database calls do not prove ownership. Tests, behavioral contracts and modernization execution state are not invented. Static readiness scores and existing finding records remain baseline outputs; Phase 5 assessments are not generated here.
+Open **What it means** (the twin) for version scope, reviewed domains, observation coverage and explicit unknowns. Database calls do not prove ownership. Tests, behavioral contracts and modernization execution state are not invented. Static readiness scores and existing finding records remain baseline outputs; Phase 5 assessments are not generated here.
 
 Use **Export canonical evidence** to download/read the complete bounded version document with evidence and facts. Discovery progress is mutable operational history and is retrieved separately through the discovery API; it does not modify that frozen export.
 
