@@ -15,3 +15,12 @@
 @media(max-width:1000px){.runtime-metrics button.coverage-tile{min-height:190px}.coverage-detail__list{grid-template-columns:1fr}}
 @media(max-width:650px){.coverage-detail__controls label{width:100%;margin-left:0}.coverage-detail__controls input{min-width:0;width:100%}.coverage-detail__pager{align-items:flex-start;flex-direction:column}}
 .coverage-span-link{display:block;padding:5px 0;color:var(--palette-2d634b);font-size:12px;text-decoration:underline;overflow-wrap:anywhere}
+
+.auto-explore .consent{display:flex;gap:8px;align-items:flex-start;grid-column:1/-1}
+.exploration{border-top:1px solid var(--neutral-200,#e3e8ef);padding:10px 0}
+.exploration-steps{margin:8px 0;padding-left:20px;display:grid;gap:4px}
+.exploration-steps li span{margin-left:6px;font-size:12px;color:var(--neutral-500,#6b7280)}
+.exploration-steps li small{display:block;color:var(--neutral-600,#4b5563)}
+.exploration-steps li.step-done strong{color:var(--state-success,#1a7f37)}
+.exploration-steps li.step-failed strong{color:var(--state-danger,#cf222e)}
+.exploration-steps li.step-running strong::after{content:' …'}

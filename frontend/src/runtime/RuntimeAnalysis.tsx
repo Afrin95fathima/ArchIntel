@@ -1,3 +1,4 @@
+import {AutoExplore} from './AutoExplore';
 import {useEffect,useState} from 'react';
 import {useQuery,useQueryClient} from '@tanstack/react-query';
 import {api,post} from '../api';
@@ -47,6 +48,7 @@ export function RuntimeAnalysis({applications,analyses,currentApplicationId,onAp
     <div className="notice">Runtime evidence is scoped to selected sessions. Unobserved does not mean unused. Keep this prototype on localhost; management access requires a workspace account.</div>
     <p><a href="/api/v1/manual/phase3-user">Runtime user-flow guide</a> · <a href="/api/v1/manual/phase3-developer">Developer documentation</a></p>
     {(error||sessions.error||evidence.error)&&<ErrorBox error={error||sessions.error||evidence.error}/>}
+    {effectiveApp&&effectiveAnalysis&&<AutoExplore applicationId={effectiveApp} analysisId={effectiveAnalysis}/>}
     <section className="runtime-card"><h2>Create an observation session</h2><form className="runtime-form" onSubmit={e=>{e.preventDefault();void action(async()=>{const created=await post<{session:RuntimeSession;agent:AgentConfiguration}>('/applications/'+effectiveApp+'/runtime-sessions',requestBody);setSelected([created.session.id]);setAgent(created.agent);});}}>
       <label>Application<select aria-label="Runtime application" value={effectiveApp} onChange={e=>{setApp(e.target.value);setAnalysis('');setSelected([]);setCoverageKind(null);setAgent(null);}}>{applications.map(a=><option key={a.id} value={a.id}>{a.name}</option>)}</select></label>
       <label>Static baseline<select aria-label="Runtime static baseline" value={effectiveAnalysis} onChange={e=>setAnalysis(e.target.value)}>{available.map(a=><option key={a.id} value={a.id}>{a.id.slice(0,8)} · {a.created_at.slice(0,10)}</option>)}</select></label>

@@ -1,0 +1,9 @@
+{
+  "name": "archintel-runner",
+  "private": true,
+  "type": "module",
+  "description": "Host-side runner: starts applications with the OpenTelemetry agent, drives them with REA browser scenarios, builds and runs generated services in Docker.",
+  "engines": { "node": "^22.19.0 || ^24.11.0 || >=26.0.0" },
+  "scripts": { "start": "node src/server.mjs", "test": "node --test test/*.test.mjs" },
+  "dependencies": { "rea-agents": "6.7.0" }
+}

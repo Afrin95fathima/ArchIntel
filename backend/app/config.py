@@ -88,6 +88,10 @@ class Settings(BaseSettings):
     gemini_model: str = 'gemini-3.8-flash'
     gemini_timeout_seconds: int = 90
     gemini_max_output_bytes: int = 1048576
+    # Host-side runner (runner/): starts targets with the OpenTelemetry agent, drives them with REA, builds candidate services.
+    runner_url: str = 'http://host.docker.internal:8790'
+    runner_token: SecretStr = SecretStr('')
+    runner_timeout_seconds: int = 1800
     @field_validator('ai_timeout_seconds')
     @classmethod
     def ai_timeout_limit(cls,value):

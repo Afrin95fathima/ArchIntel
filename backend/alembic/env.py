@@ -10,6 +10,7 @@ from app.evidence import models as evidence_models
 from app.modernization import models as modernization_models
 from app.transformation import models as transformation_models
 from app.insight import models as insight_models
+from app.automation import models as automation_models
 
 engine = context.config.attributes.get('engine') or build_engine(Settings())
 with engine.connect() as connection:
