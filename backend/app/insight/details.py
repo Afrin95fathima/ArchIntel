@@ -16,6 +16,15 @@ def key_label(key: str) -> str:
     return method_label(owner, rest.split('(')[0])
 
 
+
+def _package_plain(model, identity: str, members: set[str]) -> str:
+    """Say 'mostly' only when one layer holds more than half of the classes; otherwise state the real split."""
+    (layer, count), *rest = Counter(model.roles[m]['layer'] for m in members).most_common()
+    total = len(members)
+    if count * 2 > total:
+        return f"Package {identity} mostly holds {LAYER_PLAIN[layer]} code ({count} of {total} classes)."
+    return f"Package {identity} mixes layers: the largest group is {LAYER_PLAIN[layer]} code ({count} of {total} classes), the rest is spread over {len(rest)} other {'layer' if len(rest) == 1 else 'layers'}."
+
 def _neighbours(model, members: set[str], outgoing: bool, group_by_package: bool = False) -> list[dict]:
     counts: dict[str, Counter] = {}
     for (s, t), kinds in model.owner_edges.items():
@@ -103,7 +112,7 @@ def node(model, identity: str, debt: dict) -> dict:
         coverage = _coverage(model, members)
         size_text = f"{len(members)} top-level classes ({', '.join(f'{v} {k.lower()}' for k, v in roles.most_common())})"
         return dict(kind='PACKAGE', id=identity, name=identity, breadcrumb=[dict(id='system', label='Application'), dict(id=identity, label=identity)],
-            what=dict(roles=dict(roles), plain=f"Package {identity} mostly holds {LAYER_PLAIN[Counter(model.roles[m]['layer'] for m in members).most_common(1)[0][0]]} code."),
+            what=dict(roles=dict(roles), plain=_package_plain(model, identity, members)),
             size=dict(classes=len(members), methods=sum(len(model.methods_of(m)) for m in members)),
             classes=[dict(id=m, name=short(m), role=model.roles[m]['role']) for m in sorted(members)],
             depends_on=deps, depended_on_by=dependents, top_class_dependencies=class_deps[:10], external_dependencies=_external(model, members),

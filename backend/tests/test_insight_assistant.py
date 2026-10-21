@@ -93,3 +93,10 @@ def test_the_verifier_accepts_real_responsibility_ids_and_rejects_invented_ones(
     assert not index.exists('resp:resp-evidence-doesnotexist') and not index.exists('risk:resp-risk-doesnotexist')
     kept, removed = check_answer(index, [dict(text='A claim.', cites=['resp:' + real]), dict(text='An invented claim.', cites=['resp:resp-evidence-doesnotexist'])])
     assert [s['text'] for s in kept] == ['A claim.'] and removed[0]['reason'] == 'CITATION_NOT_FOUND'
+
+
+def test_routes_that_change_data_are_answered_from_the_http_method_and_never_by_guessing():
+    report = run_file(model('petclinic'), QUESTIONS)
+    results = {r['q']: r for r in report['results']}
+    for question in ('Which HTTP routes change data?', 'Which routes in OwnerController modify state?'):
+        assert results[question]['passed'], results[question]['failures']

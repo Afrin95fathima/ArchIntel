@@ -77,3 +77,14 @@ def test_package_and_method_detail_and_connection():
     assert any('PetValidator constructor' in r['text'] for r in pair['references'])
     system = node(m, 'system', debt)
     assert system['size']['classes'] == 24 and system['entry_points'] == 18
+
+
+def test_a_package_is_called_mostly_one_layer_only_when_that_layer_holds_over_half_of_its_classes():
+    m = model('petclinic')
+    debt = detect(m)
+    owner = node(m, f'{PETCLINIC}.owner', debt)['what']['plain']
+    assert 'mostly' not in owner and 'mixes layers' in owner and '(4 of 11 classes)' in owner       # 4 domain-model classes out of 11 is a plurality, not a majority
+    vet = node(m, f'{PETCLINIC}.vet', debt)['what']['plain']
+    assert vet.startswith(f'Package {PETCLINIC}.vet ') and ('mostly holds' in vet or 'mixes layers' in vet)
+    model_pkg = node(m, f'{PETCLINIC}.model', debt)['what']['plain']
+    assert 'mostly holds' in model_pkg and '(3 of 3 classes)' in model_pkg

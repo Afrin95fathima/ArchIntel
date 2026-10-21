@@ -1,401 +1,419 @@
 {
- "fixture": "petclinic",
- "note": "Expected answers come from the PetClinic fixture sources in tests/fixtures/java/petclinic, not from assistant output. 'contains' substrings must all appear; 'absent' must not; 'status' is the answer status; 'cites' must be among the cited ids.",
- "questions": [
-  {
-   "q": "How many classes are in the application?",
-   "contains": [
-    "24 top-level classes",
-    "5 packages"
-   ],
-   "status": "ANSWERED"
-  },
-  {
-   "q": "Give me an overview of the application",
-   "contains": [
-    "24 top-level classes",
-    "18 entry points"
-   ]
-  },
-  {
-   "q": "Which packages does the application have?",
-   "contains": [
-    "org.springframework.samples.petclinic.owner",
-    "org.springframework.samples.petclinic.vet",
-    "org.springframework.samples.petclinic.model",
-    "org.springframework.samples.petclinic.system"
-   ]
-  },
-  {
-   "q": "What does OwnerController do?",
-   "contains": [
-    "controller",
-    "annotated @org.springframework.stereotype.Controller",
-    "7 entry points"
-   ],
-   "cites": [
-    "class:org.springframework.samples.petclinic.owner.OwnerController"
-   ]
-  },
-  {
-   "q": "What is OwnerRepository?",
-   "contains": [
-    "repository",
-    "JpaRepository"
-   ]
-  },
-  {
-   "q": "What kind of class is Owner?",
-   "contains": [
-    "entity",
-    "jakarta.persistence.Entity"
-   ]
-  },
-  {
-   "q": "What depends on OwnerRepository?",
-   "contains": [
-    "3 classes depend on OwnerRepository",
-    "OwnerController",
-    "PetController",
-    "VisitController"
-   ],
-   "absent": [
-    "VetController"
-   ]
-  },
-  {
-   "q": "Which classes depend on VetRepository?",
-   "contains": [
-    "VetController"
-   ],
-   "absent": [
-    "OwnerController"
-   ]
-  },
-  {
-   "q": "What does PetController depend on?",
-   "contains": [
-    "OwnerRepository",
-    "PetTypeRepository",
-    "PetValidator"
-   ],
-   "absent": [
-    "VetRepository"
-   ]
-  },
-  {
-   "q": "What does VetController depend on?",
-   "contains": [
-    "VetRepository",
-    "Vets"
-   ],
-   "absent": [
-    "OwnerRepository"
-   ]
-  },
-  {
-   "q": "What does PetTypeFormatter depend on?",
-   "contains": [
-    "PetTypeRepository",
-    "PetType"
-   ]
-  },
-  {
-   "q": "Are there any circular dependencies?",
-   "contains": [
-    "No circular dependencies were found"
-   ]
-  },
-  {
-   "q": "Is Owner part of a cycle?",
-   "contains": [
-    "No circular dependencies were found"
-   ]
-  },
-  {
-   "q": "Which controller handles POST /owners/new?",
-   "contains": [
-    "POST /owners/new",
-    "OwnerController.processCreationForm()"
-   ],
-   "cites_prefix": "entry:"
-  },
-  {
-   "q": "What are the endpoints of VetController?",
-   "contains": [
-    "GET /vets.html",
-    "GET /vets",
-    "VetController.showVetList()",
-    "VetController.showResourcesVetList()"
-   ]
-  },
-  {
-   "q": "Which handler serves GET /oups?",
-   "contains": [
-    "GET /oups",
-    "CrashController.triggerException()"
-   ]
-  },
-  {
-   "q": "Which route shows the welcome page?",
-   "contains": [
-    "GET /",
-    "WelcomeController.welcome()"
-   ]
-  },
-  {
-   "q": "List the routes of VisitController",
-   "contains": [
-    "GET /owners/{ownerId}/pets/{petId}/visits/new",
-    "POST /owners/{ownerId}/pets/{petId}/visits/new"
-   ]
-  },
-  {
-   "q": "What entry points does PetController have?",
-   "contains": [
-    "POST /owners/{ownerId}/pets/new",
-    "GET /owners/{ownerId}/pets/{petId}/edit"
-   ]
-  },
-  {
-   "q": "Show the endpoint for editing an owner",
-   "contains": [
-    "/owners/{ownerId}/edit"
-   ]
-  },
-  {
-   "q": "Does the application use Log4j 1?",
-   "contains": [
-    "No matching end-of-life or aging technology"
-   ]
-  },
-  {
-   "q": "Which Java version does the code target?",
-   "contains": [
-    "Java 17",
-    "aging"
-   ]
-  },
-  {
-   "q": "Are there any javax packages in use?",
-   "contains": [
-    "No matching end-of-life or aging technology"
-   ]
-  },
-  {
-   "q": "Which controllers use entities directly?",
-   "contains": [
-    "OwnerController",
-    "PetController",
-    "VisitController"
-   ],
-   "cites_prefix": "finding:"
-  },
-  {
-   "q": "Are there technical debt problems in VisitController?",
-   "contains": [
-    "VisitController",
-    "entity"
-   ]
-  },
-  {
-   "q": "Are there any layer violations?",
-   "contains": [
-    "No technical-debt finding matches"
-   ]
-  },
-  {
-   "q": "Find classes with Repository in the name",
-   "contains": [
-    "OwnerRepository",
-    "PetTypeRepository",
-    "VetRepository"
-   ],
-   "absent": [
-    "OwnerController"
-   ]
-  },
-  {
-   "q": "List all controllers",
-   "contains": [
-    "OwnerController",
-    "PetController",
-    "VisitController",
-    "VetController",
-    "WelcomeController",
-    "CrashController"
-   ],
-   "absent": [
-    "OwnerRepository"
-   ]
-  },
-  {
-   "q": "Show the source of Visit",
-   "contains": [
-    "bytecode outline"
-   ],
-   "status": "ANSWERED",
-   "has_code": true
-  },
-  {
-   "q": "What is the runtime coverage?",
-   "contains": [
-    "cannot determine",
-    "No runtime session"
-   ],
-   "status": "CANNOT_DETERMINE"
-  },
-  {
-   "q": "Which classes were not observed at runtime?",
-   "contains": [
-    "cannot determine"
-   ],
-   "status": "CANNOT_DETERMINE"
-  },
-  {
-   "q": "What does PaymentGateway do?",
-   "contains": [
-    "cannot determine",
-    "PaymentGateway is not a class"
-   ],
-   "status": "CANNOT_DETERMINE"
-  },
-  {
-   "q": "Tell me about the InvoiceService class",
-   "contains": [
-    "cannot determine"
-   ],
-   "status": "CANNOT_DETERMINE"
-  },
-  {
-   "q": "Who calls the OrderProcessor?",
-   "contains": [
-    "cannot determine"
-   ],
-   "status": "CANNOT_DETERMINE"
-  },
-  {
-   "q": "Refactor OwnerController to stop using entities",
-   "contains": [
-    "cannot change code",
-    "human approval"
-   ],
-   "status": "REFUSED"
-  },
-  {
-   "q": "Please delete the VetRepository class",
-   "contains": [
-    "cannot change code"
-   ],
-   "status": "REFUSED"
-  },
-  {
-   "q": "What is the instability of org.springframework.samples.petclinic.vet?",
-   "contains": [
-    "I = "
-   ],
-   "cites_prefix": "metric:"
-  },
-  {
-   "q": "Which class has the highest fan-in?",
-   "contains": [
-    "Highest Fan-in"
-   ],
-   "cites_prefix": "metric:"
-  },
-  {
-   "q": "What is the weather today?",
-   "contains": [
-    "cannot determine"
-   ],
-   "status": "CANNOT_DETERMINE"
-  },
-  {
-   "q": "Which classes handle security?",
-   "contains": [
-    "OwnerController",
-    "PetController",
-    "VisitController",
-    "restricts which request fields can be bound",
-    "are not examined"
-   ],
-   "absent": [
-    "VetController"
-   ],
-   "cites_prefix": "resp:",
-   "status": "ANSWERED"
-  },
-  {
-   "q": "Does anything use caching?",
-   "contains": [
-    "CacheConfiguration",
-    "VetRepository",
-    "uses caching"
-   ],
-   "absent": [
-    "OwnerRepository"
-   ],
-   "cites_prefix": "resp:"
-  },
-  {
-   "q": "Which classes use transactions?",
-   "contains": [
-    "VetRepository",
-    "declares a transaction boundary"
-   ],
-   "absent": [
-    "OwnerController"
-   ],
-   "cites_prefix": "resp:"
-  },
-  {
-   "q": "Is there any logging?",
-   "contains": [
-    "No class shows logging",
-    "24 classes checked",
-    "does not prove the control is absent"
-   ],
-   "status": "ANSWERED"
-  },
-  {
-   "q": "Is there any authentication?",
-   "contains": [
-    "No class shows authentication",
-    "does not prove the control is absent"
-   ]
-  },
-  {
-   "q": "Is OwnerController a mixed responsibility class?",
-   "contains": [
-    "OwnerController is classified mixed",
-    "security"
-   ],
-   "cites_prefix": "class:"
-  },
-  {
-   "q": "What are the responsibilities of VetRepository?",
-   "contains": [
-    "VetRepository is classified functional support",
-    "business data access (detected)",
-    "data integrity (detected)"
-   ]
-  },
-  {
-   "q": "What are the non-functional risks of this application?",
-   "contains": [
-    "Entry points with no detectable security control",
-    "5 of them changing data",
-    "no logging, metrics or tracing"
-   ],
-   "cites_prefix": "risk:"
-  },
-  {
-   "q": "Which components are shared across domains?",
-   "contains": [
-    "is used across",
-    "library"
-   ],
-   "status": "ANSWERED"
-  }
- ]
+  "fixture": "petclinic",
+  "note": "Expected answers come from the PetClinic fixture sources in tests/fixtures/java/petclinic, not from assistant output. 'contains' substrings must all appear; 'absent' must not; 'status' is the answer status; 'cites' must be among the cited ids.",
+  "questions": [
+    {
+      "q": "How many classes are in the application?",
+      "contains": [
+        "24 top-level classes",
+        "5 packages"
+      ],
+      "status": "ANSWERED"
+    },
+    {
+      "q": "Give me an overview of the application",
+      "contains": [
+        "24 top-level classes",
+        "18 entry points"
+      ]
+    },
+    {
+      "q": "Which packages does the application have?",
+      "contains": [
+        "org.springframework.samples.petclinic.owner",
+        "org.springframework.samples.petclinic.vet",
+        "org.springframework.samples.petclinic.model",
+        "org.springframework.samples.petclinic.system"
+      ]
+    },
+    {
+      "q": "What does OwnerController do?",
+      "contains": [
+        "controller",
+        "annotated @org.springframework.stereotype.Controller",
+        "7 entry points"
+      ],
+      "cites": [
+        "class:org.springframework.samples.petclinic.owner.OwnerController"
+      ]
+    },
+    {
+      "q": "What is OwnerRepository?",
+      "contains": [
+        "repository",
+        "JpaRepository"
+      ]
+    },
+    {
+      "q": "What kind of class is Owner?",
+      "contains": [
+        "entity",
+        "jakarta.persistence.Entity"
+      ]
+    },
+    {
+      "q": "What depends on OwnerRepository?",
+      "contains": [
+        "3 classes depend on OwnerRepository",
+        "OwnerController",
+        "PetController",
+        "VisitController"
+      ],
+      "absent": [
+        "VetController"
+      ]
+    },
+    {
+      "q": "Which classes depend on VetRepository?",
+      "contains": [
+        "VetController"
+      ],
+      "absent": [
+        "OwnerController"
+      ]
+    },
+    {
+      "q": "What does PetController depend on?",
+      "contains": [
+        "OwnerRepository",
+        "PetTypeRepository",
+        "PetValidator"
+      ],
+      "absent": [
+        "VetRepository"
+      ]
+    },
+    {
+      "q": "What does VetController depend on?",
+      "contains": [
+        "VetRepository",
+        "Vets"
+      ],
+      "absent": [
+        "OwnerRepository"
+      ]
+    },
+    {
+      "q": "What does PetTypeFormatter depend on?",
+      "contains": [
+        "PetTypeRepository",
+        "PetType"
+      ]
+    },
+    {
+      "q": "Are there any circular dependencies?",
+      "contains": [
+        "No circular dependencies were found"
+      ]
+    },
+    {
+      "q": "Is Owner part of a cycle?",
+      "contains": [
+        "No circular dependencies were found"
+      ]
+    },
+    {
+      "q": "Which controller handles POST /owners/new?",
+      "contains": [
+        "POST /owners/new",
+        "OwnerController.processCreationForm()"
+      ],
+      "cites_prefix": "entry:"
+    },
+    {
+      "q": "What are the endpoints of VetController?",
+      "contains": [
+        "GET /vets.html",
+        "GET /vets",
+        "VetController.showVetList()",
+        "VetController.showResourcesVetList()"
+      ]
+    },
+    {
+      "q": "Which handler serves GET /oups?",
+      "contains": [
+        "GET /oups",
+        "CrashController.triggerException()"
+      ]
+    },
+    {
+      "q": "Which route shows the welcome page?",
+      "contains": [
+        "GET /",
+        "WelcomeController.welcome()"
+      ]
+    },
+    {
+      "q": "List the routes of VisitController",
+      "contains": [
+        "GET /owners/{ownerId}/pets/{petId}/visits/new",
+        "POST /owners/{ownerId}/pets/{petId}/visits/new"
+      ]
+    },
+    {
+      "q": "What entry points does PetController have?",
+      "contains": [
+        "POST /owners/{ownerId}/pets/new",
+        "GET /owners/{ownerId}/pets/{petId}/edit"
+      ]
+    },
+    {
+      "q": "Show the endpoint for editing an owner",
+      "contains": [
+        "/owners/{ownerId}/edit"
+      ]
+    },
+    {
+      "q": "Does the application use Log4j 1?",
+      "contains": [
+        "No matching end-of-life or aging technology"
+      ]
+    },
+    {
+      "q": "Which Java version does the code target?",
+      "contains": [
+        "Java 17",
+        "aging"
+      ]
+    },
+    {
+      "q": "Are there any javax packages in use?",
+      "contains": [
+        "No matching end-of-life or aging technology"
+      ]
+    },
+    {
+      "q": "Which controllers use entities directly?",
+      "contains": [
+        "OwnerController",
+        "PetController",
+        "VisitController"
+      ],
+      "cites_prefix": "finding:"
+    },
+    {
+      "q": "Are there technical debt problems in VisitController?",
+      "contains": [
+        "VisitController",
+        "entity"
+      ]
+    },
+    {
+      "q": "Are there any layer violations?",
+      "contains": [
+        "No technical-debt finding matches"
+      ]
+    },
+    {
+      "q": "Find classes with Repository in the name",
+      "contains": [
+        "OwnerRepository",
+        "PetTypeRepository",
+        "VetRepository"
+      ],
+      "absent": [
+        "OwnerController"
+      ]
+    },
+    {
+      "q": "List all controllers",
+      "contains": [
+        "OwnerController",
+        "PetController",
+        "VisitController",
+        "VetController",
+        "WelcomeController",
+        "CrashController"
+      ],
+      "absent": [
+        "OwnerRepository"
+      ]
+    },
+    {
+      "q": "Show the source of Visit",
+      "contains": [
+        "bytecode outline"
+      ],
+      "status": "ANSWERED",
+      "has_code": true
+    },
+    {
+      "q": "What is the runtime coverage?",
+      "contains": [
+        "cannot determine",
+        "No runtime session"
+      ],
+      "status": "CANNOT_DETERMINE"
+    },
+    {
+      "q": "Which classes were not observed at runtime?",
+      "contains": [
+        "cannot determine"
+      ],
+      "status": "CANNOT_DETERMINE"
+    },
+    {
+      "q": "What does PaymentGateway do?",
+      "contains": [
+        "cannot determine",
+        "PaymentGateway is not a class"
+      ],
+      "status": "CANNOT_DETERMINE"
+    },
+    {
+      "q": "Tell me about the InvoiceService class",
+      "contains": [
+        "cannot determine"
+      ],
+      "status": "CANNOT_DETERMINE"
+    },
+    {
+      "q": "Who calls the OrderProcessor?",
+      "contains": [
+        "cannot determine"
+      ],
+      "status": "CANNOT_DETERMINE"
+    },
+    {
+      "q": "Refactor OwnerController to stop using entities",
+      "contains": [
+        "cannot change code",
+        "human approval"
+      ],
+      "status": "REFUSED"
+    },
+    {
+      "q": "Please delete the VetRepository class",
+      "contains": [
+        "cannot change code"
+      ],
+      "status": "REFUSED"
+    },
+    {
+      "q": "What is the instability of org.springframework.samples.petclinic.vet?",
+      "contains": [
+        "I = "
+      ],
+      "cites_prefix": "metric:"
+    },
+    {
+      "q": "Which class has the highest fan-in?",
+      "contains": [
+        "Highest Fan-in"
+      ],
+      "cites_prefix": "metric:"
+    },
+    {
+      "q": "What is the weather today?",
+      "contains": [
+        "cannot determine"
+      ],
+      "status": "CANNOT_DETERMINE"
+    },
+    {
+      "q": "Which classes handle security?",
+      "contains": [
+        "OwnerController",
+        "PetController",
+        "VisitController",
+        "restricts which request fields can be bound",
+        "are not examined"
+      ],
+      "absent": [
+        "VetController"
+      ],
+      "cites_prefix": "resp:",
+      "status": "ANSWERED"
+    },
+    {
+      "q": "Does anything use caching?",
+      "contains": [
+        "CacheConfiguration",
+        "VetRepository",
+        "uses caching"
+      ],
+      "absent": [
+        "OwnerRepository"
+      ],
+      "cites_prefix": "resp:"
+    },
+    {
+      "q": "Which classes use transactions?",
+      "contains": [
+        "VetRepository",
+        "declares a transaction boundary"
+      ],
+      "absent": [
+        "OwnerController"
+      ],
+      "cites_prefix": "resp:"
+    },
+    {
+      "q": "Is there any logging?",
+      "contains": [
+        "No class shows logging",
+        "24 classes checked",
+        "does not prove the control is absent"
+      ],
+      "status": "ANSWERED"
+    },
+    {
+      "q": "Is there any authentication?",
+      "contains": [
+        "No class shows authentication",
+        "does not prove the control is absent"
+      ]
+    },
+    {
+      "q": "Is OwnerController a mixed responsibility class?",
+      "contains": [
+        "OwnerController is classified mixed",
+        "security"
+      ],
+      "cites_prefix": "class:"
+    },
+    {
+      "q": "What are the responsibilities of VetRepository?",
+      "contains": [
+        "VetRepository is classified functional support",
+        "business data access (detected)",
+        "data integrity (detected)"
+      ]
+    },
+    {
+      "q": "What are the non-functional risks of this application?",
+      "contains": [
+        "Entry points with no detectable security control",
+        "5 of them changing data",
+        "no logging, metrics or tracing"
+      ],
+      "cites_prefix": "risk:"
+    },
+    {
+      "q": "Which components are shared across domains?",
+      "contains": [
+        "is used across",
+        "library"
+      ],
+      "status": "ANSWERED"
+    },
+    {
+      "q": "Which HTTP routes change data?",
+      "contains": [
+        "5 of 18 entry points use POST, PUT, PATCH or DELETE",
+        "POST /owners/new",
+        "POST /owners/{ownerId}/pets/{petId}/visits/new",
+        "does not check what the handler does"
+      ],
+      "status": "ANSWERED"
+    },
+    {
+      "q": "Which routes in OwnerController modify state?",
+      "contains": [
+        "2 of 7 entry points in OwnerController use POST, PUT, PATCH or DELETE",
+        "POST /owners/new"
+      ],
+      "status": "ANSWERED"
+    }
+  ]
 }

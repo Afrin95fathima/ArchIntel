@@ -38,3 +38,11 @@ it('explorer explains what is shown and what was hidden or aggregated', async ()
   expect(screen.getByText(/aggregated into packages/)).toBeTruthy();
   expect(screen.getByText('Legend')).toBeTruthy();
 });
+
+it('shows the number of entry points on the application node instead of "none"', async () => {
+  const system = { kind: 'SYSTEM', id: 'system', name: 'Application', breadcrumb: [{ id: 'system', label: 'Application' }], summary: 'The application has 5 packages and 25 top-level classes. It declares 18 entry points.', size: { packages: 5, classes: 25 }, entry_points: 18, roles: { ENTITY: 9 } };
+  vi.stubGlobal('fetch', vi.fn().mockImplementation(async () => ({ ok: true, json: async () => system })));
+  wrap(<DetailPanel analysisId="a1" id="system" onNavigate={() => {}} sessions="" />);
+  expect(await screen.findByText('18 declared across this application')).toBeTruthy();
+  expect(screen.queryByText('none')).toBeNull();
+});

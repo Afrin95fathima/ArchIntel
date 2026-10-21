@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { UploadCloud, ArrowRight, FolderOpen, Box, Play, X, FileArchive, CheckCircle2 } from 'lucide-react';
 import { api, post } from './api';
@@ -23,15 +23,19 @@ export function Workspace({projects, applications, analyses, onSelect, onStarted
     setBusy(true); setError(null);
     try { onStarted(await post<Analysis>('/demo')); refresh(); } catch(e) { setError(e); } finally {setBusy(false);}
   }
+  /** Records created by a failed attempt in this dialog; a retry with a corrected file reuses them instead of creating duplicates. */
+  const created = useRef<{ project?: string; app?: string }>({});
+  useEffect(() => { if (modal) created.current = {}; }, [modal]);
   async function upload(event: React.FormEvent) {
     event.preventDefault();
     if (!file) return;
     setBusy(true); setError(null);
     try {
       setPhase('Creating application…');
-      let id = projectId;
-      if (!id) id = (await post<Project>('/projects',{name:projectName || 'My architecture workspace',description:''})).id;
-      const app = await post<Application>('/applications',{project_id:id,name:name || file.name.replace(/\.(jar|war|zip)$/i,''),version});
+      let id = projectId || created.current.project;
+      if (!id) id = created.current.project = (await post<Project>('/projects',{name:projectName || 'My architecture workspace',description:''})).id;
+      const appId = created.current.app || (created.current.app = (await post<Application>('/applications',{project_id:id,name:name || file.name.replace(/\.(jar|war|zip)$/i,''),version})).id);
+      const app = { id: appId };
       setPhase('Uploading and validating artifact…');
       const data = new FormData(); data.append('file',file);
       await api('/applications/'+app.id+'/artifact',{method:'POST',body:data});
@@ -88,7 +92,7 @@ function ApplicationCard({app,project,run,onSelect,onUpload}:{app:Application;pr
     <div className="application-top"><span className="app-icon"><Box size={22}/></span><Badge tone={run?.status==='COMPLETED'?'green':run?.status==='FAILED'?'high':'neutral'}>{run?human(run.status):'No analysis'}</Badge></div>
     <h3>{app.name}</h3><p>{project}</p>
     <div className="application-footer"><span>{app.source_type} · v{app.version}</span><ArrowRight size={17}/></div>
-    <div className="application-evidence"><div><span>Latest analysis</span><strong>{run?new Date(run.created_at).toLocaleDateString():'Not detected'}</strong></div><div><span>Classes / packages</span><strong>{evidence.summary?`${evidence.summary.class_count.toLocaleString()} / ${evidence.summary.package_count.toLocaleString()}`:evidence.summaryLoading?'Loading…':evidence.summaryError?'Unavailable':'Not detected'}</strong></div><div><span>Readiness / confidence</span><strong>{evidence.summary?`${evidence.summary.average_readiness}/100 · ${evidence.domainsLoading?'Loading…':evidence.confidence===null?'Not detected':`${evidence.confidence}%`}`:'Not detected'}</strong></div><div className="application-mini-coverage"><span>Runtime class coverage</span><strong>{evidence.coverageLoading?'Loading…':evidence.coverageError?'Unavailable':evidence.coverage?.percentage==null?(evidence.sessionsLoading?'Loading…':'Not observed'):`${evidence.coverage.percentage}%`}</strong>{evidence.coverage?.percentage!=null&&<div className="ui-meter__track" role="meter" aria-label="Runtime class coverage" aria-valuemin={0} aria-valuemax={100} aria-valuenow={evidence.coverage.percentage}><span style={{width:`${evidence.coverage.percentage}%`}}/></div>}</div></div>
+    <div className="application-evidence"><div><span>Latest analysis</span><strong>{run?new Date(run.created_at).toLocaleDateString():'Not detected'}</strong></div><div><span>Classes / packages</span><strong>{evidence.summary?`${evidence.summary.class_count.toLocaleString()} / ${evidence.summary.package_count.toLocaleString()}`:evidence.summaryLoading?'Loading…':evidence.summaryError?'Unavailable':'Not detected'}</strong></div><div><span>Readiness / confidence</span><strong>{evidence.summary?`${evidence.summary.average_readiness}/100 · ${evidence.domainsLoading?'Loading…':evidence.confidence===null?'Not detected':`${evidence.confidence}%`}`:'Not detected'}</strong></div><div className="application-mini-coverage"><span>Runtime class coverage</span><strong>{evidence.coverageLoading?'Loading…':evidence.coverageError?'Unavailable':evidence.coverage?.percentage==null?(evidence.sessionsLoading?'Loading…':'Not observed'):`${evidence.coverage.percentage}%`}</strong>{evidence.session&&<small>Latest completed session: {evidence.session.name}</small>}{evidence.coverage?.percentage!=null&&<div className="ui-meter__track" role="meter" aria-label="Runtime class coverage" aria-valuemin={0} aria-valuemax={100} aria-valuenow={evidence.coverage.percentage}><span style={{width:`${evidence.coverage.percentage}%`}}/></div>}</div></div>
   </button>;
 }
 

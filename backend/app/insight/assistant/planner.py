@@ -18,6 +18,9 @@ ROLE_WORDS = {'controller': r'\bcontrollers?\b', 'repository': r'\brepositor(y|i
 RESP = re.compile(r'\b(security|secure|authenticat\w*|authoriz\w*|authoris\w*|logging|logs?|observab\w*|metrics|tracing|monitor\w*|cach(?:e|es|ing)|transactions?|retr(?:y|ies)|resilien\w*|reliab\w*|timeouts?|non[- ]functional|cross[- ]cutting|shared (?:across|by|between|component|infrastructure|librar\w*)|responsib\w*|mixed|business capabilit\w*|concerns?|scalab\w*|privacy|audit\w*|testab\w*|maintainab\w*|interoperab\w*|availab\w*)\b', re.I)
 CROSS = re.compile(r'\b(cross[- ]cutting|shared)\b', re.I)
 RISKY = re.compile(r'\b(risks?|risky)\b', re.I)
+ROUTE_WORDS = re.compile(r'\b(endpoints?|routes?|entry points?|urls?|requests?|handlers?)\b', re.I)
+WRITING = re.compile(r'\b(chang\w*|modif\w*|mutat\w*|writ\w*|updat\w*|delet\w*|creat\w*|state[- ]chang\w*|side[- ]effects?)\b', re.I)
+WRITE_METHOD = re.compile(r'(POST|PUT|PATCH|DELETE)\b')
 ROUTE = re.compile(r'\b(GET|POST|PUT|DELETE|PATCH)\s+(/[\w/{}.\-]*)|(/[\w/{}.\-]+)', re.I)
 
 
@@ -153,6 +156,18 @@ def answer(tools: Tools, question: str, last_entity: str | None = None) -> dict:
                 sentences.append(_s(f"{k['severity'].title()} indicator: {k['title']}.", ['risk:' + k['id']]))
         if d['limits'] and (RISKY.search(low) or d['concern']):
             sentences.append(_s(d['limits'][0], ['summary:analysis']))
+    elif not route and ROUTE_WORDS.search(low) and WRITING.search(low):
+        r = use('get_entry_points', name=subject, text='')
+        every = r['data']['items']
+        writes = [i for i in every if WRITE_METHOD.match(i['description'])]
+        where = f' in {short(subject)}' if subject else ''
+        if not writes:
+            sentences.append(_s(f"None of the {_plural(len(every), 'entry point')}{where} uses POST, PUT, PATCH or DELETE.", r['evidence'][:1]))
+        else:
+            sentences.append(_s(f"{len(writes)} of {_plural(len(every), 'entry point')}{where} use POST, PUT, PATCH or DELETE, which normally change data.", ['entry:' + writes[0]['id']]))
+            for i in writes[:12]:
+                sentences.append(_s(f"{i['description']} is handled by {i['handler']}.", ['entry:' + i['id']]))
+        sentences.append(_s('An HTTP method other than GET is read as state-changing; the analysis does not check what the handler does with the request.', ['summary:analysis']))
     elif route or re.search(r'\b(endpoint|endpoints|route|routes|entry point|entry points|url|urls|listener|scheduled|handles?|mapping)\b', low):
         text = ''
         if route:

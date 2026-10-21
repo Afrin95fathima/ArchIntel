@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, expect, it, vi } from 'vitest';
 import { TaskWorkspace } from './TaskWorkspace';
@@ -32,4 +32,17 @@ it('says so when the latest review of the selected proposal is not an approval',
   mount([{ state: 'APPROVED_PLANNING' }]);
   await screen.findByRole('option', { name: 'COLLECT_MORE_EVIDENCE (Vet)' });
   expect(screen.queryByText(/latest review of this proposal/)).toBeNull();
+});
+
+
+it('explains an invalid pinned commit and only accepts 40 lowercase hexadecimal characters', async () => {
+  mount([{ state: 'APPROVED_PLANNING' }]);
+  const input = await screen.findByLabelText('Task pinned commit') as HTMLInputElement;
+  fireEvent.change(input, { target: { value: 'abc123' } });
+  expect((await screen.findByRole('alert')).textContent).toBe('A pinned commit is 40 hexadecimal characters (0-9, a-f); 6 entered so far.');
+  fireEvent.change(input, { target: { value: 'z'.repeat(40) } });
+  expect(screen.getByRole('alert').textContent).toContain('40 entered so far');
+  fireEvent.change(input, { target: { value: 'A'.repeat(40) } });                      // upper case is normalised, not rejected
+  expect(input.value).toBe('a'.repeat(40));
+  expect(screen.queryByRole('alert')).toBeNull();
 });
