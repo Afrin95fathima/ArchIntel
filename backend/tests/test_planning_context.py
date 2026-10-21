@@ -87,3 +87,23 @@ def test_petclinic_version_counts_entry_points_aging_technology_and_cycles(live)
 
 def test_context_endpoint_is_scoped_to_the_callers_version(live):
     assert live.get('/api/v1/architecture-versions/not-a-version/modernization/context').status_code == 404
+
+
+def test_version_signatures_become_method_names_for_the_insight_model():
+    from app.modernization.engine import method_name_pairs
+    pairs = [('app.A', 'java.lang.String findOwner(int)'), ('app.A', 'void <init>()'), ('app.B', 'app.X save(java.lang.Integer, app.Y)')]
+    assert method_name_pairs(pairs) == [('app.A', '<init>'), ('app.A', 'findOwner'), ('app.B', 'save')]
+
+
+def test_observed_entry_point_in_a_version_is_not_reported_as_never_observed():
+    from types import SimpleNamespace
+    from app.modernization.engine import analysis_context
+    static = snapshot('petclinic')
+    entry = next(e for e in static['entry_points']['items'] if e.get('handler_signature'))
+    classes = [c['id'] for c in static['classes']]
+    observed = [[entry['handler_class'], entry['handler_signature']]]
+    version = SimpleNamespace(document=dict(observed_methods=observed, coverage=dict(domain_observations=[dict(id='d', unobserved_classes=[c for c in classes if c != entry['handler_class']])])),
+                              manifest=dict(method_observations_available=True))
+    model = analysis_context(version, static, [dict(id='d', classes=classes)], True)['model']
+    handler = next(e for e in model.entry_points['items'] if e['handler_class'] == entry['handler_class'] and e.get('handler_signature') == entry['handler_signature'])
+    assert (handler['handler_class'], handler['handler_method']) in model.observed_methods

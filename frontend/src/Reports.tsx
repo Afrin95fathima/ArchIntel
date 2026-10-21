@@ -8,6 +8,9 @@ import type { Application } from './types';
 type Version = { id: string; name: string };
 type Proposal = { id: string; strategy: string; objective: string };
 
+/** In a srcDoc frame a bare "#section" link resolves against the app URL, which the server refuses to frame; keep contents links inside the document. */
+export const keepAnchorsInFrame = (html: string) => html.replace(/href="#/g, 'href="about:srcdoc#');
+
 /** The report is generated on the server from the same analysis, runtime evidence and proposal the app shows; this page previews and downloads it. */
 export function Reports({ applications }: { applications: Application[] }) {
   const [applicationId, setApplicationId] = useState('');
@@ -46,7 +49,7 @@ export function Reports({ applications }: { applications: Application[] }) {
       </section>
       {preview && html.isPending && <p role="status">Generating the report…</p>}
       {preview && html.error ? <ErrorBox error={html.error}/> : null}
-      {preview && html.data && <iframe className="report-frame" title="Report preview" sandbox="" srcDoc={html.data} style={{ width: '100%', height: '80vh', border: '1px solid var(--neutral-200)', borderRadius: 8 }}/>}
+      {preview && html.data && <iframe className="report-frame" title="Report preview" sandbox="" srcDoc={keepAnchorsInFrame(html.data)} style={{ width: '100%', height: '80vh', border: '1px solid var(--neutral-200)', borderRadius: 8 }}/>}
     </>}
   </div>;
 }

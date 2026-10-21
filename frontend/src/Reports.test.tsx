@@ -32,6 +32,11 @@ it('previews the server-generated report in a sandboxed frame', async () => {
   expect(frame.getAttribute('srcdoc')).toContain('petclinic.jar has 24 classes');
 });
 
+it('keeps contents links inside the preview frame instead of navigating to the app URL', async () => {
+  const { keepAnchorsInFrame } = await import('./Reports');
+  expect(keepAnchorsInFrame('<a href="#runtime-coverage">7</a><a href="https://x.test/#a">x</a>')).toBe('<a href="about:srcdoc#runtime-coverage">7</a><a href="https://x.test/#a">x</a>');
+});
+
 it('shows a visible error when the report cannot be generated', async () => {
   mount(500);
   await screen.findByRole('link', { name: /Download PDF/ });

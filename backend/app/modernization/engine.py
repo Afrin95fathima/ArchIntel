@@ -4,6 +4,7 @@ Scores are heuristic indices, never probabilities or authorization to execute.
 Existing structural scoring is reused; reviewed memberships are recomputed.
 """
 import copy
+import re
 from collections import defaultdict
 import networkx as nx
 from app.evidence.builder import identity
@@ -48,6 +49,15 @@ def structural(version, static):
     return assess_and_rank(domains, membership, graph, cycles, god_classes, static['configuration']['readiness_weights'], boundary_available=False)
 
 
+def method_name_pairs(pairs):
+    """A version stores observed methods as (class, 'ReturnType name(params)'); the insight model matches (class, name)."""
+    names = set()
+    for owner, signature in pairs:
+        found = re.match(r'[^ (]+\s+([^ (]+)\(', signature)
+        names.add((owner, found.group(1) if found else signature.split('(')[0]))
+    return sorted(names)
+
+
 def analysis_context(version, static, domains, has_runtime):
     """One insight model for the plan, with the runtime classes of the captured sessions, and its lifecycle evaluation."""
     runtime = None
@@ -55,7 +65,7 @@ def analysis_context(version, static, domains, has_runtime):
         unobserved = {c for d in version.document['coverage']['domain_observations'] for c in d.get('unobserved_classes', [])}
         observed = sorted({c for d in domains for c in d['classes']} - unobserved)
         runtime = dict(runtime_graph=dict(nodes=[dict(id=c, static_id=c) for c in observed], edges=[]),
-                       observed_methods=version.document.get('observed_methods') if version.manifest.get('method_observations_available') else None)
+                       observed_methods=method_name_pairs(version.document.get('observed_methods', [])) if version.manifest.get('method_observations_available') else None)
     model = InsightModel('plan', static, runtime)
     return dict(model=model, lifecycle=lifecycle_module.evaluate(model, static.get('tech_inventory')) if model.facts_available else None)
 
