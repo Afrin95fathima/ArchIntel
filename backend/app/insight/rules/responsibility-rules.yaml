@@ -1,0 +1,331 @@
+# ArchIntel responsibility rules: the taxonomy and the evidence that maps code to a responsibility.
+# Patterns match a fully qualified name exactly, or by prefix when they end with `*`. Change rules here, never in code.
+# A rule only ever reads facts the bytecode analysis recorded (annotations, supertypes, types, call sites, thrown types).
+# Names of classes or packages are never sole evidence: the engine never creates a DETECTED label from a name.
+schema_version: 1
+rules_version: 2026.10.0
+reviewed: 2026-10-21
+
+# --------------------------------------------------------------------------------------------- taxonomy
+# `limit` states what the label does NOT prove. It is shown next to every finding of that category.
+taxonomy:
+  functional:
+    BUSINESS_LOGIC:               {label: Business logic, description: Rules, decisions, calculations and domain operations., limit: A service stereotype or a branching method suggests logic; it does not prove which business rule it implements.}
+    API_AND_APPLICATION_ENTRY:    {label: API and application entry, description: Controllers, request handlers, listeners and other entry points., limit: An entry point shows how a capability is reached; it says nothing about authorization or traffic.}
+    DOMAIN_MODEL:                 {label: Domain model, description: Entities, value objects and business-state representations., limit: Persistence annotations show a stored record, not that the record is a business concept.}
+    BUSINESS_DATA_ACCESS:         {label: Business data access, description: Repositories and persistence operations supporting a capability., limit: Data-access code shows how data is reached; runtime SQL and data ownership are not known.}
+    BUSINESS_PROCESSING:          {label: Business processing, description: Transformations, calculations and processing workflows., limit: Detected from code shape only; the business meaning needs review.}
+    EXTERNAL_BUSINESS_INTEGRATION: {label: External business integration, description: Code integrating with payment, shipping, enterprise or other external systems., limit: A client API call does not show which business system is behind it.}
+    BUSINESS_VALIDATION:          {label: Business validation, description: Validation that enforces business rules or domain constraints., limit: A declared constraint does not show that it encodes a business rule or that it is enforced on every path.}
+    APPLICATION_ORCHESTRATION:    {label: Application orchestration, description: Code coordinating two or more application operations or workflows., limit: Calls to two or more collaborating classes suggest coordination; the workflow itself is not reconstructed.}
+  nonfunctional:
+    SECURITY:                     {label: Security, description: Authentication, authorization, access control, security configuration and filters., limit: Security classes or annotations do not show that the application is secure, and their absence in the artifact does not prove a gateway or platform control is absent.}
+    PERFORMANCE:                  {label: Performance, description: Caching, data-access patterns, pooling and structural performance indicators., limit: Structural indicators are not measured performance problems; use the Performance tab for measurements.}
+    RELIABILITY:                  {label: Reliability, description: Retry, circuit breaking, fallback, timeouts, failure handling and recovery., limit: Presence of a mechanism does not show that recovery works.}
+    OBSERVABILITY:                {label: Observability, description: Logging, metrics, tracing, diagnostics and health checks., limit: Library references show instrumentation exists, not that coverage is complete or useful.}
+    SCALABILITY:                  {label: Scalability, description: Shared mutable state, concurrency control, asynchronous work, thread pools and scheduling., limit: Asynchronous or scheduled execution is not proven scalability.}
+    MAINTAINABILITY:              {label: Maintainability, description: Complexity, cycles, coupling and classes with many responsibilities., limit: Structural measures indicate change cost; they are not defects by themselves.}
+    CONFIGURATION:                {label: Configuration, description: Application and environment configuration, feature flags and runtime properties., limit: Configuration files are not retained from a compiled artifact, so values and environment differences are not analyzed.}
+    DATA_INTEGRITY:               {label: Data integrity, description: Transaction boundaries, validation of persisted state, locking and consistency controls., limit: An annotation shows intent; transaction behavior and isolation need runtime or test evidence.}
+    RESOURCE_MANAGEMENT:          {label: Resource management, description: Connections, streams, thread pools and cleanup., limit: Resource handling cannot be proven leak-free from bytecode references.}
+    INTEROPERABILITY:             {label: Interoperability, description: HTTP clients, messaging, serialization and external contracts., limit: Client and serialization usage shows a contract exists, not that it is documented or stable.}
+    AUDITABILITY_AND_COMPLIANCE:  {label: Auditability and compliance, description: Audit events, audit records and access records., limit: Source patterns do not show regulatory compliance.}
+    TESTABILITY:                  {label: Testability, description: Dependency injection, abstraction and test seams., limit: Seams make testing easier; they say nothing about the tests that exist or their coverage.}
+    EXTENSIBILITY:                {label: Extensibility, description: Plugin mechanisms, extension points and interfaces with alternative implementations., limit: An interface with two or more implementations shows a seam, not a supported extension contract.}
+    AVAILABILITY:                 {label: Availability, description: Health checks, discovery, failover and redundancy., limit: Mechanisms present in code do not show achieved availability.}
+    PRIVACY_AND_DATA_PROTECTION:  {label: Privacy and data protection, description: Masking, redaction, encryption and sensitive-data handling., limit: Only what source or configuration shows is reported; no privacy compliance is claimed.}
+    CROSS_CUTTING_INFRASTRUCTURE: {label: Cross-cutting infrastructure, description: Servlet filters, interceptors and aspects that run for many requests or calls., limit: The framework type shows a request-pipeline hook; which concern it serves needs its code to be read.}
+    INTERNATIONALIZATION:         {label: Internationalization, description: Locale handling and message bundles., limit: Locale support does not show that every text is translated.}
+
+# --------------------------------------------------------------------------------------------- confidence
+# An ordinal heuristic, never a probability. It is computed from the strength and number of independent evidence items.
+confidence:
+  calibrated: false
+  levels:
+    HIGH:   One or more STRONG evidence items (annotation, supertype, or a call/type from the framework API) that were DETECTED, and no conflicting evidence.
+    MEDIUM: Only MEDIUM evidence (a structural pattern), or a single DETECTED call or type reference.
+    LOW:    Only WEAK evidence (a naming convention) or a single INFERRED pattern.
+
+# --------------------------------------------------------------------------------------------- classification
+classification:
+  # A class is FUNCTIONAL_SUPPORT when all its functional categories are in this list (it supports a capability without implementing rules).
+  support_categories: [BUSINESS_DATA_ACCESS, DOMAIN_MODEL]
+  # Categories that, when DETECTED next to a functional responsibility, make a class MIXED. Rules marked `mixing: false` never do.
+  responsibility_limit: 4        # a class with this many distinct detected responsibility categories gets a maintainability risk
+capability_kind:
+  technical_share: 0.5           # share of NON_FUNCTIONAL classes at or above which a domain with no entity, repository or detected logic is TECHNICAL
+cross_cutting:
+  min_capabilities: 2            # a component is shared when classes of at least this many OTHER candidate domains use it; a library, when this many domains include it
+  min_dependents: 2
+
+# --------------------------------------------------------------------------------------------- library families
+# External libraries grouped by what they are for. A family is reported as shared infrastructure when it is used from two or more capabilities.
+libraries:
+  - {id: spring-web,        name: Spring Web MVC,                 match: ['org.springframework.web.*', 'org.springframework.ui.*', 'org.springframework.http.*'], concerns: [INTEROPERABILITY]}
+  - {id: spring-data,       name: Spring Data,                    match: ['org.springframework.data.*'],     concerns: [BUSINESS_DATA_ACCESS]}
+  - {id: spring-tx,         name: Spring transactions,            match: ['org.springframework.transaction.*', 'org.springframework.dao.*'], concerns: [DATA_INTEGRITY]}
+  - {id: spring-cache,      name: Spring cache and JCache,        match: ['org.springframework.cache.*', 'javax.cache.*', 'org.springframework.boot.autoconfigure.cache.*'], concerns: [PERFORMANCE]}
+  - {id: spring-validation, name: Validation,                     match: ['jakarta.validation.*', 'javax.validation.*', 'org.springframework.validation.*'], concerns: [BUSINESS_VALIDATION]}
+  - {id: jpa,               name: Jakarta Persistence,            match: ['jakarta.persistence.*', 'javax.persistence.*'], concerns: [BUSINESS_DATA_ACCESS, DATA_INTEGRITY]}
+  - {id: spring-security,   name: Spring Security,                match: ['org.springframework.security.*'], concerns: [SECURITY]}
+  - {id: logging,           name: Logging,                        match: ['org.slf4j.*', 'org.apache.logging.log4j.*', 'java.util.logging.*', 'org.apache.commons.logging.*', 'ch.qos.logback.*'], concerns: [OBSERVABILITY]}
+  - {id: metrics,           name: Metrics and tracing,            match: ['io.micrometer.*', 'io.opentelemetry.*', 'io.prometheus.*'], concerns: [OBSERVABILITY]}
+  - {id: resilience,        name: Resilience libraries,           match: ['io.github.resilience4j.*', 'org.springframework.retry.*', 'com.netflix.hystrix.*'], concerns: [RELIABILITY]}
+  - {id: spring-i18n,       name: Spring locale support,          match: ['org.springframework.web.servlet.i18n.*', 'org.springframework.context.MessageSource'], concerns: [INTERNATIONALIZATION]}
+  - {id: spring-core,       name: Spring core and boot,           match: ['org.springframework.context.*', 'org.springframework.boot.*', 'org.springframework.core.*', 'org.springframework.stereotype.*', 'org.springframework.util.*', 'org.springframework.aot.*', 'org.springframework.beans.*', 'org.springframework.format.*'], concerns: [CONFIGURATION]}
+  - {id: jaxb,              name: XML binding,                    match: ['jakarta.xml.bind.*', 'javax.xml.bind.*'], concerns: [INTEROPERABILITY]}
+
+# --------------------------------------------------------------------------------------------- evidence rules
+# signals: ANNOTATION | SUPERTYPE | TYPE | CALL | EXCEPTION
+# scope:   class (class-level facts) | member (field, method or parameter facts) | any
+# status:  DETECTED = the fact is the evidence; INFERRED = the category is a reasoned reading of the fact.
+# mixing:  true means that a class whose OWN code calls the API or holds an instance of it (not one that merely declares an annotation) is MIXED when it also has a detected functional responsibility.
+rules:
+  # ---- functional ----------------------------------------------------------------------------
+  - {id: FUNC-ENTRY-HTTP, side: FUNCTIONAL, category: API_AND_APPLICATION_ENTRY, status: DETECTED, strength: STRONG, mixing: false, signal: ANNOTATION, scope: any,
+     match: ['org.springframework.web.bind.annotation.RequestMapping', 'org.springframework.web.bind.annotation.GetMapping', 'org.springframework.web.bind.annotation.PostMapping', 'org.springframework.web.bind.annotation.PutMapping', 'org.springframework.web.bind.annotation.DeleteMapping', 'org.springframework.web.bind.annotation.PatchMapping', 'jakarta.ws.rs.Path', 'javax.ws.rs.Path', 'jakarta.ws.rs.GET', 'jakarta.ws.rs.POST', 'jakarta.ws.rs.PUT', 'jakarta.ws.rs.DELETE', 'javax.ws.rs.GET', 'javax.ws.rs.POST', 'javax.ws.rs.PUT', 'javax.ws.rs.DELETE'],
+     text: 'exposes an HTTP entry point'}
+  - {id: FUNC-ENTRY-CLASS, side: FUNCTIONAL, category: API_AND_APPLICATION_ENTRY, status: DETECTED, strength: STRONG, mixing: false, signal: ANNOTATION, scope: class,
+     match: ['org.springframework.stereotype.Controller', 'org.springframework.web.bind.annotation.RestController', 'jakarta.servlet.annotation.WebServlet', 'javax.servlet.annotation.WebServlet'],
+     text: 'is a web entry-point class'}
+  - {id: FUNC-ENTRY-MESSAGING, side: FUNCTIONAL, category: API_AND_APPLICATION_ENTRY, status: DETECTED, strength: STRONG, mixing: false, signal: ANNOTATION, scope: member,
+     match: ['org.springframework.kafka.annotation.KafkaListener', 'org.springframework.jms.annotation.JmsListener', 'org.springframework.amqp.rabbit.annotation.RabbitListener', 'org.springframework.context.event.EventListener'],
+     text: 'receives messages or events'}
+  - {id: FUNC-DOMAIN-ENTITY, side: FUNCTIONAL, category: DOMAIN_MODEL, status: DETECTED, strength: STRONG, mixing: false, signal: ANNOTATION, scope: class,
+     match: ['jakarta.persistence.Entity', 'jakarta.persistence.MappedSuperclass', 'jakarta.persistence.Embeddable', 'javax.persistence.Entity', 'javax.persistence.MappedSuperclass', 'javax.persistence.Embeddable', 'org.springframework.data.mongodb.core.mapping.Document'],
+     text: 'is a persistent domain class'}
+  - {id: FUNC-DATA-ACCESS-TYPE, side: FUNCTIONAL, category: BUSINESS_DATA_ACCESS, status: DETECTED, strength: STRONG, mixing: false, signal: SUPERTYPE, scope: class,
+     match: ['org.springframework.data.repository.Repository', 'org.springframework.data.repository.CrudRepository', 'org.springframework.data.jpa.repository.JpaRepository', 'org.springframework.data.repository.PagingAndSortingRepository'],
+     text: 'is a data repository'}
+  - {id: FUNC-DATA-ACCESS-ANN, side: FUNCTIONAL, category: BUSINESS_DATA_ACCESS, status: DETECTED, strength: STRONG, mixing: false, signal: ANNOTATION, scope: class,
+     match: ['org.springframework.stereotype.Repository'], text: 'is annotated as a repository'}
+  - {id: FUNC-DATA-ACCESS-CALL, side: FUNCTIONAL, category: BUSINESS_DATA_ACCESS, status: DETECTED, strength: STRONG, mixing: false, signal: CALL, scope: member,
+     match: ['jakarta.persistence.EntityManager', 'javax.persistence.EntityManager', 'org.springframework.jdbc.core.JdbcTemplate', 'org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate', 'org.hibernate.Session'],
+     text: 'reads or writes data directly'}
+  - {id: FUNC-QUERY, side: FUNCTIONAL, category: BUSINESS_DATA_ACCESS, status: DETECTED, strength: STRONG, mixing: false, signal: ANNOTATION, scope: member,
+     match: ['org.springframework.data.jpa.repository.Query'], text: 'declares its own query'}
+  - {id: FUNC-VALIDATOR-TYPE, side: FUNCTIONAL, category: BUSINESS_VALIDATION, status: DETECTED, strength: STRONG, mixing: false, signal: SUPERTYPE, scope: class,
+     match: ['org.springframework.validation.Validator'], text: 'implements a validator'}
+  - {id: FUNC-VALIDATION-OUTCOME, side: FUNCTIONAL, category: BUSINESS_VALIDATION, status: DETECTED, strength: STRONG, mixing: false, signal: CALL, scope: member,
+     names: [rejectValue, reject, hasErrors, hasFieldErrors], match: ['org.springframework.validation.Errors', 'org.springframework.validation.BindingResult'], text: 'acts on validation errors'}
+  - {id: FUNC-VALIDATION-CONSTRAINT, side: FUNCTIONAL, category: BUSINESS_VALIDATION, status: INFERRED, strength: MEDIUM, mixing: false, signal: ANNOTATION, scope: any,
+     match: ['jakarta.validation.constraints.*', 'javax.validation.constraints.*', 'jakarta.validation.Valid', 'javax.validation.Valid', 'org.springframework.validation.annotation.Validated'], text: 'declares a validation constraint'}
+  - {id: FUNC-SERVICE, side: FUNCTIONAL, category: BUSINESS_LOGIC, status: INFERRED, strength: MEDIUM, mixing: false, signal: ANNOTATION, scope: class,
+     match: ['org.springframework.stereotype.Service', 'jakarta.ejb.Stateless', 'jakarta.ejb.Stateful', 'javax.ejb.Stateless', 'javax.ejb.Stateful'], text: 'is a service-layer class'}
+  - {id: FUNC-CONVERTER, side: FUNCTIONAL, category: BUSINESS_PROCESSING, status: INFERRED, strength: MEDIUM, mixing: false, signal: SUPERTYPE, scope: class,
+     match: ['org.springframework.format.Formatter', 'org.springframework.core.convert.converter.Converter'], text: 'converts between text and an application type'}
+  - {id: FUNC-EXTERNAL-CLIENT, side: FUNCTIONAL, category: EXTERNAL_BUSINESS_INTEGRATION, status: INFERRED, strength: MEDIUM, mixing: false, signal: TYPE, scope: any,
+     match: ['org.springframework.web.client.RestTemplate', 'org.springframework.web.client.RestClient', 'org.springframework.web.reactive.function.client.WebClient', 'java.net.http.HttpClient', 'feign.*', 'org.springframework.cloud.openfeign.*', 'org.springframework.kafka.core.KafkaTemplate', 'org.springframework.jms.core.JmsTemplate'],
+     text: 'calls another system'}
+
+  # ---- security ------------------------------------------------------------------------------
+  - {id: SEC-AUTHORIZATION, side: NON_FUNCTIONAL, category: SECURITY, status: DETECTED, strength: STRONG, mixing: true, signal: ANNOTATION, scope: any,
+     match: ['org.springframework.security.access.prepost.*', 'org.springframework.security.access.annotation.Secured', 'jakarta.annotation.security.*', 'javax.annotation.security.*'], text: 'enforces access with an authorization annotation'}
+  - {id: SEC-CONFIGURATION, side: NON_FUNCTIONAL, category: SECURITY, status: DETECTED, strength: STRONG, mixing: true, signal: ANNOTATION, scope: class,
+     match: ['org.springframework.security.config.annotation.web.configuration.EnableWebSecurity', 'org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity', 'org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity'], text: 'configures application security'}
+  - {id: SEC-API, side: NON_FUNCTIONAL, category: SECURITY, status: DETECTED, strength: STRONG, mixing: true, signal: TYPE, scope: any,
+     match: ['org.springframework.security.*', 'io.jsonwebtoken.*', 'com.auth0.jwt.*'], text: 'uses a security framework API'}
+  - {id: SEC-PRINCIPAL, side: NON_FUNCTIONAL, category: SECURITY, status: DETECTED, strength: STRONG, mixing: true, signal: CALL, scope: member,
+     names: [getRemoteUser, getUserPrincipal, isUserInRole, authenticate], match: ['jakarta.servlet.http.HttpServletRequest', 'javax.servlet.http.HttpServletRequest'], text: 'reads the caller identity'}
+  - {id: SEC-CRYPTO, side: NON_FUNCTIONAL, category: SECURITY, status: DETECTED, strength: STRONG, mixing: true, signal: TYPE, scope: any,
+     match: ['java.security.MessageDigest', 'java.security.SecureRandom', 'javax.crypto.*', 'org.springframework.security.crypto.*'], text: 'uses cryptography'}
+  - {id: SEC-BINDING, side: NON_FUNCTIONAL, category: SECURITY, status: DETECTED, strength: STRONG, mixing: true, signal: CALL, scope: member,
+     names: [setDisallowedFields, setAllowedFields], match: ['org.springframework.web.bind.WebDataBinder'], text: 'restricts which request fields can be bound'}
+
+  # ---- performance ---------------------------------------------------------------------------
+  - {id: PERF-CACHE-ANNOTATION, side: NON_FUNCTIONAL, category: PERFORMANCE, status: DETECTED, strength: STRONG, mixing: true, signal: ANNOTATION, scope: any,
+     match: ['org.springframework.cache.annotation.*', 'javax.cache.annotation.*'], text: 'uses caching'}
+  - {id: PERF-CACHE-API, side: NON_FUNCTIONAL, category: PERFORMANCE, status: DETECTED, strength: STRONG, mixing: true, signal: TYPE, scope: any,
+     match: ['org.springframework.cache.*', 'javax.cache.*', 'org.springframework.boot.autoconfigure.cache.*', 'com.github.benmanes.caffeine.*', 'org.ehcache.*', 'com.hazelcast.*'], text: 'configures or uses a cache'}
+  - {id: PERF-EAGER-FETCH, side: NON_FUNCTIONAL, category: PERFORMANCE, status: INFERRED, strength: MEDIUM, mixing: false, signal: ANNOTATION, scope: member,
+     match: ['jakarta.persistence.OneToMany', 'jakarta.persistence.ManyToMany', 'jakarta.persistence.ManyToOne', 'jakarta.persistence.OneToOne', 'javax.persistence.OneToMany', 'javax.persistence.ManyToMany', 'javax.persistence.ManyToOne', 'javax.persistence.OneToOne'],
+     values: {fetch: 'FetchType.EAGER'}, text: 'loads a relationship eagerly, a structural indicator of extra queries (not measured)'}
+  - {id: PERF-PAGINATION, side: NON_FUNCTIONAL, category: PERFORMANCE, status: DETECTED, strength: MEDIUM, mixing: false, signal: TYPE, scope: member,
+     match: ['org.springframework.data.domain.Pageable', 'org.springframework.data.domain.PageRequest', 'org.springframework.data.domain.Slice'], text: 'bounds a query result with paging'}
+  - {id: PERF-POOL, side: NON_FUNCTIONAL, category: PERFORMANCE, status: DETECTED, strength: STRONG, mixing: true, signal: TYPE, scope: any,
+     match: ['com.zaxxer.hikari.*', 'org.apache.commons.dbcp2.*', 'org.apache.tomcat.jdbc.pool.*'], text: 'configures a connection pool'}
+
+  # ---- reliability ---------------------------------------------------------------------------
+  - {id: REL-RETRY, side: NON_FUNCTIONAL, category: RELIABILITY, status: DETECTED, strength: STRONG, mixing: true, signal: ANNOTATION, scope: any,
+     match: ['org.springframework.retry.annotation.*', 'io.github.resilience4j.retry.annotation.*'], text: 'retries failed operations'}
+  - {id: REL-CIRCUIT, side: NON_FUNCTIONAL, category: RELIABILITY, status: DETECTED, strength: STRONG, mixing: true, signal: ANNOTATION, scope: any,
+     match: ['io.github.resilience4j.circuitbreaker.annotation.*', 'io.github.resilience4j.timelimiter.annotation.*', 'io.github.resilience4j.bulkhead.annotation.*', 'com.netflix.hystrix.contrib.javanica.annotation.*'], text: 'protects calls with a circuit breaker, time limit or bulkhead'}
+  - {id: REL-API, side: NON_FUNCTIONAL, category: RELIABILITY, status: DETECTED, strength: STRONG, mixing: true, signal: TYPE, scope: any,
+     match: ['org.springframework.retry.*', 'io.github.resilience4j.*', 'com.netflix.hystrix.*', 'dev.failsafe.*'], text: 'uses a resilience library'}
+  - {id: REL-TIMEOUT, side: NON_FUNCTIONAL, category: RELIABILITY, status: DETECTED, strength: STRONG, mixing: true, signal: CALL, scope: member,
+     names: [setConnectTimeout, setReadTimeout, connectTimeout, timeout, setConnectionRequestTimeout], match: ['java.net.URLConnection', 'java.net.HttpURLConnection', 'java.net.http.HttpClient$Builder', 'java.net.http.HttpRequest$Builder', 'org.springframework.http.client.SimpleClientHttpRequestFactory', 'org.springframework.http.client.HttpComponentsClientHttpRequestFactory'], text: 'sets a timeout'}
+  - {id: REL-ERROR-HANDLER, side: NON_FUNCTIONAL, category: RELIABILITY, status: DETECTED, strength: STRONG, mixing: true, signal: ANNOTATION, scope: any,
+     match: ['org.springframework.web.bind.annotation.ExceptionHandler', 'org.springframework.web.bind.annotation.ControllerAdvice', 'org.springframework.web.bind.annotation.RestControllerAdvice'], text: 'handles errors centrally'}
+  - {id: REL-RAISES-FAILURE, side: NON_FUNCTIONAL, category: RELIABILITY, status: INFERRED, strength: WEAK, mixing: false, signal: TYPE, scope: member,
+     match: ['java.lang.RuntimeException', 'java.lang.IllegalStateException'], values_kind: new, text: 'signals failure by throwing an unchecked exception'}
+
+  # ---- observability -------------------------------------------------------------------------
+  - {id: OBS-LOGGING, side: NON_FUNCTIONAL, category: OBSERVABILITY, status: DETECTED, strength: STRONG, mixing: true, signal: TYPE, scope: any,
+     match: ['org.slf4j.*', 'org.apache.logging.log4j.*', 'java.util.logging.*', 'org.apache.commons.logging.*', 'ch.qos.logback.*', 'org.jboss.logging.*'], text: 'writes log records'}
+  - {id: OBS-METRICS-TRACING, side: NON_FUNCTIONAL, category: OBSERVABILITY, status: DETECTED, strength: STRONG, mixing: true, signal: TYPE, scope: any,
+     match: ['io.micrometer.*', 'com.codahale.metrics.*', 'io.prometheus.*', 'io.opentelemetry.*', 'brave.*'], text: 'records metrics or traces'}
+  - {id: OBS-HEALTH, side: NON_FUNCTIONAL, category: OBSERVABILITY, status: DETECTED, strength: STRONG, mixing: true, signal: SUPERTYPE, scope: class,
+     match: ['org.springframework.boot.actuate.health.HealthIndicator', 'org.springframework.boot.actuate.health.HealthContributor'], text: 'reports health'}
+  - {id: AVL-HEALTH, side: NON_FUNCTIONAL, category: AVAILABILITY, status: DETECTED, strength: STRONG, mixing: true, signal: SUPERTYPE, scope: class,
+     match: ['org.springframework.boot.actuate.health.HealthIndicator'], text: 'exposes a health check'}
+  - {id: AVL-DISCOVERY, side: NON_FUNCTIONAL, category: AVAILABILITY, status: DETECTED, strength: STRONG, mixing: true, signal: TYPE, scope: any,
+     match: ['org.springframework.cloud.client.discovery.*', 'org.springframework.cloud.loadbalancer.*'], text: 'uses service discovery or load balancing'}
+
+  # ---- scalability and resources -------------------------------------------------------------
+  - {id: SCAL-ASYNC, side: NON_FUNCTIONAL, category: SCALABILITY, status: DETECTED, strength: STRONG, mixing: true, signal: ANNOTATION, scope: any,
+     match: ['org.springframework.scheduling.annotation.Async', 'org.springframework.scheduling.annotation.EnableAsync', 'org.springframework.scheduling.annotation.Scheduled', 'org.springframework.scheduling.annotation.EnableScheduling'], text: 'runs work asynchronously or on a schedule'}
+  - {id: SCAL-EXECUTOR, side: NON_FUNCTIONAL, category: SCALABILITY, status: DETECTED, strength: STRONG, mixing: true, signal: TYPE, scope: any,
+     match: ['java.util.concurrent.ExecutorService', 'java.util.concurrent.ThreadPoolExecutor', 'java.util.concurrent.ScheduledExecutorService', 'org.springframework.core.task.TaskExecutor', 'org.springframework.scheduling.concurrent.*', 'org.quartz.*'], text: 'manages threads or scheduled tasks'}
+  - {id: SCAL-CONCURRENCY, side: NON_FUNCTIONAL, category: SCALABILITY, status: DETECTED, strength: STRONG, mixing: true, signal: TYPE, scope: any,
+     match: ['java.util.concurrent.locks.*', 'java.util.concurrent.atomic.*', 'java.util.concurrent.ConcurrentHashMap'], text: 'controls concurrent access'}
+  - {id: RES-THREADS, side: NON_FUNCTIONAL, category: RESOURCE_MANAGEMENT, status: DETECTED, strength: STRONG, mixing: true, signal: TYPE, scope: any,
+     match: ['java.util.concurrent.ExecutorService', 'java.util.concurrent.ThreadPoolExecutor', 'org.springframework.core.task.TaskExecutor'], text: 'owns a thread pool'}
+  - {id: RES-JDBC, side: NON_FUNCTIONAL, category: RESOURCE_MANAGEMENT, status: DETECTED, strength: STRONG, mixing: true, signal: TYPE, scope: any,
+     match: ['java.sql.Connection', 'java.sql.Statement', 'java.sql.PreparedStatement', 'java.sql.ResultSet', 'javax.sql.DataSource'], text: 'handles database connections directly'}
+  - {id: RES-IO, side: NON_FUNCTIONAL, category: RESOURCE_MANAGEMENT, status: DETECTED, strength: STRONG, mixing: false, signal: TYPE, scope: any,
+     match: ['java.io.FileInputStream', 'java.io.FileOutputStream', 'java.io.FileReader', 'java.io.FileWriter', 'java.nio.file.Files', 'java.net.Socket'], text: 'opens files or sockets'}
+
+  # ---- configuration -------------------------------------------------------------------------
+  - {id: CFG-CLASS, side: NON_FUNCTIONAL, category: CONFIGURATION, status: DETECTED, strength: STRONG, mixing: false, signal: ANNOTATION, scope: class,
+     match: ['org.springframework.context.annotation.Configuration', 'org.springframework.boot.autoconfigure.SpringBootApplication', 'org.springframework.boot.context.properties.ConfigurationProperties', 'org.springframework.boot.context.properties.EnableConfigurationProperties', 'org.springframework.context.annotation.Profile', 'org.springframework.context.annotation.PropertySource', 'org.springframework.context.annotation.Import', 'org.springframework.context.annotation.ImportRuntimeHints', 'org.springframework.cache.annotation.EnableCaching'],
+     text: 'configures the application'}
+  - {id: CFG-BEAN, side: NON_FUNCTIONAL, category: CONFIGURATION, status: DETECTED, strength: STRONG, mixing: false, signal: ANNOTATION, scope: member,
+     match: ['org.springframework.context.annotation.Bean'], text: 'defines a configured component'}
+  - {id: CFG-PROPERTY, side: NON_FUNCTIONAL, category: CONFIGURATION, status: DETECTED, strength: STRONG, mixing: false, signal: ANNOTATION, scope: member,
+     match: ['org.springframework.beans.factory.annotation.Value', 'org.springframework.boot.autoconfigure.condition.ConditionalOnProperty'], text: 'reads an external property or feature flag'}
+  - {id: CFG-AOT, side: NON_FUNCTIONAL, category: CONFIGURATION, status: DETECTED, strength: STRONG, mixing: false, signal: TYPE, scope: any,
+     match: ['org.springframework.aot.hint.*'], text: 'registers runtime hints for native images'}
+  - {id: XCUT-FILTER, side: NON_FUNCTIONAL, category: CROSS_CUTTING_INFRASTRUCTURE, status: DETECTED, strength: STRONG, mixing: true, signal: SUPERTYPE, scope: class,
+     match: ['jakarta.servlet.Filter', 'javax.servlet.Filter', 'org.springframework.web.filter.*', 'org.springframework.web.servlet.HandlerInterceptor'], text: 'runs in the request pipeline'}
+  - {id: XCUT-ASPECT, side: NON_FUNCTIONAL, category: CROSS_CUTTING_INFRASTRUCTURE, status: DETECTED, strength: STRONG, mixing: false, signal: ANNOTATION, scope: class,
+     match: ['org.aspectj.lang.annotation.Aspect'], text: 'applies behavior across many calls'}
+  - {id: CFG-WEBMVC, side: NON_FUNCTIONAL, category: CONFIGURATION, status: DETECTED, strength: STRONG, mixing: false, signal: SUPERTYPE, scope: class,
+     match: ['org.springframework.web.servlet.config.annotation.WebMvcConfigurer'], text: 'configures web behavior'}
+
+  # ---- data integrity ------------------------------------------------------------------------
+  - {id: DI-TRANSACTION, side: NON_FUNCTIONAL, category: DATA_INTEGRITY, status: DETECTED, strength: STRONG, mixing: true, signal: ANNOTATION, scope: any,
+     match: ['org.springframework.transaction.annotation.*', 'jakarta.transaction.Transactional', 'javax.transaction.Transactional'], text: 'declares a transaction boundary'}
+  - {id: DI-LOCKING, side: NON_FUNCTIONAL, category: DATA_INTEGRITY, status: DETECTED, strength: STRONG, mixing: true, signal: ANNOTATION, scope: member,
+     match: ['jakarta.persistence.Version', 'javax.persistence.Version'], text: 'uses optimistic locking'}
+  - {id: DI-CONSTRAINT, side: NON_FUNCTIONAL, category: DATA_INTEGRITY, status: INFERRED, strength: MEDIUM, mixing: false, signal: ANNOTATION, scope: member,
+     match: ['jakarta.validation.constraints.*', 'javax.validation.constraints.*'], text: 'constrains the state that is stored'}
+
+  # ---- interoperability ----------------------------------------------------------------------
+  - {id: INT-CLIENT, side: NON_FUNCTIONAL, category: INTEROPERABILITY, status: DETECTED, strength: STRONG, mixing: true, signal: TYPE, scope: any,
+     match: ['org.springframework.web.client.RestTemplate', 'org.springframework.web.client.RestClient', 'org.springframework.web.reactive.function.client.WebClient', 'java.net.http.HttpClient', 'okhttp3.*', 'org.apache.http.*', 'org.apache.hc.*', 'feign.*', 'org.springframework.cloud.openfeign.*'], text: 'calls an HTTP service'}
+  - {id: INT-MESSAGING, side: NON_FUNCTIONAL, category: INTEROPERABILITY, status: DETECTED, strength: STRONG, mixing: true, signal: TYPE, scope: any,
+     match: ['org.springframework.jms.*', 'org.springframework.kafka.*', 'org.springframework.amqp.*', 'jakarta.jms.*', 'javax.jms.*', 'org.apache.kafka.*'], text: 'uses messaging'}
+  - {id: INT-SERIALIZATION, side: NON_FUNCTIONAL, category: INTEROPERABILITY, status: DETECTED, strength: MEDIUM, mixing: false, signal: ANNOTATION, scope: any,
+     match: ['jakarta.xml.bind.annotation.*', 'javax.xml.bind.annotation.*', 'com.fasterxml.jackson.annotation.*'], text: 'declares how it is serialized'}
+  - {id: INT-JSON, side: NON_FUNCTIONAL, category: INTEROPERABILITY, status: DETECTED, strength: MEDIUM, mixing: false, signal: TYPE, scope: any,
+     match: ['com.fasterxml.jackson.databind.*', 'com.google.gson.*'], text: 'serializes or parses data'}
+
+  # ---- audit, testability, extensibility, privacy, i18n --------------------------------------
+  - {id: AUD-AUDITING, side: NON_FUNCTIONAL, category: AUDITABILITY_AND_COMPLIANCE, status: DETECTED, strength: STRONG, mixing: true, signal: ANNOTATION, scope: any,
+     match: ['org.springframework.data.annotation.CreatedBy', 'org.springframework.data.annotation.LastModifiedBy', 'org.springframework.data.annotation.CreatedDate', 'org.springframework.data.annotation.LastModifiedDate', 'org.hibernate.envers.Audited'], text: 'records who changed data and when'}
+  - {id: AUD-API, side: NON_FUNCTIONAL, category: AUDITABILITY_AND_COMPLIANCE, status: DETECTED, strength: STRONG, mixing: true, signal: TYPE, scope: any,
+     match: ['org.springframework.data.jpa.domain.support.AuditingEntityListener', 'org.springframework.boot.actuate.audit.*'], text: 'uses an auditing facility'}
+  - {id: TEST-INJECTION, side: NON_FUNCTIONAL, category: TESTABILITY, status: DETECTED, strength: MEDIUM, mixing: false, signal: ANNOTATION, scope: any,
+     match: ['org.springframework.beans.factory.annotation.Autowired', 'jakarta.inject.Inject', 'javax.inject.Inject'], text: 'receives its dependencies by injection'}
+  - {id: EXT-SERVICELOADER, side: NON_FUNCTIONAL, category: EXTENSIBILITY, status: DETECTED, strength: STRONG, mixing: true, signal: CALL, scope: member,
+     names: [load], match: ['java.util.ServiceLoader'], text: 'discovers plugins'}
+  - {id: PRIV-ENCRYPTION, side: NON_FUNCTIONAL, category: PRIVACY_AND_DATA_PROTECTION, status: DETECTED, strength: STRONG, mixing: true, signal: TYPE, scope: any,
+     match: ['javax.crypto.*', 'org.springframework.security.crypto.encrypt.*', 'org.jasypt.*'], text: 'encrypts data'}
+  - {id: PRIV-HIDDEN-FIELD, side: NON_FUNCTIONAL, category: PRIVACY_AND_DATA_PROTECTION, status: INFERRED, strength: WEAK, mixing: false, signal: ANNOTATION, scope: member,
+     match: ['com.fasterxml.jackson.annotation.JsonIgnore'], text: 'keeps a field out of serialized output'}
+  - {id: I18N-LOCALE-TYPE, side: NON_FUNCTIONAL, category: INTERNATIONALIZATION, status: INFERRED, strength: WEAK, mixing: false, signal: TYPE, scope: member,
+     match: ['java.util.Locale'], text: 'receives a locale argument'}
+  - {id: I18N-LOCALE, side: NON_FUNCTIONAL, category: INTERNATIONALIZATION, status: DETECTED, strength: STRONG, mixing: false, signal: TYPE, scope: any,
+     match: ['org.springframework.web.servlet.i18n.*', 'org.springframework.context.MessageSource', 'java.util.ResourceBundle'], text: 'handles locale or message bundles'}
+
+# --------------------------------------------------------------------------------------------- risks
+# Each risk reports a structural indicator that was found (status of the indicator) and a consequence that is reasoned (always INFERRED).
+risks:
+  RISK-SEC-NO-CONTROL:
+    category: SECURITY
+    title: Entry points with no detectable security control
+    consequence: Requests that change data may be reachable without authentication or authorization unless a gateway or platform control exists.
+    impact: A service boundary drawn here would expose these entry points without any control that moves with the code.
+    investigate: Confirm the authentication and authorization controls in front of the application, then decide whether the extracted service needs its own.
+    runtime_validation: true
+    severity: HIGH
+  RISK-SEC-PARTIAL:
+    category: SECURITY
+    title: Security controls on some entry points only
+    consequence: Entry points without a control may be reachable by callers that the controlled ones exclude.
+    impact: Splitting the capability would divide controlled and uncontrolled entry points between services.
+    investigate: Check each uncontrolled entry point against the intended access policy.
+    runtime_validation: true
+    severity: MEDIUM
+  RISK-OBS-NO-INSTRUMENTATION:
+    category: OBSERVABILITY
+    title: No logging, metrics or tracing reference found
+    consequence: Failures and slow requests may be hard to diagnose, and distributed tracing would start from nothing after an extraction.
+    impact: Splitting a request across services without instrumentation makes the combined flow hard to follow.
+    investigate: Add structured logging and trace context before extracting a capability.
+    runtime_validation: false
+    severity: MEDIUM
+  RISK-PERF-EAGER-FETCH:
+    category: PERFORMANCE
+    title: Eagerly fetched relationships
+    consequence: Loading one record may load a graph of related records, which can cause many database calls per request.
+    impact: Extracting one side of an eager relationship would turn in-process loading into remote calls or force a data copy.
+    investigate: Compare with the Performance tab (database calls per request on the routes that load these entities), then decide on lazy loading or explicit queries.
+    runtime_validation: true
+    severity: MEDIUM
+  RISK-PERF-UNBOUNDED-QUERY:
+    category: PERFORMANCE
+    title: Repository query that returns a whole collection
+    consequence: The result size grows with the table, so response time and memory may grow with it.
+    impact: A remote call returning an unbounded collection would be costly and fragile across a service boundary.
+    investigate: Check the table size in production and add paging where it can grow.
+    runtime_validation: true
+    severity: MEDIUM
+  RISK-DATA-SHARED-MODEL:
+    category: DATA_INTEGRITY
+    title: Persistent classes shared across candidate domains
+    consequence: Two or more capabilities depend on one persistence model, so a change to it affects all of them and the data cannot be owned by one service.
+    impact: The shared model must become a shared library or be duplicated before the capabilities can be separated.
+    investigate: Decide which capability owns the data and whether the others can depend on a published contract instead.
+    runtime_validation: false
+    severity: HIGH
+  RISK-DATA-TX-SPAN:
+    category: DATA_INTEGRITY
+    title: Transactional method that touches two or more candidate domains
+    consequence: One transaction covers data of two or more capabilities, so separating them needs a distributed consistency approach.
+    impact: Extraction would turn a local transaction into a distributed one.
+    investigate: Map the writes in this method and decide on a saga, an outbox or keeping the capabilities together.
+    runtime_validation: true
+    severity: HIGH
+  RISK-SCAL-STATIC-STATE:
+    category: SCALABILITY
+    title: Mutable static state
+    consequence: Instances share this state, so running two or more instances can give different results and threads may race on it.
+    impact: Independent scaling of a service containing this class would need the state to move to a shared store.
+    investigate: Check whether the state is guarded and whether it must be shared between instances.
+    runtime_validation: true
+    severity: MEDIUM
+  RISK-MAINT-RESPONSIBILITIES:
+    category: MAINTAINABILITY
+    title: Class with many distinct responsibilities
+    consequence: Changes for one concern are likely to touch code serving another, which raises the cost and risk of change.
+    impact: The class is hard to place inside one service boundary.
+    investigate: Separate the concerns before deciding which boundary the class belongs to.
+    runtime_validation: false
+    severity: MEDIUM
+  RISK-MAINT-SHARED-COMPONENT:
+    category: MAINTAINABILITY
+    title: Shared component used from two or more candidate domains
+    consequence: A change to this component can affect every domain that uses it.
+    impact: Treat it as a shared library or module; making it a service would add a network call to every use.
+    investigate: Check the change history and decide on the library versioning policy.
+    runtime_validation: false
+    severity: MEDIUM
+  RISK-REL-NO-RESILIENCE:
+    category: RELIABILITY
+    title: Calls to other systems with no detectable timeout, retry or circuit breaker
+    consequence: A slow or failing dependency may stall callers or spread failures.
+    impact: Extraction adds more remote calls that would need the same protection.
+    investigate: Confirm timeouts in client configuration, which a compiled artifact may not show.
+    runtime_validation: true
+    severity: HIGH

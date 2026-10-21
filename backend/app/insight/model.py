@@ -82,6 +82,12 @@ class InsightModel:
                 out[fqn] = dict(parent, reason=f'nested in {short(self.owners[fqn])}; inherits its role ({parent["reason"]})', nested=True)
         return out
 
+    @cached_property
+    def responsibility(self) -> dict:
+        """Functional and non-functional responsibility analysis (see responsibility.py); derived once per snapshot."""
+        from .responsibility import analyze
+        return analyze(self)
+
     # ---------------------------------------------------------------- edges
     @cached_property
     def edge_types(self) -> dict[tuple[str, str], Counter]:

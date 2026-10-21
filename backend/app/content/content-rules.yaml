@@ -142,6 +142,8 @@ definition_files:
   - backend/app/insight/diagrams.py            # legends: what a box, arrow and colour means
   - backend/app/insight/roles.py               # plain-language definition of each role
   - backend/app/insight/rules/debt-rules.yaml  # definitions of each technical-debt rule
+  - backend/app/insight/rules/responsibility-rules.yaml  # definitions of each responsibility category, rule and risk
+  - backend/app/insight/responsibility.py     # plain-language limits and risk definitions of the responsibility analysis
   - frontend/src/insight/GlossaryPanel.tsx
 # System prompts for a model. They are instructions, not content; the output they produce is checked at run time by
 # app/ai/grounded.py, which drops any generated sentence with a banned phrase or no specific name or number.

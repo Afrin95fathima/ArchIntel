@@ -238,6 +238,69 @@ def performance(analysis_id: str, request: Request, runtime_session_ids: str = Q
     return result
 
 
+def _responsibility(analysis_id: str, request: Request, db) -> tuple:
+    model = load(analysis_id, request, db)
+    return model, model.responsibility
+
+
+@router.get('/responsibilities', response_model=dict)
+def responsibilities(analysis_id: str, request: Request, db=Depends(db_session)):
+    """Summary of the functional and non-functional analysis: counts, capabilities, cross-cutting components, risks, limits."""
+    from .responsibility import summary_view
+    return summary_view(_responsibility(analysis_id, request, db)[1])
+
+
+@router.get('/responsibilities/components', response_model=dict)
+def responsibility_components(analysis_id: str, request: Request, primary: str | None = Query(None, max_length=40), functional: str | None = Query(None, max_length=60),
+                              concern: str | None = Query(None, max_length=60), capability: str | None = Query(None, max_length=120), status: str | None = Query(None, pattern='^(DETECTED|INFERRED|UNVERIFIED)$'),
+                              confidence: str | None = Query(None, pattern='^(HIGH|MEDIUM|LOW)$'), risk: str | None = Query(None, max_length=60), q: str | None = Query(None, max_length=200),
+                              offset: int = Query(0, ge=0), limit: int = Query(50, ge=1, le=500), db=Depends(db_session)):
+    """Filterable, paginated component rows. `status` and `confidence` apply to the labels selected by `functional` or `concern` (or to any label)."""
+    from .responsibility import list_components
+    return list_components(_responsibility(analysis_id, request, db)[1], primary, functional, concern, capability, status, confidence, risk, q, offset, limit)
+
+
+@router.get('/responsibilities/component', response_model=dict)
+def responsibility_component(analysis_id: str, request: Request, id: str = Query(max_length=800), db=Depends(db_session)):
+    """One component with its evidence resolved: what it does, why, what it depends on, what depends on it, and its risks."""
+    from .responsibility import component_detail
+    model, result = _responsibility(analysis_id, request, db)
+    if result['status'] != 'AVAILABLE':
+        return result
+    detail = component_detail(model, result, id)
+    if detail is None:
+        raise HTTPException(404, 'Component not found in this analysis.')
+    return detail
+
+
+@router.get('/responsibilities/risks', response_model=dict)
+def responsibility_risks(analysis_id: str, request: Request, category: str | None = Query(None, max_length=60), detection: str | None = Query(None, pattern='^(DETECTED|INFERRED|UNVERIFIED)$'),
+                         runtime: bool | None = None, severity: str | None = Query(None, pattern='^(HIGH|MEDIUM|LOW)$'), db=Depends(db_session)):
+    from .responsibility import list_risks
+    return list_risks(_responsibility(analysis_id, request, db)[1], category, detection, runtime, severity)
+
+
+@router.post('/responsibilities/explain', response_model=dict)
+def responsibility_explanation(analysis_id: str, body: ExplainInput, request: Request, db=Depends(db_session)):
+    """Optional AI wording for one component. It receives only the recorded evidence and must cite it; deterministic findings never depend on it."""
+    from app.ai.grounded import explain
+    model, result = _responsibility(analysis_id, request, db)
+    if result['status'] != 'AVAILABLE':
+        raise HTTPException(404, 'Responsibility analysis is not available for this analysis.')
+    component = result['components'].get(model.owners.get(body.target_id, body.target_id))
+    if not component:
+        raise HTTPException(404, 'Component not found in this analysis.')
+    evidence = [dict(id='component:' + component['fqn'], text=f"{component['simple_name']} is classified {component['primary_classification']} (role {component['architectural_role']['role']}).")]
+    for label in component['functional_responsibilities'] + component['non_functional_responsibilities']:
+        for ident in label['evidence_ids'][:3]:
+            if ident in result['evidence']:
+                evidence.append(dict(id=ident, text=f"{label['category']} ({label['status']}): {result['evidence'][ident]['text']}"))
+    methods = {m['name'] for m in component['methods']}
+    ai = explain(request, db, 'RESPONSIBILITY_EXPLANATION', evidence, 'Explain in two or three sentences what this class is responsible for and which non-functional concerns it touches. Use only the evidence given.',
+                 'analysis:' + analysis_id, set(model.classes), methods)
+    return dict(component=component['fqn'], ai=ai, evidence_ids=[e['id'] for e in evidence])
+
+
 @router.post('/tests/explain', response_model=dict)
 def next_test_steps(analysis_id: str, body: ExplainInput, request: Request, runtime_session_ids: str | None = Query(None, max_length=400), db=Depends(db_session)):
     """Optional AI: write the human steps and edge cases from the handler and service code it reads."""
