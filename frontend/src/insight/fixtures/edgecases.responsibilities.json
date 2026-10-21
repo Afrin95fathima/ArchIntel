@@ -1,0 +1,1311 @@
+{
+ "analysis_metadata": {
+  "analyzed_class_count": 22,
+  "artifact_sha256": null,
+  "confidence": {
+   "calibrated": false,
+   "levels": {
+    "HIGH": "One or more STRONG evidence items (annotation, supertype, or a call/type from the framework API) that were DETECTED, and no conflicting evidence.",
+    "LOW": "Only WEAK evidence (a naming convention) or a single INFERRED pattern.",
+    "MEDIUM": "Only MEDIUM evidence (a structural pattern), or a single DETECTED call or type reference."
+   }
+  },
+  "derived_from": "ANALYSIS_SNAPSHOT",
+  "engine_version": "responsibility-1",
+  "rules_reviewed": "2026-10-21",
+  "rules_version": "2026.10.0",
+  "snapshot_algorithm_version": "0.2.1",
+  "source_revision": null,
+  "source_revision_kind": "ARTIFACT_SHA256 (the analysis reads a compiled artifact; no repository commit is available)"
+ },
+ "capabilities": [
+  {
+   "basis": "1 entity class(es), 0 repository class(es), 0 class(es) with business logic or validation, 2 of 8 classes non-functional (technical threshold 50%)",
+   "boundary_confidence": {
+    "note": "Boundary confidence = 0.5 \u00d7 stability + 0.3 \u00d7 (1 - conductance) + 0.2 \u00d7 size factor; it is a heuristic, not a calibrated probability.",
+    "value": 0.86
+   },
+   "boundary_notes": [
+    "contains 2 non-functional class(es) (AuditFilter, ReminderJob) that are not part of the business capability",
+    "contains the application bootstrap class"
+   ],
+   "class_count": 8,
+   "classes": [
+    "com.fixture.edge.jobs.CliTool",
+    "com.fixture.edge.jobs.OrderEvents",
+    "com.fixture.edge.jobs.ReminderJob",
+    "com.fixture.edge.legacy.BillingAction",
+    "com.fixture.edge.legacy.BillingRecord",
+    "com.fixture.edge.web.AuditFilter",
+    "com.fixture.edge.web.GreetingResource",
+    "com.fixture.edge.web.LegacyServlet"
+   ],
+   "cross_cutting_ids": [
+    "resp-cross-d3f608bd349e08f4",
+    "resp-cross-3ba898321a2d0634"
+   ],
+   "entities": [
+    "com.fixture.edge.legacy.BillingRecord"
+   ],
+   "entry_classes": [
+    "com.fixture.edge.jobs.OrderEvents",
+    "com.fixture.edge.web.GreetingResource",
+    "com.fixture.edge.web.LegacyServlet"
+   ],
+   "id": "domain-67a3f44d1b93fc62",
+   "implications": [
+    {
+     "evidence": [
+      "resp-risk-c5c0e6aa7d2dce16"
+     ],
+     "kind": "SECURITY_CONTROL_TO_DECIDE",
+     "severity": "HIGH",
+     "text": "An extracted Billing Jobs service needs its own authentication and authorization decision: 13 HTTP entry point(s), 5 of them changing data (DELETE /api/items/remove/{id}, POST /api/items, POST /jaxrs, POST /legacy/report), have no detectable authentication or authorization reference in 19 analyzed classes."
+    },
+    {
+     "evidence": [
+      "resp-cross-3ba898321a2d0634"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Billing Jobs depends on shared Jakarta Persistence. Jakarta Persistence is a library that 2 class(es) in Billing Jobs, Entity Admin already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-d3f608bd349e08f4"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Billing Jobs depends on shared Spring core and boot. Spring core and boot is a library that 5 class(es) in Billing Jobs, Entity Admin, Item already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    }
+   ],
+   "kind": "BUSINESS",
+   "name": "Billing Jobs",
+   "nonfunctional_concerns": [
+    {
+     "category": "CROSS_CUTTING_INFRASTRUCTURE",
+     "class_count": 1
+    },
+    {
+     "category": "MAINTAINABILITY",
+     "class_count": 2
+    },
+    {
+     "category": "SCALABILITY",
+     "class_count": 1
+    }
+   ],
+   "primary_counts": {
+    "FUNCTIONAL": 3,
+    "FUNCTIONAL_SUPPORT": 1,
+    "NON_FUNCTIONAL": 2,
+    "UNCERTAIN": 2
+   },
+   "repositories": [],
+   "risk_ids": [
+    "resp-risk-c5c0e6aa7d2dce16",
+    "resp-risk-84cec79603dac6cb"
+   ],
+   "source": "CANDIDATE_DOMAIN_DISCOVERY"
+  },
+  {
+   "basis": "0 entity class(es), 0 repository class(es), 0 class(es) with business logic or validation, 0 of 5 classes non-functional (technical threshold 50%)",
+   "boundary_confidence": {
+    "note": "Boundary confidence = 0.5 \u00d7 stability + 0.3 \u00d7 (1 - conductance) + 0.2 \u00d7 size factor; it is a heuristic, not a calibrated probability.",
+    "value": 0.86
+   },
+   "boundary_notes": [],
+   "class_count": 5,
+   "classes": [
+    "com.fixture.edge.cycle.a.Address",
+    "com.fixture.edge.cycle.a.Customer",
+    "com.fixture.edge.cycle.a.Order",
+    "com.fixture.edge.cycle.a.Region",
+    "com.fixture.edge.cycle.b.Invoice"
+   ],
+   "cross_cutting_ids": [],
+   "entities": [],
+   "entry_classes": [],
+   "id": "domain-8b120c26c8966284",
+   "implications": [
+    {
+     "evidence": [],
+     "kind": "NO_BLOCKING_CONSTRAINT_DETECTED",
+     "severity": "LOW",
+     "text": "No high-impact non-functional constraint was detected for Cycle A in the analyzed bytecode. Runtime behavior, configuration and data volumes were not examined."
+    }
+   ],
+   "kind": "MIXED",
+   "name": "Cycle A",
+   "nonfunctional_concerns": [
+    {
+     "category": "MAINTAINABILITY",
+     "class_count": 5
+    }
+   ],
+   "primary_counts": {
+    "UNCERTAIN": 5
+   },
+   "repositories": [],
+   "risk_ids": [
+    "resp-risk-84cec79603dac6cb"
+   ],
+   "source": "CANDIDATE_DOMAIN_DISCOVERY"
+  },
+  {
+   "basis": "1 entity class(es), 1 repository class(es), 0 class(es) with business logic or validation, 0 of 3 classes non-functional (technical threshold 50%)",
+   "boundary_confidence": {
+    "note": "Boundary confidence = 0.5 \u00d7 stability + 0.3 \u00d7 (1 - conductance) + 0.2 \u00d7 size factor; it is a heuristic, not a calibrated probability.",
+    "value": 0.84
+   },
+   "boundary_notes": [],
+   "class_count": 3,
+   "classes": [
+    "com.fixture.edge.model.OrderEntity",
+    "com.fixture.edge.model.OrderRepository",
+    "com.fixture.edge.web.OrderAdminController"
+   ],
+   "cross_cutting_ids": [
+    "resp-cross-d3f608bd349e08f4",
+    "resp-cross-3ba898321a2d0634",
+    "resp-cross-6d49543eabc15522"
+   ],
+   "entities": [
+    "com.fixture.edge.model.OrderEntity"
+   ],
+   "entry_classes": [
+    "com.fixture.edge.web.OrderAdminController"
+   ],
+   "id": "domain-d2d2eb2cb8f9eb9e",
+   "implications": [
+    {
+     "evidence": [
+      "resp-risk-c5c0e6aa7d2dce16"
+     ],
+     "kind": "SECURITY_CONTROL_TO_DECIDE",
+     "severity": "HIGH",
+     "text": "An extracted Entity Admin service needs its own authentication and authorization decision: 13 HTTP entry point(s), 5 of them changing data (DELETE /api/items/remove/{id}, POST /api/items, POST /jaxrs, POST /legacy/report), have no detectable authentication or authorization reference in 19 analyzed classes."
+    },
+    {
+     "evidence": [
+      "resp-cross-3ba898321a2d0634"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Entity Admin depends on shared Jakarta Persistence. Jakarta Persistence is a library that 2 class(es) in Billing Jobs, Entity Admin already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-6d49543eabc15522"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Entity Admin depends on shared Spring Web MVC. Spring Web MVC is a library that 2 class(es) in Entity Admin, Item already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-d3f608bd349e08f4"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Entity Admin depends on shared Spring core and boot. Spring core and boot is a library that 5 class(es) in Billing Jobs, Entity Admin, Item already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    }
+   ],
+   "kind": "BUSINESS",
+   "name": "Entity Admin",
+   "nonfunctional_concerns": [
+    {
+     "category": "MAINTAINABILITY",
+     "class_count": 1
+    }
+   ],
+   "primary_counts": {
+    "FUNCTIONAL": 1,
+    "FUNCTIONAL_SUPPORT": 2
+   },
+   "repositories": [
+    "com.fixture.edge.model.OrderRepository"
+   ],
+   "risk_ids": [
+    "resp-risk-c5c0e6aa7d2dce16",
+    "resp-risk-84cec79603dac6cb"
+   ],
+   "source": "CANDIDATE_DOMAIN_DISCOVERY"
+  },
+  {
+   "basis": "0 entity class(es), 0 repository class(es), 2 class(es) with business logic or validation, 0 of 3 classes non-functional (technical threshold 50%)",
+   "boundary_confidence": {
+    "note": "Boundary confidence = 0.5 \u00d7 stability + 0.3 \u00d7 (1 - conductance) + 0.2 \u00d7 size factor; it is a heuristic, not a calibrated probability.",
+    "value": 0.8
+   },
+   "boundary_notes": [],
+   "class_count": 3,
+   "classes": [
+    "com.fixture.edge.model.Item",
+    "com.fixture.edge.model.ItemService",
+    "com.fixture.edge.web.ItemController"
+   ],
+   "cross_cutting_ids": [
+    "resp-cross-d3f608bd349e08f4",
+    "resp-cross-6d49543eabc15522"
+   ],
+   "entities": [],
+   "entry_classes": [
+    "com.fixture.edge.web.ItemController"
+   ],
+   "id": "domain-f36427bea173da2c",
+   "implications": [
+    {
+     "evidence": [
+      "resp-risk-c5c0e6aa7d2dce16"
+     ],
+     "kind": "SECURITY_CONTROL_TO_DECIDE",
+     "severity": "HIGH",
+     "text": "An extracted Item service needs its own authentication and authorization decision: 13 HTTP entry point(s), 5 of them changing data (DELETE /api/items/remove/{id}, POST /api/items, POST /jaxrs, POST /legacy/report), have no detectable authentication or authorization reference in 19 analyzed classes."
+    },
+    {
+     "evidence": [
+      "resp-cross-6d49543eabc15522"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Item depends on shared Spring Web MVC. Spring Web MVC is a library that 2 class(es) in Entity Admin, Item already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-d3f608bd349e08f4"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Item depends on shared Spring core and boot. Spring core and boot is a library that 5 class(es) in Billing Jobs, Entity Admin, Item already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    }
+   ],
+   "kind": "BUSINESS",
+   "name": "Item",
+   "nonfunctional_concerns": [
+    {
+     "category": "MAINTAINABILITY",
+     "class_count": 2
+    },
+    {
+     "category": "SCALABILITY",
+     "class_count": 1
+    }
+   ],
+   "primary_counts": {
+    "FUNCTIONAL": 2,
+    "UNCERTAIN": 1
+   },
+   "repositories": [],
+   "risk_ids": [
+    "resp-risk-c5c0e6aa7d2dce16",
+    "resp-risk-84cec79603dac6cb",
+    "resp-risk-8588d335c7d3a370"
+   ],
+   "source": "CANDIDATE_DOMAIN_DISCOVERY"
+  }
+ ],
+ "cross_cutting": [
+  {
+   "basis": "BYTECODE_EDGE",
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    },
+    {
+     "id": "domain-d2d2eb2cb8f9eb9e",
+     "name": "Entity Admin"
+    },
+    {
+     "id": "domain-f36427bea173da2c",
+     "name": "Item"
+    }
+   ],
+   "capability_count": 3,
+   "change_impact": "Upgrading Spring core and boot touches 5 class(es) in 3 candidate domain(s).",
+   "component": "spring-core",
+   "concerns": [
+    "CONFIGURATION"
+   ],
+   "dependent_count": 5,
+   "dependents": [
+    "com.fixture.edge.jobs.OrderEvents",
+    "com.fixture.edge.jobs.ReminderJob",
+    "com.fixture.edge.model.ItemService",
+    "com.fixture.edge.model.OrderRepository",
+    "com.fixture.edge.web.OrderAdminController"
+   ],
+   "deployment_form": "LIBRARY_DEPENDENCY",
+   "evidence": [],
+   "guidance": "Spring core and boot is a library that 5 class(es) in Billing Jobs, Entity Admin, Item already include. Each extracted service includes it as a dependency; it is not a service candidate.",
+   "id": "resp-cross-d3f608bd349e08f4",
+   "kind": "EXTERNAL_LIBRARY",
+   "name": "Spring core and boot",
+   "scope": "CROSS_CAPABILITY",
+   "status": "DETECTED"
+  },
+  {
+   "basis": "BYTECODE_EDGE",
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    },
+    {
+     "id": "domain-d2d2eb2cb8f9eb9e",
+     "name": "Entity Admin"
+    }
+   ],
+   "capability_count": 2,
+   "change_impact": "Upgrading Jakarta Persistence touches 2 class(es) in 2 candidate domain(s).",
+   "component": "jpa",
+   "concerns": [
+    "BUSINESS_DATA_ACCESS",
+    "DATA_INTEGRITY"
+   ],
+   "dependent_count": 2,
+   "dependents": [
+    "com.fixture.edge.legacy.BillingRecord",
+    "com.fixture.edge.model.OrderEntity"
+   ],
+   "deployment_form": "LIBRARY_DEPENDENCY",
+   "evidence": [],
+   "guidance": "Jakarta Persistence is a library that 2 class(es) in Billing Jobs, Entity Admin already include. Each extracted service includes it as a dependency; it is not a service candidate.",
+   "id": "resp-cross-3ba898321a2d0634",
+   "kind": "EXTERNAL_LIBRARY",
+   "name": "Jakarta Persistence",
+   "scope": "CROSS_CAPABILITY",
+   "status": "DETECTED"
+  },
+  {
+   "basis": "BYTECODE_EDGE",
+   "capabilities": [
+    {
+     "id": "domain-d2d2eb2cb8f9eb9e",
+     "name": "Entity Admin"
+    },
+    {
+     "id": "domain-f36427bea173da2c",
+     "name": "Item"
+    }
+   ],
+   "capability_count": 2,
+   "change_impact": "Upgrading Spring Web MVC touches 2 class(es) in 2 candidate domain(s).",
+   "component": "spring-web",
+   "concerns": [
+    "INTEROPERABILITY"
+   ],
+   "dependent_count": 2,
+   "dependents": [
+    "com.fixture.edge.web.ItemController",
+    "com.fixture.edge.web.OrderAdminController"
+   ],
+   "deployment_form": "LIBRARY_DEPENDENCY",
+   "evidence": [],
+   "guidance": "Spring Web MVC is a library that 2 class(es) in Entity Admin, Item already include. Each extracted service includes it as a dependency; it is not a service candidate.",
+   "id": "resp-cross-6d49543eabc15522",
+   "kind": "EXTERNAL_LIBRARY",
+   "name": "Spring Web MVC",
+   "scope": "CROSS_CAPABILITY",
+   "status": "DETECTED"
+  }
+ ],
+ "external_libraries": [
+  {
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [
+    "INTEROPERABILITY"
+   ],
+   "dependency_types": {
+    "METHOD_CALL": 1
+   },
+   "dependent_count": 1,
+   "family": "jaxb",
+   "id": "resp-library-720fc6eae2ec5941",
+   "known_family": true,
+   "name": "XML binding",
+   "top_types": [
+    "javax.xml.bind.JAXBContext"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    },
+    {
+     "id": "domain-d2d2eb2cb8f9eb9e",
+     "name": "Entity Admin"
+    }
+   ],
+   "capability_count": 2,
+   "concerns": [
+    "BUSINESS_DATA_ACCESS",
+    "DATA_INTEGRITY"
+   ],
+   "dependency_types": {
+    "ANNOTATION": 4
+   },
+   "dependent_count": 2,
+   "family": "jpa",
+   "id": "resp-library-3397f15e7d285749",
+   "known_family": true,
+   "name": "Jakarta Persistence",
+   "top_types": [
+    "javax.persistence.Entity",
+    "javax.persistence.Id",
+    "javax.persistence.Table",
+    "jakarta.persistence.Entity"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [],
+   "dependency_types": {
+    "ANNOTATION": 1
+   },
+   "dependent_count": 1,
+   "family": "other:jakarta.annotation.PostConstruct",
+   "id": "resp-library-4a64adadef6870aa",
+   "known_family": false,
+   "name": "jakarta.annotation.PostConstruct",
+   "top_types": [
+    "jakarta.annotation.PostConstruct"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [],
+   "dependency_types": {
+    "INTERFACE": 1
+   },
+   "dependent_count": 1,
+   "family": "other:javax.servlet.Filter",
+   "id": "resp-library-c6b46caf916c8bc5",
+   "known_family": false,
+   "name": "javax.servlet.Filter",
+   "top_types": [
+    "javax.servlet.Filter"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [],
+   "dependency_types": {
+    "METHOD_CALL": 1,
+    "PARAMETER_TYPE": 1
+   },
+   "dependent_count": 1,
+   "family": "other:javax.servlet.FilterChain",
+   "id": "resp-library-d7e3941e6f4de131",
+   "known_family": false,
+   "name": "javax.servlet.FilterChain",
+   "top_types": [
+    "javax.servlet.FilterChain"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [],
+   "dependency_types": {
+    "PARAMETER_TYPE": 1
+   },
+   "dependent_count": 1,
+   "family": "other:javax.servlet.ServletRequest",
+   "id": "resp-library-fc21ba3e94f11498",
+   "known_family": false,
+   "name": "javax.servlet.ServletRequest",
+   "top_types": [
+    "javax.servlet.ServletRequest"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [],
+   "dependency_types": {
+    "PARAMETER_TYPE": 1
+   },
+   "dependent_count": 1,
+   "family": "other:javax.servlet.ServletResponse",
+   "id": "resp-library-2ca69c06f3a8b7ff",
+   "known_family": false,
+   "name": "javax.servlet.ServletResponse",
+   "top_types": [
+    "javax.servlet.ServletResponse"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [],
+   "dependency_types": {
+    "ANNOTATION": 1
+   },
+   "dependent_count": 1,
+   "family": "other:javax.servlet.annotation",
+   "id": "resp-library-8328a25f3ecc18cd",
+   "known_family": false,
+   "name": "javax.servlet.annotation",
+   "top_types": [
+    "javax.servlet.annotation.WebServlet"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [],
+   "dependency_types": {
+    "INHERITANCE": 1,
+    "METHOD_CALL": 2,
+    "PARAMETER_TYPE": 2
+   },
+   "dependent_count": 1,
+   "family": "other:javax.servlet.http",
+   "id": "resp-library-c85c72e17cba1083",
+   "known_family": false,
+   "name": "javax.servlet.http",
+   "top_types": [
+    "javax.servlet.http.HttpServlet",
+    "javax.servlet.http.HttpServletResponse",
+    "javax.servlet.http.HttpServletRequest"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [],
+   "dependency_types": {
+    "ANNOTATION": 3
+   },
+   "dependent_count": 1,
+   "family": "other:javax.ws.rs",
+   "id": "resp-library-25da6a10b8ddd992",
+   "known_family": false,
+   "name": "javax.ws.rs",
+   "top_types": [
+    "javax.ws.rs.GET",
+    "javax.ws.rs.POST",
+    "javax.ws.rs.Path"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [],
+   "dependency_types": {
+    "METHOD_CALL": 1
+   },
+   "dependent_count": 1,
+   "family": "other:org.apache.commons",
+   "id": "resp-library-809f727021663395",
+   "known_family": false,
+   "name": "org.apache.commons",
+   "top_types": [
+    "org.apache.commons.lang.StringUtils"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [],
+   "dependency_types": {
+    "FIELD_TYPE": 1,
+    "METHOD_CALL": 1
+   },
+   "dependent_count": 1,
+   "family": "other:org.apache.log4j",
+   "id": "resp-library-8ec147b5b060f4b3",
+   "known_family": false,
+   "name": "org.apache.log4j",
+   "top_types": [
+    "org.apache.log4j.Logger"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [],
+   "dependency_types": {
+    "INHERITANCE": 1,
+    "METHOD_CALL": 1
+   },
+   "dependent_count": 1,
+   "family": "other:org.apache.struts",
+   "id": "resp-library-5c6477ed7349e232",
+   "known_family": false,
+   "name": "org.apache.struts",
+   "top_types": [
+    "org.apache.struts.action.Action"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [],
+   "dependency_types": {
+    "ANNOTATION": 1
+   },
+   "dependent_count": 1,
+   "family": "other:org.springframework.amqp",
+   "id": "resp-library-a8b83987dbf64730",
+   "known_family": false,
+   "name": "org.springframework.amqp",
+   "top_types": [
+    "org.springframework.amqp.rabbit.annotation.RabbitListener"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [],
+   "dependency_types": {
+    "ANNOTATION": 1
+   },
+   "dependent_count": 1,
+   "family": "other:org.springframework.jms",
+   "id": "resp-library-14257367446d0502",
+   "known_family": false,
+   "name": "org.springframework.jms",
+   "top_types": [
+    "org.springframework.jms.annotation.JmsListener"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [],
+   "dependency_types": {
+    "ANNOTATION": 1
+   },
+   "dependent_count": 1,
+   "family": "other:org.springframework.kafka",
+   "id": "resp-library-4c78dc52cfd46ad3",
+   "known_family": false,
+   "name": "org.springframework.kafka",
+   "top_types": [
+    "org.springframework.kafka.annotation.KafkaListener"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [],
+   "dependency_types": {
+    "ANNOTATION": 1
+   },
+   "dependent_count": 1,
+   "family": "other:org.springframework.scheduling",
+   "id": "resp-library-a2b247ca538710f8",
+   "known_family": false,
+   "name": "org.springframework.scheduling",
+   "top_types": [
+    "org.springframework.scheduling.annotation.Scheduled"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-67a3f44d1b93fc62",
+     "name": "Billing Jobs"
+    },
+    {
+     "id": "domain-d2d2eb2cb8f9eb9e",
+     "name": "Entity Admin"
+    },
+    {
+     "id": "domain-f36427bea173da2c",
+     "name": "Item"
+    }
+   ],
+   "capability_count": 3,
+   "concerns": [
+    "CONFIGURATION"
+   ],
+   "dependency_types": {
+    "ANNOTATION": 6
+   },
+   "dependent_count": 5,
+   "family": "spring-core",
+   "id": "resp-library-a72402f5cb6c2ff8",
+   "known_family": true,
+   "name": "Spring core and boot",
+   "top_types": [
+    "org.springframework.stereotype.Component",
+    "org.springframework.context.event.EventListener",
+    "org.springframework.stereotype.Service",
+    "org.springframework.stereotype.Repository",
+    "org.springframework.stereotype.Controller"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-f36427bea173da2c",
+     "name": "Item"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [
+    "BUSINESS_VALIDATION"
+   ],
+   "dependency_types": {
+    "ANNOTATION": 3
+   },
+   "dependent_count": 1,
+   "family": "spring-validation",
+   "id": "resp-library-618c185dd3a9fec7",
+   "known_family": true,
+   "name": "Validation",
+   "top_types": [
+    "jakarta.validation.Valid",
+    "jakarta.validation.constraints.NotNull",
+    "jakarta.validation.constraints.Size"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-d2d2eb2cb8f9eb9e",
+     "name": "Entity Admin"
+    },
+    {
+     "id": "domain-f36427bea173da2c",
+     "name": "Item"
+    }
+   ],
+   "capability_count": 2,
+   "concerns": [
+    "INTEROPERABILITY"
+   ],
+   "dependency_types": {
+    "ANNOTATION": 9
+   },
+   "dependent_count": 2,
+   "family": "spring-web",
+   "id": "resp-library-72f9f51cd99fcf7f",
+   "known_family": true,
+   "name": "Spring Web MVC",
+   "top_types": [
+    "org.springframework.web.bind.annotation.GetMapping",
+    "org.springframework.web.bind.annotation.DeleteMapping",
+    "org.springframework.web.bind.annotation.PathVariable",
+    "org.springframework.web.bind.annotation.PostMapping",
+    "org.springframework.web.bind.annotation.RequestBody"
+   ]
+  }
+ ],
+ "limitations": [
+  "Evidence comes from compiled bytecode: source files, configuration files and runtime behavior are not examined.",
+  "Method bodies expose call sites, type references and branch counts; catch blocks and loop structure are not recorded, so error handling and repeated work cannot be established.",
+  "Absence of a detected mechanism is not proof that the mechanism is absent: gateways, configuration files and platform controls do not appear in bytecode.",
+  "The artifact contains no .java files, so file paths are derived from the package and the SourceFile attribute and are marked as derived; line numbers come from the bytecode line table.",
+  "Business capabilities are the candidate domains found by ArchIntel; they are heuristic boundaries that an architect must validate."
+ ],
+ "packages": [
+  {
+   "capabilities": [
+    "Cycle A"
+   ],
+   "class_count": 4,
+   "kind": "UNCLEAR",
+   "mixed": false,
+   "note": "Package names are supporting evidence only; this reading comes from the classes inside.",
+   "package": "com.fixture.edge.cycle.a",
+   "primary_counts": {
+    "UNCERTAIN": 4
+   },
+   "top_categories": [
+    "MAINTAINABILITY"
+   ],
+   "unclear_boundary": true
+  },
+  {
+   "capabilities": [
+    "Cycle A"
+   ],
+   "class_count": 1,
+   "kind": "UNCLEAR",
+   "mixed": false,
+   "note": "Package names are supporting evidence only; this reading comes from the classes inside.",
+   "package": "com.fixture.edge.cycle.b",
+   "primary_counts": {
+    "UNCERTAIN": 1
+   },
+   "top_categories": [
+    "MAINTAINABILITY"
+   ],
+   "unclear_boundary": true
+  },
+  {
+   "capabilities": [
+    "Billing Jobs"
+   ],
+   "class_count": 3,
+   "kind": "UNCLEAR",
+   "mixed": false,
+   "note": "Package names are supporting evidence only; this reading comes from the classes inside.",
+   "package": "com.fixture.edge.jobs",
+   "primary_counts": {
+    "FUNCTIONAL": 1,
+    "NON_FUNCTIONAL": 1,
+    "UNCERTAIN": 1
+   },
+   "top_categories": [
+    "API_AND_APPLICATION_ENTRY",
+    "SCALABILITY"
+   ],
+   "unclear_boundary": true
+  },
+  {
+   "capabilities": [
+    "Billing Jobs"
+   ],
+   "class_count": 2,
+   "kind": "BUSINESS",
+   "mixed": false,
+   "note": "Package names are supporting evidence only; this reading comes from the classes inside.",
+   "package": "com.fixture.edge.legacy",
+   "primary_counts": {
+    "FUNCTIONAL_SUPPORT": 1,
+    "UNCERTAIN": 1
+   },
+   "top_categories": [
+    "MAINTAINABILITY",
+    "DOMAIN_MODEL"
+   ],
+   "unclear_boundary": true
+  },
+  {
+   "capabilities": [
+    "Entity Admin",
+    "Item"
+   ],
+   "class_count": 4,
+   "kind": "BUSINESS",
+   "mixed": false,
+   "note": "Package names are supporting evidence only; this reading comes from the classes inside.",
+   "package": "com.fixture.edge.model",
+   "primary_counts": {
+    "FUNCTIONAL": 1,
+    "FUNCTIONAL_SUPPORT": 2,
+    "UNCERTAIN": 1
+   },
+   "top_categories": [
+    "MAINTAINABILITY",
+    "SCALABILITY",
+    "DOMAIN_MODEL",
+    "BUSINESS_DATA_ACCESS"
+   ],
+   "unclear_boundary": true
+  },
+  {
+   "capabilities": [
+    "Billing Jobs",
+    "Entity Admin",
+    "Item"
+   ],
+   "class_count": 5,
+   "kind": "BUSINESS",
+   "mixed": false,
+   "note": "Package names are supporting evidence only; this reading comes from the classes inside.",
+   "package": "com.fixture.edge.web",
+   "primary_counts": {
+    "FUNCTIONAL": 4,
+    "NON_FUNCTIONAL": 1
+   },
+   "top_categories": [
+    "API_AND_APPLICATION_ENTRY",
+    "CROSS_CUTTING_INFRASTRUCTURE",
+    "MAINTAINABILITY"
+   ],
+   "unclear_boundary": true
+  }
+ ],
+ "risks": [
+  {
+   "affected_components": [
+    "com.fixture.edge.legacy.BillingAction",
+    "com.fixture.edge.web.AuditFilter",
+    "com.fixture.edge.web.GreetingResource",
+    "com.fixture.edge.web.ItemController",
+    "com.fixture.edge.web.LegacyServlet",
+    "com.fixture.edge.web.OrderAdminController"
+   ],
+   "affected_count": 6,
+   "category": "SECURITY",
+   "confidence": {
+    "basis": "absence of any access-control reference within the analyzed bytecode; a gateway or platform control would not appear here",
+    "calibrated": false,
+    "level": "MEDIUM"
+   },
+   "consequence": "Requests that change data may be reachable without authentication or authorization unless a gateway or platform control exists.",
+   "consequence_status": "INFERRED",
+   "description": "13 HTTP entry point(s), 5 of them changing data (DELETE /api/items/remove/{id}, POST /api/items, POST /jaxrs, POST /legacy/report), have no detectable authentication or authorization reference in 19 analyzed classes",
+   "detection_status": "INFERRED",
+   "evidence_ids": [
+    "resp-evidence-6cee350fb9b2ef4a"
+   ],
+   "id": "resp-risk-c5c0e6aa7d2dce16",
+   "investigate": "Confirm the authentication and authorization controls in front of the application, then decide whether the extracted service needs its own.",
+   "potential_impact": "A service boundary drawn here would expose these entry points without any control that moves with the code.",
+   "priority": 6,
+   "priority_basis": "HIGH by rule RISK-SEC-NO-CONTROL; ordered by the number of affected components",
+   "rule_id": "RISK-SEC-NO-CONTROL",
+   "runtime_validation_required": true,
+   "severity": "HIGH",
+   "title": "Entry points with no detectable security control"
+  },
+  {
+   "affected_components": [
+    "com.fixture.edge.cycle.a.Address",
+    "com.fixture.edge.cycle.a.Customer",
+    "com.fixture.edge.cycle.a.Order",
+    "com.fixture.edge.cycle.a.Region",
+    "com.fixture.edge.cycle.b.Invoice",
+    "com.fixture.edge.jobs.CliTool",
+    "com.fixture.edge.jobs.OrderEvents",
+    "com.fixture.edge.jobs.ReminderJob",
+    "com.fixture.edge.legacy.BillingAction",
+    "com.fixture.edge.legacy.BillingRecord",
+    "com.fixture.edge.model.Item",
+    "com.fixture.edge.model.ItemService",
+    "com.fixture.edge.model.OrderEntity",
+    "com.fixture.edge.model.OrderRepository",
+    "com.fixture.edge.web.AuditFilter",
+    "com.fixture.edge.web.GreetingResource",
+    "com.fixture.edge.web.ItemController",
+    "com.fixture.edge.web.LegacyServlet",
+    "com.fixture.edge.web.OrderAdminController"
+   ],
+   "affected_count": 19,
+   "category": "OBSERVABILITY",
+   "confidence": {
+    "basis": "absence within the analyzed bytecode; output written by the framework itself would not appear here",
+    "calibrated": false,
+    "level": "MEDIUM"
+   },
+   "consequence": "Failures and slow requests may be hard to diagnose, and distributed tracing would start from nothing after an extraction.",
+   "consequence_status": "INFERRED",
+   "description": "None of the 19 analyzed classes references a logging, metrics or tracing API",
+   "detection_status": "INFERRED",
+   "evidence_ids": [
+    "resp-evidence-d8344fc96b99d2fc"
+   ],
+   "id": "resp-risk-84cec79603dac6cb",
+   "investigate": "Add structured logging and trace context before extracting a capability.",
+   "potential_impact": "Splitting a request across services without instrumentation makes the combined flow hard to follow.",
+   "priority": 19,
+   "priority_basis": "MEDIUM by rule RISK-OBS-NO-INSTRUMENTATION; ordered by the number of affected components",
+   "rule_id": "RISK-OBS-NO-INSTRUMENTATION",
+   "runtime_validation_required": false,
+   "severity": "MEDIUM",
+   "title": "No logging, metrics or tracing reference found"
+  },
+  {
+   "affected_components": [
+    "com.fixture.edge.model.ItemService"
+   ],
+   "affected_count": 1,
+   "category": "SCALABILITY",
+   "confidence": {
+    "basis": "the field modifiers are read directly from the class file",
+    "calibrated": false,
+    "level": "HIGH"
+   },
+   "consequence": "Instances share this state, so running two or more instances can give different results and threads may race on it.",
+   "consequence_status": "INFERRED",
+   "description": "ItemService declares 1 static non-final field(s)",
+   "detection_status": "DETECTED",
+   "evidence_ids": [
+    "resp-evidence-d42d78ad6dc2555e"
+   ],
+   "id": "resp-risk-8588d335c7d3a370",
+   "investigate": "Check whether the state is guarded and whether it must be shared between instances.",
+   "potential_impact": "Independent scaling of a service containing this class would need the state to move to a shared store.",
+   "priority": 1,
+   "priority_basis": "MEDIUM by rule RISK-SCAL-STATIC-STATE; ordered by the number of affected components",
+   "rule_id": "RISK-SCAL-STATIC-STATE",
+   "runtime_validation_required": true,
+   "severity": "MEDIUM",
+   "title": "Mutable static state"
+  }
+ ],
+ "status": "AVAILABLE",
+ "summary": {
+  "by_primary": {
+   "FUNCTIONAL": 6,
+   "FUNCTIONAL_SUPPORT": 3,
+   "NON_FUNCTIONAL": 2,
+   "UNCERTAIN": 8
+  },
+  "capabilities": 4,
+  "capability_kinds": {
+   "BUSINESS": 3,
+   "MIXED": 1
+  },
+  "classes": 19,
+  "cross_cutting": 3,
+  "dependencies": 15,
+  "evidence_items": 50,
+  "evidence_rejected": 0,
+  "functional_categories": {
+   "API_AND_APPLICATION_ENTRY": 5,
+   "BUSINESS_DATA_ACCESS": 1,
+   "BUSINESS_LOGIC": 1,
+   "BUSINESS_VALIDATION": 1,
+   "DOMAIN_MODEL": 3
+  },
+  "nonfunctional_categories": {
+   "CROSS_CUTTING_INFRASTRUCTURE": 1,
+   "DATA_INTEGRITY": 1,
+   "MAINTAINABILITY": 10,
+   "SCALABILITY": 2,
+   "TESTABILITY": 4
+  },
+  "risks": 3,
+  "risks_by_severity": {
+   "HIGH": 1,
+   "MEDIUM": 2
+  },
+  "statuses": {
+   "DETECTED": 21,
+   "INFERRED": 8
+  }
+ },
+ "taxonomy": {
+  "functional": {
+   "API_AND_APPLICATION_ENTRY": {
+    "description": "Controllers",
+    "label": "API and application entry",
+    "limit": "An entry point shows how a capability is reached; it says nothing about authorization or traffic."
+   },
+   "APPLICATION_ORCHESTRATION": {
+    "description": "Code coordinating two or more application operations or workflows.",
+    "label": "Application orchestration",
+    "limit": "Calls to two or more collaborating classes suggest coordination; the workflow itself is not reconstructed."
+   },
+   "BUSINESS_DATA_ACCESS": {
+    "description": "Repositories and persistence operations supporting a capability.",
+    "label": "Business data access",
+    "limit": "Data-access code shows how data is reached; runtime SQL and data ownership are not known."
+   },
+   "BUSINESS_LOGIC": {
+    "description": "Rules",
+    "label": "Business logic",
+    "limit": "A service stereotype or a branching method suggests logic; it does not prove which business rule it implements."
+   },
+   "BUSINESS_PROCESSING": {
+    "description": "Transformations",
+    "label": "Business processing",
+    "limit": "Detected from code shape only; the business meaning needs review."
+   },
+   "BUSINESS_VALIDATION": {
+    "description": "Validation that enforces business rules or domain constraints.",
+    "label": "Business validation",
+    "limit": "A declared constraint does not show that it encodes a business rule or that it is enforced on every path."
+   },
+   "DOMAIN_MODEL": {
+    "description": "Entities",
+    "label": "Domain model",
+    "limit": "Persistence annotations show a stored record"
+   },
+   "EXTERNAL_BUSINESS_INTEGRATION": {
+    "description": "Code integrating with payment",
+    "label": "External business integration",
+    "limit": "A client API call does not show which business system is behind it."
+   }
+  },
+  "nonfunctional": {
+   "AUDITABILITY_AND_COMPLIANCE": {
+    "description": "Audit events",
+    "label": "Auditability and compliance",
+    "limit": "Source patterns do not show regulatory compliance."
+   },
+   "AVAILABILITY": {
+    "description": "Health checks",
+    "label": "Availability",
+    "limit": "Mechanisms present in code do not show achieved availability."
+   },
+   "CONFIGURATION": {
+    "description": "Application and environment configuration",
+    "label": "Configuration",
+    "limit": "Configuration files are not retained from a compiled artifact"
+   },
+   "CROSS_CUTTING_INFRASTRUCTURE": {
+    "description": "Servlet filters",
+    "label": "Cross-cutting infrastructure",
+    "limit": "The framework type shows a request-pipeline hook; which concern it serves needs its code to be read."
+   },
+   "DATA_INTEGRITY": {
+    "description": "Transaction boundaries",
+    "label": "Data integrity",
+    "limit": "An annotation shows intent; transaction behavior and isolation need runtime or test evidence."
+   },
+   "EXTENSIBILITY": {
+    "description": "Plugin mechanisms",
+    "label": "Extensibility",
+    "limit": "An interface with two or more implementations shows a seam"
+   },
+   "INTERNATIONALIZATION": {
+    "description": "Locale handling and message bundles.",
+    "label": "Internationalization",
+    "limit": "Locale support does not show that every text is translated."
+   },
+   "INTEROPERABILITY": {
+    "description": "HTTP clients",
+    "label": "Interoperability",
+    "limit": "Client and serialization usage shows a contract exists"
+   },
+   "MAINTAINABILITY": {
+    "description": "Complexity",
+    "label": "Maintainability",
+    "limit": "Structural measures indicate change cost; they are not defects by themselves."
+   },
+   "OBSERVABILITY": {
+    "description": "Logging",
+    "label": "Observability",
+    "limit": "Library references show instrumentation exists"
+   },
+   "PERFORMANCE": {
+    "description": "Caching",
+    "label": "Performance",
+    "limit": "Structural indicators are not measured performance problems; use the Performance tab for measurements."
+   },
+   "PRIVACY_AND_DATA_PROTECTION": {
+    "description": "Masking",
+    "label": "Privacy and data protection",
+    "limit": "Only what source or configuration shows is reported; no privacy compliance is claimed."
+   },
+   "RELIABILITY": {
+    "description": "Retry",
+    "label": "Reliability",
+    "limit": "Presence of a mechanism does not show that recovery works."
+   },
+   "RESOURCE_MANAGEMENT": {
+    "description": "Connections",
+    "label": "Resource management",
+    "limit": "Resource handling cannot be proven leak-free from bytecode references."
+   },
+   "SCALABILITY": {
+    "description": "Shared mutable state",
+    "label": "Scalability",
+    "limit": "Asynchronous or scheduled execution is not proven scalability."
+   },
+   "SECURITY": {
+    "description": "Authentication",
+    "label": "Security",
+    "limit": "Security classes or annotations do not show that the application is secure"
+   },
+   "TESTABILITY": {
+    "description": "Dependency injection",
+    "label": "Testability",
+    "limit": "Seams make testing easier; they say nothing about the tests that exist or their coverage."
+   }
+  },
+  "primary_classifications": {
+   "FUNCTIONAL": "Implements or enforces business behavior (entry points, logic, validation, orchestration).",
+   "FUNCTIONAL_SUPPORT": "Supports a capability without implementing its rules (data access, domain model).",
+   "MIXED": "Has a detected business responsibility and its own code runs a non-functional concern (it calls or holds the concern API).",
+   "NON_FUNCTIONAL": "Implements a technical concern with no business behavior detected.",
+   "UNCERTAIN": "No detected evidence establishes a responsibility; any label rests on a name only."
+  },
+  "statuses": {
+   "DETECTED": "Established directly by a fact in the bytecode.",
+   "INFERRED": "A reasoned reading of one or more facts; not established as a fact.",
+   "UNVERIFIED": "Needs runtime, configuration or test evidence that is not available."
+  }
+ },
+ "validation": {
+  "evidence_checked": 50,
+  "evidence_rejected": 0,
+  "rejected": []
+ }
+}

@@ -103,13 +103,20 @@ lists ordered members, each edge's types, code references (field, call with line
 whether the edge is static and/or runtime. Cut candidates are ranked by: breaks the whole group, cycles broken,
 against layering, fewest references, fewest runtime calls — every cut candidate carries the label "suggestion, requires human review" (field review_label).
 
+## Responsibility rules (`app/insight/rules/responsibility-rules.yaml`)
+
+The file registers the taxonomy (8 functional and 17 non-functional categories, each with a `limit` that states what a label does not prove), 64 evidence rules, 13 library families and 11 risk definitions.
+A rule reads one kind of recorded fact: an annotation (with values such as `fetch: FetchType.EAGER`), a supertype, a type reference or a call site. Names of classes or packages are never sole evidence: a name gives only a WEAK, INFERRED label.
+A class is FUNCTIONAL, FUNCTIONAL_SUPPORT, NON_FUNCTIONAL, MIXED or UNCERTAIN. MIXED requires a detected functional responsibility and a non-functional concern that the class's own code runs (it calls the API or holds an instance of it); a declared annotation such as `@Transactional` is an additional concern, not a mix.
+Confidence is an ordinal heuristic (HIGH, MEDIUM, LOW), never a calibrated probability. A component is cross-cutting when classes of two or more other candidate domains use it. Details, API and validation results: `docs/RESPONSIBILITY-ANALYSIS.md`.
+
 ## Assistant
 
 Tools (all read-only, scoped to one analysis, size-bounded): `get_package`, `get_class`, `get_dependencies`,
 `get_dependents`, `get_cycles`, `get_debt_findings`, `get_runtime_coverage`, `get_entry_points`,
-`get_aging_findings`, `get_class_source`, `search_classes`, `get_metrics` (`GET …/insight/assistant/tools`).
+`get_aging_findings`, `get_class_source`, `search_classes`, `get_metrics`, `get_responsibilities` (`GET …/insight/assistant/tools`).
 Evidence ids: `class:`, `package:`, `edge:a->b`, `finding:`, `cycle:`, `entry:`, `aging:`, `metric:entity:key`,
-`runtime:`, `source:`, `layer:`, `summary:analysis`. The verifier removes any sentence whose citation does not
+`runtime:`, `source:`, `layer:`, `resp:` (one evidence item of the responsibility analysis), `risk:` (one responsibility risk indicator), `summary:analysis`. The verifier removes any sentence whose citation does not
 exist, that names a class/package/method not present in the analysis or tool results, or (model mode) that states a
 number absent from the cited results. If 0 sentences pass verification, the deterministic answer is used; if no tool returns data, the answer is "cannot determine" plus the tool names tried. There is no tool that changes code or data; change
 requests are refused and pointed to Source tasks (human approval). Memory: `assistant_messages` (per principal and

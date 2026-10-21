@@ -22,6 +22,13 @@ def views(name):  # noqa: C901
         'lld': diagrams.lld(m, 'org.springframework.samples.petclinic.owner' if name == 'petclinic' else 'com.fixture.edge.cycle.a'),
         'sequence': diagrams.sequence_static(m, next(e['id'] for e in m.entry_points['items'] if e['handler_method'] in ('processNewVisitForm', 'create'))), 'graph': graphview.view(m, 'package', debt=debt.detect(m)),
         'node': details.node(m, 'org.springframework.samples.petclinic.owner.OwnerController' if 'org.springframework.samples.petclinic.owner.OwnerController' in m.classes else 'system', debt.detect(m))}
+    from app.insight import responsibility as resp
+    analysis = m.responsibility
+    mixed = next((f for f, c in sorted(analysis['components'].items()) if c['primary_classification'] == 'MIXED'), None) or next(iter(sorted(analysis['components'])), None)
+    out['responsibilities'] = resp.summary_view(analysis)
+    out['responsibility-components'] = resp.list_components(analysis, limit=500)
+    if mixed:
+        out['responsibility-component'] = resp.component_detail(m, analysis, mixed)
     try:
         from app.insight import exports
         out.update(exports.all_views(m))

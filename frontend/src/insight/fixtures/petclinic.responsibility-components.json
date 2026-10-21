@@ -1,0 +1,942 @@
+{
+ "items": [
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "CONFIGURATION",
+    "reason": "annotated @org.springframework.boot.autoconfigure.SpringBootApplication",
+    "role": "APPLICATION"
+   },
+   "capability": {
+    "id": "domain-22c6bf723d668df4",
+    "kind": "TECHNICAL",
+    "name": "Application Clinic"
+   },
+   "dependency_count": 0,
+   "dependent_count": 0,
+   "fqn": "org.springframework.samples.petclinic.PetClinicApplication",
+   "functional": [],
+   "id": "org.springframework.samples.petclinic.PetClinicApplication",
+   "non_functional": [
+    {
+     "category": "CONFIGURATION",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "package": "org.springframework.samples.petclinic",
+   "primary_classification": "NON_FUNCTIONAL",
+   "risk_count": 1,
+   "simple_name": "PetClinicApplication",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "DOMAIN",
+    "reason": "annotated @jakarta.persistence.MappedSuperclass",
+    "role": "ENTITY"
+   },
+   "capability": {
+    "id": "domain-88320003e6c6ba0d",
+    "kind": "BUSINESS",
+    "name": "Vet"
+   },
+   "dependency_count": 0,
+   "dependent_count": 3,
+   "fqn": "org.springframework.samples.petclinic.model.BaseEntity",
+   "functional": [
+    {
+     "category": "DOMAIN_MODEL",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.model.BaseEntity",
+   "non_functional": [],
+   "package": "org.springframework.samples.petclinic.model",
+   "primary_classification": "FUNCTIONAL_SUPPORT",
+   "risk_count": 2,
+   "simple_name": "BaseEntity",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "DOMAIN",
+    "reason": "annotated @jakarta.persistence.MappedSuperclass",
+    "role": "ENTITY"
+   },
+   "capability": {
+    "id": "domain-88320003e6c6ba0d",
+    "kind": "BUSINESS",
+    "name": "Vet"
+   },
+   "dependency_count": 1,
+   "dependent_count": 3,
+   "fqn": "org.springframework.samples.petclinic.model.NamedEntity",
+   "functional": [
+    {
+     "category": "BUSINESS_VALIDATION",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    },
+    {
+     "category": "DOMAIN_MODEL",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.model.NamedEntity",
+   "non_functional": [
+    {
+     "category": "DATA_INTEGRITY",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    }
+   ],
+   "package": "org.springframework.samples.petclinic.model",
+   "primary_classification": "FUNCTIONAL",
+   "risk_count": 3,
+   "simple_name": "NamedEntity",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "DOMAIN",
+    "reason": "annotated @jakarta.persistence.MappedSuperclass",
+    "role": "ENTITY"
+   },
+   "capability": {
+    "id": "domain-88320003e6c6ba0d",
+    "kind": "BUSINESS",
+    "name": "Vet"
+   },
+   "dependency_count": 1,
+   "dependent_count": 2,
+   "fqn": "org.springframework.samples.petclinic.model.Person",
+   "functional": [
+    {
+     "category": "BUSINESS_VALIDATION",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    },
+    {
+     "category": "DOMAIN_MODEL",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.model.Person",
+   "non_functional": [
+    {
+     "category": "DATA_INTEGRITY",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    }
+   ],
+   "package": "org.springframework.samples.petclinic.model",
+   "primary_classification": "FUNCTIONAL",
+   "risk_count": 2,
+   "simple_name": "Person",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "DOMAIN",
+    "reason": "annotated @jakarta.persistence.Entity",
+    "role": "ENTITY"
+   },
+   "capability": {
+    "id": "domain-9d798ed24befbf26",
+    "kind": "BUSINESS",
+    "name": "Owner Visit"
+   },
+   "dependency_count": 3,
+   "dependent_count": 4,
+   "fqn": "org.springframework.samples.petclinic.owner.Owner",
+   "functional": [
+    {
+     "category": "BUSINESS_LOGIC",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    },
+    {
+     "category": "BUSINESS_VALIDATION",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    },
+    {
+     "category": "DOMAIN_MODEL",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.owner.Owner",
+   "non_functional": [
+    {
+     "category": "DATA_INTEGRITY",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    },
+    {
+     "category": "MAINTAINABILITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "package": "org.springframework.samples.petclinic.owner",
+   "primary_classification": "FUNCTIONAL",
+   "risk_count": 2,
+   "simple_name": "Owner",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "PRESENTATION",
+    "reason": "annotated @org.springframework.stereotype.Controller",
+    "role": "CONTROLLER"
+   },
+   "capability": {
+    "id": "domain-9d798ed24befbf26",
+    "kind": "BUSINESS",
+    "name": "Owner Visit"
+   },
+   "dependency_count": 2,
+   "dependent_count": 0,
+   "fqn": "org.springframework.samples.petclinic.owner.OwnerController",
+   "functional": [
+    {
+     "category": "API_AND_APPLICATION_ENTRY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    },
+    {
+     "category": "BUSINESS_LOGIC",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    },
+    {
+     "category": "BUSINESS_VALIDATION",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.owner.OwnerController",
+   "non_functional": [
+    {
+     "category": "MAINTAINABILITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    },
+    {
+     "category": "PERFORMANCE",
+     "confidence": "MEDIUM",
+     "status": "DETECTED"
+    },
+    {
+     "category": "SECURITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    },
+    {
+     "category": "TESTABILITY",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    }
+   ],
+   "package": "org.springframework.samples.petclinic.owner",
+   "primary_classification": "MIXED",
+   "risk_count": 2,
+   "simple_name": "OwnerController",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "TYPE_HIERARCHY",
+    "layer": "DATA_ACCESS",
+    "reason": "implements org.springframework.data.jpa.repository.JpaRepository",
+    "role": "REPOSITORY"
+   },
+   "capability": {
+    "id": "domain-9d798ed24befbf26",
+    "kind": "BUSINESS",
+    "name": "Owner Visit"
+   },
+   "dependency_count": 1,
+   "dependent_count": 3,
+   "fqn": "org.springframework.samples.petclinic.owner.OwnerRepository",
+   "functional": [
+    {
+     "category": "BUSINESS_DATA_ACCESS",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.owner.OwnerRepository",
+   "non_functional": [
+    {
+     "category": "PERFORMANCE",
+     "confidence": "MEDIUM",
+     "status": "DETECTED"
+    }
+   ],
+   "package": "org.springframework.samples.petclinic.owner",
+   "primary_classification": "FUNCTIONAL_SUPPORT",
+   "risk_count": 1,
+   "simple_name": "OwnerRepository",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "DOMAIN",
+    "reason": "annotated @jakarta.persistence.Entity",
+    "role": "ENTITY"
+   },
+   "capability": {
+    "id": "domain-9d798ed24befbf26",
+    "kind": "BUSINESS",
+    "name": "Owner Visit"
+   },
+   "dependency_count": 3,
+   "dependent_count": 4,
+   "fqn": "org.springframework.samples.petclinic.owner.Pet",
+   "functional": [
+    {
+     "category": "DOMAIN_MODEL",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.owner.Pet",
+   "non_functional": [],
+   "package": "org.springframework.samples.petclinic.owner",
+   "primary_classification": "FUNCTIONAL_SUPPORT",
+   "risk_count": 3,
+   "simple_name": "Pet",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "PRESENTATION",
+    "reason": "annotated @org.springframework.stereotype.Controller",
+    "role": "CONTROLLER"
+   },
+   "capability": {
+    "id": "domain-9d798ed24befbf26",
+    "kind": "BUSINESS",
+    "name": "Owner Visit"
+   },
+   "dependency_count": 6,
+   "dependent_count": 0,
+   "fqn": "org.springframework.samples.petclinic.owner.PetController",
+   "functional": [
+    {
+     "category": "API_AND_APPLICATION_ENTRY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    },
+    {
+     "category": "BUSINESS_LOGIC",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    },
+    {
+     "category": "BUSINESS_VALIDATION",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.owner.PetController",
+   "non_functional": [
+    {
+     "category": "MAINTAINABILITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    },
+    {
+     "category": "SECURITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    },
+    {
+     "category": "TESTABILITY",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    }
+   ],
+   "package": "org.springframework.samples.petclinic.owner",
+   "primary_classification": "MIXED",
+   "risk_count": 3,
+   "simple_name": "PetController",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "DOMAIN",
+    "reason": "annotated @jakarta.persistence.Entity",
+    "role": "ENTITY"
+   },
+   "capability": {
+    "id": "domain-663f102c0b38921a",
+    "kind": "BUSINESS",
+    "name": "Type Owner"
+   },
+   "dependency_count": 1,
+   "dependent_count": 4,
+   "fqn": "org.springframework.samples.petclinic.owner.PetType",
+   "functional": [
+    {
+     "category": "DOMAIN_MODEL",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.owner.PetType",
+   "non_functional": [],
+   "package": "org.springframework.samples.petclinic.owner",
+   "primary_classification": "FUNCTIONAL_SUPPORT",
+   "risk_count": 3,
+   "simple_name": "PetType",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "SERVICE",
+    "reason": "annotated @org.springframework.stereotype.Component",
+    "role": "COMPONENT"
+   },
+   "capability": {
+    "id": "domain-663f102c0b38921a",
+    "kind": "BUSINESS",
+    "name": "Type Owner"
+   },
+   "dependency_count": 2,
+   "dependent_count": 0,
+   "fqn": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+   "functional": [
+    {
+     "category": "BUSINESS_LOGIC",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    },
+    {
+     "category": "BUSINESS_PROCESSING",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+   "non_functional": [
+    {
+     "category": "INTERNATIONALIZATION",
+     "confidence": "LOW",
+     "status": "INFERRED"
+    },
+    {
+     "category": "TESTABILITY",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    }
+   ],
+   "package": "org.springframework.samples.petclinic.owner",
+   "primary_classification": "FUNCTIONAL",
+   "risk_count": 1,
+   "simple_name": "PetTypeFormatter",
+   "uncertain": true
+  },
+  {
+   "architectural_role": {
+    "evidence": "TYPE_HIERARCHY",
+    "layer": "DATA_ACCESS",
+    "reason": "implements org.springframework.data.jpa.repository.JpaRepository",
+    "role": "REPOSITORY"
+   },
+   "capability": {
+    "id": "domain-663f102c0b38921a",
+    "kind": "BUSINESS",
+    "name": "Type Owner"
+   },
+   "dependency_count": 1,
+   "dependent_count": 2,
+   "fqn": "org.springframework.samples.petclinic.owner.PetTypeRepository",
+   "functional": [
+    {
+     "category": "BUSINESS_DATA_ACCESS",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.owner.PetTypeRepository",
+   "non_functional": [],
+   "package": "org.springframework.samples.petclinic.owner",
+   "primary_classification": "FUNCTIONAL_SUPPORT",
+   "risk_count": 3,
+   "simple_name": "PetTypeRepository",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "TYPE_HIERARCHY",
+    "layer": "SERVICE",
+    "reason": "implements org.springframework.validation.Validator",
+    "role": "VALIDATOR"
+   },
+   "capability": {
+    "id": "domain-9d798ed24befbf26",
+    "kind": "BUSINESS",
+    "name": "Owner Visit"
+   },
+   "dependency_count": 1,
+   "dependent_count": 1,
+   "fqn": "org.springframework.samples.petclinic.owner.PetValidator",
+   "functional": [
+    {
+     "category": "BUSINESS_LOGIC",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    },
+    {
+     "category": "BUSINESS_VALIDATION",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.owner.PetValidator",
+   "non_functional": [],
+   "package": "org.springframework.samples.petclinic.owner",
+   "primary_classification": "FUNCTIONAL",
+   "risk_count": 1,
+   "simple_name": "PetValidator",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "DOMAIN",
+    "reason": "annotated @jakarta.persistence.Entity",
+    "role": "ENTITY"
+   },
+   "capability": {
+    "id": "domain-9d798ed24befbf26",
+    "kind": "BUSINESS",
+    "name": "Owner Visit"
+   },
+   "dependency_count": 1,
+   "dependent_count": 3,
+   "fqn": "org.springframework.samples.petclinic.owner.Visit",
+   "functional": [
+    {
+     "category": "BUSINESS_VALIDATION",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    },
+    {
+     "category": "DOMAIN_MODEL",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.owner.Visit",
+   "non_functional": [
+    {
+     "category": "DATA_INTEGRITY",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    }
+   ],
+   "package": "org.springframework.samples.petclinic.owner",
+   "primary_classification": "FUNCTIONAL",
+   "risk_count": 2,
+   "simple_name": "Visit",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "PRESENTATION",
+    "reason": "annotated @org.springframework.stereotype.Controller",
+    "role": "CONTROLLER"
+   },
+   "capability": {
+    "id": "domain-9d798ed24befbf26",
+    "kind": "BUSINESS",
+    "name": "Owner Visit"
+   },
+   "dependency_count": 4,
+   "dependent_count": 0,
+   "fqn": "org.springframework.samples.petclinic.owner.VisitController",
+   "functional": [
+    {
+     "category": "API_AND_APPLICATION_ENTRY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    },
+    {
+     "category": "BUSINESS_LOGIC",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    },
+    {
+     "category": "BUSINESS_VALIDATION",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.owner.VisitController",
+   "non_functional": [
+    {
+     "category": "MAINTAINABILITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    },
+    {
+     "category": "SECURITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    },
+    {
+     "category": "TESTABILITY",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    }
+   ],
+   "package": "org.springframework.samples.petclinic.owner",
+   "primary_classification": "MIXED",
+   "risk_count": 2,
+   "simple_name": "VisitController",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "CONFIGURATION",
+    "reason": "annotated @org.springframework.context.annotation.Configuration",
+    "role": "CONFIGURATION"
+   },
+   "capability": {
+    "id": "domain-c8fb47353d19fc72",
+    "kind": "TECHNICAL",
+    "name": "System Configuration"
+   },
+   "dependency_count": 0,
+   "dependent_count": 0,
+   "fqn": "org.springframework.samples.petclinic.system.CacheConfiguration",
+   "functional": [],
+   "id": "org.springframework.samples.petclinic.system.CacheConfiguration",
+   "non_functional": [
+    {
+     "category": "CONFIGURATION",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    },
+    {
+     "category": "PERFORMANCE",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "package": "org.springframework.samples.petclinic.system",
+   "primary_classification": "NON_FUNCTIONAL",
+   "risk_count": 1,
+   "simple_name": "CacheConfiguration",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "PRESENTATION",
+    "reason": "annotated @org.springframework.stereotype.Controller",
+    "role": "CONTROLLER"
+   },
+   "capability": {
+    "id": "domain-c8fb47353d19fc72",
+    "kind": "TECHNICAL",
+    "name": "System Configuration"
+   },
+   "dependency_count": 0,
+   "dependent_count": 0,
+   "fqn": "org.springframework.samples.petclinic.system.CrashController",
+   "functional": [
+    {
+     "category": "API_AND_APPLICATION_ENTRY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.system.CrashController",
+   "non_functional": [
+    {
+     "category": "RELIABILITY",
+     "confidence": "LOW",
+     "status": "INFERRED"
+    }
+   ],
+   "package": "org.springframework.samples.petclinic.system",
+   "primary_classification": "FUNCTIONAL",
+   "risk_count": 2,
+   "simple_name": "CrashController",
+   "uncertain": true
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "CONFIGURATION",
+    "reason": "annotated @org.springframework.context.annotation.Configuration",
+    "role": "CONFIGURATION"
+   },
+   "capability": {
+    "id": "domain-c8fb47353d19fc72",
+    "kind": "TECHNICAL",
+    "name": "System Configuration"
+   },
+   "dependency_count": 0,
+   "dependent_count": 0,
+   "fqn": "org.springframework.samples.petclinic.system.WebConfiguration",
+   "functional": [],
+   "id": "org.springframework.samples.petclinic.system.WebConfiguration",
+   "non_functional": [
+    {
+     "category": "CONFIGURATION",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "package": "org.springframework.samples.petclinic.system",
+   "primary_classification": "NON_FUNCTIONAL",
+   "risk_count": 1,
+   "simple_name": "WebConfiguration",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "PRESENTATION",
+    "reason": "annotated @org.springframework.stereotype.Controller",
+    "role": "CONTROLLER"
+   },
+   "capability": {
+    "id": "domain-c8fb47353d19fc72",
+    "kind": "TECHNICAL",
+    "name": "System Configuration"
+   },
+   "dependency_count": 0,
+   "dependent_count": 0,
+   "fqn": "org.springframework.samples.petclinic.system.WelcomeController",
+   "functional": [
+    {
+     "category": "API_AND_APPLICATION_ENTRY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.system.WelcomeController",
+   "non_functional": [],
+   "package": "org.springframework.samples.petclinic.system",
+   "primary_classification": "FUNCTIONAL",
+   "risk_count": 2,
+   "simple_name": "WelcomeController",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "DOMAIN",
+    "reason": "annotated @jakarta.persistence.Entity",
+    "role": "ENTITY"
+   },
+   "capability": {
+    "id": "domain-88320003e6c6ba0d",
+    "kind": "BUSINESS",
+    "name": "Vet"
+   },
+   "dependency_count": 1,
+   "dependent_count": 1,
+   "fqn": "org.springframework.samples.petclinic.vet.Specialty",
+   "functional": [
+    {
+     "category": "DOMAIN_MODEL",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.vet.Specialty",
+   "non_functional": [],
+   "package": "org.springframework.samples.petclinic.vet",
+   "primary_classification": "FUNCTIONAL_SUPPORT",
+   "risk_count": 1,
+   "simple_name": "Specialty",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "DOMAIN",
+    "reason": "annotated @jakarta.persistence.Entity",
+    "role": "ENTITY"
+   },
+   "capability": {
+    "id": "domain-88320003e6c6ba0d",
+    "kind": "BUSINESS",
+    "name": "Vet"
+   },
+   "dependency_count": 2,
+   "dependent_count": 3,
+   "fqn": "org.springframework.samples.petclinic.vet.Vet",
+   "functional": [
+    {
+     "category": "DOMAIN_MODEL",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.vet.Vet",
+   "non_functional": [
+    {
+     "category": "INTEROPERABILITY",
+     "confidence": "MEDIUM",
+     "status": "DETECTED"
+    }
+   ],
+   "package": "org.springframework.samples.petclinic.vet",
+   "primary_classification": "FUNCTIONAL_SUPPORT",
+   "risk_count": 1,
+   "simple_name": "Vet",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "PRESENTATION",
+    "reason": "annotated @org.springframework.stereotype.Controller",
+    "role": "CONTROLLER"
+   },
+   "capability": {
+    "id": "domain-88320003e6c6ba0d",
+    "kind": "BUSINESS",
+    "name": "Vet"
+   },
+   "dependency_count": 3,
+   "dependent_count": 0,
+   "fqn": "org.springframework.samples.petclinic.vet.VetController",
+   "functional": [
+    {
+     "category": "API_AND_APPLICATION_ENTRY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.vet.VetController",
+   "non_functional": [
+    {
+     "category": "MAINTAINABILITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    },
+    {
+     "category": "PERFORMANCE",
+     "confidence": "MEDIUM",
+     "status": "DETECTED"
+    },
+    {
+     "category": "TESTABILITY",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    }
+   ],
+   "package": "org.springframework.samples.petclinic.vet",
+   "primary_classification": "FUNCTIONAL",
+   "risk_count": 2,
+   "simple_name": "VetController",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "TYPE_HIERARCHY",
+    "layer": "DATA_ACCESS",
+    "reason": "implements org.springframework.data.repository.Repository",
+    "role": "REPOSITORY"
+   },
+   "capability": {
+    "id": "domain-88320003e6c6ba0d",
+    "kind": "BUSINESS",
+    "name": "Vet"
+   },
+   "dependency_count": 1,
+   "dependent_count": 1,
+   "fqn": "org.springframework.samples.petclinic.vet.VetRepository",
+   "functional": [
+    {
+     "category": "BUSINESS_DATA_ACCESS",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.vet.VetRepository",
+   "non_functional": [
+    {
+     "category": "DATA_INTEGRITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    },
+    {
+     "category": "PERFORMANCE",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "package": "org.springframework.samples.petclinic.vet",
+   "primary_classification": "FUNCTIONAL_SUPPORT",
+   "risk_count": 2,
+   "simple_name": "VetRepository",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "DOMAIN",
+    "reason": "annotated @jakarta.xml.bind.annotation.XmlRootElement",
+    "role": "MODEL"
+   },
+   "capability": {
+    "id": "domain-88320003e6c6ba0d",
+    "kind": "BUSINESS",
+    "name": "Vet"
+   },
+   "dependency_count": 1,
+   "dependent_count": 1,
+   "fqn": "org.springframework.samples.petclinic.vet.Vets",
+   "functional": [
+    {
+     "category": "DOMAIN_MODEL",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    }
+   ],
+   "id": "org.springframework.samples.petclinic.vet.Vets",
+   "non_functional": [
+    {
+     "category": "INTEROPERABILITY",
+     "confidence": "MEDIUM",
+     "status": "DETECTED"
+    }
+   ],
+   "package": "org.springframework.samples.petclinic.vet",
+   "primary_classification": "FUNCTIONAL_SUPPORT",
+   "risk_count": 1,
+   "simple_name": "Vets",
+   "uncertain": false
+  }
+ ],
+ "limit": 500,
+ "offset": 0,
+ "status": "AVAILABLE",
+ "total": 24
+}

@@ -1,0 +1,1944 @@
+{
+ "architectural_role": {
+  "evidence": "ANNOTATION",
+  "layer": "PRESENTATION",
+  "reason": "annotated @org.springframework.stereotype.Controller",
+  "role": "CONTROLLER"
+ },
+ "business_capabilities": [
+  {
+   "confidence": {
+    "note": "Boundary confidence = 0.5 \u00d7 stability + 0.3 \u00d7 (1 - conductance) + 0.2 \u00d7 size factor; it is a heuristic, not a calibrated probability.",
+    "value": 0.76
+   },
+   "id": "domain-9d798ed24befbf26",
+   "kind": "BUSINESS",
+   "name": "Owner Visit",
+   "relation": "MEMBER"
+  }
+ ],
+ "capability_implications": [
+  {
+   "capability": "Owner Visit",
+   "implications": [
+    {
+     "evidence": [
+      "resp-risk-c10ec420421779f4"
+     ],
+     "kind": "RESOLVE_SHARED_DATA_MODEL",
+     "severity": "HIGH",
+     "text": "Before separating Owner Visit: 2 class(es) in Owner Visit depend on 1 persistent class(es) assigned to Type Owner: PetType."
+    },
+    {
+     "evidence": [
+      "resp-risk-2cd15035121ce095"
+     ],
+     "kind": "RESOLVE_SHARED_DATA_MODEL",
+     "severity": "HIGH",
+     "text": "Before separating Owner Visit: 3 class(es) in Owner Visit depend on 3 persistent class(es) assigned to Vet: BaseEntity, NamedEntity, Person."
+    },
+    {
+     "evidence": [
+      "resp-risk-9afbe83f6171c672"
+     ],
+     "kind": "SECURITY_CONTROL_TO_DECIDE",
+     "severity": "HIGH",
+     "text": "An extracted Owner Visit service needs its own authentication and authorization decision: 17 HTTP entry point(s), 5 of them changing data (POST /owners/new, POST /owners/{ownerId}/edit, POST /owners/{ownerId}/pets/new, POST /owners/{ownerId}/pets/{petId}/edit), have no detectable authentication or authorization reference in 24 analyzed classes; input-binding restrictions exist in 3 class(es) (OwnerController, PetController, VisitController) but they do not control who may call."
+    },
+    {
+     "evidence": [
+      "resp-cross-3ba898321a2d0634"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Owner Visit depends on shared Jakarta Persistence. Jakarta Persistence is a library that 9 class(es) in Type Owner, Vet, Owner Visit already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-eed37f8f142dc1f8"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Owner Visit depends on shared Spring Data. Spring Data is a library that 5 class(es) in Type Owner, Vet, Owner Visit already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-6d49543eabc15522"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Owner Visit depends on shared Spring Web MVC. Spring Web MVC is a library that 7 class(es) in Vet, Owner Visit, System Configuration already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-d3f608bd349e08f4"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Owner Visit depends on shared Spring core and boot. Spring core and boot is a library that 13 class(es) in Application Clinic, Type Owner, Vet, Owner Visit, System Configuration already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-55fb685860551b34"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Owner Visit depends on shared Validation. Validation is a library that 8 class(es) in Vet, Owner Visit already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    }
+   ]
+  }
+ ],
+ "classification_reasons": [
+  "its own code runs non-functional concerns: SECURITY"
+ ],
+ "component_type": "CLASS",
+ "cross_cutting": [
+  {
+   "basis": "BYTECODE_EDGE",
+   "capabilities": [
+    {
+     "id": "domain-22c6bf723d668df4",
+     "name": "Application Clinic"
+    },
+    {
+     "id": "domain-663f102c0b38921a",
+     "name": "Type Owner"
+    },
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    },
+    {
+     "id": "domain-c8fb47353d19fc72",
+     "name": "System Configuration"
+    }
+   ],
+   "capability_count": 5,
+   "change_impact": "Upgrading Spring core and boot touches 13 class(es) in 5 candidate domain(s).",
+   "component": "spring-core",
+   "concerns": [
+    "CONFIGURATION"
+   ],
+   "dependent_count": 13,
+   "dependents": [
+    "org.springframework.samples.petclinic.PetClinicApplication",
+    "org.springframework.samples.petclinic.owner.OwnerController",
+    "org.springframework.samples.petclinic.owner.Pet",
+    "org.springframework.samples.petclinic.owner.PetController",
+    "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+    "org.springframework.samples.petclinic.owner.PetValidator",
+    "org.springframework.samples.petclinic.owner.Visit",
+    "org.springframework.samples.petclinic.owner.VisitController",
+    "org.springframework.samples.petclinic.system.CacheConfiguration",
+    "org.springframework.samples.petclinic.system.CrashController",
+    "org.springframework.samples.petclinic.system.WebConfiguration",
+    "org.springframework.samples.petclinic.system.WelcomeController",
+    "org.springframework.samples.petclinic.vet.VetController"
+   ],
+   "deployment_form": "LIBRARY_DEPENDENCY",
+   "evidence": [],
+   "guidance": "Spring core and boot is a library that 13 class(es) in Application Clinic, Type Owner, Vet, Owner Visit, System Configuration already include. Each extracted service includes it as a dependency; it is not a service candidate.",
+   "id": "resp-cross-d3f608bd349e08f4",
+   "kind": "EXTERNAL_LIBRARY",
+   "name": "Spring core and boot",
+   "scope": "CROSS_CAPABILITY",
+   "status": "DETECTED"
+  },
+  {
+   "basis": "BYTECODE_EDGE",
+   "capabilities": [
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    },
+    {
+     "id": "domain-c8fb47353d19fc72",
+     "name": "System Configuration"
+    }
+   ],
+   "capability_count": 3,
+   "change_impact": "Upgrading Spring Web MVC touches 7 class(es) in 3 candidate domain(s).",
+   "component": "spring-web",
+   "concerns": [
+    "INTEROPERABILITY"
+   ],
+   "dependent_count": 7,
+   "dependents": [
+    "org.springframework.samples.petclinic.owner.OwnerController",
+    "org.springframework.samples.petclinic.owner.PetController",
+    "org.springframework.samples.petclinic.owner.VisitController",
+    "org.springframework.samples.petclinic.system.CrashController",
+    "org.springframework.samples.petclinic.system.WebConfiguration",
+    "org.springframework.samples.petclinic.system.WelcomeController",
+    "org.springframework.samples.petclinic.vet.VetController"
+   ],
+   "deployment_form": "LIBRARY_DEPENDENCY",
+   "evidence": [],
+   "guidance": "Spring Web MVC is a library that 7 class(es) in Vet, Owner Visit, System Configuration already include. Each extracted service includes it as a dependency; it is not a service candidate.",
+   "id": "resp-cross-6d49543eabc15522",
+   "kind": "EXTERNAL_LIBRARY",
+   "name": "Spring Web MVC",
+   "scope": "CROSS_CAPABILITY",
+   "status": "DETECTED"
+  },
+  {
+   "basis": "BYTECODE_EDGE",
+   "capabilities": [
+    {
+     "id": "domain-663f102c0b38921a",
+     "name": "Type Owner"
+    },
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    }
+   ],
+   "capability_count": 3,
+   "change_impact": "Upgrading Spring Data touches 5 class(es) in 3 candidate domain(s).",
+   "component": "spring-data",
+   "concerns": [
+    "BUSINESS_DATA_ACCESS"
+   ],
+   "dependent_count": 5,
+   "dependents": [
+    "org.springframework.samples.petclinic.owner.OwnerController",
+    "org.springframework.samples.petclinic.owner.OwnerRepository",
+    "org.springframework.samples.petclinic.owner.PetTypeRepository",
+    "org.springframework.samples.petclinic.vet.VetController",
+    "org.springframework.samples.petclinic.vet.VetRepository"
+   ],
+   "deployment_form": "LIBRARY_DEPENDENCY",
+   "evidence": [],
+   "guidance": "Spring Data is a library that 5 class(es) in Type Owner, Vet, Owner Visit already include. Each extracted service includes it as a dependency; it is not a service candidate.",
+   "id": "resp-cross-eed37f8f142dc1f8",
+   "kind": "EXTERNAL_LIBRARY",
+   "name": "Spring Data",
+   "scope": "CROSS_CAPABILITY",
+   "status": "DETECTED"
+  },
+  {
+   "basis": "BYTECODE_EDGE",
+   "capabilities": [
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    }
+   ],
+   "capability_count": 2,
+   "change_impact": "Upgrading Validation touches 8 class(es) in 2 candidate domain(s).",
+   "component": "spring-validation",
+   "concerns": [
+    "BUSINESS_VALIDATION"
+   ],
+   "dependent_count": 8,
+   "dependents": [
+    "org.springframework.samples.petclinic.model.NamedEntity",
+    "org.springframework.samples.petclinic.model.Person",
+    "org.springframework.samples.petclinic.owner.Owner",
+    "org.springframework.samples.petclinic.owner.OwnerController",
+    "org.springframework.samples.petclinic.owner.PetController",
+    "org.springframework.samples.petclinic.owner.PetValidator",
+    "org.springframework.samples.petclinic.owner.Visit",
+    "org.springframework.samples.petclinic.owner.VisitController"
+   ],
+   "deployment_form": "LIBRARY_DEPENDENCY",
+   "evidence": [],
+   "guidance": "Validation is a library that 8 class(es) in Vet, Owner Visit already include. Each extracted service includes it as a dependency; it is not a service candidate.",
+   "id": "resp-cross-55fb685860551b34",
+   "kind": "EXTERNAL_LIBRARY",
+   "name": "Validation",
+   "scope": "CROSS_CAPABILITY",
+   "status": "DETECTED"
+  }
+ ],
+ "dependencies": [
+  {
+   "crosses_capability": false,
+   "relation": "BUSINESS",
+   "target": "org.springframework.samples.petclinic.owner.Owner"
+  },
+  {
+   "crosses_capability": false,
+   "relation": "DATA_ACCESS",
+   "target": "org.springframework.samples.petclinic.owner.OwnerRepository"
+  }
+ ],
+ "dependency_details": [
+  {
+   "basis": "BYTECODE_EDGE",
+   "concerns": [
+    "MAINTAINABILITY"
+   ],
+   "crosses_capability": false,
+   "direct": true,
+   "edge_kinds": {
+    "GENERIC_TYPE": 1,
+    "METHOD_CALL": 1,
+    "PARAMETER_TYPE": 1,
+    "RETURN_TYPE": 1,
+    "TYPE_REFERENCE": 1
+   },
+   "evidence": [
+    {
+     "kind": "METHOD_CALL",
+     "line": 41,
+     "text": "OwnerController.findOwner() calls Owner constructor"
+    },
+    {
+     "kind": "RETURN_TYPE",
+     "line": null,
+     "text": "OwnerController.findOwner() returns Owner"
+    },
+    {
+     "kind": "TYPE_REFERENCE",
+     "line": 44,
+     "text": "OwnerController.findOwner() uses Owner (checkcast)"
+    }
+   ],
+   "id": "resp-dependency-6b2e497c994de898",
+   "relation": "BUSINESS",
+   "source": "org.springframework.samples.petclinic.owner.OwnerController",
+   "source_capability": "domain-9d798ed24befbf26",
+   "target": "org.springframework.samples.petclinic.owner.Owner",
+   "target_capability": "domain-9d798ed24befbf26"
+  },
+  {
+   "basis": "BYTECODE_EDGE",
+   "concerns": [
+    "PERFORMANCE"
+   ],
+   "crosses_capability": false,
+   "direct": true,
+   "edge_kinds": {
+    "FIELD_TYPE": 1,
+    "METHOD_CALL": 1,
+    "PARAMETER_TYPE": 1
+   },
+   "evidence": [
+    {
+     "kind": "FIELD_TYPE",
+     "line": null,
+     "text": "field OwnerController.owners has type OwnerRepository"
+    },
+    {
+     "kind": "PARAMETER_TYPE",
+     "line": null,
+     "text": "OwnerController constructor takes a OwnerRepository parameter"
+    },
+    {
+     "kind": "METHOD_CALL",
+     "line": 43,
+     "text": "OwnerController.findOwner() calls OwnerRepository.findById()"
+    }
+   ],
+   "id": "resp-dependency-bf40c63a6c69f67a",
+   "relation": "DATA_ACCESS",
+   "source": "org.springframework.samples.petclinic.owner.OwnerController",
+   "source_capability": "domain-9d798ed24befbf26",
+   "target": "org.springframework.samples.petclinic.owner.OwnerRepository",
+   "target_capability": "domain-9d798ed24befbf26"
+  }
+ ],
+ "dependent_details": [],
+ "dependents": [],
+ "domain_id": "domain-9d798ed24befbf26",
+ "fqn": "org.springframework.samples.petclinic.owner.OwnerController",
+ "functional_responsibilities": [
+  {
+   "category": "API_AND_APPLICATION_ENTRY",
+   "confidence": {
+    "basis": "8 detected strong evidence item(s) from rule(s) FUNC-ENTRY-CLASS, FUNC-ENTRY-HTTP",
+    "calibrated": false,
+    "level": "HIGH"
+   },
+   "description": "is a web entry-point class",
+   "evidence": [
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-234f318f66d44639",
+     "kind": "ANNOTATION",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       49,
+       49
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": null
+     },
+     "member": "java.lang.String initCreationForm()",
+     "source": "BYTECODE",
+     "strength": "STRONG",
+     "text": "OwnerController.initCreationForm() is annotated @GetMapping",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    },
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-3711f77e38b8eb87",
+     "kind": "ANNOTATION",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       54,
+       60
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": null
+     },
+     "member": "java.lang.String processCreationForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+     "source": "BYTECODE",
+     "strength": "STRONG",
+     "text": "OwnerController.processCreationForm() is annotated @PostMapping",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    },
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-bf96dd09a64a5c8c",
+     "kind": "ANNOTATION",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       65,
+       65
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": null
+     },
+     "member": "java.lang.String initFindForm()",
+     "source": "BYTECODE",
+     "strength": "STRONG",
+     "text": "OwnerController.initFindForm() is annotated @GetMapping",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    },
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-7c00712255c0c260",
+     "kind": "ANNOTATION",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       71,
+       84
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": null
+     },
+     "member": "java.lang.String processFindForm(int,org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.ui.Model)",
+     "source": "BYTECODE",
+     "strength": "STRONG",
+     "text": "OwnerController.processFindForm() is annotated @GetMapping",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    },
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-9d2b7ad59d6f835a",
+     "kind": "ANNOTATION",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       104,
+       104
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": null
+     },
+     "member": "java.lang.String initUpdateOwnerForm()",
+     "source": "BYTECODE",
+     "strength": "STRONG",
+     "text": "OwnerController.initUpdateOwnerForm() is annotated @GetMapping",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    },
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-b5d2ff137985b165",
+     "kind": "ANNOTATION",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       110,
+       122
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": null
+     },
+     "member": "java.lang.String processUpdateOwnerForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,int,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+     "source": "BYTECODE",
+     "strength": "STRONG",
+     "text": "OwnerController.processUpdateOwnerForm() is annotated @PostMapping",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    },
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-9ccf59caad43559f",
+     "kind": "ANNOTATION",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       127,
+       131
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": null
+     },
+     "member": "org.springframework.web.servlet.ModelAndView showOwner(int)",
+     "source": "BYTECODE",
+     "strength": "STRONG",
+     "text": "OwnerController.showOwner() is annotated @GetMapping",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    },
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-911f60c5ae176711",
+     "kind": "ANNOTATION",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "UNAVAILABLE",
+      "member_line_range": null,
+      "source_file": "OwnerController.java",
+      "start_line": null
+     },
+     "member": null,
+     "source": "BYTECODE",
+     "strength": "STRONG",
+     "text": "OwnerController is annotated @Controller",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    }
+   ],
+   "evidence_count": 8,
+   "evidence_ids": [
+    "resp-evidence-234f318f66d44639",
+    "resp-evidence-3711f77e38b8eb87",
+    "resp-evidence-bf96dd09a64a5c8c",
+    "resp-evidence-7c00712255c0c260",
+    "resp-evidence-9d2b7ad59d6f835a",
+    "resp-evidence-b5d2ff137985b165",
+    "resp-evidence-9ccf59caad43559f",
+    "resp-evidence-911f60c5ae176711"
+   ],
+   "limit": "An entry point shows how a capability is reached; it says nothing about authorization or traffic.",
+   "methods": [
+    "java.lang.String initCreationForm()",
+    "java.lang.String initFindForm()",
+    "java.lang.String initUpdateOwnerForm()",
+    "java.lang.String processCreationForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+    "java.lang.String processFindForm(int,org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.ui.Model)",
+    "java.lang.String processUpdateOwnerForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,int,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+    "org.springframework.web.servlet.ModelAndView showOwner(int)"
+   ],
+   "mixes": false,
+   "rule_ids": [
+    "FUNC-ENTRY-CLASS",
+    "FUNC-ENTRY-HTTP"
+   ],
+   "side": "FUNCTIONAL",
+   "status": "DETECTED"
+  },
+  {
+   "category": "BUSINESS_LOGIC",
+   "confidence": {
+    "basis": "only medium-strength or single detected evidence from rule(s) STRUCT-LOGIC",
+    "calibrated": false,
+    "level": "MEDIUM"
+   },
+   "description": "contains branching logic over application classes",
+   "evidence": [
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-8bc2d60c844bb37a",
+     "kind": "STRUCTURE",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       40,
+       44
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": null
+     },
+     "member": "org.springframework.samples.petclinic.owner.Owner findOwner(java.lang.Integer)",
+     "source": "BYTECODE",
+     "strength": "MEDIUM",
+     "text": "OwnerController.findOwner() has 1 branch(es) and calls Owner.<init>(), OwnerRepository.findById()",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    },
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-72fee63731fa1f14",
+     "kind": "STRUCTURE",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       54,
+       60
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": null
+     },
+     "member": "java.lang.String processCreationForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+     "source": "BYTECODE",
+     "strength": "MEDIUM",
+     "text": "OwnerController.processCreationForm() has 1 branch(es) and calls Owner.getId(), OwnerRepository.save()",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    },
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-5e84d1b0026c85b6",
+     "kind": "STRUCTURE",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       71,
+       84
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": null
+     },
+     "member": "java.lang.String processFindForm(int,org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.ui.Model)",
+     "source": "BYTECODE",
+     "strength": "MEDIUM",
+     "text": "OwnerController.processFindForm() has 3 branch(es) and calls Owner.getId(), Owner.getLastName(), OwnerController.addPaginationModel(), OwnerController.findPaginatedForOwnersLastName()",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    },
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-de925d6bcb985f76",
+     "kind": "STRUCTURE",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       110,
+       122
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": null
+     },
+     "member": "java.lang.String processUpdateOwnerForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,int,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+     "source": "BYTECODE",
+     "strength": "MEDIUM",
+     "text": "OwnerController.processUpdateOwnerForm() has 2 branch(es) and calls Owner.getId(), Owner.setId(), OwnerRepository.save()",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    }
+   ],
+   "evidence_count": 4,
+   "evidence_ids": [
+    "resp-evidence-8bc2d60c844bb37a",
+    "resp-evidence-72fee63731fa1f14",
+    "resp-evidence-5e84d1b0026c85b6",
+    "resp-evidence-de925d6bcb985f76"
+   ],
+   "limit": "A service stereotype or a branching method suggests logic; it does not prove which business rule it implements.",
+   "methods": [
+    "java.lang.String processCreationForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+    "java.lang.String processFindForm(int,org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.ui.Model)",
+    "java.lang.String processUpdateOwnerForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,int,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+    "org.springframework.samples.petclinic.owner.Owner findOwner(java.lang.Integer)"
+   ],
+   "mixes": false,
+   "rule_ids": [
+    "STRUCT-LOGIC"
+   ],
+   "side": "FUNCTIONAL",
+   "status": "INFERRED"
+  },
+  {
+   "category": "BUSINESS_VALIDATION",
+   "confidence": {
+    "basis": "4 detected strong evidence item(s) from rule(s) FUNC-VALIDATION-CONSTRAINT, FUNC-VALIDATION-OUTCOME",
+    "calibrated": false,
+    "level": "HIGH"
+   },
+   "description": "acts on validation errors",
+   "evidence": [
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-be9666ea1fc96783",
+     "kind": "CALL",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "BYTECODE_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       54,
+       60
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": 54
+     },
+     "member": "java.lang.String processCreationForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+     "source": "BYTECODE",
+     "strength": "STRONG",
+     "text": "OwnerController.processCreationForm() calls BindingResult.hasErrors()",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    },
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-9b7a94ed9b0c3bc7",
+     "kind": "CALL",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "BYTECODE_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       71,
+       84
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": 77
+     },
+     "member": "java.lang.String processFindForm(int,org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.ui.Model)",
+     "source": "BYTECODE",
+     "strength": "STRONG",
+     "text": "OwnerController.processFindForm() calls BindingResult.rejectValue()",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    },
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-9cebf764dd9613db",
+     "kind": "CALL",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "BYTECODE_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       110,
+       122
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": 110
+     },
+     "member": "java.lang.String processUpdateOwnerForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,int,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+     "source": "BYTECODE",
+     "strength": "STRONG",
+     "text": "OwnerController.processUpdateOwnerForm() calls BindingResult.hasErrors()",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    },
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-1e3e1e4f092ee9b4",
+     "kind": "CALL",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "BYTECODE_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       110,
+       122
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": 115
+     },
+     "member": "java.lang.String processUpdateOwnerForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,int,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+     "source": "BYTECODE",
+     "strength": "STRONG",
+     "text": "OwnerController.processUpdateOwnerForm() calls BindingResult.rejectValue()",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    },
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-1cd0b8fc13d8e2f4",
+     "kind": "ANNOTATION",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       54,
+       60
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": null
+     },
+     "member": "java.lang.String processCreationForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+     "source": "BYTECODE",
+     "strength": "MEDIUM",
+     "text": "OwnerController.processCreationForm() has a parameter annotated @Valid",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    },
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-a0adc0842258f39e",
+     "kind": "ANNOTATION",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       110,
+       122
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": null
+     },
+     "member": "java.lang.String processUpdateOwnerForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,int,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+     "source": "BYTECODE",
+     "strength": "MEDIUM",
+     "text": "OwnerController.processUpdateOwnerForm() has a parameter annotated @Valid",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    }
+   ],
+   "evidence_count": 6,
+   "evidence_ids": [
+    "resp-evidence-be9666ea1fc96783",
+    "resp-evidence-9b7a94ed9b0c3bc7",
+    "resp-evidence-9cebf764dd9613db",
+    "resp-evidence-1e3e1e4f092ee9b4",
+    "resp-evidence-1cd0b8fc13d8e2f4",
+    "resp-evidence-a0adc0842258f39e"
+   ],
+   "limit": "A declared constraint does not show that it encodes a business rule or that it is enforced on every path.",
+   "methods": [
+    "java.lang.String processCreationForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+    "java.lang.String processFindForm(int,org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.ui.Model)",
+    "java.lang.String processUpdateOwnerForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,int,org.springframework.web.servlet.mvc.support.RedirectAttributes)"
+   ],
+   "mixes": false,
+   "rule_ids": [
+    "FUNC-VALIDATION-CONSTRAINT",
+    "FUNC-VALIDATION-OUTCOME"
+   ],
+   "side": "FUNCTIONAL",
+   "status": "DETECTED"
+  }
+ ],
+ "id": "org.springframework.samples.petclinic.owner.OwnerController",
+ "methods": [
+  {
+   "labels": [
+    {
+     "category": "TESTABILITY",
+     "evidence": [
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-3fb9299da54b9ba2",
+       "kind": "STRUCTURE",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         29,
+         31
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": null
+       },
+       "member": "void <init>(org.springframework.samples.petclinic.owner.OwnerRepository)",
+       "source": "BYTECODE",
+       "strength": "MEDIUM",
+       "text": "OwnerController constructor receives OwnerRepository and stores it in a final field",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      }
+     ],
+     "evidence_ids": [
+      "resp-evidence-3fb9299da54b9ba2"
+     ],
+     "rule_id": "STRUCT-CONSTRUCTOR-INJECTION",
+     "side": "NON_FUNCTIONAL",
+     "status": "INFERRED"
+    }
+   ],
+   "line_range": [
+    29,
+    31
+   ],
+   "name": "<init>",
+   "signature": "void <init>(org.springframework.samples.petclinic.owner.OwnerRepository)"
+  },
+  {
+   "labels": [
+    {
+     "category": "SECURITY",
+     "evidence": [
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-16ca7e82b28cc2b9",
+       "kind": "CALL",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "BYTECODE_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         35,
+         36
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": 35
+       },
+       "member": "void setAllowedFields(org.springframework.web.bind.WebDataBinder)",
+       "source": "BYTECODE",
+       "strength": "STRONG",
+       "text": "OwnerController.setAllowedFields() calls WebDataBinder.setDisallowedFields()",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      }
+     ],
+     "evidence_ids": [
+      "resp-evidence-16ca7e82b28cc2b9"
+     ],
+     "rule_id": "SEC-BINDING",
+     "side": "NON_FUNCTIONAL",
+     "status": "DETECTED"
+    }
+   ],
+   "line_range": [
+    35,
+    36
+   ],
+   "name": "setAllowedFields",
+   "signature": "void setAllowedFields(org.springframework.web.bind.WebDataBinder)"
+  },
+  {
+   "labels": [
+    {
+     "category": "BUSINESS_LOGIC",
+     "evidence": [
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-8bc2d60c844bb37a",
+       "kind": "STRUCTURE",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         40,
+         44
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": null
+       },
+       "member": "org.springframework.samples.petclinic.owner.Owner findOwner(java.lang.Integer)",
+       "source": "BYTECODE",
+       "strength": "MEDIUM",
+       "text": "OwnerController.findOwner() has 1 branch(es) and calls Owner.<init>(), OwnerRepository.findById()",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      }
+     ],
+     "evidence_ids": [
+      "resp-evidence-8bc2d60c844bb37a"
+     ],
+     "rule_id": "STRUCT-LOGIC",
+     "side": "FUNCTIONAL",
+     "status": "INFERRED"
+    }
+   ],
+   "line_range": [
+    40,
+    44
+   ],
+   "name": "findOwner",
+   "signature": "org.springframework.samples.petclinic.owner.Owner findOwner(java.lang.Integer)"
+  },
+  {
+   "labels": [
+    {
+     "category": "API_AND_APPLICATION_ENTRY",
+     "evidence": [
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-234f318f66d44639",
+       "kind": "ANNOTATION",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         49,
+         49
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": null
+       },
+       "member": "java.lang.String initCreationForm()",
+       "source": "BYTECODE",
+       "strength": "STRONG",
+       "text": "OwnerController.initCreationForm() is annotated @GetMapping",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      }
+     ],
+     "evidence_ids": [
+      "resp-evidence-234f318f66d44639"
+     ],
+     "rule_id": "FUNC-ENTRY-HTTP",
+     "side": "FUNCTIONAL",
+     "status": "DETECTED"
+    }
+   ],
+   "line_range": [
+    49,
+    49
+   ],
+   "name": "initCreationForm",
+   "signature": "java.lang.String initCreationForm()"
+  },
+  {
+   "labels": [
+    {
+     "category": "API_AND_APPLICATION_ENTRY",
+     "evidence": [
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-3711f77e38b8eb87",
+       "kind": "ANNOTATION",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         54,
+         60
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": null
+       },
+       "member": "java.lang.String processCreationForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+       "source": "BYTECODE",
+       "strength": "STRONG",
+       "text": "OwnerController.processCreationForm() is annotated @PostMapping",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      }
+     ],
+     "evidence_ids": [
+      "resp-evidence-3711f77e38b8eb87"
+     ],
+     "rule_id": "FUNC-ENTRY-HTTP",
+     "side": "FUNCTIONAL",
+     "status": "DETECTED"
+    },
+    {
+     "category": "BUSINESS_LOGIC",
+     "evidence": [
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-72fee63731fa1f14",
+       "kind": "STRUCTURE",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         54,
+         60
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": null
+       },
+       "member": "java.lang.String processCreationForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+       "source": "BYTECODE",
+       "strength": "MEDIUM",
+       "text": "OwnerController.processCreationForm() has 1 branch(es) and calls Owner.getId(), OwnerRepository.save()",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      }
+     ],
+     "evidence_ids": [
+      "resp-evidence-72fee63731fa1f14"
+     ],
+     "rule_id": "STRUCT-LOGIC",
+     "side": "FUNCTIONAL",
+     "status": "INFERRED"
+    },
+    {
+     "category": "BUSINESS_VALIDATION",
+     "evidence": [
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-be9666ea1fc96783",
+       "kind": "CALL",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "BYTECODE_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         54,
+         60
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": 54
+       },
+       "member": "java.lang.String processCreationForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+       "source": "BYTECODE",
+       "strength": "STRONG",
+       "text": "OwnerController.processCreationForm() calls BindingResult.hasErrors()",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      },
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-1cd0b8fc13d8e2f4",
+       "kind": "ANNOTATION",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         54,
+         60
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": null
+       },
+       "member": "java.lang.String processCreationForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+       "source": "BYTECODE",
+       "strength": "MEDIUM",
+       "text": "OwnerController.processCreationForm() has a parameter annotated @Valid",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      }
+     ],
+     "evidence_ids": [
+      "resp-evidence-be9666ea1fc96783",
+      "resp-evidence-1cd0b8fc13d8e2f4"
+     ],
+     "rule_id": "FUNC-VALIDATION-OUTCOME",
+     "side": "FUNCTIONAL",
+     "status": "DETECTED"
+    }
+   ],
+   "line_range": [
+    54,
+    60
+   ],
+   "name": "processCreationForm",
+   "signature": "java.lang.String processCreationForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.web.servlet.mvc.support.RedirectAttributes)"
+  },
+  {
+   "labels": [
+    {
+     "category": "API_AND_APPLICATION_ENTRY",
+     "evidence": [
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-bf96dd09a64a5c8c",
+       "kind": "ANNOTATION",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         65,
+         65
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": null
+       },
+       "member": "java.lang.String initFindForm()",
+       "source": "BYTECODE",
+       "strength": "STRONG",
+       "text": "OwnerController.initFindForm() is annotated @GetMapping",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      }
+     ],
+     "evidence_ids": [
+      "resp-evidence-bf96dd09a64a5c8c"
+     ],
+     "rule_id": "FUNC-ENTRY-HTTP",
+     "side": "FUNCTIONAL",
+     "status": "DETECTED"
+    }
+   ],
+   "line_range": [
+    65,
+    65
+   ],
+   "name": "initFindForm",
+   "signature": "java.lang.String initFindForm()"
+  },
+  {
+   "labels": [
+    {
+     "category": "API_AND_APPLICATION_ENTRY",
+     "evidence": [
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-7c00712255c0c260",
+       "kind": "ANNOTATION",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         71,
+         84
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": null
+       },
+       "member": "java.lang.String processFindForm(int,org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.ui.Model)",
+       "source": "BYTECODE",
+       "strength": "STRONG",
+       "text": "OwnerController.processFindForm() is annotated @GetMapping",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      }
+     ],
+     "evidence_ids": [
+      "resp-evidence-7c00712255c0c260"
+     ],
+     "rule_id": "FUNC-ENTRY-HTTP",
+     "side": "FUNCTIONAL",
+     "status": "DETECTED"
+    },
+    {
+     "category": "BUSINESS_LOGIC",
+     "evidence": [
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-5e84d1b0026c85b6",
+       "kind": "STRUCTURE",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         71,
+         84
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": null
+       },
+       "member": "java.lang.String processFindForm(int,org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.ui.Model)",
+       "source": "BYTECODE",
+       "strength": "MEDIUM",
+       "text": "OwnerController.processFindForm() has 3 branch(es) and calls Owner.getId(), Owner.getLastName(), OwnerController.addPaginationModel(), OwnerController.findPaginatedForOwnersLastName()",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      }
+     ],
+     "evidence_ids": [
+      "resp-evidence-5e84d1b0026c85b6"
+     ],
+     "rule_id": "STRUCT-LOGIC",
+     "side": "FUNCTIONAL",
+     "status": "INFERRED"
+    },
+    {
+     "category": "BUSINESS_VALIDATION",
+     "evidence": [
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-9b7a94ed9b0c3bc7",
+       "kind": "CALL",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "BYTECODE_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         71,
+         84
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": 77
+       },
+       "member": "java.lang.String processFindForm(int,org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.ui.Model)",
+       "source": "BYTECODE",
+       "strength": "STRONG",
+       "text": "OwnerController.processFindForm() calls BindingResult.rejectValue()",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      }
+     ],
+     "evidence_ids": [
+      "resp-evidence-9b7a94ed9b0c3bc7"
+     ],
+     "rule_id": "FUNC-VALIDATION-OUTCOME",
+     "side": "FUNCTIONAL",
+     "status": "DETECTED"
+    }
+   ],
+   "line_range": [
+    71,
+    84
+   ],
+   "name": "processFindForm",
+   "signature": "java.lang.String processFindForm(int,org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,org.springframework.ui.Model)"
+  },
+  {
+   "labels": [],
+   "line_range": [
+    88,
+    93
+   ],
+   "name": "addPaginationModel",
+   "signature": "java.lang.String addPaginationModel(int,org.springframework.ui.Model,org.springframework.data.domain.Page)"
+  },
+  {
+   "labels": [
+    {
+     "category": "PERFORMANCE",
+     "evidence": [
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-bedfa6d90dd0fb89",
+       "kind": "CALL",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "BYTECODE_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         97,
+         99
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": 98
+       },
+       "member": "org.springframework.data.domain.Page findPaginatedForOwnersLastName(int,java.lang.String)",
+       "source": "BYTECODE",
+       "strength": "MEDIUM",
+       "text": "OwnerController.findPaginatedForOwnersLastName() calls PageRequest.of()",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      }
+     ],
+     "evidence_ids": [
+      "resp-evidence-bedfa6d90dd0fb89"
+     ],
+     "rule_id": "PERF-PAGINATION",
+     "side": "NON_FUNCTIONAL",
+     "status": "DETECTED"
+    }
+   ],
+   "line_range": [
+    97,
+    99
+   ],
+   "name": "findPaginatedForOwnersLastName",
+   "signature": "org.springframework.data.domain.Page findPaginatedForOwnersLastName(int,java.lang.String)"
+  },
+  {
+   "labels": [
+    {
+     "category": "API_AND_APPLICATION_ENTRY",
+     "evidence": [
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-9d2b7ad59d6f835a",
+       "kind": "ANNOTATION",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         104,
+         104
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": null
+       },
+       "member": "java.lang.String initUpdateOwnerForm()",
+       "source": "BYTECODE",
+       "strength": "STRONG",
+       "text": "OwnerController.initUpdateOwnerForm() is annotated @GetMapping",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      }
+     ],
+     "evidence_ids": [
+      "resp-evidence-9d2b7ad59d6f835a"
+     ],
+     "rule_id": "FUNC-ENTRY-HTTP",
+     "side": "FUNCTIONAL",
+     "status": "DETECTED"
+    }
+   ],
+   "line_range": [
+    104,
+    104
+   ],
+   "name": "initUpdateOwnerForm",
+   "signature": "java.lang.String initUpdateOwnerForm()"
+  },
+  {
+   "labels": [
+    {
+     "category": "API_AND_APPLICATION_ENTRY",
+     "evidence": [
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-b5d2ff137985b165",
+       "kind": "ANNOTATION",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         110,
+         122
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": null
+       },
+       "member": "java.lang.String processUpdateOwnerForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,int,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+       "source": "BYTECODE",
+       "strength": "STRONG",
+       "text": "OwnerController.processUpdateOwnerForm() is annotated @PostMapping",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      }
+     ],
+     "evidence_ids": [
+      "resp-evidence-b5d2ff137985b165"
+     ],
+     "rule_id": "FUNC-ENTRY-HTTP",
+     "side": "FUNCTIONAL",
+     "status": "DETECTED"
+    },
+    {
+     "category": "BUSINESS_LOGIC",
+     "evidence": [
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-de925d6bcb985f76",
+       "kind": "STRUCTURE",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         110,
+         122
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": null
+       },
+       "member": "java.lang.String processUpdateOwnerForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,int,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+       "source": "BYTECODE",
+       "strength": "MEDIUM",
+       "text": "OwnerController.processUpdateOwnerForm() has 2 branch(es) and calls Owner.getId(), Owner.setId(), OwnerRepository.save()",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      }
+     ],
+     "evidence_ids": [
+      "resp-evidence-de925d6bcb985f76"
+     ],
+     "rule_id": "STRUCT-LOGIC",
+     "side": "FUNCTIONAL",
+     "status": "INFERRED"
+    },
+    {
+     "category": "BUSINESS_VALIDATION",
+     "evidence": [
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-9cebf764dd9613db",
+       "kind": "CALL",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "BYTECODE_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         110,
+         122
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": 110
+       },
+       "member": "java.lang.String processUpdateOwnerForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,int,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+       "source": "BYTECODE",
+       "strength": "STRONG",
+       "text": "OwnerController.processUpdateOwnerForm() calls BindingResult.hasErrors()",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      },
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-1e3e1e4f092ee9b4",
+       "kind": "CALL",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "BYTECODE_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         110,
+         122
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": 115
+       },
+       "member": "java.lang.String processUpdateOwnerForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,int,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+       "source": "BYTECODE",
+       "strength": "STRONG",
+       "text": "OwnerController.processUpdateOwnerForm() calls BindingResult.rejectValue()",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      },
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-a0adc0842258f39e",
+       "kind": "ANNOTATION",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         110,
+         122
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": null
+       },
+       "member": "java.lang.String processUpdateOwnerForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,int,org.springframework.web.servlet.mvc.support.RedirectAttributes)",
+       "source": "BYTECODE",
+       "strength": "MEDIUM",
+       "text": "OwnerController.processUpdateOwnerForm() has a parameter annotated @Valid",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      }
+     ],
+     "evidence_ids": [
+      "resp-evidence-9cebf764dd9613db",
+      "resp-evidence-1e3e1e4f092ee9b4",
+      "resp-evidence-a0adc0842258f39e"
+     ],
+     "rule_id": "FUNC-VALIDATION-OUTCOME",
+     "side": "FUNCTIONAL",
+     "status": "DETECTED"
+    }
+   ],
+   "line_range": [
+    110,
+    122
+   ],
+   "name": "processUpdateOwnerForm",
+   "signature": "java.lang.String processUpdateOwnerForm(org.springframework.samples.petclinic.owner.Owner,org.springframework.validation.BindingResult,int,org.springframework.web.servlet.mvc.support.RedirectAttributes)"
+  },
+  {
+   "labels": [
+    {
+     "category": "API_AND_APPLICATION_ENTRY",
+     "evidence": [
+      {
+       "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+       "id": "resp-evidence-9ccf59caad43559f",
+       "kind": "ANNOTATION",
+       "location": {
+        "available": false,
+        "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+        "end_line": null,
+        "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+        "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+        "member_line_range": [
+         127,
+         131
+        ],
+        "source_file": "OwnerController.java",
+        "start_line": null
+       },
+       "member": "org.springframework.web.servlet.ModelAndView showOwner(int)",
+       "source": "BYTECODE",
+       "strength": "STRONG",
+       "text": "OwnerController.showOwner() is annotated @GetMapping",
+       "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+      }
+     ],
+     "evidence_ids": [
+      "resp-evidence-9ccf59caad43559f"
+     ],
+     "rule_id": "FUNC-ENTRY-HTTP",
+     "side": "FUNCTIONAL",
+     "status": "DETECTED"
+    }
+   ],
+   "line_range": [
+    127,
+    131
+   ],
+   "name": "showOwner",
+   "signature": "org.springframework.web.servlet.ModelAndView showOwner(int)"
+  }
+ ],
+ "nested_classes": [],
+ "non_functional_responsibilities": [
+  {
+   "category": "MAINTAINABILITY",
+   "confidence": {
+    "basis": "1 detected strong evidence item(s) from rule(s) DEBT-ENTITY-IN-CONTROLLER",
+    "calibrated": false,
+    "level": "HIGH"
+   },
+   "description": "entity used directly by a controller",
+   "evidence": [
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-5d933e6da2bab3b1",
+     "kind": "METRIC",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "UNAVAILABLE",
+      "member_line_range": null,
+      "source_file": "OwnerController.java",
+      "start_line": null
+     },
+     "member": null,
+     "source": "BYTECODE",
+     "strength": "STRONG",
+     "text": "Entity used directly by a controller (uses Owner directly)",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    }
+   ],
+   "evidence_count": 1,
+   "evidence_ids": [
+    "resp-evidence-5d933e6da2bab3b1"
+   ],
+   "limit": "Structural measures indicate change cost; they are not defects by themselves.",
+   "methods": [],
+   "mixes": false,
+   "rule_ids": [
+    "DEBT-ENTITY-IN-CONTROLLER"
+   ],
+   "side": "NON_FUNCTIONAL",
+   "status": "DETECTED"
+  },
+  {
+   "category": "PERFORMANCE",
+   "confidence": {
+    "basis": "only medium-strength or single detected evidence from rule(s) PERF-PAGINATION",
+    "calibrated": false,
+    "level": "MEDIUM"
+   },
+   "description": "bounds a query result with paging",
+   "evidence": [
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-bedfa6d90dd0fb89",
+     "kind": "CALL",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "BYTECODE_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       97,
+       99
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": 98
+     },
+     "member": "org.springframework.data.domain.Page findPaginatedForOwnersLastName(int,java.lang.String)",
+     "source": "BYTECODE",
+     "strength": "MEDIUM",
+     "text": "OwnerController.findPaginatedForOwnersLastName() calls PageRequest.of()",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    }
+   ],
+   "evidence_count": 1,
+   "evidence_ids": [
+    "resp-evidence-bedfa6d90dd0fb89"
+   ],
+   "limit": "Structural indicators are not measured performance problems; use the Performance tab for measurements.",
+   "methods": [
+    "org.springframework.data.domain.Page findPaginatedForOwnersLastName(int,java.lang.String)"
+   ],
+   "mixes": false,
+   "rule_ids": [
+    "PERF-PAGINATION"
+   ],
+   "side": "NON_FUNCTIONAL",
+   "status": "DETECTED"
+  },
+  {
+   "category": "SECURITY",
+   "confidence": {
+    "basis": "1 detected strong evidence item(s) from rule(s) SEC-BINDING",
+    "calibrated": false,
+    "level": "HIGH"
+   },
+   "description": "restricts which request fields can be bound",
+   "evidence": [
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-16ca7e82b28cc2b9",
+     "kind": "CALL",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "BYTECODE_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       35,
+       36
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": 35
+     },
+     "member": "void setAllowedFields(org.springframework.web.bind.WebDataBinder)",
+     "source": "BYTECODE",
+     "strength": "STRONG",
+     "text": "OwnerController.setAllowedFields() calls WebDataBinder.setDisallowedFields()",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    }
+   ],
+   "evidence_count": 1,
+   "evidence_ids": [
+    "resp-evidence-16ca7e82b28cc2b9"
+   ],
+   "limit": "Security classes or annotations do not show that the application is secure",
+   "methods": [
+    "void setAllowedFields(org.springframework.web.bind.WebDataBinder)"
+   ],
+   "mixes": true,
+   "rule_ids": [
+    "SEC-BINDING"
+   ],
+   "side": "NON_FUNCTIONAL",
+   "status": "DETECTED"
+  },
+  {
+   "category": "TESTABILITY",
+   "confidence": {
+    "basis": "only medium-strength or single detected evidence from rule(s) STRUCT-CONSTRUCTOR-INJECTION",
+    "calibrated": false,
+    "level": "MEDIUM"
+   },
+   "description": "receives its application dependencies through its constructor",
+   "evidence": [
+    {
+     "class_name": "org.springframework.samples.petclinic.owner.OwnerController",
+     "id": "resp-evidence-3fb9299da54b9ba2",
+     "kind": "STRUCTURE",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+      "line_basis": "METHOD_BODY_RANGE_FROM_LINE_NUMBER_TABLE",
+      "member_line_range": [
+       29,
+       31
+      ],
+      "source_file": "OwnerController.java",
+      "start_line": null
+     },
+     "member": "void <init>(org.springframework.samples.petclinic.owner.OwnerRepository)",
+     "source": "BYTECODE",
+     "strength": "MEDIUM",
+     "text": "OwnerController constructor receives OwnerRepository and stores it in a final field",
+     "top_class": "org.springframework.samples.petclinic.owner.OwnerController"
+    }
+   ],
+   "evidence_count": 1,
+   "evidence_ids": [
+    "resp-evidence-3fb9299da54b9ba2"
+   ],
+   "limit": "Seams make testing easier; they say nothing about the tests that exist or their coverage.",
+   "methods": [
+    "void <init>(org.springframework.samples.petclinic.owner.OwnerRepository)"
+   ],
+   "mixes": false,
+   "rule_ids": [
+    "STRUCT-CONSTRUCTOR-INJECTION"
+   ],
+   "side": "NON_FUNCTIONAL",
+   "status": "INFERRED"
+  }
+ ],
+ "package": "org.springframework.samples.petclinic.owner",
+ "primary_classification": "MIXED",
+ "risk_ids": [
+  "resp-risk-9afbe83f6171c672",
+  "resp-risk-c405132c728f8417"
+ ],
+ "risks": [
+  {
+   "affected_components": [
+    "org.springframework.samples.petclinic.owner.OwnerController",
+    "org.springframework.samples.petclinic.owner.PetController",
+    "org.springframework.samples.petclinic.owner.VisitController",
+    "org.springframework.samples.petclinic.system.CrashController",
+    "org.springframework.samples.petclinic.system.WelcomeController",
+    "org.springframework.samples.petclinic.vet.VetController"
+   ],
+   "affected_count": 6,
+   "category": "SECURITY",
+   "confidence": {
+    "basis": "absence of any access-control reference within the analyzed bytecode; a gateway or platform control would not appear here",
+    "calibrated": false,
+    "level": "MEDIUM"
+   },
+   "consequence": "Requests that change data may be reachable without authentication or authorization unless a gateway or platform control exists.",
+   "consequence_status": "INFERRED",
+   "description": "17 HTTP entry point(s), 5 of them changing data (POST /owners/new, POST /owners/{ownerId}/edit, POST /owners/{ownerId}/pets/new, POST /owners/{ownerId}/pets/{petId}/edit), have no detectable authentication or authorization reference in 24 analyzed classes; input-binding restrictions exist in 3 class(es) (OwnerController, PetController, VisitController) but they do not control who may call",
+   "detection_status": "INFERRED",
+   "evidence_ids": [
+    "resp-evidence-56a77283d0eab28b"
+   ],
+   "id": "resp-risk-9afbe83f6171c672",
+   "investigate": "Confirm the authentication and authorization controls in front of the application, then decide whether the extracted service needs its own.",
+   "potential_impact": "A service boundary drawn here would expose these entry points without any control that moves with the code.",
+   "priority": 6,
+   "priority_basis": "HIGH by rule RISK-SEC-NO-CONTROL; ordered by the number of affected components",
+   "rule_id": "RISK-SEC-NO-CONTROL",
+   "runtime_validation_required": true,
+   "severity": "HIGH",
+   "title": "Entry points with no detectable security control"
+  },
+  {
+   "affected_components": [
+    "org.springframework.samples.petclinic.PetClinicApplication",
+    "org.springframework.samples.petclinic.model.BaseEntity",
+    "org.springframework.samples.petclinic.model.NamedEntity",
+    "org.springframework.samples.petclinic.model.Person",
+    "org.springframework.samples.petclinic.owner.Owner",
+    "org.springframework.samples.petclinic.owner.OwnerController",
+    "org.springframework.samples.petclinic.owner.OwnerRepository",
+    "org.springframework.samples.petclinic.owner.Pet",
+    "org.springframework.samples.petclinic.owner.PetController",
+    "org.springframework.samples.petclinic.owner.PetType",
+    "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+    "org.springframework.samples.petclinic.owner.PetTypeRepository",
+    "org.springframework.samples.petclinic.owner.PetValidator",
+    "org.springframework.samples.petclinic.owner.Visit",
+    "org.springframework.samples.petclinic.owner.VisitController",
+    "org.springframework.samples.petclinic.system.CacheConfiguration",
+    "org.springframework.samples.petclinic.system.CrashController",
+    "org.springframework.samples.petclinic.system.WebConfiguration",
+    "org.springframework.samples.petclinic.system.WelcomeController",
+    "org.springframework.samples.petclinic.vet.Specialty",
+    "org.springframework.samples.petclinic.vet.Vet",
+    "org.springframework.samples.petclinic.vet.VetController",
+    "org.springframework.samples.petclinic.vet.VetRepository",
+    "org.springframework.samples.petclinic.vet.Vets"
+   ],
+   "affected_count": 24,
+   "category": "OBSERVABILITY",
+   "confidence": {
+    "basis": "absence within the analyzed bytecode; output written by the framework itself would not appear here",
+    "calibrated": false,
+    "level": "MEDIUM"
+   },
+   "consequence": "Failures and slow requests may be hard to diagnose, and distributed tracing would start from nothing after an extraction.",
+   "consequence_status": "INFERRED",
+   "description": "None of the 24 analyzed classes references a logging, metrics or tracing API",
+   "detection_status": "INFERRED",
+   "evidence_ids": [
+    "resp-evidence-7cb8c60b0120fc79"
+   ],
+   "id": "resp-risk-c405132c728f8417",
+   "investigate": "Add structured logging and trace context before extracting a capability.",
+   "potential_impact": "Splitting a request across services without instrumentation makes the combined flow hard to follow.",
+   "priority": 24,
+   "priority_basis": "MEDIUM by rule RISK-OBS-NO-INSTRUMENTATION; ordered by the number of affected components",
+   "rule_id": "RISK-OBS-NO-INSTRUMENTATION",
+   "runtime_validation_required": false,
+   "severity": "MEDIUM",
+   "title": "No logging, metrics or tracing reference found"
+  }
+ ],
+ "simple_name": "OwnerController",
+ "source_location": {
+  "available": false,
+  "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+  "end_line": null,
+  "file_path": "org/springframework/samples/petclinic/owner/OwnerController.java",
+  "line_basis": "UNAVAILABLE",
+  "member_line_range": null,
+  "source_file": "OwnerController.java",
+  "start_line": null
+ },
+ "uncertainties": []
+}

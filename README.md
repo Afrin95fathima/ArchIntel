@@ -12,9 +12,10 @@ Select **Explore demo application** for the real, pre-analyzed synthetic Northst
 - SCC cycles, package/class metrics, relative god-class detection and evidence-bearing issues.
 - Candidate domains, database structural signals (JPA entities, repositories), Readiness with its component table, and a dependency-first wave sequence.
 - Interactive Cytoscape explorer, issue filters, domain details, score breakdowns and JSON export.
+- Responsibilities screen: what each class does (8 functional and 17 non-functional categories, multi-label, with DETECTED or INFERRED status, evidence with bytecode line numbers and an ordinal confidence), candidate domains classed as business, technical or mixed, shared components and risk indicators; these also feed the modernization plan, its decision brief, the report and the planning graph. See [docs/RESPONSIBILITY-ANALYSIS.md](docs/RESPONSIBILITY-ANALYSIS.md).
 - Docked architecture assistant (Ctrl/Cmd+/) that cites evidence ids such as class:, edge: and finding: and separates facts from recommendations.
 
-The default assistant answers from the 12 read-only tools listed in INSIGHT-REFERENCE.md. Optional local-model evidence selection uses the Phase 2 policy-controlled gateway; no model is required for deterministic analysis. Candidate boundaries and readiness are heuristics, and runtime SQL/traffic remain unknown.
+The default assistant answers from the 13 read-only tools listed in INSIGHT-REFERENCE.md. Optional local-model evidence selection uses the Phase 2 policy-controlled gateway; no model is required for deterministic analysis. Candidate boundaries and readiness are heuristics, and runtime SQL/traffic remain unknown.
 
 ## Evidence-driven insight views
 

@@ -33,6 +33,19 @@
   },
   "blockers": [
    {
+    "code": "CROSS_CUTTING_REVIEW",
+    "domains": [
+     "Type Owner",
+     "Owner Visit"
+    ],
+    "hard": false,
+    "meaning": "The domain owns or depends on a component that two or more domains share.",
+    "resolve": "Decide whether each shared component becomes a library or module before the domains are separated.",
+    "subjects": [
+     "PetTypeRepository"
+    ]
+   },
+   {
     "code": "RUNTIME_OBSERVATION_GAP",
     "domains": [
      "Application Clinic",
@@ -44,6 +57,54 @@
     "hard": false,
     "meaning": "The selected runtime sessions do not cover enough of the domain.",
     "resolve": "Exercise the unobserved entry points and capture a new architecture version.",
+    "subjects": [
+     "Application Clinic"
+    ]
+   },
+   {
+    "code": "SECURITY_CONTROL_REVIEW",
+    "domains": [
+     "Vet",
+     "Owner Visit"
+    ],
+    "hard": false,
+    "meaning": "Entry points of the domain have no detectable authentication or authorization reference in the bytecode.",
+    "resolve": "Confirm the access controls in front of the application and decide where an extracted service enforces them.",
+    "subjects": [
+     "CrashController",
+     "OwnerController",
+     "PetController",
+     "VetController",
+     "VisitController",
+     "WelcomeController"
+    ]
+   },
+   {
+    "code": "SHARED_DATA_MODEL_REVIEW",
+    "domains": [
+     "Type Owner",
+     "Vet",
+     "Owner Visit"
+    ],
+    "hard": false,
+    "meaning": "Persistent classes of this domain are used by another domain, or it uses persistent classes assigned to another domain.",
+    "resolve": "Decide which domain owns the data, then share it as a library or replace it with a published contract.",
+    "subjects": [
+     "NamedEntity",
+     "Pet",
+     "PetController",
+     "PetType"
+    ]
+   },
+   {
+    "code": "TECHNICAL_DOMAIN_REVIEW",
+    "domains": [
+     "Application Clinic",
+     "System Configuration"
+    ],
+    "hard": false,
+    "meaning": "The candidate domain holds technical concerns rather than a business capability.",
+    "resolve": "Decide whether it stays as shared configuration or a library instead of becoming a service.",
     "subjects": [
      "Application Clinic"
     ]
@@ -119,188 +180,188 @@
   "effort_range": "Heuristic bands: M, S",
   "evidence": [
    {
-    "id": "00c3fd5c-e556-5b0f-911a-fcbfd5739255",
+    "id": "018bcfe0-2640-5e02-9e5a-ea83ce0768d2",
     "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.Visit",
-    "target": "org.springframework.samples.petclinic.model.BaseEntity"
+    "source": "org.springframework.samples.petclinic.owner.OwnerController",
+    "target": "org.springframework.samples.petclinic.owner.Owner"
    },
    {
-    "id": "08ea4f4a-9e85-5602-bbbb-997815b7ba22",
+    "id": "02b07339-b9da-513f-8b08-227912800a19",
     "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.Visit",
-    "target": "org.springframework.samples.petclinic.model.BaseEntity"
+    "source": "org.springframework.samples.petclinic.owner.VisitController",
+    "target": "org.springframework.samples.petclinic.owner.Visit"
    },
    {
-    "id": "0fcc0528-41d5-5855-94bc-e69962b0b2d7",
+    "id": "0869da60-cd89-5f87-bc68-f94822184731",
     "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.model.Person",
-    "target": "org.springframework.samples.petclinic.model.BaseEntity"
+    "source": "org.springframework.samples.petclinic.owner.Owner",
+    "target": "org.springframework.samples.petclinic.owner.Pet"
    },
    {
-    "id": "1683d88e-f55a-5eba-acb8-c9534c8cb0dc",
+    "id": "08c791f7-9062-5ba4-8b26-15acb7ef1cf9",
     "kind": "STATIC",
-    "source": "analysis",
-    "target": "org.springframework.samples.petclinic.vet.Vet"
+    "source": "org.springframework.samples.petclinic.owner.PetController",
+    "target": "org.springframework.samples.petclinic.owner.PetTypeRepository"
    },
    {
-    "id": "222ccc7e-90aa-5ee6-a34c-d53871a58699",
+    "id": "09254e1a-0b22-54f3-8c5d-8b5ec0758861",
     "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.vet.VetRepository",
-    "target": "org.springframework.samples.petclinic.vet.Vet"
+    "source": "org.springframework.samples.petclinic.owner.Pet",
+    "target": "org.springframework.samples.petclinic.owner.PetType"
    },
    {
-    "id": "23891a6e-b06a-5758-8ae2-9f578bd3c68e",
-    "kind": "STATIC",
-    "source": "analysis",
-    "target": "org.springframework.samples.petclinic.vet.Specialty"
-   },
-   {
-    "id": "2a4df973-1d0f-5572-8b4b-bf1b903b8c89",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.model.NamedEntity",
-    "target": "org.springframework.samples.petclinic.model.BaseEntity"
-   },
-   {
-    "id": "38571f3a-e446-5335-95f0-72b800dbf554",
-    "kind": "COVERAGE",
-    "source": "analysis",
-    "target": "domain-88320003e6c6ba0d"
-   },
-   {
-    "id": "4404fc59-2950-5a4f-96a6-9d23e07b5273",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.vet.VetController",
-    "target": "org.springframework.samples.petclinic.vet.Vets"
-   },
-   {
-    "id": "490598bb-9478-5c0e-a2e9-df0d3139ea69",
+    "id": "0c8333a2-f418-5d74-9251-60e0c6f63dfd",
     "kind": "STATIC",
     "source": "org.springframework.samples.petclinic.owner.Pet",
     "target": "org.springframework.samples.petclinic.model.NamedEntity"
    },
    {
-    "id": "4d8b987d-8bca-5ce9-9344-bb9607809173",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.model.Person",
-    "target": "org.springframework.samples.petclinic.model.BaseEntity"
-   },
-   {
-    "id": "537fe663-9f7c-5fe7-98ff-c663c969e2ce",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.vet.VetController",
-    "target": "org.springframework.samples.petclinic.vet.VetRepository"
-   },
-   {
-    "id": "54622956-46d3-5225-8106-fce4f1f0cfef",
-    "kind": "STATIC",
-    "source": "analysis",
-    "target": "org.springframework.samples.petclinic.vet.VetRepository"
-   },
-   {
-    "id": "5599c77d-242e-54d1-8069-baf060defef2",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.vet.Vet",
-    "target": "org.springframework.samples.petclinic.vet.Specialty"
-   },
-   {
-    "id": "56b88363-c5cf-529e-a07d-d23eefa517ea",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.PetType",
-    "target": "org.springframework.samples.petclinic.model.NamedEntity"
-   },
-   {
-    "id": "5990b38f-3251-5e53-be49-1cbb07a1559c",
+    "id": "1035a8c6-9d86-552f-8e85-205093105f4a",
     "kind": "STATIC",
     "source": "org.springframework.samples.petclinic.owner.Pet",
     "target": "org.springframework.samples.petclinic.model.NamedEntity"
    },
    {
-    "id": "61c1a84a-60ca-5df5-97b7-ffdf99019871",
+    "id": "152f2a32-4b9c-574f-9930-9161a941ff2e",
     "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.vet.VetController",
-    "target": "org.springframework.samples.petclinic.vet.VetRepository"
+    "source": "org.springframework.samples.petclinic.owner.Pet",
+    "target": "org.springframework.samples.petclinic.owner.PetType"
    },
    {
-    "id": "680b81f9-47f1-574d-a36f-4f903ab42146",
+    "id": "18bd616e-3f81-5285-b4bb-d6140def2a20",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.Visit",
+    "target": "org.springframework.samples.petclinic.model.BaseEntity"
+   },
+   {
+    "id": "20477047-0ebe-55c2-a089-cb5633066410",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetController",
+    "target": "org.springframework.samples.petclinic.owner.Pet"
+   },
+   {
+    "id": "211b4387-073b-59b6-a849-820dfaa261d3",
+    "kind": "STATIC",
+    "source": "analysis",
+    "target": "org.springframework.samples.petclinic.owner.OwnerController"
+   },
+   {
+    "id": "25a2b44f-d1bf-562f-b889-dcb01f0c7c00",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetController",
+    "target": "org.springframework.samples.petclinic.owner.Pet"
+   },
+   {
+    "id": "270cc015-c474-5285-b0f3-04f485099f78",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.Owner",
+    "target": "org.springframework.samples.petclinic.owner.Pet"
+   },
+   {
+    "id": "27e5094e-5f1a-5cc4-9062-dacba5eab3d4",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetController",
+    "target": "org.springframework.samples.petclinic.owner.OwnerRepository"
+   },
+   {
+    "id": "2f966227-5c2c-551b-8516-3efd06124316",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetController",
+    "target": "org.springframework.samples.petclinic.owner.Owner"
+   },
+   {
+    "id": "30ee14af-ee39-5091-bf3a-64241b9428b9",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetController",
+    "target": "org.springframework.samples.petclinic.owner.Owner"
+   },
+   {
+    "id": "31813724-337d-5dd1-ae0c-50f42eb948e3",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetValidator",
+    "target": "org.springframework.samples.petclinic.owner.Pet"
+   },
+   {
+    "id": "38d88566-a625-5d36-ba02-4480b973755a",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.Owner",
+    "target": "org.springframework.samples.petclinic.owner.Visit"
+   },
+   {
+    "id": "3d08b66d-c15c-578a-bd44-ed283915c3e3",
     "kind": "STATIC",
     "source": "org.springframework.samples.petclinic.owner.Owner",
     "target": "org.springframework.samples.petclinic.model.Person"
    },
    {
-    "id": "6bbf14f9-1a41-5546-a3b9-be620ed682ce",
+    "id": "41d4576f-01ea-50cf-9ad7-1004335c7770",
     "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.model.NamedEntity",
-    "target": "org.springframework.samples.petclinic.model.BaseEntity"
+    "source": "org.springframework.samples.petclinic.owner.Owner",
+    "target": "org.springframework.samples.petclinic.owner.Pet"
    },
    {
-    "id": "6fe1f983-bf04-5e2f-85b5-ba64d97141f7",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.vet.VetController",
-    "target": "org.springframework.samples.petclinic.vet.Vet"
-   },
-   {
-    "id": "8b1b8fea-8c9f-5e06-90ff-b3cc954de92c",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.vet.VetController",
-    "target": "org.springframework.samples.petclinic.vet.VetRepository"
-   },
-   {
-    "id": "8d37b2ef-2246-53b1-a304-da951347afea",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.vet.Specialty",
-    "target": "org.springframework.samples.petclinic.model.NamedEntity"
-   },
-   {
-    "id": "94fe9a13-7db5-5f86-ac3e-c1f7c0ac6a3c",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.vet.Vet",
-    "target": "org.springframework.samples.petclinic.model.Person"
-   },
-   {
-    "id": "97bf88b2-c951-568d-988c-d4e92cc94a57",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.vet.Vet",
-    "target": "org.springframework.samples.petclinic.vet.Specialty"
-   },
-   {
-    "id": "a13275ca-8fd3-5eb2-a887-efbb64e28af5",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.vet.Vets",
-    "target": "org.springframework.samples.petclinic.vet.Vet"
-   },
-   {
-    "id": "a727172e-415e-56ee-b30a-682cc13d4a2e",
-    "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.vet.Vet",
-    "target": "org.springframework.samples.petclinic.model.Person"
-   },
-   {
-    "id": "b0d5f990-3f65-5a84-8ffa-aa71265ed106",
+    "id": "45ef6116-9c5a-5a1d-abec-8e2e486f4c6a",
     "kind": "STATIC",
     "source": "analysis",
-    "target": "org.springframework.samples.petclinic.vet.VetController"
+    "target": "org.springframework.samples.petclinic.owner.VisitController"
    },
    {
-    "id": "c06ecc94-e4d4-5aa9-b435-7f06af540fdf",
+    "id": "49931e26-3fa7-50d2-8d9f-542285048ea3",
     "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.vet.Vet",
-    "target": "org.springframework.samples.petclinic.vet.Specialty"
+    "source": "org.springframework.samples.petclinic.owner.OwnerController",
+    "target": "org.springframework.samples.petclinic.owner.Owner"
    },
    {
-    "id": "c33be47e-26e2-5674-baa9-2f528dcad886",
+    "id": "4ff2b748-42ed-561c-aa1f-6af71794c102",
     "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.owner.PetType",
-    "target": "org.springframework.samples.petclinic.model.NamedEntity"
+    "source": "org.springframework.samples.petclinic.owner.PetController",
+    "target": "org.springframework.samples.petclinic.owner.OwnerRepository"
    },
    {
-    "id": "c3eedf69-3d5c-5864-bec2-1b8181d1bfde",
+    "id": "5039ce51-d5a9-5d6d-b800-8941e0e2bcec",
     "kind": "STATIC",
-    "source": "org.springframework.samples.petclinic.vet.Specialty",
-    "target": "org.springframework.samples.petclinic.model.NamedEntity"
+    "source": "org.springframework.samples.petclinic.owner.PetController",
+    "target": "org.springframework.samples.petclinic.owner.Pet"
+   },
+   {
+    "id": "52789565-3e8c-547b-80e4-1e710e8aee80",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.VisitController",
+    "target": "org.springframework.samples.petclinic.owner.OwnerRepository"
+   },
+   {
+    "id": "53267572-2b65-5b07-9895-5ab6bf83e8f1",
+    "kind": "STATIC",
+    "source": "analysis",
+    "target": "org.springframework.samples.petclinic.owner.PetController"
+   },
+   {
+    "id": "5bd19fd2-9641-53af-b553-4bffcc5a48d3",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.VisitController",
+    "target": "org.springframework.samples.petclinic.owner.Pet"
+   },
+   {
+    "id": "5e09c00a-12d1-5533-87d6-6bd021ac8fbf",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.PetController",
+    "target": "org.springframework.samples.petclinic.owner.PetValidator"
+   },
+   {
+    "id": "5f09e2ff-8d59-5c08-aac7-b745dadc72f3",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.OwnerController",
+    "target": "org.springframework.samples.petclinic.owner.Owner"
+   },
+   {
+    "id": "62a7b97e-fed2-58b8-bffc-a1b2927a8815",
+    "kind": "STATIC",
+    "source": "org.springframework.samples.petclinic.owner.VisitController",
+    "target": "org.springframework.samples.petclinic.owner.Visit"
    }
   ],
   "evidence_scope": {
-   "architecture_version_id": "489c989f-ec39-43d0-ae59-1f1d1eaf6045",
+   "architecture_version_id": "aad8cb70-3eed-41cd-b378-db62fcdb7057",
    "domain_count": 5,
    "evidence_count": 441,
    "fact_count": 35,
@@ -311,25 +372,25 @@
     "id": "actions_domain-2",
     "label": "Application Clinic blockers",
     "source": "plan: assessments[].blockers",
-    "text": "5",
+    "text": "6",
     "unit": "",
-    "value": 5
+    "value": 6
    },
    {
     "id": "actions_domain-8",
     "label": "Vet blockers",
     "source": "plan: assessments[].blockers",
-    "text": "5",
+    "text": "7",
     "unit": "",
-    "value": 5
+    "value": 7
    },
    {
     "id": "actions_domain-c",
     "label": "System Configuration blockers",
     "source": "plan: assessments[].blockers",
-    "text": "5",
+    "text": "6",
     "unit": "",
-    "value": 5
+    "value": 6
    },
    {
     "id": "aging_spring-boot",
@@ -356,12 +417,44 @@
     "value": 0
    },
    {
+    "id": "blocker_CROSS_CUTTING_REVIEW",
+    "label": "CROSS_CUTTING_REVIEW domains",
+    "source": "plan: assessments[].blockers",
+    "text": "2",
+    "unit": "",
+    "value": 2
+   },
+   {
     "id": "blocker_RUNTIME_OBSERVATION_GAP",
     "label": "RUNTIME_OBSERVATION_GAP domains",
     "source": "plan: assessments[].blockers",
     "text": "5",
     "unit": "",
     "value": 5
+   },
+   {
+    "id": "blocker_SECURITY_CONTROL_REVIEW",
+    "label": "SECURITY_CONTROL_REVIEW domains",
+    "source": "plan: assessments[].blockers",
+    "text": "2",
+    "unit": "",
+    "value": 2
+   },
+   {
+    "id": "blocker_SHARED_DATA_MODEL_REVIEW",
+    "label": "SHARED_DATA_MODEL_REVIEW domains",
+    "source": "plan: assessments[].blockers",
+    "text": "3",
+    "unit": "",
+    "value": 3
+   },
+   {
+    "id": "blocker_TECHNICAL_DOMAIN_REVIEW",
+    "label": "TECHNICAL_DOMAIN_REVIEW domains",
+    "source": "plan: assessments[].blockers",
+    "text": "2",
+    "unit": "",
+    "value": 2
    },
    {
     "id": "classes",
@@ -444,12 +537,132 @@
     "value": 15
    },
    {
+    "id": "more_ba031ee3",
+    "label": "Further items not listed by name",
+    "source": "brief: length of the listed set",
+    "text": "3",
+    "unit": "",
+    "value": 3
+   },
+   {
+    "id": "more_ce6a6a97",
+    "label": "Further items not listed by name",
+    "source": "brief: length of the listed set",
+    "text": "1",
+    "unit": "",
+    "value": 1
+   },
+   {
+    "id": "more_d31553b5",
+    "label": "Further items not listed by name",
+    "source": "brief: length of the listed set",
+    "text": "2",
+    "unit": "",
+    "value": 2
+   },
+   {
     "id": "more_fd811fc2",
     "label": "Further items not listed by name",
     "source": "brief: length of the listed set",
     "text": "1",
     "unit": "",
     "value": 1
+   },
+   {
+    "id": "nfr_aff_risk_data_shared_model",
+    "label": "Persistent classes shared across candidate domains affected components",
+    "source": "responsibility analysis: risks",
+    "text": "8",
+    "unit": "",
+    "value": 8
+   },
+   {
+    "id": "nfr_aff_risk_maint_shared_component",
+    "label": "Shared component used from two or more candidate domains affected components",
+    "source": "responsibility analysis: risks",
+    "text": "1",
+    "unit": "",
+    "value": 1
+   },
+   {
+    "id": "nfr_aff_risk_obs_no_instrumentation",
+    "label": "No logging, metrics or tracing reference found affected components",
+    "source": "responsibility analysis: risks",
+    "text": "10",
+    "unit": "",
+    "value": 10
+   },
+   {
+    "id": "nfr_aff_risk_perf_unbounded_query",
+    "label": "Repository query that returns a whole collection affected components",
+    "source": "responsibility analysis: risks",
+    "text": "2",
+    "unit": "",
+    "value": 2
+   },
+   {
+    "id": "nfr_aff_risk_sec_no_control",
+    "label": "Entry points with no detectable security control affected components",
+    "source": "responsibility analysis: risks",
+    "text": "6",
+    "unit": "",
+    "value": 6
+   },
+   {
+    "id": "nfr_high",
+    "label": "High non-functional risks",
+    "source": "responsibility analysis: risks",
+    "text": "4",
+    "unit": "",
+    "value": 4
+   },
+   {
+    "id": "nfr_libraries",
+    "label": "Libraries used across domains",
+    "source": "responsibility analysis: cross-cutting components",
+    "text": "6",
+    "unit": "",
+    "value": 6
+   },
+   {
+    "id": "nfr_medium",
+    "label": "Medium non-functional risks",
+    "source": "responsibility analysis: risks",
+    "text": "4",
+    "unit": "",
+    "value": 4
+   },
+   {
+    "id": "nfr_risks",
+    "label": "Non-functional risk indicators",
+    "source": "responsibility analysis: risks",
+    "text": "8",
+    "unit": "",
+    "value": 8
+   },
+   {
+    "id": "nfr_runtime",
+    "label": "Risks needing runtime validation",
+    "source": "responsibility analysis: risks",
+    "text": "3",
+    "unit": "",
+    "value": 3
+   },
+   {
+    "id": "nfr_shared",
+    "label": "Components shared across domains",
+    "source": "responsibility analysis: cross-cutting components",
+    "text": "5",
+    "unit": "",
+    "value": 5
+   },
+   {
+    "id": "nfr_technical",
+    "label": "Domains holding technical concerns",
+    "source": "responsibility analysis: capabilities",
+    "text": "2",
+    "unit": "",
+    "value": 2
    },
    {
     "id": "observation_threshold",
@@ -704,11 +917,11 @@
   "material_risks": [
    {
     "finding_ids": [
-     "02949143-0fb8-55e2-8d5c-8d8da343c4da",
-     "7e0cb66b-fc93-5e0a-83b1-1e72d50fe358",
-     "80f804cc-297d-501b-856f-020eccac7e72",
-     "bfdbacf5-df89-51be-8c2c-317041e50372",
-     "fa87b162-7303-5647-bc12-968324e6a5a6"
+     "0ffac8fb-1ece-527f-a953-aede9924dcee",
+     "1c193bd5-023d-5428-bc2a-26bc9c89e1b1",
+     "2f08925a-4bd0-5310-b1de-6afd569cb43e",
+     "52e1389c-282c-564f-8f2d-9f2c0ef82c17",
+     "994d3fce-d8f2-58ba-ac76-08faf2e1affa"
     ],
     "message": "LIMITED_OBSERVATION in Application Clinic, Owner Visit, System Configuration, Type Owner, Vet: Selected sessions observed 0 of 1 classes of Application Clinic (0.0%, minimum 80%)."
    }
@@ -716,17 +929,23 @@
   "names": [
    "Application Clinic",
    "BEHAVIORAL_CONTRACTS",
+   "BaseEntity",
    "CLOUD_REFACTOR",
+   "CROSS_CUTTING_REVIEW",
    "CrashController.triggerException()",
    "DATA_OWNERSHIP_REVIEW",
+   "Entry points with no detectable security control",
    "FRAMEWORK_UPGRADE",
    "HUMAN_CHANGE_APPROVAL",
    "HYBRID",
    "JAVA_UPGRADE",
+   "Jakarta Persistence",
    "Java 17",
    "Java 21 or Java 25 (LTS)",
    "MICROSERVICES",
    "MODULAR_MONOLITH",
+   "NamedEntity",
+   "No logging, metrics or tracing reference found",
    "Owner Visit",
    "OwnerController.initCreationForm()",
    "OwnerController.initFindForm()",
@@ -736,24 +955,42 @@
    "OwnerController.processUpdateOwnerForm()",
    "OwnerController.showOwner()",
    "PINNED_SOURCE_AND_PASSING_BUILD",
+   "Persistent classes shared across candidate domains",
+   "Person",
    "PetClinicApplication.main()",
    "PetController.initCreationForm()",
    "PetController.initUpdateForm()",
    "PetController.processCreationForm()",
    "PetController.processUpdateForm()",
+   "PetType",
+   "PetTypeRepository",
    "RUNTIME_OBSERVATION_GAP",
+   "Repository query that returns a whole collection",
+   "SECURITY_CONTROL_REVIEW",
+   "SHARED_DATA_MODEL_REVIEW",
+   "Shared component used from two or more candidate domains",
    "Spring Boot",
+   "Spring Data",
+   "Spring Web MVC",
+   "Spring cache and JCache",
+   "Spring core and boot",
    "System Configuration",
+   "TECHNICAL_DOMAIN_REVIEW",
    "Type Owner",
+   "Validation",
    "Vet",
    "VetController.showResourcesVetList()",
    "VetController.showVetList()",
    "VisitController.initNewVisitForm()",
    "VisitController.processNewVisitForm()",
    "WelcomeController.welcome()",
+   "configuration files and values",
+   "gateway, platform and network controls",
+   "runtime behavior, load and failure handling",
+   "source code of the shared components",
    "the analyzed artifact"
   ],
-  "next_step": "Start with System Configuration: COLLECT_MORE_EVIDENCE (5 blockers); then resolve the blockers listed under \"Blockers and prerequisites\".",
+  "next_step": "Start with System Configuration: COLLECT_MORE_EVIDENCE (6 blockers); then resolve the blockers listed under \"Blockers and prerequisites\".",
   "numbers_check": {
    "unregistered": []
   },
@@ -774,11 +1011,11 @@
    {
     "blockers": [],
     "finding_ids": [
-     "33783b81-7bbc-5fb7-b51f-bb8aff4d6ee5",
-     "48481eec-213b-58b1-9c63-710ee149ce2b",
-     "63fbef2a-c9b9-5ab4-9bbb-e5765178144e",
-     "7c3846e9-96a5-5494-8e48-cb4194213151",
-     "7e445a50-68ff-56bb-9191-f1632f555e4a"
+     "34ee8050-809a-5b30-a1b3-f2860cd9592f",
+     "47621212-675d-5f5b-ae46-32b09079c0a2",
+     "a584e22d-1cf6-5719-a52d-6f6d5fd90c0b",
+     "bd4cc8d9-e766-5be6-b3d2-6b0a5e13c89b",
+     "dc5816f6-f2d1-542c-96bc-683b1d40b899"
     ],
     "recommended": false,
     "selected_by_user": false,
@@ -787,17 +1024,17 @@
     "tradeoffs": [
      "Turns 15 cross-domain dependency edges between 3 domain pairs into remote calls.",
      "No database resource is called by more than one domain in the selected evidence.",
-     "No domain is in a dependency cycle."
+     "None of the 5 domains is in a dependency cycle."
     ]
    },
    {
     "blockers": [],
     "finding_ids": [
-     "33783b81-7bbc-5fb7-b51f-bb8aff4d6ee5",
-     "48481eec-213b-58b1-9c63-710ee149ce2b",
-     "63fbef2a-c9b9-5ab4-9bbb-e5765178144e",
-     "7c3846e9-96a5-5494-8e48-cb4194213151",
-     "7e445a50-68ff-56bb-9191-f1632f555e4a"
+     "34ee8050-809a-5b30-a1b3-f2860cd9592f",
+     "47621212-675d-5f5b-ae46-32b09079c0a2",
+     "a584e22d-1cf6-5719-a52d-6f6d5fd90c0b",
+     "bd4cc8d9-e766-5be6-b3d2-6b0a5e13c89b",
+     "dc5816f6-f2d1-542c-96bc-683b1d40b899"
     ],
     "recommended": false,
     "selected_by_user": false,
@@ -815,7 +1052,7 @@
     "status": "INSUFFICIENT_EVIDENCE",
     "strategy": "CLOUD_REFACTOR",
     "tradeoffs": [
-     "The target platform, deployment constraints and cost objectives were not supplied, so no cloud trade-off can be measured."
+     "No target platform, deployment constraint or cost objective was supplied for the analyzed artifact, so no cloud trade-off can be measured."
     ]
    },
    {
@@ -877,7 +1114,7 @@
    },
    "cycle_count": {
     "baseline": 0,
-    "basis": "Proposed target; retain zero if already zero.",
+    "basis": "Proposed target: no cycle remains (baseline 0).",
     "target": 0
    },
    "god_class_count": {
@@ -972,9 +1209,9 @@
     "id": "options",
     "paragraphs": [
      "MODULAR_MONOLITH (requested) (recommended): Keeps one deployment unit: the 15 cross-domain dependency edges stay in-process and become module contracts. No domain has a hard blocker.",
-     "MICROSERVICES: Turns 15 cross-domain dependency edges between 3 domain pairs into remote calls. No database resource is called by more than one domain in the selected evidence. No domain is in a dependency cycle.",
+     "MICROSERVICES: Turns 15 cross-domain dependency edges between 3 domain pairs into remote calls. No database resource is called by more than one domain in the selected evidence. None of the 5 domains is in a dependency cycle.",
      "HYBRID: No domain is ready for extraction now; all 5 stay in-process until their blockers are resolved.",
-     "CLOUD_REFACTOR: The target platform, deployment constraints and cost objectives were not supplied, so no cloud trade-off can be measured.",
+     "CLOUD_REFACTOR: No target platform, deployment constraint or cost objective was supplied for the analyzed artifact, so no cloud trade-off can be measured.",
      "JAVA_UPGRADE: Class files target Java 17 (aging) in 24 classes; the rules recommend Java 21 or Java 25 (LTS).",
      "FRAMEWORK_UPGRADE: 1 technology flagged: Spring Boot aging (1 class)."
     ],
@@ -990,13 +1227,33 @@
    {
     "id": "blockers",
     "paragraphs": [
+     "CROSS_CUTTING_REVIEW (blocker) affects 2 of 5 domains (Type Owner, Owner Visit): The domain owns or depends on a component that two or more domains share. Resolve: Decide whether each shared component becomes a library or module before the domains are separated.",
      "RUNTIME_OBSERVATION_GAP (blocker) affects 5 of 5 domains (Application Clinic, Type Owner, Vet, Owner Visit and 1 more): The selected runtime sessions do not cover enough of the domain. Resolve: Exercise the unobserved entry points and capture a new architecture version.",
+     "SECURITY_CONTROL_REVIEW (blocker) affects 2 of 5 domains (Vet, Owner Visit): Entry points of the domain have no detectable authentication or authorization reference in the bytecode. Resolve: Confirm the access controls in front of the application and decide where an extracted service enforces them.",
+     "SHARED_DATA_MODEL_REVIEW (blocker) affects 3 of 5 domains (Type Owner, Vet, Owner Visit): Persistent classes of this domain are used by another domain, or it uses persistent classes assigned to another domain. Resolve: Decide which domain owns the data, then share it as a library or replace it with a published contract.",
+     "TECHNICAL_DOMAIN_REVIEW (blocker) affects 2 of 5 domains (Application Clinic, System Configuration): The candidate domain holds technical concerns rather than a business capability. Resolve: Decide whether it stays as shared configuration or a library instead of becoming a service.",
      "PINNED_SOURCE_AND_PASSING_BUILD: The exact source revision is not pinned and a clean build is not confirmed. Resolve: Record the repository commit and run the normal build pipeline.",
      "BEHAVIORAL_CONTRACTS: No behavioral contract tests protect the domain's user-visible behavior. Resolve: Add representative API and workflow tests before changing boundaries.",
      "DATA_OWNERSHIP_REVIEW: Write authority for the domain's data is not confirmed. Resolve: Review entities, repositories, transactions and database permissions with their owners.",
      "HUMAN_CHANGE_APPROVAL: No reviewer has approved this proposal for implementation. Resolve: Obtain explicit architecture and product-owner review."
     ],
     "title": "Blockers and prerequisites"
+   },
+   {
+    "id": "nonfunctional",
+    "paragraphs": [
+     "8 non-functional risk indicators were derived from the bytecode of the analyzed artifact: 4 high and 4 medium. They are structural indicators, not measurements; 3 of them need runtime validation before they are acted on.",
+     "Persistent classes shared across candidate domains (high, detected): affects 8 components in Owner Visit, Type Owner, Vet.",
+     "Entry points with no detectable security control (high, inferred): affects 6 components in Owner Visit, System Configuration, Vet.",
+     "No logging, metrics or tracing reference found (medium, inferred): affects 10 components in Application Clinic, Owner Visit, System Configuration and 2 more.",
+     "Repository query that returns a whole collection (medium, detected): affects 2 components in Type Owner, Vet.",
+     "Shared component used from two or more candidate domains (medium, detected): affects 1 component in Type Owner.",
+     "2 candidate domains (Application Clinic, System Configuration) hold technical concerns rather than a business capability; keep them as shared configuration or libraries, not services.",
+     "5 components (NamedEntity, PetType, BaseEntity, Person and 1 more) are used by two or more domains; decide on a library, a module or an owner before separating those domains, because a service would add a network call to every user.",
+     "6 libraries (Spring core and boot, Jakarta Persistence, Spring Web MVC and 3 more) already cross domain boundaries as ordinary dependencies; each extracted service includes them and none is a service candidate.",
+     "Not examined: configuration files and values; runtime behavior, load and failure handling; gateway, platform and network controls; source code of the shared components. A control that does not appear in the bytecode is not proven absent."
+    ],
+    "title": "Non-functional constraints"
    },
    {
     "id": "risks",
@@ -1023,10 +1280,10 @@
     "id": "unknowns",
     "paragraphs": [
      "Behavioral validation is not measured for 5 of 5 domains: no behavioral contract tests are recorded for this version.",
-     "Cohesion is not measured for 2 of 5 domains (Application Clinic, System Configuration): the domain has no dependency edges, so the internal share has no denominator.",
-     "Data independence is not measured for 3 of 5 domains (Application Clinic, System Configuration, Vet): no repository class or data-access reference was found; absence does not prove independence.",
+     "Cohesion is not measured for 2 of 5 domains (Application Clinic, System Configuration): Application Clinic has no dependency edges, so the internal share has no denominator; System Configuration has no dependency edges, so the internal share has no denominator.",
+     "Data independence is not measured for 3 of 5 domains (Application Clinic, System Configuration, Vet): no repository class or data-access reference was found in Application Clinic; absence does not prove independence; no repository class or data-access reference was found in System Configuration; absence does not prove independence; no repository class or data-access reference was found in Vet; absence does not prove independence.",
      "Data ownership review is not measured for 5 of 5 domains: no data-ownership review is recorded for this version.",
-     "Decoupling is not measured for 2 of 5 domains (Application Clinic, System Configuration): the domain has no dependency edges, so the outgoing share has no denominator.",
+     "Decoupling is not measured for 2 of 5 domains (Application Clinic, System Configuration): Application Clinic has no dependency edges, so the outgoing share has no denominator; System Configuration has no dependency edges, so the outgoing share has no denominator.",
      "Resolved dependency references is not measured for 2 of 5 domains (Application Clinic, System Configuration): Application Clinic has no dependency facts; System Configuration has no dependency facts.",
      "Runtime data quality is not measured for 5 of 5 domains: the accepted span count is not recorded in this version.",
      "Which user-visible workflows of the analyzed artifact must stay unchanged? No behavioral contract tests are recorded."
@@ -1051,18 +1308,18 @@
     "unknowns": [
      "Which user-visible workflows of the analyzed artifact must stay unchanged? No behavioral contract tests are recorded.",
      "Behavioral validation is not measured for 5 of 5 domains: no behavioral contract tests are recorded for this version.",
-     "Cohesion is not measured for 2 of 5 domains (Application Clinic, System Configuration): the domain has no dependency edges, so the internal share has no denominator."
+     "Cohesion is not measured for 2 of 5 domains (Application Clinic, System Configuration): Application Clinic has no dependency edges, so the internal share has no denominator; System Configuration has no dependency edges, so the internal share has no denominator."
     ]
    },
    {
     "finding_ids": [
-     "33783b81-7bbc-5fb7-b51f-bb8aff4d6ee5",
-     "48481eec-213b-58b1-9c63-710ee149ce2b",
-     "63fbef2a-c9b9-5ab4-9bbb-e5765178144e",
-     "7c3846e9-96a5-5494-8e48-cb4194213151",
-     "7e445a50-68ff-56bb-9191-f1632f555e4a"
+     "34ee8050-809a-5b30-a1b3-f2860cd9592f",
+     "47621212-675d-5f5b-ae46-32b09079c0a2",
+     "a584e22d-1cf6-5719-a52d-6f6d5fd90c0b",
+     "bd4cc8d9-e766-5be6-b3d2-6b0a5e13c89b",
+     "dc5816f6-f2d1-542c-96bc-683b1d40b899"
     ],
-    "rationale": "Turns 15 cross-domain dependency edges between 3 domain pairs into remote calls. No database resource is called by more than one domain in the selected evidence. No domain is in a dependency cycle.",
+    "rationale": "Turns 15 cross-domain dependency edges between 3 domain pairs into remote calls. No database resource is called by more than one domain in the selected evidence. None of the 5 domains is in a dependency cycle.",
     "recommended": false,
     "selected_by_user": false,
     "status": "CONDITIONAL",
@@ -1070,21 +1327,21 @@
     "tradeoffs": [
      "Turns 15 cross-domain dependency edges between 3 domain pairs into remote calls.",
      "No database resource is called by more than one domain in the selected evidence.",
-     "No domain is in a dependency cycle."
+     "None of the 5 domains is in a dependency cycle."
     ],
     "unknowns": [
      "Which user-visible workflows of the analyzed artifact must stay unchanged? No behavioral contract tests are recorded.",
      "Behavioral validation is not measured for 5 of 5 domains: no behavioral contract tests are recorded for this version.",
-     "Cohesion is not measured for 2 of 5 domains (Application Clinic, System Configuration): the domain has no dependency edges, so the internal share has no denominator."
+     "Cohesion is not measured for 2 of 5 domains (Application Clinic, System Configuration): Application Clinic has no dependency edges, so the internal share has no denominator; System Configuration has no dependency edges, so the internal share has no denominator."
     ]
    },
    {
     "finding_ids": [
-     "33783b81-7bbc-5fb7-b51f-bb8aff4d6ee5",
-     "48481eec-213b-58b1-9c63-710ee149ce2b",
-     "63fbef2a-c9b9-5ab4-9bbb-e5765178144e",
-     "7c3846e9-96a5-5494-8e48-cb4194213151",
-     "7e445a50-68ff-56bb-9191-f1632f555e4a"
+     "34ee8050-809a-5b30-a1b3-f2860cd9592f",
+     "47621212-675d-5f5b-ae46-32b09079c0a2",
+     "a584e22d-1cf6-5719-a52d-6f6d5fd90c0b",
+     "bd4cc8d9-e766-5be6-b3d2-6b0a5e13c89b",
+     "dc5816f6-f2d1-542c-96bc-683b1d40b899"
     ],
     "rationale": "No domain is ready for extraction now; all 5 stay in-process until their blockers are resolved.",
     "recommended": false,
@@ -1097,22 +1354,22 @@
     "unknowns": [
      "Which user-visible workflows of the analyzed artifact must stay unchanged? No behavioral contract tests are recorded.",
      "Behavioral validation is not measured for 5 of 5 domains: no behavioral contract tests are recorded for this version.",
-     "Cohesion is not measured for 2 of 5 domains (Application Clinic, System Configuration): the domain has no dependency edges, so the internal share has no denominator."
+     "Cohesion is not measured for 2 of 5 domains (Application Clinic, System Configuration): Application Clinic has no dependency edges, so the internal share has no denominator; System Configuration has no dependency edges, so the internal share has no denominator."
     ]
    },
    {
     "finding_ids": [],
-    "rationale": "The target platform, deployment constraints and cost objectives were not supplied, so no cloud trade-off can be measured.",
+    "rationale": "No target platform, deployment constraint or cost objective was supplied for the analyzed artifact, so no cloud trade-off can be measured.",
     "recommended": false,
     "selected_by_user": false,
     "status": "INSUFFICIENT_EVIDENCE",
     "strategy": "CLOUD_REFACTOR",
     "tradeoffs": [
-     "The target platform, deployment constraints and cost objectives were not supplied, so no cloud trade-off can be measured."
+     "No target platform, deployment constraint or cost objective was supplied for the analyzed artifact, so no cloud trade-off can be measured."
     ],
     "unknowns": [
-     "The target platform, deployment constraints and cost objectives were not supplied, so no cloud trade-off can be measured.",
-     "The target version or platform is not chosen; dependency compatibility is not checked."
+     "No target platform, deployment constraint or cost objective was supplied for the analyzed artifact, so no cloud trade-off can be measured.",
+     "No target version or platform is chosen for CLOUD_REFACTOR, and dependency compatibility is not checked."
     ]
    },
    {
@@ -1127,7 +1384,7 @@
     ],
     "unknowns": [
      "Class files target Java 17 (aging) in 24 classes; the rules recommend Java 21 or Java 25 (LTS).",
-     "The target version or platform is not chosen; dependency compatibility is not checked."
+     "No target version or platform is chosen for JAVA_UPGRADE, and dependency compatibility is not checked."
     ]
    },
    {
@@ -1142,7 +1399,7 @@
     ],
     "unknowns": [
      "1 technology flagged: Spring Boot aging (1 class).",
-     "The target version or platform is not chosen; dependency compatibility is not checked."
+     "No target version or platform is chosen for FRAMEWORK_UPGRADE, and dependency compatibility is not checked."
     ]
    }
   ],
@@ -1163,9 +1420,9 @@
   },
   "summary": "Recommended: MODULAR_MONOLITH. No domain has both full evidence and no blocker. Confidence ranges from 40.0 (Application Clinic) to 80.0 (Vet) out of 100. Collect the missing evidence before choosing extraction.",
   "top_actions": [
-   "System Configuration: COLLECT_MORE_EVIDENCE (5 blockers)",
-   "Vet: COLLECT_MORE_EVIDENCE (5 blockers)",
-   "Application Clinic: COLLECT_MORE_EVIDENCE (5 blockers)"
+   "System Configuration: COLLECT_MORE_EVIDENCE (6 blockers)",
+   "Vet: COLLECT_MORE_EVIDENCE (7 blockers)",
+   "Application Clinic: COLLECT_MORE_EVIDENCE (6 blockers)"
   ],
   "top_risks": [
    "Controller dependencies on entities: 8 of 15 dependency edges (53.3%).",
@@ -1174,20 +1431,20 @@
   ],
   "unknowns": [
    "Behavioral validation is not measured for 5 of 5 domains: no behavioral contract tests are recorded for this version.",
-   "Cohesion is not measured for 2 of 5 domains (Application Clinic, System Configuration): the domain has no dependency edges, so the internal share has no denominator.",
-   "Data independence is not measured for 3 of 5 domains (Application Clinic, System Configuration, Vet): no repository class or data-access reference was found; absence does not prove independence.",
+   "Cohesion is not measured for 2 of 5 domains (Application Clinic, System Configuration): Application Clinic has no dependency edges, so the internal share has no denominator; System Configuration has no dependency edges, so the internal share has no denominator.",
+   "Data independence is not measured for 3 of 5 domains (Application Clinic, System Configuration, Vet): no repository class or data-access reference was found in Application Clinic; absence does not prove independence; no repository class or data-access reference was found in System Configuration; absence does not prove independence; no repository class or data-access reference was found in Vet; absence does not prove independence.",
    "Data ownership review is not measured for 5 of 5 domains: no data-ownership review is recorded for this version.",
-   "Decoupling is not measured for 2 of 5 domains (Application Clinic, System Configuration): the domain has no dependency edges, so the outgoing share has no denominator.",
+   "Decoupling is not measured for 2 of 5 domains (Application Clinic, System Configuration): Application Clinic has no dependency edges, so the outgoing share has no denominator; System Configuration has no dependency edges, so the outgoing share has no denominator.",
    "Resolved dependency references is not measured for 2 of 5 domains (Application Clinic, System Configuration): Application Clinic has no dependency facts; System Configuration has no dependency facts.",
    "Runtime data quality is not measured for 5 of 5 domains: the accepted span count is not recorded in this version."
   ],
   "unresolved_questions": [
    "Which user-visible workflows of the analyzed artifact must stay unchanged? No behavioral contract tests are recorded.",
    "Behavioral validation is not measured for 5 of 5 domains: no behavioral contract tests are recorded for this version.",
-   "Cohesion is not measured for 2 of 5 domains (Application Clinic, System Configuration): the domain has no dependency edges, so the internal share has no denominator.",
-   "Data independence is not measured for 3 of 5 domains (Application Clinic, System Configuration, Vet): no repository class or data-access reference was found; absence does not prove independence.",
+   "Cohesion is not measured for 2 of 5 domains (Application Clinic, System Configuration): Application Clinic has no dependency edges, so the internal share has no denominator; System Configuration has no dependency edges, so the internal share has no denominator.",
+   "Data independence is not measured for 3 of 5 domains (Application Clinic, System Configuration, Vet): no repository class or data-access reference was found in Application Clinic; absence does not prove independence; no repository class or data-access reference was found in System Configuration; absence does not prove independence; no repository class or data-access reference was found in Vet; absence does not prove independence.",
    "Data ownership review is not measured for 5 of 5 domains: no data-ownership review is recorded for this version.",
-   "Decoupling is not measured for 2 of 5 domains (Application Clinic, System Configuration): the domain has no dependency edges, so the outgoing share has no denominator.",
+   "Decoupling is not measured for 2 of 5 domains (Application Clinic, System Configuration): Application Clinic has no dependency edges, so the outgoing share has no denominator; System Configuration has no dependency edges, so the outgoing share has no denominator.",
    "Resolved dependency references is not measured for 2 of 5 domains (Application Clinic, System Configuration): Application Clinic has no dependency facts; System Configuration has no dependency facts.",
    "Runtime data quality is not measured for 5 of 5 domains: the accepted span count is not recorded in this version."
   ]

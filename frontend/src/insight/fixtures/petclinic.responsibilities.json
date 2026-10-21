@@ -1,0 +1,1876 @@
+{
+ "analysis_metadata": {
+  "analyzed_class_count": 24,
+  "artifact_sha256": null,
+  "confidence": {
+   "calibrated": false,
+   "levels": {
+    "HIGH": "One or more STRONG evidence items (annotation, supertype, or a call/type from the framework API) that were DETECTED, and no conflicting evidence.",
+    "LOW": "Only WEAK evidence (a naming convention) or a single INFERRED pattern.",
+    "MEDIUM": "Only MEDIUM evidence (a structural pattern), or a single DETECTED call or type reference."
+   }
+  },
+  "derived_from": "ANALYSIS_SNAPSHOT",
+  "engine_version": "responsibility-1",
+  "rules_reviewed": "2026-10-21",
+  "rules_version": "2026.10.0",
+  "snapshot_algorithm_version": "0.2.1",
+  "source_revision": null,
+  "source_revision_kind": "ARTIFACT_SHA256 (the analysis reads a compiled artifact; no repository commit is available)"
+ },
+ "capabilities": [
+  {
+   "basis": "0 entity class(es), 0 repository class(es), 0 class(es) with business logic or validation, 1 of 1 classes non-functional (technical threshold 50%)",
+   "boundary_confidence": {
+    "note": "Boundary confidence = 0.5 \u00d7 stability + 0.3 \u00d7 (1 - conductance) + 0.2 \u00d7 size factor; it is a heuristic, not a calibrated probability.",
+    "value": 0.5
+   },
+   "boundary_notes": [
+    "contains the application bootstrap class"
+   ],
+   "class_count": 1,
+   "classes": [
+    "org.springframework.samples.petclinic.PetClinicApplication"
+   ],
+   "cross_cutting_ids": [
+    "resp-cross-d3f608bd349e08f4"
+   ],
+   "entities": [],
+   "entry_classes": [],
+   "id": "domain-22c6bf723d668df4",
+   "implications": [
+    {
+     "evidence": [],
+     "kind": "NOT_AN_EXTRACTION_CANDIDATE",
+     "severity": "MEDIUM",
+     "text": "Application Clinic holds platform concerns (CONFIGURATION) rather than a business capability. Keep it as shared configuration or a library, not a service."
+    },
+    {
+     "evidence": [
+      "resp-cross-d3f608bd349e08f4"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Application Clinic depends on shared Spring core and boot. Spring core and boot is a library that 13 class(es) in Application Clinic, Type Owner, Vet, Owner Visit, System Configuration already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    }
+   ],
+   "kind": "TECHNICAL",
+   "name": "Application Clinic",
+   "nonfunctional_concerns": [
+    {
+     "category": "CONFIGURATION",
+     "class_count": 1
+    }
+   ],
+   "primary_counts": {
+    "NON_FUNCTIONAL": 1
+   },
+   "repositories": [],
+   "risk_ids": [
+    "resp-risk-c405132c728f8417"
+   ],
+   "source": "CANDIDATE_DOMAIN_DISCOVERY"
+  },
+  {
+   "basis": "3 entity class(es), 1 repository class(es), 6 class(es) with business logic or validation, 0 of 8 classes non-functional (technical threshold 50%)",
+   "boundary_confidence": {
+    "note": "Boundary confidence = 0.5 \u00d7 stability + 0.3 \u00d7 (1 - conductance) + 0.2 \u00d7 size factor; it is a heuristic, not a calibrated probability.",
+    "value": 0.76
+   },
+   "boundary_notes": [],
+   "class_count": 8,
+   "classes": [
+    "org.springframework.samples.petclinic.owner.Owner",
+    "org.springframework.samples.petclinic.owner.OwnerController",
+    "org.springframework.samples.petclinic.owner.OwnerRepository",
+    "org.springframework.samples.petclinic.owner.Pet",
+    "org.springframework.samples.petclinic.owner.PetController",
+    "org.springframework.samples.petclinic.owner.PetValidator",
+    "org.springframework.samples.petclinic.owner.Visit",
+    "org.springframework.samples.petclinic.owner.VisitController"
+   ],
+   "cross_cutting_ids": [
+    "resp-cross-d3f608bd349e08f4",
+    "resp-cross-3ba898321a2d0634",
+    "resp-cross-6d49543eabc15522",
+    "resp-cross-eed37f8f142dc1f8",
+    "resp-cross-e5c798727f8bd7f0",
+    "resp-cross-55fb685860551b34",
+    "resp-cross-cb575257073d64f8",
+    "resp-cross-585aecee7aa1ee64",
+    "resp-cross-9a60594edbbcb0c9",
+    "resp-cross-a8234e875c2cb9ce"
+   ],
+   "entities": [
+    "org.springframework.samples.petclinic.owner.Owner",
+    "org.springframework.samples.petclinic.owner.Pet",
+    "org.springframework.samples.petclinic.owner.Visit"
+   ],
+   "entry_classes": [
+    "org.springframework.samples.petclinic.owner.OwnerController",
+    "org.springframework.samples.petclinic.owner.PetController",
+    "org.springframework.samples.petclinic.owner.VisitController"
+   ],
+   "id": "domain-9d798ed24befbf26",
+   "implications": [
+    {
+     "evidence": [
+      "resp-risk-c10ec420421779f4"
+     ],
+     "kind": "RESOLVE_SHARED_DATA_MODEL",
+     "severity": "HIGH",
+     "text": "Before separating Owner Visit: 2 class(es) in Owner Visit depend on 1 persistent class(es) assigned to Type Owner: PetType."
+    },
+    {
+     "evidence": [
+      "resp-risk-2cd15035121ce095"
+     ],
+     "kind": "RESOLVE_SHARED_DATA_MODEL",
+     "severity": "HIGH",
+     "text": "Before separating Owner Visit: 3 class(es) in Owner Visit depend on 3 persistent class(es) assigned to Vet: BaseEntity, NamedEntity, Person."
+    },
+    {
+     "evidence": [
+      "resp-risk-9afbe83f6171c672"
+     ],
+     "kind": "SECURITY_CONTROL_TO_DECIDE",
+     "severity": "HIGH",
+     "text": "An extracted Owner Visit service needs its own authentication and authorization decision: 17 HTTP entry point(s), 5 of them changing data (POST /owners/new, POST /owners/{ownerId}/edit, POST /owners/{ownerId}/pets/new, POST /owners/{ownerId}/pets/{petId}/edit), have no detectable authentication or authorization reference in 24 analyzed classes; input-binding restrictions exist in 3 class(es) (OwnerController, PetController, VisitController) but they do not control who may call."
+    },
+    {
+     "evidence": [
+      "resp-cross-3ba898321a2d0634"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Owner Visit depends on shared Jakarta Persistence. Jakarta Persistence is a library that 9 class(es) in Type Owner, Vet, Owner Visit already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-eed37f8f142dc1f8"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Owner Visit depends on shared Spring Data. Spring Data is a library that 5 class(es) in Type Owner, Vet, Owner Visit already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-6d49543eabc15522"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Owner Visit depends on shared Spring Web MVC. Spring Web MVC is a library that 7 class(es) in Vet, Owner Visit, System Configuration already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-d3f608bd349e08f4"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Owner Visit depends on shared Spring core and boot. Spring core and boot is a library that 13 class(es) in Application Clinic, Type Owner, Vet, Owner Visit, System Configuration already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-55fb685860551b34"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Owner Visit depends on shared Validation. Validation is a library that 8 class(es) in Vet, Owner Visit already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    }
+   ],
+   "kind": "BUSINESS",
+   "name": "Owner Visit",
+   "nonfunctional_concerns": [
+    {
+     "category": "MAINTAINABILITY",
+     "class_count": 4
+    },
+    {
+     "category": "PERFORMANCE",
+     "class_count": 2
+    },
+    {
+     "category": "SECURITY",
+     "class_count": 3
+    }
+   ],
+   "primary_counts": {
+    "FUNCTIONAL": 3,
+    "FUNCTIONAL_SUPPORT": 2,
+    "MIXED": 3
+   },
+   "repositories": [
+    "org.springframework.samples.petclinic.owner.OwnerRepository"
+   ],
+   "risk_ids": [
+    "resp-risk-2cd15035121ce095",
+    "resp-risk-c10ec420421779f4",
+    "resp-risk-9afbe83f6171c672",
+    "resp-risk-c405132c728f8417"
+   ],
+   "source": "CANDIDATE_DOMAIN_DISCOVERY"
+  },
+  {
+   "basis": "0 entity class(es), 0 repository class(es), 0 class(es) with business logic or validation, 2 of 4 classes non-functional (technical threshold 50%)",
+   "boundary_confidence": {
+    "note": "Boundary confidence = 0.5 \u00d7 stability + 0.3 \u00d7 (1 - conductance) + 0.2 \u00d7 size factor; it is a heuristic, not a calibrated probability.",
+    "value": 0.74
+   },
+   "boundary_notes": [],
+   "class_count": 4,
+   "classes": [
+    "org.springframework.samples.petclinic.system.CacheConfiguration",
+    "org.springframework.samples.petclinic.system.CrashController",
+    "org.springframework.samples.petclinic.system.WebConfiguration",
+    "org.springframework.samples.petclinic.system.WelcomeController"
+   ],
+   "cross_cutting_ids": [
+    "resp-cross-d3f608bd349e08f4",
+    "resp-cross-6d49543eabc15522",
+    "resp-cross-40865a26300440ea"
+   ],
+   "entities": [],
+   "entry_classes": [
+    "org.springframework.samples.petclinic.system.CrashController",
+    "org.springframework.samples.petclinic.system.WelcomeController"
+   ],
+   "id": "domain-c8fb47353d19fc72",
+   "implications": [
+    {
+     "evidence": [
+      "resp-risk-9afbe83f6171c672"
+     ],
+     "kind": "SECURITY_CONTROL_TO_DECIDE",
+     "severity": "HIGH",
+     "text": "An extracted System Configuration service needs its own authentication and authorization decision: 17 HTTP entry point(s), 5 of them changing data (POST /owners/new, POST /owners/{ownerId}/edit, POST /owners/{ownerId}/pets/new, POST /owners/{ownerId}/pets/{petId}/edit), have no detectable authentication or authorization reference in 24 analyzed classes; input-binding restrictions exist in 3 class(es) (OwnerController, PetController, VisitController) but they do not control who may call."
+    },
+    {
+     "evidence": [],
+     "kind": "NOT_AN_EXTRACTION_CANDIDATE",
+     "severity": "MEDIUM",
+     "text": "System Configuration holds platform concerns (CONFIGURATION, PERFORMANCE) rather than a business capability. Keep it as shared configuration or a library, not a service."
+    },
+    {
+     "evidence": [
+      "resp-cross-6d49543eabc15522"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "System Configuration depends on shared Spring Web MVC. Spring Web MVC is a library that 7 class(es) in Vet, Owner Visit, System Configuration already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-40865a26300440ea"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "System Configuration depends on shared Spring cache and JCache. Spring cache and JCache is a library that 2 class(es) in Vet, System Configuration already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-d3f608bd349e08f4"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "System Configuration depends on shared Spring core and boot. Spring core and boot is a library that 13 class(es) in Application Clinic, Type Owner, Vet, Owner Visit, System Configuration already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    }
+   ],
+   "kind": "TECHNICAL",
+   "name": "System Configuration",
+   "nonfunctional_concerns": [
+    {
+     "category": "CONFIGURATION",
+     "class_count": 2
+    },
+    {
+     "category": "PERFORMANCE",
+     "class_count": 1
+    }
+   ],
+   "primary_counts": {
+    "FUNCTIONAL": 2,
+    "NON_FUNCTIONAL": 2
+   },
+   "repositories": [],
+   "risk_ids": [
+    "resp-risk-9afbe83f6171c672",
+    "resp-risk-c405132c728f8417"
+   ],
+   "source": "CANDIDATE_DOMAIN_DISCOVERY"
+  },
+  {
+   "basis": "1 entity class(es), 1 repository class(es), 1 class(es) with business logic or validation, 0 of 3 classes non-functional (technical threshold 50%)",
+   "boundary_confidence": {
+    "note": "Boundary confidence = 0.5 \u00d7 stability + 0.3 \u00d7 (1 - conductance) + 0.2 \u00d7 size factor; it is a heuristic, not a calibrated probability.",
+    "value": 0.59
+   },
+   "boundary_notes": [],
+   "class_count": 3,
+   "classes": [
+    "org.springframework.samples.petclinic.owner.PetType",
+    "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+    "org.springframework.samples.petclinic.owner.PetTypeRepository"
+   ],
+   "cross_cutting_ids": [
+    "resp-cross-d3f608bd349e08f4",
+    "resp-cross-3ba898321a2d0634",
+    "resp-cross-eed37f8f142dc1f8",
+    "resp-cross-e5c798727f8bd7f0",
+    "resp-cross-cb575257073d64f8",
+    "resp-cross-a8234e875c2cb9ce"
+   ],
+   "entities": [
+    "org.springframework.samples.petclinic.owner.PetType"
+   ],
+   "entry_classes": [],
+   "id": "domain-663f102c0b38921a",
+   "implications": [
+    {
+     "evidence": [
+      "resp-risk-86b75b0a48771f69"
+     ],
+     "kind": "RESOLVE_SHARED_DATA_MODEL",
+     "severity": "HIGH",
+     "text": "Before separating Type Owner: 1 class(es) in Type Owner depend on 1 persistent class(es) assigned to Vet: NamedEntity."
+    },
+    {
+     "evidence": [
+      "resp-risk-c10ec420421779f4"
+     ],
+     "kind": "RESOLVE_SHARED_DATA_MODEL",
+     "severity": "HIGH",
+     "text": "Before separating Type Owner: 2 class(es) in Owner Visit depend on 1 persistent class(es) assigned to Type Owner: PetType."
+    },
+    {
+     "evidence": [
+      "resp-cross-cb575257073d64f8"
+     ],
+     "kind": "OWNS_SHARED_COMPONENT",
+     "severity": "MEDIUM",
+     "text": "Type Owner owns PetType, which 4 class(es) in other candidate domains depend on. PetType is a persistent model used by 4 class(es) across Owner Visit, Type Owner. Decide which capability owns the data, then share it as a library or replace it with a published contract."
+    },
+    {
+     "evidence": [
+      "resp-cross-a8234e875c2cb9ce"
+     ],
+     "kind": "OWNS_SHARED_COMPONENT",
+     "severity": "MEDIUM",
+     "text": "Type Owner owns PetTypeRepository, which 2 class(es) in other candidate domains depend on. PetTypeRepository reads and writes data that 2 class(es) in Owner Visit, Type Owner use. Decide which capability owns that data; the others would then call it through a contract instead of sharing the repository."
+    },
+    {
+     "evidence": [
+      "resp-cross-3ba898321a2d0634"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Type Owner depends on shared Jakarta Persistence. Jakarta Persistence is a library that 9 class(es) in Type Owner, Vet, Owner Visit already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-eed37f8f142dc1f8"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Type Owner depends on shared Spring Data. Spring Data is a library that 5 class(es) in Type Owner, Vet, Owner Visit already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-d3f608bd349e08f4"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Type Owner depends on shared Spring core and boot. Spring core and boot is a library that 13 class(es) in Application Clinic, Type Owner, Vet, Owner Visit, System Configuration already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    }
+   ],
+   "kind": "BUSINESS",
+   "name": "Type Owner",
+   "nonfunctional_concerns": [],
+   "primary_counts": {
+    "FUNCTIONAL": 1,
+    "FUNCTIONAL_SUPPORT": 2
+   },
+   "repositories": [
+    "org.springframework.samples.petclinic.owner.PetTypeRepository"
+   ],
+   "risk_ids": [
+    "resp-risk-c10ec420421779f4",
+    "resp-risk-86b75b0a48771f69",
+    "resp-risk-6fde565c98281f0a",
+    "resp-risk-c405132c728f8417",
+    "resp-risk-c5be9f07eefeb5fc"
+   ],
+   "source": "CANDIDATE_DOMAIN_DISCOVERY"
+  },
+  {
+   "basis": "5 entity class(es), 1 repository class(es), 2 class(es) with business logic or validation, 0 of 8 classes non-functional (technical threshold 50%)",
+   "boundary_confidence": {
+    "note": "Boundary confidence = 0.5 \u00d7 stability + 0.3 \u00d7 (1 - conductance) + 0.2 \u00d7 size factor; it is a heuristic, not a calibrated probability.",
+    "value": 0.9
+   },
+   "boundary_notes": [],
+   "class_count": 8,
+   "classes": [
+    "org.springframework.samples.petclinic.model.BaseEntity",
+    "org.springframework.samples.petclinic.model.NamedEntity",
+    "org.springframework.samples.petclinic.model.Person",
+    "org.springframework.samples.petclinic.vet.Specialty",
+    "org.springframework.samples.petclinic.vet.Vet",
+    "org.springframework.samples.petclinic.vet.VetController",
+    "org.springframework.samples.petclinic.vet.VetRepository",
+    "org.springframework.samples.petclinic.vet.Vets"
+   ],
+   "cross_cutting_ids": [
+    "resp-cross-d3f608bd349e08f4",
+    "resp-cross-3ba898321a2d0634",
+    "resp-cross-6d49543eabc15522",
+    "resp-cross-eed37f8f142dc1f8",
+    "resp-cross-e5c798727f8bd7f0",
+    "resp-cross-55fb685860551b34",
+    "resp-cross-585aecee7aa1ee64",
+    "resp-cross-9a60594edbbcb0c9",
+    "resp-cross-40865a26300440ea"
+   ],
+   "entities": [
+    "org.springframework.samples.petclinic.model.BaseEntity",
+    "org.springframework.samples.petclinic.model.NamedEntity",
+    "org.springframework.samples.petclinic.model.Person",
+    "org.springframework.samples.petclinic.vet.Specialty",
+    "org.springframework.samples.petclinic.vet.Vet"
+   ],
+   "entry_classes": [
+    "org.springframework.samples.petclinic.vet.VetController"
+   ],
+   "id": "domain-88320003e6c6ba0d",
+   "implications": [
+    {
+     "evidence": [
+      "resp-risk-86b75b0a48771f69"
+     ],
+     "kind": "RESOLVE_SHARED_DATA_MODEL",
+     "severity": "HIGH",
+     "text": "Before separating Vet: 1 class(es) in Type Owner depend on 1 persistent class(es) assigned to Vet: NamedEntity."
+    },
+    {
+     "evidence": [
+      "resp-risk-2cd15035121ce095"
+     ],
+     "kind": "RESOLVE_SHARED_DATA_MODEL",
+     "severity": "HIGH",
+     "text": "Before separating Vet: 3 class(es) in Owner Visit depend on 3 persistent class(es) assigned to Vet: BaseEntity, NamedEntity, Person."
+    },
+    {
+     "evidence": [
+      "resp-risk-9afbe83f6171c672"
+     ],
+     "kind": "SECURITY_CONTROL_TO_DECIDE",
+     "severity": "HIGH",
+     "text": "An extracted Vet service needs its own authentication and authorization decision: 17 HTTP entry point(s), 5 of them changing data (POST /owners/new, POST /owners/{ownerId}/edit, POST /owners/{ownerId}/pets/new, POST /owners/{ownerId}/pets/{petId}/edit), have no detectable authentication or authorization reference in 24 analyzed classes; input-binding restrictions exist in 3 class(es) (OwnerController, PetController, VisitController) but they do not control who may call."
+    },
+    {
+     "evidence": [
+      "resp-cross-585aecee7aa1ee64"
+     ],
+     "kind": "OWNS_SHARED_COMPONENT",
+     "severity": "MEDIUM",
+     "text": "Vet owns BaseEntity, which 3 class(es) in other candidate domains depend on. BaseEntity is a persistent model used by 3 class(es) across Owner Visit, Vet. Decide which capability owns the data, then share it as a library or replace it with a published contract."
+    },
+    {
+     "evidence": [
+      "resp-cross-e5c798727f8bd7f0"
+     ],
+     "kind": "OWNS_SHARED_COMPONENT",
+     "severity": "MEDIUM",
+     "text": "Vet owns NamedEntity, which 3 class(es) in other candidate domains depend on. NamedEntity is a persistent model used by 3 class(es) across Owner Visit, Type Owner, Vet. Decide which capability owns the data, then share it as a library or replace it with a published contract."
+    },
+    {
+     "evidence": [
+      "resp-cross-9a60594edbbcb0c9"
+     ],
+     "kind": "OWNS_SHARED_COMPONENT",
+     "severity": "MEDIUM",
+     "text": "Vet owns Person, which 2 class(es) in other candidate domains depend on. Person is a persistent model used by 2 class(es) across Owner Visit, Vet. Decide which capability owns the data, then share it as a library or replace it with a published contract."
+    },
+    {
+     "evidence": [
+      "resp-cross-3ba898321a2d0634"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Vet depends on shared Jakarta Persistence. Jakarta Persistence is a library that 9 class(es) in Type Owner, Vet, Owner Visit already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-eed37f8f142dc1f8"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Vet depends on shared Spring Data. Spring Data is a library that 5 class(es) in Type Owner, Vet, Owner Visit already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-6d49543eabc15522"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Vet depends on shared Spring Web MVC. Spring Web MVC is a library that 7 class(es) in Vet, Owner Visit, System Configuration already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-40865a26300440ea"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Vet depends on shared Spring cache and JCache. Spring cache and JCache is a library that 2 class(es) in Vet, System Configuration already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-d3f608bd349e08f4"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Vet depends on shared Spring core and boot. Spring core and boot is a library that 13 class(es) in Application Clinic, Type Owner, Vet, Owner Visit, System Configuration already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    },
+    {
+     "evidence": [
+      "resp-cross-55fb685860551b34"
+     ],
+     "kind": "SHARED_INFRASTRUCTURE",
+     "severity": "LOW",
+     "text": "Vet depends on shared Validation. Validation is a library that 8 class(es) in Vet, Owner Visit already include. Each extracted service includes it as a dependency; it is not a service candidate."
+    }
+   ],
+   "kind": "BUSINESS",
+   "name": "Vet",
+   "nonfunctional_concerns": [
+    {
+     "category": "DATA_INTEGRITY",
+     "class_count": 1
+    },
+    {
+     "category": "INTEROPERABILITY",
+     "class_count": 2
+    },
+    {
+     "category": "MAINTAINABILITY",
+     "class_count": 1
+    },
+    {
+     "category": "PERFORMANCE",
+     "class_count": 2
+    }
+   ],
+   "primary_counts": {
+    "FUNCTIONAL": 3,
+    "FUNCTIONAL_SUPPORT": 5
+   },
+   "repositories": [
+    "org.springframework.samples.petclinic.vet.VetRepository"
+   ],
+   "risk_ids": [
+    "resp-risk-2cd15035121ce095",
+    "resp-risk-86b75b0a48771f69",
+    "resp-risk-9afbe83f6171c672",
+    "resp-risk-c405132c728f8417",
+    "resp-risk-40438492e3da5701"
+   ],
+   "source": "CANDIDATE_DOMAIN_DISCOVERY"
+  }
+ ],
+ "cross_cutting": [
+  {
+   "basis": "BYTECODE_EDGE",
+   "capabilities": [
+    {
+     "id": "domain-22c6bf723d668df4",
+     "name": "Application Clinic"
+    },
+    {
+     "id": "domain-663f102c0b38921a",
+     "name": "Type Owner"
+    },
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    },
+    {
+     "id": "domain-c8fb47353d19fc72",
+     "name": "System Configuration"
+    }
+   ],
+   "capability_count": 5,
+   "change_impact": "Upgrading Spring core and boot touches 13 class(es) in 5 candidate domain(s).",
+   "component": "spring-core",
+   "concerns": [
+    "CONFIGURATION"
+   ],
+   "dependent_count": 13,
+   "dependents": [
+    "org.springframework.samples.petclinic.PetClinicApplication",
+    "org.springframework.samples.petclinic.owner.OwnerController",
+    "org.springframework.samples.petclinic.owner.Pet",
+    "org.springframework.samples.petclinic.owner.PetController",
+    "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+    "org.springframework.samples.petclinic.owner.PetValidator",
+    "org.springframework.samples.petclinic.owner.Visit",
+    "org.springframework.samples.petclinic.owner.VisitController",
+    "org.springframework.samples.petclinic.system.CacheConfiguration",
+    "org.springframework.samples.petclinic.system.CrashController",
+    "org.springframework.samples.petclinic.system.WebConfiguration",
+    "org.springframework.samples.petclinic.system.WelcomeController",
+    "org.springframework.samples.petclinic.vet.VetController"
+   ],
+   "deployment_form": "LIBRARY_DEPENDENCY",
+   "evidence": [],
+   "guidance": "Spring core and boot is a library that 13 class(es) in Application Clinic, Type Owner, Vet, Owner Visit, System Configuration already include. Each extracted service includes it as a dependency; it is not a service candidate.",
+   "id": "resp-cross-d3f608bd349e08f4",
+   "kind": "EXTERNAL_LIBRARY",
+   "name": "Spring core and boot",
+   "scope": "CROSS_CAPABILITY",
+   "status": "DETECTED"
+  },
+  {
+   "basis": "BYTECODE_EDGE",
+   "capabilities": [
+    {
+     "id": "domain-663f102c0b38921a",
+     "name": "Type Owner"
+    },
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    }
+   ],
+   "capability_count": 3,
+   "change_impact": "Upgrading Jakarta Persistence touches 9 class(es) in 3 candidate domain(s).",
+   "component": "jpa",
+   "concerns": [
+    "BUSINESS_DATA_ACCESS",
+    "DATA_INTEGRITY"
+   ],
+   "dependent_count": 9,
+   "dependents": [
+    "org.springframework.samples.petclinic.model.BaseEntity",
+    "org.springframework.samples.petclinic.model.NamedEntity",
+    "org.springframework.samples.petclinic.model.Person",
+    "org.springframework.samples.petclinic.owner.Owner",
+    "org.springframework.samples.petclinic.owner.Pet",
+    "org.springframework.samples.petclinic.owner.PetType",
+    "org.springframework.samples.petclinic.owner.Visit",
+    "org.springframework.samples.petclinic.vet.Specialty",
+    "org.springframework.samples.petclinic.vet.Vet"
+   ],
+   "deployment_form": "LIBRARY_DEPENDENCY",
+   "evidence": [],
+   "guidance": "Jakarta Persistence is a library that 9 class(es) in Type Owner, Vet, Owner Visit already include. Each extracted service includes it as a dependency; it is not a service candidate.",
+   "id": "resp-cross-3ba898321a2d0634",
+   "kind": "EXTERNAL_LIBRARY",
+   "name": "Jakarta Persistence",
+   "scope": "CROSS_CAPABILITY",
+   "status": "DETECTED"
+  },
+  {
+   "basis": "BYTECODE_EDGE",
+   "capabilities": [
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    },
+    {
+     "id": "domain-c8fb47353d19fc72",
+     "name": "System Configuration"
+    }
+   ],
+   "capability_count": 3,
+   "change_impact": "Upgrading Spring Web MVC touches 7 class(es) in 3 candidate domain(s).",
+   "component": "spring-web",
+   "concerns": [
+    "INTEROPERABILITY"
+   ],
+   "dependent_count": 7,
+   "dependents": [
+    "org.springframework.samples.petclinic.owner.OwnerController",
+    "org.springframework.samples.petclinic.owner.PetController",
+    "org.springframework.samples.petclinic.owner.VisitController",
+    "org.springframework.samples.petclinic.system.CrashController",
+    "org.springframework.samples.petclinic.system.WebConfiguration",
+    "org.springframework.samples.petclinic.system.WelcomeController",
+    "org.springframework.samples.petclinic.vet.VetController"
+   ],
+   "deployment_form": "LIBRARY_DEPENDENCY",
+   "evidence": [],
+   "guidance": "Spring Web MVC is a library that 7 class(es) in Vet, Owner Visit, System Configuration already include. Each extracted service includes it as a dependency; it is not a service candidate.",
+   "id": "resp-cross-6d49543eabc15522",
+   "kind": "EXTERNAL_LIBRARY",
+   "name": "Spring Web MVC",
+   "scope": "CROSS_CAPABILITY",
+   "status": "DETECTED"
+  },
+  {
+   "basis": "BYTECODE_EDGE",
+   "capabilities": [
+    {
+     "id": "domain-663f102c0b38921a",
+     "name": "Type Owner"
+    },
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    }
+   ],
+   "capability_count": 3,
+   "change_impact": "Upgrading Spring Data touches 5 class(es) in 3 candidate domain(s).",
+   "component": "spring-data",
+   "concerns": [
+    "BUSINESS_DATA_ACCESS"
+   ],
+   "dependent_count": 5,
+   "dependents": [
+    "org.springframework.samples.petclinic.owner.OwnerController",
+    "org.springframework.samples.petclinic.owner.OwnerRepository",
+    "org.springframework.samples.petclinic.owner.PetTypeRepository",
+    "org.springframework.samples.petclinic.vet.VetController",
+    "org.springframework.samples.petclinic.vet.VetRepository"
+   ],
+   "deployment_form": "LIBRARY_DEPENDENCY",
+   "evidence": [],
+   "guidance": "Spring Data is a library that 5 class(es) in Type Owner, Vet, Owner Visit already include. Each extracted service includes it as a dependency; it is not a service candidate.",
+   "id": "resp-cross-eed37f8f142dc1f8",
+   "kind": "EXTERNAL_LIBRARY",
+   "name": "Spring Data",
+   "scope": "CROSS_CAPABILITY",
+   "status": "DETECTED"
+  },
+  {
+   "basis": "BYTECODE_EDGE",
+   "capabilities": [
+    {
+     "id": "domain-663f102c0b38921a",
+     "name": "Type Owner"
+    },
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    }
+   ],
+   "capability_count": 3,
+   "change_impact": "A change to NamedEntity can affect 3 class(es) in 3 candidate domain(s): Owner Visit, Type Owner, Vet.",
+   "component": "org.springframework.samples.petclinic.model.NamedEntity",
+   "concerns": [],
+   "dependent_count": 3,
+   "dependents": [
+    "org.springframework.samples.petclinic.owner.Pet",
+    "org.springframework.samples.petclinic.owner.PetType",
+    "org.springframework.samples.petclinic.vet.Specialty"
+   ],
+   "deployment_form": "SHARED_LIBRARY_OR_PUBLISHED_CONTRACT",
+   "evidence": [
+    {
+     "kind": "INHERITANCE",
+     "line": null,
+     "source": "org.springframework.samples.petclinic.owner.Pet",
+     "text": "Pet extends NamedEntity"
+    },
+    {
+     "kind": "INHERITANCE",
+     "line": null,
+     "source": "org.springframework.samples.petclinic.owner.PetType",
+     "text": "PetType extends NamedEntity"
+    }
+   ],
+   "guidance": "NamedEntity is a persistent model used by 3 class(es) across Owner Visit, Type Owner, Vet. Decide which capability owns the data, then share it as a library or replace it with a published contract.",
+   "id": "resp-cross-e5c798727f8bd7f0",
+   "kind": "SHARED_DOMAIN_MODEL",
+   "name": "NamedEntity",
+   "scope": "CROSS_CAPABILITY",
+   "status": "DETECTED"
+  },
+  {
+   "basis": "BYTECODE_EDGE",
+   "capabilities": [
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    }
+   ],
+   "capability_count": 2,
+   "change_impact": "Upgrading Validation touches 8 class(es) in 2 candidate domain(s).",
+   "component": "spring-validation",
+   "concerns": [
+    "BUSINESS_VALIDATION"
+   ],
+   "dependent_count": 8,
+   "dependents": [
+    "org.springframework.samples.petclinic.model.NamedEntity",
+    "org.springframework.samples.petclinic.model.Person",
+    "org.springframework.samples.petclinic.owner.Owner",
+    "org.springframework.samples.petclinic.owner.OwnerController",
+    "org.springframework.samples.petclinic.owner.PetController",
+    "org.springframework.samples.petclinic.owner.PetValidator",
+    "org.springframework.samples.petclinic.owner.Visit",
+    "org.springframework.samples.petclinic.owner.VisitController"
+   ],
+   "deployment_form": "LIBRARY_DEPENDENCY",
+   "evidence": [],
+   "guidance": "Validation is a library that 8 class(es) in Vet, Owner Visit already include. Each extracted service includes it as a dependency; it is not a service candidate.",
+   "id": "resp-cross-55fb685860551b34",
+   "kind": "EXTERNAL_LIBRARY",
+   "name": "Validation",
+   "scope": "CROSS_CAPABILITY",
+   "status": "DETECTED"
+  },
+  {
+   "basis": "BYTECODE_EDGE",
+   "capabilities": [
+    {
+     "id": "domain-663f102c0b38921a",
+     "name": "Type Owner"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    }
+   ],
+   "capability_count": 2,
+   "change_impact": "A change to PetType can affect 4 class(es) in 2 candidate domain(s): Owner Visit, Type Owner.",
+   "component": "org.springframework.samples.petclinic.owner.PetType",
+   "concerns": [],
+   "dependent_count": 4,
+   "dependents": [
+    "org.springframework.samples.petclinic.owner.Pet",
+    "org.springframework.samples.petclinic.owner.PetController",
+    "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+    "org.springframework.samples.petclinic.owner.PetTypeRepository"
+   ],
+   "deployment_form": "SHARED_LIBRARY_OR_PUBLISHED_CONTRACT",
+   "evidence": [
+    {
+     "kind": "FIELD_TYPE",
+     "line": null,
+     "source": "org.springframework.samples.petclinic.owner.Pet",
+     "text": "field Pet.type has type PetType"
+    },
+    {
+     "kind": "GENERIC_TYPE",
+     "line": null,
+     "source": "org.springframework.samples.petclinic.owner.PetController",
+     "text": "PetController.populatePetTypes() signature uses PetType as a type argument"
+    }
+   ],
+   "guidance": "PetType is a persistent model used by 4 class(es) across Owner Visit, Type Owner. Decide which capability owns the data, then share it as a library or replace it with a published contract.",
+   "id": "resp-cross-cb575257073d64f8",
+   "kind": "SHARED_DOMAIN_MODEL",
+   "name": "PetType",
+   "scope": "CROSS_CAPABILITY",
+   "status": "DETECTED"
+  },
+  {
+   "basis": "BYTECODE_EDGE",
+   "capabilities": [
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    }
+   ],
+   "capability_count": 2,
+   "change_impact": "A change to BaseEntity can affect 3 class(es) in 2 candidate domain(s): Owner Visit, Vet.",
+   "component": "org.springframework.samples.petclinic.model.BaseEntity",
+   "concerns": [],
+   "dependent_count": 3,
+   "dependents": [
+    "org.springframework.samples.petclinic.model.NamedEntity",
+    "org.springframework.samples.petclinic.model.Person",
+    "org.springframework.samples.petclinic.owner.Visit"
+   ],
+   "deployment_form": "SHARED_LIBRARY_OR_PUBLISHED_CONTRACT",
+   "evidence": [
+    {
+     "kind": "INHERITANCE",
+     "line": null,
+     "source": "org.springframework.samples.petclinic.owner.Visit",
+     "text": "Visit extends BaseEntity"
+    }
+   ],
+   "guidance": "BaseEntity is a persistent model used by 3 class(es) across Owner Visit, Vet. Decide which capability owns the data, then share it as a library or replace it with a published contract.",
+   "id": "resp-cross-585aecee7aa1ee64",
+   "kind": "SHARED_DOMAIN_MODEL",
+   "name": "BaseEntity",
+   "scope": "CROSS_CAPABILITY",
+   "status": "DETECTED"
+  },
+  {
+   "basis": "BYTECODE_EDGE",
+   "capabilities": [
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    }
+   ],
+   "capability_count": 2,
+   "change_impact": "A change to Person can affect 2 class(es) in 2 candidate domain(s): Owner Visit, Vet.",
+   "component": "org.springframework.samples.petclinic.model.Person",
+   "concerns": [],
+   "dependent_count": 2,
+   "dependents": [
+    "org.springframework.samples.petclinic.owner.Owner",
+    "org.springframework.samples.petclinic.vet.Vet"
+   ],
+   "deployment_form": "SHARED_LIBRARY_OR_PUBLISHED_CONTRACT",
+   "evidence": [
+    {
+     "kind": "INHERITANCE",
+     "line": null,
+     "source": "org.springframework.samples.petclinic.owner.Owner",
+     "text": "Owner extends Person"
+    }
+   ],
+   "guidance": "Person is a persistent model used by 2 class(es) across Owner Visit, Vet. Decide which capability owns the data, then share it as a library or replace it with a published contract.",
+   "id": "resp-cross-9a60594edbbcb0c9",
+   "kind": "SHARED_DOMAIN_MODEL",
+   "name": "Person",
+   "scope": "CROSS_CAPABILITY",
+   "status": "DETECTED"
+  },
+  {
+   "basis": "BYTECODE_EDGE",
+   "capabilities": [
+    {
+     "id": "domain-663f102c0b38921a",
+     "name": "Type Owner"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    }
+   ],
+   "capability_count": 2,
+   "change_impact": "A change to PetTypeRepository can affect 2 class(es) in 2 candidate domain(s): Owner Visit, Type Owner.",
+   "component": "org.springframework.samples.petclinic.owner.PetTypeRepository",
+   "concerns": [],
+   "dependent_count": 2,
+   "dependents": [
+    "org.springframework.samples.petclinic.owner.PetController",
+    "org.springframework.samples.petclinic.owner.PetTypeFormatter"
+   ],
+   "deployment_form": "DECIDE_DATA_OWNER",
+   "evidence": [
+    {
+     "kind": "FIELD_TYPE",
+     "line": null,
+     "source": "org.springframework.samples.petclinic.owner.PetController",
+     "text": "field PetController.types has type PetTypeRepository"
+    }
+   ],
+   "guidance": "PetTypeRepository reads and writes data that 2 class(es) in Owner Visit, Type Owner use. Decide which capability owns that data; the others would then call it through a contract instead of sharing the repository.",
+   "id": "resp-cross-a8234e875c2cb9ce",
+   "kind": "SHARED_DATA_ACCESS",
+   "name": "PetTypeRepository",
+   "scope": "CROSS_CAPABILITY",
+   "status": "DETECTED"
+  },
+  {
+   "basis": "BYTECODE_EDGE",
+   "capabilities": [
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-c8fb47353d19fc72",
+     "name": "System Configuration"
+    }
+   ],
+   "capability_count": 2,
+   "change_impact": "Upgrading Spring cache and JCache touches 2 class(es) in 2 candidate domain(s).",
+   "component": "spring-cache",
+   "concerns": [
+    "PERFORMANCE"
+   ],
+   "dependent_count": 2,
+   "dependents": [
+    "org.springframework.samples.petclinic.system.CacheConfiguration",
+    "org.springframework.samples.petclinic.vet.VetRepository"
+   ],
+   "deployment_form": "LIBRARY_DEPENDENCY",
+   "evidence": [],
+   "guidance": "Spring cache and JCache is a library that 2 class(es) in Vet, System Configuration already include. Each extracted service includes it as a dependency; it is not a service candidate.",
+   "id": "resp-cross-40865a26300440ea",
+   "kind": "EXTERNAL_LIBRARY",
+   "name": "Spring cache and JCache",
+   "scope": "CROSS_CAPABILITY",
+   "status": "DETECTED"
+  }
+ ],
+ "external_libraries": [
+  {
+   "capabilities": [
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [
+    "INTEROPERABILITY"
+   ],
+   "dependency_types": {
+    "ANNOTATION": 3
+   },
+   "dependent_count": 2,
+   "family": "jaxb",
+   "id": "resp-library-720fc6eae2ec5941",
+   "known_family": true,
+   "name": "XML binding",
+   "top_types": [
+    "jakarta.xml.bind.annotation.XmlElement",
+    "jakarta.xml.bind.annotation.XmlRootElement"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-663f102c0b38921a",
+     "name": "Type Owner"
+    },
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    }
+   ],
+   "capability_count": 3,
+   "concerns": [
+    "BUSINESS_DATA_ACCESS",
+    "DATA_INTEGRITY"
+   ],
+   "dependency_types": {
+    "ANNOTATION": 31
+   },
+   "dependent_count": 9,
+   "family": "jpa",
+   "id": "resp-library-3397f15e7d285749",
+   "known_family": true,
+   "name": "Jakarta Persistence",
+   "top_types": [
+    "jakarta.persistence.Entity",
+    "jakarta.persistence.Table",
+    "jakarta.persistence.Column",
+    "jakarta.persistence.MappedSuperclass",
+    "jakarta.persistence.JoinColumn"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-c8fb47353d19fc72",
+     "name": "System Configuration"
+    }
+   ],
+   "capability_count": 2,
+   "concerns": [
+    "PERFORMANCE"
+   ],
+   "dependency_types": {
+    "ANNOTATION": 2
+   },
+   "dependent_count": 2,
+   "family": "spring-cache",
+   "id": "resp-library-883b819782731752",
+   "known_family": true,
+   "name": "Spring cache and JCache",
+   "top_types": [
+    "org.springframework.cache.annotation.EnableCaching",
+    "org.springframework.cache.annotation.Cacheable"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-22c6bf723d668df4",
+     "name": "Application Clinic"
+    },
+    {
+     "id": "domain-663f102c0b38921a",
+     "name": "Type Owner"
+    },
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    },
+    {
+     "id": "domain-c8fb47353d19fc72",
+     "name": "System Configuration"
+    }
+   ],
+   "capability_count": 5,
+   "concerns": [
+    "CONFIGURATION"
+   ],
+   "dependency_types": {
+    "ANNOTATION": 14,
+    "GENERIC_TYPE": 1,
+    "INTERFACE": 1,
+    "METHOD_CALL": 3
+   },
+   "dependent_count": 13,
+   "family": "spring-core",
+   "id": "resp-library-a72402f5cb6c2ff8",
+   "known_family": true,
+   "name": "Spring core and boot",
+   "top_types": [
+    "org.springframework.stereotype.Controller",
+    "org.springframework.format.annotation.DateTimeFormat",
+    "org.springframework.util.StringUtils",
+    "org.springframework.format.Formatter",
+    "org.springframework.context.annotation.Bean"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-663f102c0b38921a",
+     "name": "Type Owner"
+    },
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    }
+   ],
+   "capability_count": 3,
+   "concerns": [
+    "BUSINESS_DATA_ACCESS"
+   ],
+   "dependency_types": {
+    "ANNOTATION": 1,
+    "GENERIC_TYPE": 9,
+    "INTERFACE": 3,
+    "METHOD_CALL": 4,
+    "PARAMETER_TYPE": 4,
+    "RETURN_TYPE": 4
+   },
+   "dependent_count": 5,
+   "family": "spring-data",
+   "id": "resp-library-73b240df505a966e",
+   "known_family": true,
+   "name": "Spring Data",
+   "top_types": [
+    "org.springframework.data.domain.Page",
+    "org.springframework.data.domain.Pageable",
+    "org.springframework.data.jpa.repository.JpaRepository",
+    "org.springframework.data.domain.PageRequest",
+    "org.springframework.data.repository.Repository"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    }
+   ],
+   "capability_count": 1,
+   "concerns": [
+    "DATA_INTEGRITY"
+   ],
+   "dependency_types": {
+    "ANNOTATION": 1
+   },
+   "dependent_count": 1,
+   "family": "spring-tx",
+   "id": "resp-library-09b6b59edd2f8f62",
+   "known_family": true,
+   "name": "Spring transactions",
+   "top_types": [
+    "org.springframework.transaction.annotation.Transactional"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    }
+   ],
+   "capability_count": 2,
+   "concerns": [
+    "BUSINESS_VALIDATION"
+   ],
+   "dependency_types": {
+    "ANNOTATION": 8,
+    "INTERFACE": 1,
+    "METHOD_CALL": 4,
+    "PARAMETER_TYPE": 4
+   },
+   "dependent_count": 8,
+   "family": "spring-validation",
+   "id": "resp-library-618c185dd3a9fec7",
+   "known_family": true,
+   "name": "Validation",
+   "top_types": [
+    "org.springframework.validation.BindingResult",
+    "jakarta.validation.constraints.NotBlank",
+    "jakarta.validation.Valid",
+    "org.springframework.validation.Errors",
+    "jakarta.validation.constraints.Pattern"
+   ]
+  },
+  {
+   "capabilities": [
+    {
+     "id": "domain-88320003e6c6ba0d",
+     "name": "Vet"
+    },
+    {
+     "id": "domain-9d798ed24befbf26",
+     "name": "Owner Visit"
+    },
+    {
+     "id": "domain-c8fb47353d19fc72",
+     "name": "System Configuration"
+    }
+   ],
+   "capability_count": 3,
+   "concerns": [
+    "INTEROPERABILITY"
+   ],
+   "dependency_types": {
+    "ANNOTATION": 22,
+    "GENERIC_TYPE": 1,
+    "INTERFACE": 1,
+    "METHOD_CALL": 10,
+    "PARAMETER_TYPE": 10,
+    "RETURN_TYPE": 1,
+    "TYPE_REFERENCE": 1
+   },
+   "dependent_count": 7,
+   "family": "spring-web",
+   "id": "resp-library-72f9f51cd99fcf7f",
+   "known_family": true,
+   "name": "Spring Web MVC",
+   "top_types": [
+    "org.springframework.web.bind.WebDataBinder",
+    "org.springframework.web.bind.annotation.GetMapping",
+    "org.springframework.web.servlet.mvc.support.RedirectAttributes",
+    "org.springframework.ui.Model",
+    "org.springframework.web.bind.annotation.InitBinder"
+   ]
+  }
+ ],
+ "limitations": [
+  "Evidence comes from compiled bytecode: source files, configuration files and runtime behavior are not examined.",
+  "Method bodies expose call sites, type references and branch counts; catch blocks and loop structure are not recorded, so error handling and repeated work cannot be established.",
+  "Absence of a detected mechanism is not proof that the mechanism is absent: gateways, configuration files and platform controls do not appear in bytecode.",
+  "The artifact contains no .java files, so file paths are derived from the package and the SourceFile attribute and are marked as derived; line numbers come from the bytecode line table.",
+  "Business capabilities are the candidate domains found by ArchIntel; they are heuristic boundaries that an architect must validate."
+ ],
+ "packages": [
+  {
+   "capabilities": [
+    "Application Clinic"
+   ],
+   "class_count": 1,
+   "kind": "TECHNICAL",
+   "mixed": false,
+   "note": "Package names are supporting evidence only; this reading comes from the classes inside.",
+   "package": "org.springframework.samples.petclinic",
+   "primary_counts": {
+    "NON_FUNCTIONAL": 1
+   },
+   "top_categories": [
+    "CONFIGURATION"
+   ],
+   "unclear_boundary": false
+  },
+  {
+   "capabilities": [
+    "Vet"
+   ],
+   "class_count": 3,
+   "kind": "BUSINESS",
+   "mixed": false,
+   "note": "Package names are supporting evidence only; this reading comes from the classes inside.",
+   "package": "org.springframework.samples.petclinic.model",
+   "primary_counts": {
+    "FUNCTIONAL": 2,
+    "FUNCTIONAL_SUPPORT": 1
+   },
+   "top_categories": [
+    "DOMAIN_MODEL"
+   ],
+   "unclear_boundary": false
+  },
+  {
+   "capabilities": [
+    "Owner Visit",
+    "Type Owner"
+   ],
+   "class_count": 11,
+   "kind": "BUSINESS",
+   "mixed": true,
+   "note": "Package names are supporting evidence only; this reading comes from the classes inside.",
+   "package": "org.springframework.samples.petclinic.owner",
+   "primary_counts": {
+    "FUNCTIONAL": 4,
+    "FUNCTIONAL_SUPPORT": 4,
+    "MIXED": 3
+   },
+   "top_categories": [
+    "DOMAIN_MODEL",
+    "MAINTAINABILITY",
+    "BUSINESS_VALIDATION",
+    "API_AND_APPLICATION_ENTRY",
+    "SECURITY",
+    "PERFORMANCE"
+   ],
+   "unclear_boundary": true
+  },
+  {
+   "capabilities": [
+    "System Configuration"
+   ],
+   "class_count": 4,
+   "kind": "TECHNICAL",
+   "mixed": false,
+   "note": "Package names are supporting evidence only; this reading comes from the classes inside.",
+   "package": "org.springframework.samples.petclinic.system",
+   "primary_counts": {
+    "FUNCTIONAL": 2,
+    "NON_FUNCTIONAL": 2
+   },
+   "top_categories": [
+    "CONFIGURATION",
+    "API_AND_APPLICATION_ENTRY",
+    "PERFORMANCE"
+   ],
+   "unclear_boundary": false
+  },
+  {
+   "capabilities": [
+    "Vet"
+   ],
+   "class_count": 5,
+   "kind": "BUSINESS",
+   "mixed": false,
+   "note": "Package names are supporting evidence only; this reading comes from the classes inside.",
+   "package": "org.springframework.samples.petclinic.vet",
+   "primary_counts": {
+    "FUNCTIONAL": 1,
+    "FUNCTIONAL_SUPPORT": 4
+   },
+   "top_categories": [
+    "DOMAIN_MODEL",
+    "INTEROPERABILITY",
+    "PERFORMANCE",
+    "API_AND_APPLICATION_ENTRY",
+    "MAINTAINABILITY",
+    "BUSINESS_DATA_ACCESS"
+   ],
+   "unclear_boundary": false
+  }
+ ],
+ "risks": [
+  {
+   "affected_components": [
+    "org.springframework.samples.petclinic.model.BaseEntity",
+    "org.springframework.samples.petclinic.model.NamedEntity",
+    "org.springframework.samples.petclinic.model.Person",
+    "org.springframework.samples.petclinic.owner.Owner",
+    "org.springframework.samples.petclinic.owner.Pet",
+    "org.springframework.samples.petclinic.owner.Visit"
+   ],
+   "affected_count": 6,
+   "category": "DATA_INTEGRITY",
+   "confidence": {
+    "basis": "the dependency edges and persistence annotations are detected; ownership of the data is a decision, not a fact",
+    "calibrated": false,
+    "level": "HIGH"
+   },
+   "consequence": "Two or more capabilities depend on one persistence model, so a change to it affects all of them and the data cannot be owned by one service.",
+   "consequence_status": "INFERRED",
+   "description": "3 class(es) in Owner Visit depend on 3 persistent class(es) assigned to Vet: BaseEntity, NamedEntity, Person",
+   "detection_status": "DETECTED",
+   "evidence_ids": [
+    "resp-evidence-249bb88adc59652a"
+   ],
+   "id": "resp-risk-2cd15035121ce095",
+   "investigate": "Decide which capability owns the data and whether the others can depend on a published contract instead.",
+   "potential_impact": "The shared model must become a shared library or be duplicated before the capabilities can be separated.",
+   "priority": 6,
+   "priority_basis": "HIGH by rule RISK-DATA-SHARED-MODEL; ordered by the number of affected components",
+   "rule_id": "RISK-DATA-SHARED-MODEL",
+   "runtime_validation_required": false,
+   "severity": "HIGH",
+   "title": "Persistent classes shared across candidate domains"
+  },
+  {
+   "affected_components": [
+    "org.springframework.samples.petclinic.owner.OwnerController",
+    "org.springframework.samples.petclinic.owner.PetController",
+    "org.springframework.samples.petclinic.owner.VisitController",
+    "org.springframework.samples.petclinic.system.CrashController",
+    "org.springframework.samples.petclinic.system.WelcomeController",
+    "org.springframework.samples.petclinic.vet.VetController"
+   ],
+   "affected_count": 6,
+   "category": "SECURITY",
+   "confidence": {
+    "basis": "absence of any access-control reference within the analyzed bytecode; a gateway or platform control would not appear here",
+    "calibrated": false,
+    "level": "MEDIUM"
+   },
+   "consequence": "Requests that change data may be reachable without authentication or authorization unless a gateway or platform control exists.",
+   "consequence_status": "INFERRED",
+   "description": "17 HTTP entry point(s), 5 of them changing data (POST /owners/new, POST /owners/{ownerId}/edit, POST /owners/{ownerId}/pets/new, POST /owners/{ownerId}/pets/{petId}/edit), have no detectable authentication or authorization reference in 24 analyzed classes; input-binding restrictions exist in 3 class(es) (OwnerController, PetController, VisitController) but they do not control who may call",
+   "detection_status": "INFERRED",
+   "evidence_ids": [
+    "resp-evidence-56a77283d0eab28b"
+   ],
+   "id": "resp-risk-9afbe83f6171c672",
+   "investigate": "Confirm the authentication and authorization controls in front of the application, then decide whether the extracted service needs its own.",
+   "potential_impact": "A service boundary drawn here would expose these entry points without any control that moves with the code.",
+   "priority": 6,
+   "priority_basis": "HIGH by rule RISK-SEC-NO-CONTROL; ordered by the number of affected components",
+   "rule_id": "RISK-SEC-NO-CONTROL",
+   "runtime_validation_required": true,
+   "severity": "HIGH",
+   "title": "Entry points with no detectable security control"
+  },
+  {
+   "affected_components": [
+    "org.springframework.samples.petclinic.owner.Pet",
+    "org.springframework.samples.petclinic.owner.PetController",
+    "org.springframework.samples.petclinic.owner.PetType"
+   ],
+   "affected_count": 3,
+   "category": "DATA_INTEGRITY",
+   "confidence": {
+    "basis": "the dependency edges and persistence annotations are detected; ownership of the data is a decision, not a fact",
+    "calibrated": false,
+    "level": "HIGH"
+   },
+   "consequence": "Two or more capabilities depend on one persistence model, so a change to it affects all of them and the data cannot be owned by one service.",
+   "consequence_status": "INFERRED",
+   "description": "2 class(es) in Owner Visit depend on 1 persistent class(es) assigned to Type Owner: PetType",
+   "detection_status": "DETECTED",
+   "evidence_ids": [
+    "resp-evidence-20ab4584ee6ab733"
+   ],
+   "id": "resp-risk-c10ec420421779f4",
+   "investigate": "Decide which capability owns the data and whether the others can depend on a published contract instead.",
+   "potential_impact": "The shared model must become a shared library or be duplicated before the capabilities can be separated.",
+   "priority": 3,
+   "priority_basis": "HIGH by rule RISK-DATA-SHARED-MODEL; ordered by the number of affected components",
+   "rule_id": "RISK-DATA-SHARED-MODEL",
+   "runtime_validation_required": false,
+   "severity": "HIGH",
+   "title": "Persistent classes shared across candidate domains"
+  },
+  {
+   "affected_components": [
+    "org.springframework.samples.petclinic.model.NamedEntity",
+    "org.springframework.samples.petclinic.owner.PetType"
+   ],
+   "affected_count": 2,
+   "category": "DATA_INTEGRITY",
+   "confidence": {
+    "basis": "the dependency edges and persistence annotations are detected; ownership of the data is a decision, not a fact",
+    "calibrated": false,
+    "level": "HIGH"
+   },
+   "consequence": "Two or more capabilities depend on one persistence model, so a change to it affects all of them and the data cannot be owned by one service.",
+   "consequence_status": "INFERRED",
+   "description": "1 class(es) in Type Owner depend on 1 persistent class(es) assigned to Vet: NamedEntity",
+   "detection_status": "DETECTED",
+   "evidence_ids": [
+    "resp-evidence-1aca3cfd2d312d76"
+   ],
+   "id": "resp-risk-86b75b0a48771f69",
+   "investigate": "Decide which capability owns the data and whether the others can depend on a published contract instead.",
+   "potential_impact": "The shared model must become a shared library or be duplicated before the capabilities can be separated.",
+   "priority": 2,
+   "priority_basis": "HIGH by rule RISK-DATA-SHARED-MODEL; ordered by the number of affected components",
+   "rule_id": "RISK-DATA-SHARED-MODEL",
+   "runtime_validation_required": false,
+   "severity": "HIGH",
+   "title": "Persistent classes shared across candidate domains"
+  },
+  {
+   "affected_components": [
+    "org.springframework.samples.petclinic.PetClinicApplication",
+    "org.springframework.samples.petclinic.model.BaseEntity",
+    "org.springframework.samples.petclinic.model.NamedEntity",
+    "org.springframework.samples.petclinic.model.Person",
+    "org.springframework.samples.petclinic.owner.Owner",
+    "org.springframework.samples.petclinic.owner.OwnerController",
+    "org.springframework.samples.petclinic.owner.OwnerRepository",
+    "org.springframework.samples.petclinic.owner.Pet",
+    "org.springframework.samples.petclinic.owner.PetController",
+    "org.springframework.samples.petclinic.owner.PetType",
+    "org.springframework.samples.petclinic.owner.PetTypeFormatter",
+    "org.springframework.samples.petclinic.owner.PetTypeRepository",
+    "org.springframework.samples.petclinic.owner.PetValidator",
+    "org.springframework.samples.petclinic.owner.Visit",
+    "org.springframework.samples.petclinic.owner.VisitController",
+    "org.springframework.samples.petclinic.system.CacheConfiguration",
+    "org.springframework.samples.petclinic.system.CrashController",
+    "org.springframework.samples.petclinic.system.WebConfiguration",
+    "org.springframework.samples.petclinic.system.WelcomeController",
+    "org.springframework.samples.petclinic.vet.Specialty",
+    "org.springframework.samples.petclinic.vet.Vet",
+    "org.springframework.samples.petclinic.vet.VetController",
+    "org.springframework.samples.petclinic.vet.VetRepository",
+    "org.springframework.samples.petclinic.vet.Vets"
+   ],
+   "affected_count": 24,
+   "category": "OBSERVABILITY",
+   "confidence": {
+    "basis": "absence within the analyzed bytecode; output written by the framework itself would not appear here",
+    "calibrated": false,
+    "level": "MEDIUM"
+   },
+   "consequence": "Failures and slow requests may be hard to diagnose, and distributed tracing would start from nothing after an extraction.",
+   "consequence_status": "INFERRED",
+   "description": "None of the 24 analyzed classes references a logging, metrics or tracing API",
+   "detection_status": "INFERRED",
+   "evidence_ids": [
+    "resp-evidence-7cb8c60b0120fc79"
+   ],
+   "id": "resp-risk-c405132c728f8417",
+   "investigate": "Add structured logging and trace context before extracting a capability.",
+   "potential_impact": "Splitting a request across services without instrumentation makes the combined flow hard to follow.",
+   "priority": 24,
+   "priority_basis": "MEDIUM by rule RISK-OBS-NO-INSTRUMENTATION; ordered by the number of affected components",
+   "rule_id": "RISK-OBS-NO-INSTRUMENTATION",
+   "runtime_validation_required": false,
+   "severity": "MEDIUM",
+   "title": "No logging, metrics or tracing reference found"
+  },
+  {
+   "affected_components": [
+    "org.springframework.samples.petclinic.owner.PetTypeRepository"
+   ],
+   "affected_count": 1,
+   "category": "MAINTAINABILITY",
+   "confidence": {
+    "basis": "dependency edges are detected from bytecode",
+    "calibrated": false,
+    "level": "HIGH"
+   },
+   "consequence": "A change to this component can affect every domain that uses it.",
+   "consequence_status": "INFERRED",
+   "description": "PetTypeRepository is used by 2 class(es) in 2 candidate domains: Type Owner, Owner Visit",
+   "detection_status": "DETECTED",
+   "evidence_ids": [],
+   "id": "resp-risk-6fde565c98281f0a",
+   "investigate": "Check the change history and decide on the library versioning policy.",
+   "potential_impact": "Treat it as a shared library or module; making it a service would add a network call to every use.",
+   "priority": 1,
+   "priority_basis": "MEDIUM by rule RISK-MAINT-SHARED-COMPONENT; ordered by the number of affected components",
+   "rule_id": "RISK-MAINT-SHARED-COMPONENT",
+   "runtime_validation_required": false,
+   "severity": "MEDIUM",
+   "title": "Shared component used from two or more candidate domains"
+  },
+  {
+   "affected_components": [
+    "org.springframework.samples.petclinic.vet.VetRepository"
+   ],
+   "affected_count": 1,
+   "category": "PERFORMANCE",
+   "confidence": {
+    "basis": "the return type is read from the signature; the table size is unknown",
+    "calibrated": false,
+    "level": "MEDIUM"
+   },
+   "consequence": "The result size grows with the table, so response time and memory may grow with it.",
+   "consequence_status": "INFERRED",
+   "description": "VetRepository.findAll() returns a whole Collection with no paging",
+   "detection_status": "DETECTED",
+   "evidence_ids": [
+    "resp-evidence-ef9ad3de40706df3"
+   ],
+   "id": "resp-risk-40438492e3da5701",
+   "investigate": "Check the table size in production and add paging where it can grow.",
+   "potential_impact": "A remote call returning an unbounded collection would be costly and fragile across a service boundary.",
+   "priority": 1,
+   "priority_basis": "MEDIUM by rule RISK-PERF-UNBOUNDED-QUERY; ordered by the number of affected components",
+   "rule_id": "RISK-PERF-UNBOUNDED-QUERY",
+   "runtime_validation_required": true,
+   "severity": "MEDIUM",
+   "title": "Repository query that returns a whole collection"
+  },
+  {
+   "affected_components": [
+    "org.springframework.samples.petclinic.owner.PetTypeRepository"
+   ],
+   "affected_count": 1,
+   "category": "PERFORMANCE",
+   "confidence": {
+    "basis": "the return type is read from the signature; the table size is unknown",
+    "calibrated": false,
+    "level": "MEDIUM"
+   },
+   "consequence": "The result size grows with the table, so response time and memory may grow with it.",
+   "consequence_status": "INFERRED",
+   "description": "PetTypeRepository.findPetTypes() returns a whole List with no paging",
+   "detection_status": "DETECTED",
+   "evidence_ids": [
+    "resp-evidence-bbaeba8102eddc30"
+   ],
+   "id": "resp-risk-c5be9f07eefeb5fc",
+   "investigate": "Check the table size in production and add paging where it can grow.",
+   "potential_impact": "A remote call returning an unbounded collection would be costly and fragile across a service boundary.",
+   "priority": 1,
+   "priority_basis": "MEDIUM by rule RISK-PERF-UNBOUNDED-QUERY; ordered by the number of affected components",
+   "rule_id": "RISK-PERF-UNBOUNDED-QUERY",
+   "runtime_validation_required": true,
+   "severity": "MEDIUM",
+   "title": "Repository query that returns a whole collection"
+  }
+ ],
+ "status": "AVAILABLE",
+ "summary": {
+  "by_primary": {
+   "FUNCTIONAL": 9,
+   "FUNCTIONAL_SUPPORT": 9,
+   "MIXED": 3,
+   "NON_FUNCTIONAL": 3
+  },
+  "capabilities": 5,
+  "capability_kinds": {
+   "BUSINESS": 3,
+   "TECHNICAL": 2
+  },
+  "classes": 24,
+  "cross_cutting": 11,
+  "dependencies": 35,
+  "evidence_items": 126,
+  "evidence_rejected": 0,
+  "functional_categories": {
+   "API_AND_APPLICATION_ENTRY": 6,
+   "BUSINESS_DATA_ACCESS": 3,
+   "BUSINESS_LOGIC": 6,
+   "BUSINESS_PROCESSING": 1,
+   "BUSINESS_VALIDATION": 8,
+   "DOMAIN_MODEL": 10
+  },
+  "nonfunctional_categories": {
+   "CONFIGURATION": 3,
+   "DATA_INTEGRITY": 5,
+   "INTERNATIONALIZATION": 1,
+   "INTEROPERABILITY": 2,
+   "MAINTAINABILITY": 5,
+   "PERFORMANCE": 5,
+   "RELIABILITY": 1,
+   "SECURITY": 3,
+   "TESTABILITY": 5
+  },
+  "risks": 8,
+  "risks_by_severity": {
+   "HIGH": 4,
+   "MEDIUM": 4
+  },
+  "statuses": {
+   "DETECTED": 41,
+   "INFERRED": 23
+  }
+ },
+ "taxonomy": {
+  "functional": {
+   "API_AND_APPLICATION_ENTRY": {
+    "description": "Controllers",
+    "label": "API and application entry",
+    "limit": "An entry point shows how a capability is reached; it says nothing about authorization or traffic."
+   },
+   "APPLICATION_ORCHESTRATION": {
+    "description": "Code coordinating two or more application operations or workflows.",
+    "label": "Application orchestration",
+    "limit": "Calls to two or more collaborating classes suggest coordination; the workflow itself is not reconstructed."
+   },
+   "BUSINESS_DATA_ACCESS": {
+    "description": "Repositories and persistence operations supporting a capability.",
+    "label": "Business data access",
+    "limit": "Data-access code shows how data is reached; runtime SQL and data ownership are not known."
+   },
+   "BUSINESS_LOGIC": {
+    "description": "Rules",
+    "label": "Business logic",
+    "limit": "A service stereotype or a branching method suggests logic; it does not prove which business rule it implements."
+   },
+   "BUSINESS_PROCESSING": {
+    "description": "Transformations",
+    "label": "Business processing",
+    "limit": "Detected from code shape only; the business meaning needs review."
+   },
+   "BUSINESS_VALIDATION": {
+    "description": "Validation that enforces business rules or domain constraints.",
+    "label": "Business validation",
+    "limit": "A declared constraint does not show that it encodes a business rule or that it is enforced on every path."
+   },
+   "DOMAIN_MODEL": {
+    "description": "Entities",
+    "label": "Domain model",
+    "limit": "Persistence annotations show a stored record"
+   },
+   "EXTERNAL_BUSINESS_INTEGRATION": {
+    "description": "Code integrating with payment",
+    "label": "External business integration",
+    "limit": "A client API call does not show which business system is behind it."
+   }
+  },
+  "nonfunctional": {
+   "AUDITABILITY_AND_COMPLIANCE": {
+    "description": "Audit events",
+    "label": "Auditability and compliance",
+    "limit": "Source patterns do not show regulatory compliance."
+   },
+   "AVAILABILITY": {
+    "description": "Health checks",
+    "label": "Availability",
+    "limit": "Mechanisms present in code do not show achieved availability."
+   },
+   "CONFIGURATION": {
+    "description": "Application and environment configuration",
+    "label": "Configuration",
+    "limit": "Configuration files are not retained from a compiled artifact"
+   },
+   "CROSS_CUTTING_INFRASTRUCTURE": {
+    "description": "Servlet filters",
+    "label": "Cross-cutting infrastructure",
+    "limit": "The framework type shows a request-pipeline hook; which concern it serves needs its code to be read."
+   },
+   "DATA_INTEGRITY": {
+    "description": "Transaction boundaries",
+    "label": "Data integrity",
+    "limit": "An annotation shows intent; transaction behavior and isolation need runtime or test evidence."
+   },
+   "EXTENSIBILITY": {
+    "description": "Plugin mechanisms",
+    "label": "Extensibility",
+    "limit": "An interface with two or more implementations shows a seam"
+   },
+   "INTERNATIONALIZATION": {
+    "description": "Locale handling and message bundles.",
+    "label": "Internationalization",
+    "limit": "Locale support does not show that every text is translated."
+   },
+   "INTEROPERABILITY": {
+    "description": "HTTP clients",
+    "label": "Interoperability",
+    "limit": "Client and serialization usage shows a contract exists"
+   },
+   "MAINTAINABILITY": {
+    "description": "Complexity",
+    "label": "Maintainability",
+    "limit": "Structural measures indicate change cost; they are not defects by themselves."
+   },
+   "OBSERVABILITY": {
+    "description": "Logging",
+    "label": "Observability",
+    "limit": "Library references show instrumentation exists"
+   },
+   "PERFORMANCE": {
+    "description": "Caching",
+    "label": "Performance",
+    "limit": "Structural indicators are not measured performance problems; use the Performance tab for measurements."
+   },
+   "PRIVACY_AND_DATA_PROTECTION": {
+    "description": "Masking",
+    "label": "Privacy and data protection",
+    "limit": "Only what source or configuration shows is reported; no privacy compliance is claimed."
+   },
+   "RELIABILITY": {
+    "description": "Retry",
+    "label": "Reliability",
+    "limit": "Presence of a mechanism does not show that recovery works."
+   },
+   "RESOURCE_MANAGEMENT": {
+    "description": "Connections",
+    "label": "Resource management",
+    "limit": "Resource handling cannot be proven leak-free from bytecode references."
+   },
+   "SCALABILITY": {
+    "description": "Shared mutable state",
+    "label": "Scalability",
+    "limit": "Asynchronous or scheduled execution is not proven scalability."
+   },
+   "SECURITY": {
+    "description": "Authentication",
+    "label": "Security",
+    "limit": "Security classes or annotations do not show that the application is secure"
+   },
+   "TESTABILITY": {
+    "description": "Dependency injection",
+    "label": "Testability",
+    "limit": "Seams make testing easier; they say nothing about the tests that exist or their coverage."
+   }
+  },
+  "primary_classifications": {
+   "FUNCTIONAL": "Implements or enforces business behavior (entry points, logic, validation, orchestration).",
+   "FUNCTIONAL_SUPPORT": "Supports a capability without implementing its rules (data access, domain model).",
+   "MIXED": "Has a detected business responsibility and its own code runs a non-functional concern (it calls or holds the concern API).",
+   "NON_FUNCTIONAL": "Implements a technical concern with no business behavior detected.",
+   "UNCERTAIN": "No detected evidence establishes a responsibility; any label rests on a name only."
+  },
+  "statuses": {
+   "DETECTED": "Established directly by a fact in the bytecode.",
+   "INFERRED": "A reasoned reading of one or more facts; not established as a fact.",
+   "UNVERIFIED": "Needs runtime, configuration or test evidence that is not available."
+  }
+ },
+ "validation": {
+  "evidence_checked": 126,
+  "evidence_rejected": 0,
+  "rejected": []
+ }
+}

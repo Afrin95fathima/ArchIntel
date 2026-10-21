@@ -1,0 +1,632 @@
+{
+ "items": [
+  {
+   "architectural_role": {
+    "evidence": "NONE",
+    "layer": "SUPPORT",
+    "reason": "no role annotation, framework supertype, entry method or naming convention found",
+    "role": "UNKNOWN"
+   },
+   "capability": {
+    "id": "domain-8b120c26c8966284",
+    "kind": "MIXED",
+    "name": "Cycle A"
+   },
+   "dependency_count": 1,
+   "dependent_count": 1,
+   "fqn": "com.fixture.edge.cycle.a.Address",
+   "functional": [],
+   "id": "com.fixture.edge.cycle.a.Address",
+   "non_functional": [
+    {
+     "category": "MAINTAINABILITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "package": "com.fixture.edge.cycle.a",
+   "primary_classification": "UNCERTAIN",
+   "risk_count": 1,
+   "simple_name": "Address",
+   "uncertain": true
+  },
+  {
+   "architectural_role": {
+    "evidence": "NONE",
+    "layer": "SUPPORT",
+    "reason": "no role annotation, framework supertype, entry method or naming convention found",
+    "role": "UNKNOWN"
+   },
+   "capability": {
+    "id": "domain-8b120c26c8966284",
+    "kind": "MIXED",
+    "name": "Cycle A"
+   },
+   "dependency_count": 2,
+   "dependent_count": 2,
+   "fqn": "com.fixture.edge.cycle.a.Customer",
+   "functional": [],
+   "id": "com.fixture.edge.cycle.a.Customer",
+   "non_functional": [
+    {
+     "category": "MAINTAINABILITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "package": "com.fixture.edge.cycle.a",
+   "primary_classification": "UNCERTAIN",
+   "risk_count": 1,
+   "simple_name": "Customer",
+   "uncertain": true
+  },
+  {
+   "architectural_role": {
+    "evidence": "NONE",
+    "layer": "SUPPORT",
+    "reason": "no role annotation, framework supertype, entry method or naming convention found",
+    "role": "UNKNOWN"
+   },
+   "capability": {
+    "id": "domain-8b120c26c8966284",
+    "kind": "MIXED",
+    "name": "Cycle A"
+   },
+   "dependency_count": 2,
+   "dependent_count": 2,
+   "fqn": "com.fixture.edge.cycle.a.Order",
+   "functional": [],
+   "id": "com.fixture.edge.cycle.a.Order",
+   "non_functional": [
+    {
+     "category": "MAINTAINABILITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "package": "com.fixture.edge.cycle.a",
+   "primary_classification": "UNCERTAIN",
+   "risk_count": 1,
+   "simple_name": "Order",
+   "uncertain": true
+  },
+  {
+   "architectural_role": {
+    "evidence": "NONE",
+    "layer": "SUPPORT",
+    "reason": "no role annotation, framework supertype, entry method or naming convention found",
+    "role": "UNKNOWN"
+   },
+   "capability": {
+    "id": "domain-8b120c26c8966284",
+    "kind": "MIXED",
+    "name": "Cycle A"
+   },
+   "dependency_count": 1,
+   "dependent_count": 1,
+   "fqn": "com.fixture.edge.cycle.a.Region",
+   "functional": [],
+   "id": "com.fixture.edge.cycle.a.Region",
+   "non_functional": [
+    {
+     "category": "MAINTAINABILITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "package": "com.fixture.edge.cycle.a",
+   "primary_classification": "UNCERTAIN",
+   "risk_count": 1,
+   "simple_name": "Region",
+   "uncertain": true
+  },
+  {
+   "architectural_role": {
+    "evidence": "NONE",
+    "layer": "SUPPORT",
+    "reason": "no role annotation, framework supertype, entry method or naming convention found",
+    "role": "UNKNOWN"
+   },
+   "capability": {
+    "id": "domain-8b120c26c8966284",
+    "kind": "MIXED",
+    "name": "Cycle A"
+   },
+   "dependency_count": 1,
+   "dependent_count": 1,
+   "fqn": "com.fixture.edge.cycle.b.Invoice",
+   "functional": [],
+   "id": "com.fixture.edge.cycle.b.Invoice",
+   "non_functional": [
+    {
+     "category": "MAINTAINABILITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    },
+    {
+     "category": "TESTABILITY",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    }
+   ],
+   "package": "com.fixture.edge.cycle.b",
+   "primary_classification": "UNCERTAIN",
+   "risk_count": 1,
+   "simple_name": "Invoice",
+   "uncertain": true
+  },
+  {
+   "architectural_role": {
+    "evidence": "STRUCTURE",
+    "layer": "CONFIGURATION",
+    "reason": "declares public static void main(String[])",
+    "role": "APPLICATION"
+   },
+   "capability": {
+    "id": "domain-67a3f44d1b93fc62",
+    "kind": "BUSINESS",
+    "name": "Billing Jobs"
+   },
+   "dependency_count": 0,
+   "dependent_count": 0,
+   "fqn": "com.fixture.edge.jobs.CliTool",
+   "functional": [],
+   "id": "com.fixture.edge.jobs.CliTool",
+   "non_functional": [],
+   "package": "com.fixture.edge.jobs",
+   "primary_classification": "UNCERTAIN",
+   "risk_count": 1,
+   "simple_name": "CliTool",
+   "uncertain": true
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "SERVICE",
+    "reason": "annotated @org.springframework.stereotype.Component",
+    "role": "COMPONENT"
+   },
+   "capability": {
+    "id": "domain-67a3f44d1b93fc62",
+    "kind": "BUSINESS",
+    "name": "Billing Jobs"
+   },
+   "dependency_count": 0,
+   "dependent_count": 0,
+   "fqn": "com.fixture.edge.jobs.OrderEvents",
+   "functional": [
+    {
+     "category": "API_AND_APPLICATION_ENTRY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "com.fixture.edge.jobs.OrderEvents",
+   "non_functional": [],
+   "package": "com.fixture.edge.jobs",
+   "primary_classification": "FUNCTIONAL",
+   "risk_count": 1,
+   "simple_name": "OrderEvents",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "SERVICE",
+    "reason": "annotated @org.springframework.stereotype.Component",
+    "role": "COMPONENT"
+   },
+   "capability": {
+    "id": "domain-67a3f44d1b93fc62",
+    "kind": "BUSINESS",
+    "name": "Billing Jobs"
+   },
+   "dependency_count": 0,
+   "dependent_count": 0,
+   "fqn": "com.fixture.edge.jobs.ReminderJob",
+   "functional": [],
+   "id": "com.fixture.edge.jobs.ReminderJob",
+   "non_functional": [
+    {
+     "category": "SCALABILITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "package": "com.fixture.edge.jobs",
+   "primary_classification": "NON_FUNCTIONAL",
+   "risk_count": 1,
+   "simple_name": "ReminderJob",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "TYPE_HIERARCHY",
+    "layer": "PRESENTATION",
+    "reason": "extends org.apache.struts.action.Action",
+    "role": "ACTION"
+   },
+   "capability": {
+    "id": "domain-67a3f44d1b93fc62",
+    "kind": "BUSINESS",
+    "name": "Billing Jobs"
+   },
+   "dependency_count": 1,
+   "dependent_count": 1,
+   "fqn": "com.fixture.edge.legacy.BillingAction",
+   "functional": [],
+   "id": "com.fixture.edge.legacy.BillingAction",
+   "non_functional": [
+    {
+     "category": "MAINTAINABILITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "package": "com.fixture.edge.legacy",
+   "primary_classification": "UNCERTAIN",
+   "risk_count": 2,
+   "simple_name": "BillingAction",
+   "uncertain": true
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "DOMAIN",
+    "reason": "annotated @javax.persistence.Entity",
+    "role": "ENTITY"
+   },
+   "capability": {
+    "id": "domain-67a3f44d1b93fc62",
+    "kind": "BUSINESS",
+    "name": "Billing Jobs"
+   },
+   "dependency_count": 1,
+   "dependent_count": 1,
+   "fqn": "com.fixture.edge.legacy.BillingRecord",
+   "functional": [
+    {
+     "category": "DOMAIN_MODEL",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "com.fixture.edge.legacy.BillingRecord",
+   "non_functional": [
+    {
+     "category": "MAINTAINABILITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "package": "com.fixture.edge.legacy",
+   "primary_classification": "FUNCTIONAL_SUPPORT",
+   "risk_count": 1,
+   "simple_name": "BillingRecord",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "NAMING",
+    "layer": "DOMAIN",
+    "reason": "package segment 'model' (naming convention only)",
+    "role": "MODEL"
+   },
+   "capability": {
+    "id": "domain-f36427bea173da2c",
+    "kind": "BUSINESS",
+    "name": "Item"
+   },
+   "dependency_count": 0,
+   "dependent_count": 2,
+   "fqn": "com.fixture.edge.model.Item",
+   "functional": [
+    {
+     "category": "DOMAIN_MODEL",
+     "confidence": "LOW",
+     "status": "INFERRED"
+    }
+   ],
+   "id": "com.fixture.edge.model.Item",
+   "non_functional": [
+    {
+     "category": "MAINTAINABILITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "package": "com.fixture.edge.model",
+   "primary_classification": "UNCERTAIN",
+   "risk_count": 1,
+   "simple_name": "Item",
+   "uncertain": true
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "SERVICE",
+    "reason": "annotated @org.springframework.stereotype.Service",
+    "role": "SERVICE"
+   },
+   "capability": {
+    "id": "domain-f36427bea173da2c",
+    "kind": "BUSINESS",
+    "name": "Item"
+   },
+   "dependency_count": 1,
+   "dependent_count": 1,
+   "fqn": "com.fixture.edge.model.ItemService",
+   "functional": [
+    {
+     "category": "BUSINESS_LOGIC",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    }
+   ],
+   "id": "com.fixture.edge.model.ItemService",
+   "non_functional": [
+    {
+     "category": "MAINTAINABILITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    },
+    {
+     "category": "SCALABILITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    },
+    {
+     "category": "TESTABILITY",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    }
+   ],
+   "package": "com.fixture.edge.model",
+   "primary_classification": "FUNCTIONAL",
+   "risk_count": 2,
+   "simple_name": "ItemService",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "DOMAIN",
+    "reason": "annotated @jakarta.persistence.Entity",
+    "role": "ENTITY"
+   },
+   "capability": {
+    "id": "domain-d2d2eb2cb8f9eb9e",
+    "kind": "BUSINESS",
+    "name": "Entity Admin"
+   },
+   "dependency_count": 0,
+   "dependent_count": 2,
+   "fqn": "com.fixture.edge.model.OrderEntity",
+   "functional": [
+    {
+     "category": "DOMAIN_MODEL",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "com.fixture.edge.model.OrderEntity",
+   "non_functional": [],
+   "package": "com.fixture.edge.model",
+   "primary_classification": "FUNCTIONAL_SUPPORT",
+   "risk_count": 1,
+   "simple_name": "OrderEntity",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "DATA_ACCESS",
+    "reason": "annotated @org.springframework.stereotype.Repository",
+    "role": "REPOSITORY"
+   },
+   "capability": {
+    "id": "domain-d2d2eb2cb8f9eb9e",
+    "kind": "BUSINESS",
+    "name": "Entity Admin"
+   },
+   "dependency_count": 1,
+   "dependent_count": 1,
+   "fqn": "com.fixture.edge.model.OrderRepository",
+   "functional": [
+    {
+     "category": "BUSINESS_DATA_ACCESS",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "com.fixture.edge.model.OrderRepository",
+   "non_functional": [],
+   "package": "com.fixture.edge.model",
+   "primary_classification": "FUNCTIONAL_SUPPORT",
+   "risk_count": 1,
+   "simple_name": "OrderRepository",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "TYPE_HIERARCHY",
+    "layer": "PRESENTATION",
+    "reason": "implements javax.servlet.Filter",
+    "role": "FILTER"
+   },
+   "capability": {
+    "id": "domain-67a3f44d1b93fc62",
+    "kind": "BUSINESS",
+    "name": "Billing Jobs"
+   },
+   "dependency_count": 0,
+   "dependent_count": 0,
+   "fqn": "com.fixture.edge.web.AuditFilter",
+   "functional": [],
+   "id": "com.fixture.edge.web.AuditFilter",
+   "non_functional": [
+    {
+     "category": "CROSS_CUTTING_INFRASTRUCTURE",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "package": "com.fixture.edge.web",
+   "primary_classification": "NON_FUNCTIONAL",
+   "risk_count": 2,
+   "simple_name": "AuditFilter",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "PRESENTATION",
+    "reason": "annotated @javax.ws.rs.Path",
+    "role": "CONTROLLER"
+   },
+   "capability": {
+    "id": "domain-67a3f44d1b93fc62",
+    "kind": "BUSINESS",
+    "name": "Billing Jobs"
+   },
+   "dependency_count": 0,
+   "dependent_count": 0,
+   "fqn": "com.fixture.edge.web.GreetingResource",
+   "functional": [
+    {
+     "category": "API_AND_APPLICATION_ENTRY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "com.fixture.edge.web.GreetingResource",
+   "non_functional": [],
+   "package": "com.fixture.edge.web",
+   "primary_classification": "FUNCTIONAL",
+   "risk_count": 2,
+   "simple_name": "GreetingResource",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "PRESENTATION",
+    "reason": "annotated @org.springframework.web.bind.annotation.RestController",
+    "role": "CONTROLLER"
+   },
+   "capability": {
+    "id": "domain-f36427bea173da2c",
+    "kind": "BUSINESS",
+    "name": "Item"
+   },
+   "dependency_count": 2,
+   "dependent_count": 0,
+   "fqn": "com.fixture.edge.web.ItemController",
+   "functional": [
+    {
+     "category": "API_AND_APPLICATION_ENTRY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    },
+    {
+     "category": "BUSINESS_VALIDATION",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    }
+   ],
+   "id": "com.fixture.edge.web.ItemController",
+   "non_functional": [
+    {
+     "category": "DATA_INTEGRITY",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    },
+    {
+     "category": "TESTABILITY",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    }
+   ],
+   "package": "com.fixture.edge.web",
+   "primary_classification": "FUNCTIONAL",
+   "risk_count": 2,
+   "simple_name": "ItemController",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "PRESENTATION",
+    "reason": "annotated @javax.servlet.annotation.WebServlet",
+    "role": "SERVLET"
+   },
+   "capability": {
+    "id": "domain-67a3f44d1b93fc62",
+    "kind": "BUSINESS",
+    "name": "Billing Jobs"
+   },
+   "dependency_count": 0,
+   "dependent_count": 0,
+   "fqn": "com.fixture.edge.web.LegacyServlet",
+   "functional": [
+    {
+     "category": "API_AND_APPLICATION_ENTRY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "com.fixture.edge.web.LegacyServlet",
+   "non_functional": [],
+   "package": "com.fixture.edge.web",
+   "primary_classification": "FUNCTIONAL",
+   "risk_count": 2,
+   "simple_name": "LegacyServlet",
+   "uncertain": false
+  },
+  {
+   "architectural_role": {
+    "evidence": "ANNOTATION",
+    "layer": "PRESENTATION",
+    "reason": "annotated @org.springframework.stereotype.Controller",
+    "role": "CONTROLLER"
+   },
+   "capability": {
+    "id": "domain-d2d2eb2cb8f9eb9e",
+    "kind": "BUSINESS",
+    "name": "Entity Admin"
+   },
+   "dependency_count": 2,
+   "dependent_count": 0,
+   "fqn": "com.fixture.edge.web.OrderAdminController",
+   "functional": [
+    {
+     "category": "API_AND_APPLICATION_ENTRY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    }
+   ],
+   "id": "com.fixture.edge.web.OrderAdminController",
+   "non_functional": [
+    {
+     "category": "MAINTAINABILITY",
+     "confidence": "HIGH",
+     "status": "DETECTED"
+    },
+    {
+     "category": "TESTABILITY",
+     "confidence": "MEDIUM",
+     "status": "INFERRED"
+    }
+   ],
+   "package": "com.fixture.edge.web",
+   "primary_classification": "FUNCTIONAL",
+   "risk_count": 2,
+   "simple_name": "OrderAdminController",
+   "uncertain": false
+  }
+ ],
+ "limit": 500,
+ "offset": 0,
+ "status": "AVAILABLE",
+ "total": 19
+}

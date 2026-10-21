@@ -1,0 +1,253 @@
+{
+ "architectural_role": {
+  "evidence": "NONE",
+  "layer": "SUPPORT",
+  "reason": "no role annotation, framework supertype, entry method or naming convention found",
+  "role": "UNKNOWN"
+ },
+ "business_capabilities": [
+  {
+   "confidence": {
+    "note": "Boundary confidence = 0.5 \u00d7 stability + 0.3 \u00d7 (1 - conductance) + 0.2 \u00d7 size factor; it is a heuristic, not a calibrated probability.",
+    "value": 0.86
+   },
+   "id": "domain-8b120c26c8966284",
+   "kind": "MIXED",
+   "name": "Cycle A",
+   "relation": "MEMBER"
+  }
+ ],
+ "capability_implications": [
+  {
+   "capability": "Cycle A",
+   "implications": [
+    {
+     "evidence": [],
+     "kind": "NO_BLOCKING_CONSTRAINT_DETECTED",
+     "severity": "LOW",
+     "text": "No high-impact non-functional constraint was detected for Cycle A in the analyzed bytecode. Runtime behavior, configuration and data volumes were not examined."
+    }
+   ]
+  }
+ ],
+ "classification_reasons": [],
+ "component_type": "CLASS",
+ "cross_cutting": [],
+ "dependencies": [
+  {
+   "crosses_capability": false,
+   "relation": "BUSINESS",
+   "target": "com.fixture.edge.cycle.a.Region"
+  }
+ ],
+ "dependency_details": [
+  {
+   "basis": "BYTECODE_EDGE",
+   "concerns": [
+    "MAINTAINABILITY"
+   ],
+   "crosses_capability": false,
+   "direct": true,
+   "edge_kinds": {
+    "METHOD_CALL": 1,
+    "RETURN_TYPE": 1,
+    "TYPE_REFERENCE": 1
+   },
+   "evidence": [
+    {
+     "kind": "METHOD_CALL",
+     "line": 6,
+     "text": "Address.region() calls Region constructor"
+    },
+    {
+     "kind": "RETURN_TYPE",
+     "line": null,
+     "text": "Address.region() returns Region"
+    }
+   ],
+   "id": "resp-dependency-620c30ddd049ecf3",
+   "relation": "BUSINESS",
+   "source": "com.fixture.edge.cycle.a.Address",
+   "source_capability": "domain-8b120c26c8966284",
+   "target": "com.fixture.edge.cycle.a.Region",
+   "target_capability": "domain-8b120c26c8966284"
+  }
+ ],
+ "dependent_details": [
+  {
+   "basis": "BYTECODE_EDGE",
+   "concerns": [
+    "MAINTAINABILITY"
+   ],
+   "crosses_capability": false,
+   "direct": true,
+   "edge_kinds": {
+    "METHOD_CALL": 1,
+    "RETURN_TYPE": 1,
+    "TYPE_REFERENCE": 1
+   },
+   "evidence": [
+    {
+     "kind": "METHOD_CALL",
+     "line": 14,
+     "text": "Customer.address() calls Address constructor"
+    },
+    {
+     "kind": "RETURN_TYPE",
+     "line": null,
+     "text": "Customer.address() returns Address"
+    }
+   ],
+   "id": "resp-dependency-a69f113ad2c2423e",
+   "relation": "BUSINESS",
+   "source": "com.fixture.edge.cycle.a.Customer",
+   "source_capability": "domain-8b120c26c8966284",
+   "target": "com.fixture.edge.cycle.a.Address",
+   "target_capability": "domain-8b120c26c8966284"
+  }
+ ],
+ "dependents": [
+  {
+   "crosses_capability": false,
+   "relation": "BUSINESS",
+   "source": "com.fixture.edge.cycle.a.Customer"
+  }
+ ],
+ "domain_id": "domain-8b120c26c8966284",
+ "fqn": "com.fixture.edge.cycle.a.Address",
+ "functional_responsibilities": [],
+ "id": "com.fixture.edge.cycle.a.Address",
+ "methods": [
+  {
+   "labels": [],
+   "line_range": [
+    3,
+    3
+   ],
+   "name": "<init>",
+   "signature": "void <init>()"
+  },
+  {
+   "labels": [],
+   "line_range": [
+    6,
+    6
+   ],
+   "name": "region",
+   "signature": "com.fixture.edge.cycle.a.Region region()"
+  }
+ ],
+ "nested_classes": [],
+ "non_functional_responsibilities": [
+  {
+   "category": "MAINTAINABILITY",
+   "confidence": {
+    "basis": "1 detected strong evidence item(s) from rule(s) DEBT-CYCLE-MEMBER",
+    "calibrated": false,
+    "level": "HIGH"
+   },
+   "description": "cyclic dependency membership",
+   "evidence": [
+    {
+     "class_name": "com.fixture.edge.cycle.a.Address",
+     "id": "resp-evidence-9df4d1b80ca8dc3a",
+     "kind": "METRIC",
+     "location": {
+      "available": false,
+      "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+      "end_line": null,
+      "file_path": "com/fixture/edge/cycle/a/Address.java",
+      "line_basis": "UNAVAILABLE",
+      "member_line_range": null,
+      "source_file": "Address.java",
+      "start_line": null
+     },
+     "member": null,
+     "source": "BYTECODE",
+     "strength": "STRONG",
+     "text": "Cyclic dependency membership (cycle_group_size=5)",
+     "top_class": "com.fixture.edge.cycle.a.Address"
+    }
+   ],
+   "evidence_count": 1,
+   "evidence_ids": [
+    "resp-evidence-9df4d1b80ca8dc3a"
+   ],
+   "limit": "Structural measures indicate change cost; they are not defects by themselves.",
+   "methods": [],
+   "mixes": false,
+   "rule_ids": [
+    "DEBT-CYCLE-MEMBER"
+   ],
+   "side": "NON_FUNCTIONAL",
+   "status": "DETECTED"
+  }
+ ],
+ "package": "com.fixture.edge.cycle.a",
+ "primary_classification": "UNCERTAIN",
+ "risk_ids": [
+  "resp-risk-84cec79603dac6cb"
+ ],
+ "risks": [
+  {
+   "affected_components": [
+    "com.fixture.edge.cycle.a.Address",
+    "com.fixture.edge.cycle.a.Customer",
+    "com.fixture.edge.cycle.a.Order",
+    "com.fixture.edge.cycle.a.Region",
+    "com.fixture.edge.cycle.b.Invoice",
+    "com.fixture.edge.jobs.CliTool",
+    "com.fixture.edge.jobs.OrderEvents",
+    "com.fixture.edge.jobs.ReminderJob",
+    "com.fixture.edge.legacy.BillingAction",
+    "com.fixture.edge.legacy.BillingRecord",
+    "com.fixture.edge.model.Item",
+    "com.fixture.edge.model.ItemService",
+    "com.fixture.edge.model.OrderEntity",
+    "com.fixture.edge.model.OrderRepository",
+    "com.fixture.edge.web.AuditFilter",
+    "com.fixture.edge.web.GreetingResource",
+    "com.fixture.edge.web.ItemController",
+    "com.fixture.edge.web.LegacyServlet",
+    "com.fixture.edge.web.OrderAdminController"
+   ],
+   "affected_count": 19,
+   "category": "OBSERVABILITY",
+   "confidence": {
+    "basis": "absence within the analyzed bytecode; output written by the framework itself would not appear here",
+    "calibrated": false,
+    "level": "MEDIUM"
+   },
+   "consequence": "Failures and slow requests may be hard to diagnose, and distributed tracing would start from nothing after an extraction.",
+   "consequence_status": "INFERRED",
+   "description": "None of the 19 analyzed classes references a logging, metrics or tracing API",
+   "detection_status": "INFERRED",
+   "evidence_ids": [
+    "resp-evidence-d8344fc96b99d2fc"
+   ],
+   "id": "resp-risk-84cec79603dac6cb",
+   "investigate": "Add structured logging and trace context before extracting a capability.",
+   "potential_impact": "Splitting a request across services without instrumentation makes the combined flow hard to follow.",
+   "priority": 19,
+   "priority_basis": "MEDIUM by rule RISK-OBS-NO-INSTRUMENTATION; ordered by the number of affected components",
+   "rule_id": "RISK-OBS-NO-INSTRUMENTATION",
+   "runtime_validation_required": false,
+   "severity": "MEDIUM",
+   "title": "No logging, metrics or tracing reference found"
+  }
+ ],
+ "simple_name": "Address",
+ "source_location": {
+  "available": false,
+  "basis": "DERIVED_FROM_PACKAGE_AND_SOURCE_FILE_ATTRIBUTE",
+  "end_line": null,
+  "file_path": "com/fixture/edge/cycle/a/Address.java",
+  "line_basis": "UNAVAILABLE",
+  "member_line_range": null,
+  "source_file": "Address.java",
+  "start_line": null
+ },
+ "uncertainties": [
+  "No annotation, supertype, API call or structural pattern establishes a responsibility; any label above is from a name only."
+ ]
+}
