@@ -1,5 +1,5 @@
 from typing import Any, Literal
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from app.access.schemas import StrictInput, safe_path
 
 
@@ -97,10 +97,18 @@ class RecipeInput(RevisionInput):
 
 
 class MicroserviceGenerateInput(StrictInput):
-    """Per-request acknowledgement before selected source is sent to Gemini."""
+    """Per-request acknowledgement before selected source is sent to the chosen external model provider."""
     expected_revision: int = Field(ge=0)
     confirm_source_transfer: Literal[True]
-    acknowledgement: Literal['I_APPROVE_SENDING_SELECTED_SOURCE_TO_GOOGLE_GEMINI']
+    provider: Literal['GEMINI', 'CLAUDE'] = 'GEMINI'
+    acknowledgement: Literal['I_APPROVE_SENDING_SELECTED_SOURCE_TO_GOOGLE_GEMINI', 'I_APPROVE_SENDING_SELECTED_SOURCE_TO_ANTHROPIC_CLAUDE']
+
+    @model_validator(mode='after')
+    def acknowledgement_names_the_provider(self):
+        expected = {'GEMINI': 'I_APPROVE_SENDING_SELECTED_SOURCE_TO_GOOGLE_GEMINI', 'CLAUDE': 'I_APPROVE_SENDING_SELECTED_SOURCE_TO_ANTHROPIC_CLAUDE'}[self.provider]
+        if self.acknowledgement != expected:
+            raise ValueError('The acknowledgement must name the provider that receives the source.')
+        return self
 
 
 class MicroserviceBundleReviewInput(RevisionInput):

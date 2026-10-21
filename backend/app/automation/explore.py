@@ -15,10 +15,10 @@ from .runner import Runner, RunnerError
 
 STEPS = ['CHECK_RUNNER', 'CREATE_SESSION', 'UPLOAD_ARTIFACT', 'START_APPLICATION', 'EXPLORE', 'STOP_APPLICATION', 'COMPLETE_SESSION']
 LIMITATIONS = [
-    'Exploration fills forms with synthetic values and submits them, so it creates and changes data in the application it runs.',
+    'Exploration fills forms with synthetic values and submits them, so it creates and changes data; run it against a disposable copy of this application.',
     'Only pages reachable by links and forms from the start page and the static GET routes are visited; flows behind logins, JavaScript-only navigation or specific data are not.',
-    'Links that look destructive (delete, remove, logout) and forms with password fields are skipped.',
-    'Unvisited code is not proof of unused code.',
+    'Links that look destructive (delete, remove, logout) and forms with password fields are skipped, so this session has no evidence for them.',
+    'Unvisited code is not proof of unused code in this application.',
 ]
 
 

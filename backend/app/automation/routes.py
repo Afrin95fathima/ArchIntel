@@ -13,7 +13,7 @@ router = APIRouter(prefix='/api/v1', tags=['Automated exploration'])
 @router.get('/applications/{app_id}/runtime-sessions/automation')
 def runner_status(app_id: str, request: Request, db=Depends(session)):
     get(db, Application, app_id)
-    runner = Runner(request.app.state.config)
+    runner = Runner(request.app.state.config, getattr(request.app.state, 'runner_transport', None))
     if not runner.configured:
         return dict(configured=False, reachable=False, reason='RUNNER_TOKEN is not set for ArchIntel; start the runner with scripts/runner-start.sh.')
     try:
@@ -61,3 +61,100 @@ def explorations(app_id: str, db=Depends(session)):
     rows = db.scalars(select(AutomationJob).where(AutomationJob.application_id == app_id, AutomationJob.kind == 'EXPLORE')
                       .order_by(AutomationJob.created_at.desc()).limit(20))
     return dict(items=[jobs.view(r) for r in rows])
+
+
+# ---- Local conversion trial (Modernization page) -------------------------------------------------------------
+from pydantic import BaseModel, ConfigDict, Field
+from app.access.models import Principal, SourceGrant, SourceRepository
+from app.evidence.routes import owned as version_owned
+from app.modernization import service as planning
+from . import convert
+
+
+class ConversionInput(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    candidate_id: str = Field(min_length=1, max_length=80)
+    repository_id: str = Field(min_length=36, max_length=36)
+    acknowledgement: str = Field(max_length=120)
+
+
+def _plan(db, request, vid, aid):
+    version = version_owned(db, request, vid)
+    return version, planning.owned(db, version, aid)
+
+
+@router.get('/architecture-versions/{vid}/modernization/{aid}/conversions/repositories')
+def conversion_repositories(vid: str, aid: str, request: Request, db=Depends(session)):
+    version, _ = _plan(db, request, vid, aid)
+    identity = request.state.identity
+    grants = {g.repository_id for g in db.scalars(select(SourceGrant).where(SourceGrant.principal_id == identity['id']))}
+    rows = db.scalars(select(SourceRepository).where(SourceRepository.application_id == version.application_id, SourceRepository.tenant_id == identity['tenant_id']))
+    return dict(items=[dict(id=r.id, name=r.name, commit=r.commit, granted=r.id in grants) for r in rows])
+
+
+@router.get('/architecture-versions/{vid}/modernization/{aid}/conversions/preconditions')
+def conversion_preconditions(vid: str, aid: str, candidate_id: str, request: Request, repository_id: str = '', db=Depends(session)):
+    version, plan = _plan(db, request, vid, aid)
+    rows = convert.preconditions(db, request.app.state.config, request.state.identity, version, plan, candidate_id, repository_id)
+    return dict(ready=all(r['met'] for r in rows), items=rows, model=request.app.state.config.claude_model, limitations=convert.LIMITATIONS)
+
+
+@router.post('/architecture-versions/{vid}/modernization/{aid}/conversions', status_code=202)
+def start_conversion(vid: str, aid: str, body: ConversionInput, request: Request, db=Depends(session)):
+    version, plan = _plan(db, request, vid, aid)
+    identity = dict(request.state.identity)
+    job = convert.create(db, request.app.state.config, identity, version, plan, body.candidate_id, body.repository_id, body.acknowledgement)
+    jobs.spawn(job.id, convert.run, request.app.state.sessions, request.app.state.config, job.id, identity)
+    return jobs.view(job)
+
+
+@router.get('/architecture-versions/{vid}/modernization/{aid}/conversions')
+def conversions(vid: str, aid: str, request: Request, db=Depends(session)):
+    version, plan = _plan(db, request, vid, aid)
+    rows = db.scalars(select(AutomationJob).where(AutomationJob.application_id == version.application_id, AutomationJob.kind == 'CONVERT')
+                      .order_by(AutomationJob.created_at.desc()).limit(20))
+    return dict(items=[jobs.view(r) for r in rows if r.document.get('plan_id') == plan.id])
+
+
+def _conversion(db, request, vid, aid, job_id):
+    _, plan = _plan(db, request, vid, aid)
+    job = get(db, AutomationJob, job_id)
+    if job.kind != 'CONVERT' or job.document.get('plan_id') != plan.id:
+        raise HTTPException(404, 'Conversion not found for this plan.')
+    return job
+
+
+@router.get('/architecture-versions/{vid}/modernization/{aid}/conversions/{job_id}/files/{name:path}')
+def conversion_file(vid: str, aid: str, job_id: str, name: str, request: Request, db=Depends(session)):
+    job = _conversion(db, request, vid, aid, job_id)
+    principal = db.get(Principal, request.state.identity['id'])
+    if not principal or 'SOURCE_READ' not in principal.permissions:
+        raise HTTPException(403, 'Generated code is derived from source; source-read permission is required to view it.')
+    entry = next((f for f in (job.document.get('generation') or {}).get('files', []) if f['path'] == name), None)
+    if not entry:
+        raise HTTPException(404, 'This file is not part of the generated service.')
+    from pathlib import Path
+    import hashlib
+    root = (Path(request.app.state.config.data_dir) / 'conversions' / job.id / job.document['service_name']).resolve()
+    target = (root / name).resolve()
+    if not target.is_relative_to(root):
+        raise HTTPException(404, 'This file is not part of the generated service.')
+    content = target.read_text(encoding='utf-8')
+    if hashlib.sha256(content.encode()).hexdigest() != entry['sha256']:
+        raise HTTPException(409, 'The generated file changed after it was recorded.')
+    return dict(path=name, sha256=entry['sha256'], content=content, rationale=entry['rationale'])
+
+
+@router.delete('/architecture-versions/{vid}/modernization/{aid}/conversions/{job_id}/service')
+def stop_conversion_service(vid: str, aid: str, job_id: str, request: Request, db=Depends(session)):
+    job = _conversion(db, request, vid, aid, job_id)
+    try:
+        Runner(request.app.state.config, getattr(request.app.state, 'runner_transport', None)).stop_service(job.document['service_name'])
+    except RunnerError as error:
+        if error.code != 'SERVICE_NOT_FOUND':
+            raise HTTPException(502, error.code)
+    document = dict(job.document)
+    document['service'] = dict(document.get('service') or {}, state='STOPPED')
+    job.document = document
+    db.commit()
+    return jobs.view(job)

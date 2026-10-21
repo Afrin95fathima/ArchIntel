@@ -610,8 +610,9 @@ def generate(db, request, task, body):
 
 def generate_microservice(db, request, task, body):
     """Send only a mapped one-service source slice after explicit per-call consent."""
-    from app.ai import gemini
+    from app.ai import claude, gemini
     from app.ai.gateway import event as model_event
+    from app.ai.models import ModelInvocation
     from app.evidence.builder import digest as fingerprint
     from app.transformation.workspace import file_path
     import os
@@ -623,13 +624,24 @@ def generate_microservice(db, request, task, body):
     version = current(db, request, task)
     expected(task, body.expected_revision)
     identity = request.state.identity
+    provider = body.provider
+    label = {'GEMINI': 'Gemini', 'CLAUDE': 'Claude'}[provider]
+    config = request.app.state.config
     if identity.get('kind') != 'HUMAN':
-        raise HTTPException(403, 'A human must approve each Gemini source transfer.')
+        raise HTTPException(403, f'A human must approve each {label} source transfer.')
     policy_item = latest_policy(db, identity['tenant_id'])
-    if not policy_item or not policy_item.document.get('gemini_source_transfer_enabled', False):
-        raise HTTPException(403, 'Workspace security policy has not enabled Gemini source transfer.')
-    if not request.app.state.config.gemini_api_key.get_secret_value():
-        raise HTTPException(503, 'Gemini API key is not configured locally.')
+    if not policy_item or not policy_item.document.get(f'{provider.lower()}_source_transfer_enabled', False):
+        raise HTTPException(403, f'Workspace security policy has not enabled {label} source transfer.')
+    key = config.gemini_api_key if provider == 'GEMINI' else config.anthropic_api_key
+    if not key.get_secret_value():
+        raise HTTPException(503, f'{label} API key is not configured locally.')
+    if provider == 'CLAUDE':
+        from datetime import timedelta
+        since = now() - timedelta(hours=24)
+        recent = db.scalars(select(ModelInvocation).where(ModelInvocation.tenant_id == identity['tenant_id'], ModelInvocation.created_at >= since))
+        used = sum(1 for row in recent if (row.metadata_json or {}).get('destination') == 'CLAUDE_EXTERNAL')
+        if used >= config.claude_max_generations_per_day:
+            raise HTTPException(429, f'The daily limit of {config.claude_max_generations_per_day} Claude generations is reached (CLAUDE_MAX_GENERATIONS_PER_DAY).')
     workspace_policy_revision = policy_item.revision
     binding = task.document.get('microservice')
     if not binding or binding.get('rollout_mode') != 'ONE_BY_ONE':
@@ -698,12 +710,12 @@ def generate_microservice(db, request, task, body):
     invocation = str(uuid4())
     source_hash = fingerprint({'files':{path:fingerprint(content) for path,content in sorted((f['path'],f['content']) for f in selected)},
                                'contracts':contract_context})
-    meta = dict(destination='GEMINI_EXTERNAL', external_transfer=True,
+    meta = dict(destination=f'{provider}_EXTERNAL', external_transfer=True, provider=provider,
         task_id=task.id, repository_id=task.repository_id, commit=task.document['commit'],
         architecture_version_id=version.id, candidate_id=binding['candidate_id'],
         source_file_count=len(selected), source_context_bytes=len(prompt.encode('utf-8')),
         source_context_sha256=fingerprint(prompt), selected_source_sha256=source_hash,
-        policy_revision=workspace_policy_revision, model=request.app.state.config.gemini_model)
+        policy_revision=workspace_policy_revision, model=config.gemini_model if provider == 'GEMINI' else config.claude_model)
     task_id=task.id
     with LOCK:
         db.expire_all()
@@ -718,7 +730,7 @@ def generate_microservice(db, request, task, body):
         task.document=dict(task.document,microservice_generation_request=dict(invocation_id=invocation,
             state='REQUESTED',request_fingerprint=fingerprint(meta)))
         task.state='GENERATING'
-        event(db,request,task,'GEMINI_GENERATION_REQUESTED',
+        event(db,request,task,f'{provider}_GENERATION_REQUESTED',
               'Human approved the selected source transfer; generation is in progress.',
               invocation_id=invocation,candidate_id=binding['candidate_id'])
         claimed_revision=task.revision
@@ -726,7 +738,7 @@ def generate_microservice(db, request, task, body):
     try:
         model_event(request, identity, invocation, 'REQUESTED', 'PER_REQUEST_HUMAN_APPROVAL', meta,
                     resource='microservice:'+binding['candidate_id'])
-        generated, usage = gemini.generate(prompt, request.app.state.config)
+        generated, usage = (gemini.generate if provider == 'GEMINI' else claude.generate)(prompt, config)
         checked = microservice_codegen.validate_bundle(generated)
         # Reauthorize the same exact inputs after the network call before writing.
         db.expire_all()
@@ -790,8 +802,8 @@ def generate_microservice(db, request, task, body):
             architecture_version_id=version.id, architecture_version_fingerprint=version.fingerprint,
             plan_fingerprint=binding['proposal_fingerprint'], selected_source_sha256=source_hash,
             fingerprint=checked['fingerprint'], files=file_manifest,
-            unresolved_questions=checked['unresolved_questions'], model=usage['model'],
-            usage={key:value for key,value in usage.items() if key in ('prompt_tokens','output_tokens','duration_ms')},
+            unresolved_questions=checked['unresolved_questions'], model=usage['model'], provider=provider,
+            usage={key:value for key,value in usage.items() if key in ('prompt_tokens','output_tokens','duration_ms','estimated_cost_usd')},
             validation='NOT_RUN', publication='DISABLED')
         updated_document=dict(task.document)
         updated_document.pop('microservice_generation_request',None)
@@ -807,7 +819,7 @@ def generate_microservice(db, request, task, body):
                     resource='microservice:'+binding['candidate_id'])
         return generation
     except Exception as error:
-        code = error.args[0] if isinstance(error, (microservice_codegen.BundleFailure, gemini.GeminiFailure)) and error.args else 'GENERATION_FAILED'
+        code = error.args[0] if isinstance(error, (microservice_codegen.BundleFailure, gemini.GeminiFailure, claude.ClaudeFailure)) and error.args else 'GENERATION_FAILED'
         if not isinstance(code, str) or not re.fullmatch(r'[A-Z0-9_]{1,80}', code): code='GENERATION_FAILED'
         db.rollback()
         try:
@@ -819,14 +831,14 @@ def generate_microservice(db, request, task, body):
                     invocation_id=invocation,state='FAILED',error_code=code,
                     request_fingerprint=attempt.get('request_fingerprint')))
                 failed_task.state='FAILED'
-                event(db,request,failed_task,'GEMINI_GENERATION_FAILED',
-                    'Generation failed closed (GEMINI_GENERATION_FAILED); no output was approved.',invocation_id=invocation,error_code=code)
+                event(db,request,failed_task,f'{provider}_GENERATION_FAILED',
+                    f'Generation failed closed ({provider}_GENERATION_FAILED); no output was approved.',invocation_id=invocation,error_code=code)
                 db.commit()
         except Exception:
             db.rollback()
         model_event(request, identity, invocation, 'REJECTED', code, meta, resource='microservice:'+binding['candidate_id'])
         if isinstance(error, HTTPException): raise
-        raise HTTPException(422, 'Gemini output was not accepted ('+code+').') from None
+        raise HTTPException(422, f'{label} output was not accepted ('+code+').') from None
 
 
 def change(db, task, cid):

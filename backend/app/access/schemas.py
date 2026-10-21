@@ -58,6 +58,7 @@ class PolicyInput(StrictInput):
     protected_paths: list[str] = Field(default_factory=list, max_length=100)
     external_transfer: Literal['DENY'] = 'DENY'
     gemini_source_transfer_enabled: bool = False
+    claude_source_transfer_enabled: bool = False
     telemetry: Literal['DISABLED'] = 'DISABLED'
     model_enabled: bool = False
     model_provider_id: str | None = Field(default=None, max_length=36)

@@ -99,6 +99,7 @@ def test_a_failed_exploration_stops_the_application_and_closes_the_session(live)
 def test_the_api_requires_a_runnable_archive_a_configured_runner_and_explicit_consent(live):
     url = f'/api/v1/applications/{live.app_id}/runtime-sessions/explore'
     form = dict(analysis_id=live.run_id, confirm_disposable_data='true')
+    live.app.state.config.runner_token = SecretStr('')                          # independent of a RUNNER_TOKEN in the environment
     status = live.get(f'/api/v1/applications/{live.app_id}/runtime-sessions/automation').json()
     assert status['configured'] is False
     assert live.post(url, data=form, files=dict(file=('app.jar', JAR))).status_code == 503

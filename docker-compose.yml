@@ -26,7 +26,8 @@ services:
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
     ports: ["127.0.0.1:8000:8000"]
     extra_hosts: ["host.docker.internal:host-gateway"]
-    volumes: ["analysis-data:/app/.data"]
+    # Local source checkouts for conversion (register them in Security & access as /app/sources/<name>); read-only.
+    volumes: ["analysis-data:/app/.data", "./sources:/app/sources:ro"]
     depends_on:
       postgres: {condition: service_healthy}
     healthcheck:

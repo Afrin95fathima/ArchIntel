@@ -18,7 +18,7 @@ COOKIE = 'archintel_session'
 PERMISSIONS = {'ANALYSIS_READ', 'ANALYSIS_WRITE', 'RUNTIME_READ', 'RUNTIME_WRITE',
                'SOURCE_READ', 'SECURITY_ADMIN', 'AUDIT_READ', 'MODEL_USE_LOCAL'}
 DEFAULT_POLICY = dict(source_read_enabled=True, max_files=5, max_bytes=65536, protected_paths=[],
-                      external_transfer='DENY', telemetry='DISABLED', gemini_source_transfer_enabled=False)
+                      external_transfer='DENY', telemetry='DISABLED', gemini_source_transfer_enabled=False, claude_source_transfer_enabled=False)
 
 
 def digest(value):

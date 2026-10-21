@@ -15,3 +15,4 @@ store/
 !.env.example
 test-results/
 playwright-report/
+sources/

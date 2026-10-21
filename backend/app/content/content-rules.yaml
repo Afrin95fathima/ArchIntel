@@ -149,6 +149,7 @@ definition_files:
 # app/ai/grounded.py, which drops any generated sentence with a banned phrase or no specific name or number.
 prompt_files:
   - backend/app/ai/gemini.py
+  - backend/app/ai/claude.py
   - backend/app/ai/grounded.py
   - backend/app/ai/providers.py
   - backend/app/transformation/microservice_codegen.py

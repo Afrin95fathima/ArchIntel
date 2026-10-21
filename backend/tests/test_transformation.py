@@ -482,3 +482,33 @@ def test_structured_test_reports_reject_missing_tests_entities_and_links():
     assert result['tests']==1 and result['cases'][0]['passed']
     with pytest.raises(sandbox.SandboxError):sandbox.reports(archive('<testsuite/>'))
     with pytest.raises(sandbox.SandboxError):sandbox.reports(archive('<!DOCTYPE x><testsuite/>'))
+
+
+def test_claude_service_generation_needs_its_own_policy_flag_key_acknowledgement_and_daily_budget(prepared):
+    from datetime import timedelta
+    from pydantic import SecretStr
+    from app.ai.models import ModelInvocation
+    from app.models import now
+    d=prepared;decision=d['plan']['document']['decisions'][0];client=d['client']
+    candidate=next(c for c in d['plan']['document']['microservice_decomposition']['service_candidates'] if c['id']==decision['domain_id'])
+    made=client.post('/api/v1/architecture-versions/'+d['version']['id']+'/tasks',json=dict(d['body'],service_candidate_id=candidate['id'],rollout_mode='ONE_BY_ONE',request_key='claude-gates'))
+    assert made.status_code==201,made.text
+    task=made.json();url='/api/v1/transformation/tasks/'+task['id']+'/microservice/generate'
+    claude_body=dict(expected_revision=task['revision'],confirm_source_transfer=True,provider='CLAUDE',acknowledgement='I_APPROVE_SENDING_SELECTED_SOURCE_TO_ANTHROPIC_CLAUDE')
+    assert client.post(url,json=dict(claude_body,acknowledgement='I_APPROVE_SENDING_SELECTED_SOURCE_TO_GOOGLE_GEMINI')).status_code==422   # must name the receiver
+    policy=client.get('/api/v1/security/policy').json();revision=policy.pop('revision')
+    assert client.post('/api/v1/security/policy',json=dict(policy,expected_revision=revision,gemini_source_transfer_enabled=True)).status_code==200
+    assert client.post(url,json=claude_body).status_code==403                     # Gemini consent does not cover Claude
+    policy=client.get('/api/v1/security/policy').json();revision=policy.pop('revision')
+    assert client.post('/api/v1/security/policy',json=dict(policy,expected_revision=revision,claude_source_transfer_enabled=True)).status_code==200
+    client.app.state.config.anthropic_api_key=SecretStr('')
+    assert client.post(url,json=claude_body).status_code==503
+    client.app.state.config.anthropic_api_key=SecretStr('sk-test')
+    client.app.state.config.claude_max_generations_per_day=2
+    with client.app.state.sessions() as db:
+        for _ in range(2):
+            db.add(ModelInvocation(tenant_id='local',principal_id='p',resource='microservice:x',outcome='ALLOW',reason='r',metadata_json=dict(destination='CLAUDE_EXTERNAL'),created_at=now()-timedelta(hours=1)))
+        db.commit()
+    blocked=client.post(url,json=claude_body)
+    assert blocked.status_code==429 and 'CLAUDE_MAX_GENERATIONS_PER_DAY' in blocked.text
+    assert client.get('/api/v1/transformation/tasks/'+task['id']).json()['document'].get('microservice_generation') is None
