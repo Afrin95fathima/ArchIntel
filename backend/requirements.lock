@@ -43,3 +43,7 @@ tzdata==2026.3
 uvicorn==0.52.4
 watchfiles==1.2.0
 websockets==17.1
+detect-secrets==1.5.0
+leidenalg==0.12.0
+igraph==1.0.0
+python-igraph==1.0.0
