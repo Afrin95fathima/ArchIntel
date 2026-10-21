@@ -215,6 +215,29 @@ def next_tests(analysis_id: str, request: Request, runtime_session_ids: str | No
     return build(load(analysis_id, request, db, runtime_session_ids))
 
 
+@router.get('/performance', response_model=dict)
+def performance(analysis_id: str, request: Request, runtime_session_ids: str = Query(min_length=1, max_length=400), db=Depends(db_session)):
+    """Latency, errors, database time and hotspots measured from the raw spans of the selected sessions."""
+    from sqlalchemy import select
+    from app.runtime.models import RuntimeEvent
+    from app.services.runtime import session_service as service
+    from app.services.runtime.mapping import map_class
+    from .performance import analyze
+    static = snapshot(db, analysis_id)
+    with service.LOCK:
+        sessions = [service.get_session(db, identity) for identity in sorted(set(runtime_session_ids.split(',')))[:20]]
+        if any(s.analysis_id != analysis_id for s in sessions):
+            raise HTTPException(404, 'Selected runtime session does not belong to this analysis.')
+        if any(s.settings.get('events_purged') for s in sessions):
+            raise HTTPException(409, 'Raw spans have expired for a selected session, so latency cannot be recomputed.')
+        events = list(db.scalars(select(RuntimeEvent.data).where(RuntimeEvent.session_id.in_([s.id for s in sessions]))))
+    classes = {c['id']: c for c in static['classes']}
+    result = analyze(events, classes, {c['id']: c.get('domain_id') for c in static['classes']}, {d['id']: d['name'] for d in static.get('domains', [])},
+                     lambda name: map_class(name, classes)['static_id'])
+    result['sessions'] = [dict(id=s.id, name=s.name, status=s.status, spans=s.span_count) for s in sessions]
+    return result
+
+
 @router.post('/tests/explain', response_model=dict)
 def next_test_steps(analysis_id: str, body: ExplainInput, request: Request, runtime_session_ids: str | None = Query(None, max_length=400), db=Depends(db_session)):
     """Optional AI: write the human steps and edge cases from the handler and service code it reads."""
