@@ -282,8 +282,10 @@ def build(result: dict, static: dict, domains: list[dict], options: dict, eviden
                 used.append(eid)
     evidence_list = [dict(id=eid, kind=evidence_by_id[eid]['kind'], source=evidence_by_id[eid].get('source'), target=evidence_by_id[eid].get('target')) for eid in used[:30]]
 
+    # A technical domain (configuration, bootstrap) is not an extraction candidate, so business domains come first in "start with".
+    technical_ids = {c['domain_id'] for c in (result.get('nonfunctional') or {}).get('capabilities', []) if c['kind'] == 'TECHNICAL'}
     actions = [f"{a['domain_name']}: {next(d for d in result['decisions'] if d['domain_id'] == a['domain_id'])['kind']} ({F.num('actions_' + a['domain_id'][:8], a['domain_name'] + ' blockers', len(a['blockers']), 'plan: assessments[].blockers')} blockers)"
-               for a in sorted(assessments, key=lambda a: (a.get('cost_index') or 0, a['domain_id']))[:3]]
+               for a in sorted(assessments, key=lambda a: (a['domain_id'] in technical_ids, a.get('cost_index') or 0, a['domain_id']))[:3]]
     sections = [
         dict(id='decision', title='The decision', paragraphs=[decision_text]),
         dict(id='recommendation', title='Recommended option and why', paragraphs=[f"Recommended: {F.name(recommended)}. {why}", f"Rule applied: {rule}", recommendation['note']]),

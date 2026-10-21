@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Bot, ChevronDown, ExternalLink, Info } from 'lucide-react';
 import { api, post } from '../api';
@@ -24,6 +24,12 @@ export function NodeLink({ id, label }: { id: string; label?: string }) {
 
 export function useInsight<T>(analysisId: string, path: string, enabled = true) {
   return useQuery({ queryKey: ['insight', analysisId, path], queryFn: () => api<T>(`/analyses/${analysisId}/insight/${path}`), enabled });
+}
+
+/** Business, technical or mixed, per candidate domain, from the responsibility analysis; empty while it loads or when it is not available. */
+export function useCapabilityKinds(analysisId: string): Record<string, { kind: string; basis: string }> {
+  const query = useInsight<{ status: string; capabilities?: { id: string; kind: string; basis: string }[] }>(analysisId, 'responsibilities', !!analysisId);
+  return useMemo(() => query.data?.status === 'AVAILABLE' ? Object.fromEntries((query.data.capabilities || []).map(c => [c.id, { kind: c.kind, basis: c.basis }])) : {}, [query.data]);
 }
 
 export function InsightState({ query, children }: { query: { isPending: boolean; error: unknown; data?: unknown }; children: () => ReactNode }) {

@@ -131,3 +131,43 @@ def test_the_plan_is_reproducible_with_the_same_inputs(plan):
     again = pure(snapshot('petclinic'), observations=.5, reviewed=True)[0]
     strip = lambda doc: json.dumps(doc['nonfunctional'], sort_keys=True)
     assert strip(plan[0]) == strip(again)
+
+
+def test_every_recommendation_carries_every_field_the_plan_screen_reads_and_cites_real_findings(plan):
+    """The screen joins these lists; a recommendation without one blanked the whole page in the running app."""
+    doc = plan[0]
+    finding_ids = {f['id'] for f in doc['findings']}
+    seen = {r['kind'] for a in doc['assessments'] for r in a['recommendations']}
+    assert 'ADDRESS_NONFUNCTIONAL_CONSTRAINT' in seen and len(seen) >= 2
+    for assessment in doc['assessments']:
+        for recommendation in assessment['recommendations']:
+            for key in ('affected_classes', 'dependency_pairs', 'target_domains', 'finding_ids', 'missing_evidence'):
+                assert isinstance(recommendation[key], list), (assessment['domain_name'], recommendation['kind'], key)
+            assert {'kind', 'text', 'proposed_interface'} <= set(recommendation) and set(recommendation['finding_ids']) <= finding_ids
+        extra = [r for r in assessment['recommendations'] if r['kind'] == 'ADDRESS_NONFUNCTIONAL_CONSTRAINT']
+        for r in extra:
+            assert r['finding_ids'] and all(next(f for f in doc['findings'] if f['id'] == i)['kind'] in NEW_KINDS for i in r['finding_ids'])
+
+
+def test_a_domain_lists_only_its_own_classes_even_for_application_wide_risks(plan):
+    doc = plan[0]
+    own = {a['domain_id']: {c for d in doc['target']['components'] if d['domain_id'] == a['domain_id'] for c in d['classes']} for a in doc['assessments']}
+    short = lambda names: {n.rsplit('.', 1)[-1] for n in names}
+    for assessment in doc['assessments']:
+        for recommendation in assessment['recommendations']:
+            if recommendation['kind'] == 'ADDRESS_NONFUNCTIONAL_CONSTRAINT':
+                assert recommendation['affected_classes'] and set(recommendation['affected_classes']) <= own[assessment['domain_id']], assessment['domain_name']
+    observability = [f for f in doc['findings'] if f['kind'] == 'NO_INSTRUMENTATION_DETECTED']
+    assert len(observability) == len(doc['assessments'])                    # the risk is application-wide, so every domain carries it
+    for finding in observability:
+        assert finding['subjects'] and set(finding['subjects']) <= short(own[finding['domain_id']]), finding['domain_id']
+
+
+def test_start_with_prefers_business_domains_over_technical_ones(plan, plan_without):
+    doc = plan[0]
+    technical = {c['name'] for c in doc['nonfunctional']['capabilities'] if c['kind'] == 'TECHNICAL'}
+    business = {c['name'] for c in doc['nonfunctional']['capabilities'] if c['kind'] != 'TECHNICAL'}
+    assert technical and business
+    first = doc['decision_brief']['top_actions'][0].split(':')[0]
+    assert first in business and first not in technical
+    assert plan_without[0]['decision_brief']['top_actions']                   # without the analysis the order is the plain cost order, as before

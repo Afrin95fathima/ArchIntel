@@ -12,12 +12,13 @@ type Proposal = { id: string; strategy: string; objective: string };
 export const keepAnchorsInFrame = (html: string) => html.replace(/href="#/g, 'href="about:srcdoc#');
 
 /** The report is generated on the server from the same analysis, runtime evidence and proposal the app shows; this page previews and downloads it. */
-export function Reports({ applications }: { applications: Application[] }) {
+export function Reports({ applications, currentApplicationId, onApplication }: { applications: Application[]; currentApplicationId?: string; onApplication?: (applicationId: string) => void }) {
   const [applicationId, setApplicationId] = useState('');
   const [versionId, setVersionId] = useState('');
   const [proposalId, setProposalId] = useState('');
   const [preview, setPreview] = useState(false);
-  const appId = applicationId || applications[0]?.id || '';
+  const appId = applicationId || currentApplicationId || applications[0]?.id || '';
+  useEffect(() => { if (appId) onApplication?.(appId); }, [appId]);
   const versions = useQuery({ queryKey: ['versions', appId], queryFn: () => api<Version[]>('/applications/' + appId + '/architecture-versions'), enabled: !!appId });
   const version = versionId || versions.data?.[0]?.id || '';
   const proposals = useQuery({ queryKey: ['plans', version], queryFn: () => api<Proposal[]>('/architecture-versions/' + version + '/modernization'), enabled: !!version });

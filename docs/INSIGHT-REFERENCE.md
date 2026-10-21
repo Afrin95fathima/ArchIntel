@@ -108,7 +108,7 @@ against layering, fewest references, fewest runtime calls — every cut candidat
 The file registers the taxonomy (8 functional and 17 non-functional categories, each with a `limit` that states what a label does not prove), 64 evidence rules, 13 library families and 11 risk definitions.
 A rule reads one kind of recorded fact: an annotation (with values such as `fetch: FetchType.EAGER`), a supertype, a type reference or a call site. Names of classes or packages are never sole evidence: a name gives only a WEAK, INFERRED label.
 A class is FUNCTIONAL, FUNCTIONAL_SUPPORT, NON_FUNCTIONAL, MIXED or UNCERTAIN. MIXED requires a detected functional responsibility and a non-functional concern that the class's own code runs (it calls the API or holds an instance of it); a declared annotation such as `@Transactional` is an additional concern, not a mix.
-Confidence is an ordinal heuristic (HIGH, MEDIUM, LOW), never a calibrated probability. A component is cross-cutting when classes of two or more other candidate domains use it. Details, API and validation results: `docs/RESPONSIBILITY-ANALYSIS.md`.
+Confidence is an ordinal heuristic (HIGH, MEDIUM, LOW), never a calibrated probability. A component is cross-cutting when classes of two or more other candidate domains use it (in Northstar Commerce, `LedgerRepository` is used from 4 domains). Details, API and validation results: `docs/RESPONSIBILITY-ANALYSIS.md`.
 
 ## Assistant
 

@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect,useState} from 'react';
 import {ArrowDownToLine} from 'lucide-react';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {api, post} from '../api';
@@ -26,7 +26,7 @@ type Graph={nodes:{id:string;kind:string;name:string}[];edges:{id:string;source:
 type MicroserviceProposal={status:string;strategy:string;service_candidates:{id:string;name:string;repository_name:string;proposal_state:string;selection_source:string;boundary_confidence:number|null;confidence_note:string;class_ids:string[];packages:string[];dependencies:string[];consumers:string[];data:{repositories:string[];entity_classes:string[];shared_repository_candidates:string[];ownership:string;evidence_scope:string;note:string};readiness:number;evidence_confidence:number;decision:string;blockers:string[];risks:{kind:string;severity:string;text:string;finding_id:string;evidence_ids:string[]}[];evidence_ids:string[];fact_ids:string[];required_setup:string[]}[];rollout_modes:{id:string;name:string;output:string}[];shared_setup:string[];execution:{allowed:boolean;state:string;requires:string[]};limitations:string[]};
 const strategies=['MODULAR_MONOLITH','MICROSERVICES','HYBRID','CLOUD_REFACTOR','JAVA_UPGRADE','FRAMEWORK_UPGRADE'];
 
-export function PlanningWorkspace({applications,onStartService}:{applications:Application[];onStartService?:(intent:{applicationId:string;versionId:string;assessmentId:string;decisionId:string;candidateId:string;candidateName:string;rolloutMode:string})=>void}){
+export function PlanningWorkspace({applications,onStartService,currentApplicationId,onApplication}:{currentApplicationId?:string;onApplication?:(applicationId:string)=>void;applications:Application[];onStartService?:(intent:{applicationId:string;versionId:string;assessmentId:string;decisionId:string;candidateId:string;candidateName:string;rolloutMode:string})=>void}){
   const client=useQueryClient();
   const [app,setApp]=useState('');const [version,setVersion]=useState('');const [chosen,setChosen]=useState('');
   const [strategy,setStrategy]=useState('MODULAR_MONOLITH');const [objective,setObjective]=useState('Improve modular boundaries while preserving behavior.');
@@ -34,7 +34,8 @@ export function PlanningWorkspace({applications,onStartService}:{applications:Ap
   const [tab,setTab]=useState('Decision brief');const [note,setNote]=useState('');const [review,setReview]=useState('APPROVED_PLANNING');
   const [rolloutMode,setRolloutMode]=useState('ONE_BY_ONE');const [selectedService,setSelectedService]=useState('');
   const [graphRoot,setGraphRoot]=useState('');
-  const appId=app||applications[0]?.id||'';
+  const appId=app||currentApplicationId||applications[0]?.id||'';
+  useEffect(()=>{if(appId)onApplication?.(appId);},[appId]);
   const versions=useQuery({queryKey:['versions',appId],queryFn:()=>api<{id:string;name:string}[]>('/applications/'+appId+'/architecture-versions'),enabled:!!appId,refetchInterval:5000});
   const vid=version||versions.data?.[0]?.id||'';const base='/architecture-versions/'+vid+'/modernization';
   const plans=useQuery({queryKey:['plans',vid],queryFn:()=>api<{id:string;strategy:string;objective:string}[]>(base),enabled:!!vid});
@@ -79,7 +80,7 @@ export function PlanningWorkspace({applications,onStartService}:{applications:Ap
         <p className="fine-print">{a.readiness_formula}</p>
         <ConfidenceBreakdown assessment={a}/>
         <p>Cost drivers: {(a.cost_drivers||[]).join('; ')||'not available'}.</p>
-        {a.recommendations?.map((r,i)=><article key={i}><h4>{r.kind.replaceAll('_',' ')}</h4><p>{r.text}</p><p>Affected classes: {r.affected_classes.join(', ')||'none identified'}</p><p>Proposed interface: {r.proposed_interface||'no seam is evidenced'}</p><p>Supporting finding IDs: {r.finding_ids.join(', ')||'none'}</p><p>Missing evidence: {r.missing_evidence.join('; ')}</p></article>)}
+        {a.recommendations?.map((r,i)=><article key={i}><h4>{r.kind.replaceAll('_',' ')}</h4><p>{r.text}</p><p>Affected classes: {(r.affected_classes||[]).join(', ')||'none identified'}</p><p>Proposed interface: {r.proposed_interface||'no seam is evidenced'}</p><p>Supporting finding IDs: {(r.finding_ids||[]).join(', ')||'none'}</p><p>Missing evidence: {(r.missing_evidence||[]).join('; ')}</p></article>)}
       </details>)}
       <GlossaryPanel only={['readiness','confidence']}/></section>}
     {tab==='Target & waves'&&<section className="runtime-card"><h2>Target architecture and dependency waves</h2><h3>{doc.target.strategy}</h3><p>{doc.target.objective}</p><p>{doc.target.note}</p>{doc.target.components.map(c=><p key={c.domain_id}>{c.name}: {c.classes.length} classes  -  {c.deployment}</p>)}<details><summary>Proposed interfaces and alternatives</summary>{doc.target.interfaces.map((i,n)=><p key={n}>{names[i.source]}  -  {names[i.target]}: {i.transport}, contract {i.contract}</p>)}{doc.target.alternatives.map(a=><p key={a.strategy}>{a.strategy}: {a.reason}</p>)}</details>{doc.waves.map(w=><article key={w.id}><h3>Wave {w.number}: {w.domains.map(d=>names[d]).join(', ')}</h3><p>{w.reason}</p><p>Prerequisite domains: {w.dependencies.map(d=>names[d]).join(', ')||'None'}</p>{w.coupled_groups.length>0&&<p>Keep coupled: {w.coupled_groups.map(g=>g.map(d=>names[d]).join(' + ')).join('; ')}</p>}<p>Difficulty: {w.difficulty}. Blockers: {w.blockers.join(', ')}</p><p>Entry: {(w.entry_criteria||[]).join('; ')}</p><p>Exit: {(w.exit_criteria||[]).join('; ')}</p><p>{w.expected_impact}</p></article>)}</section>}

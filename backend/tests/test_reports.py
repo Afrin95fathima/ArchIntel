@@ -179,3 +179,5 @@ def test_report_carries_the_non_functional_constraints_in_plain_terms_and_in_tab
     assert any('SECURITY' == row[2] for row in risks['rows']) and any(row[0] == 'RISK-DATA-SHARED-MODEL' for row in risks['rows'])
     html = live.get(f'{base}/{aid}/report.html').text
     assert 'Non-functional risk indicators' in html and 'Components shared across domains' in html
+    pdf = pdf_text(live.get(f'{base}/{aid}/report.pdf').content).lower()
+    assert b'non-functional risk indicators' in pdf and b'components shared across domains' in pdf and b'not examined for non-functional concerns' in pdf and b'risk-data-shared-model' in pdf

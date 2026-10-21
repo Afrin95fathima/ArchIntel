@@ -16,7 +16,7 @@ type CoverageState='ALL'|'OBSERVED'|'NOT_OBSERVED';
 type CoverageDetailItem={id:string;name:string;state:'OBSERVED'|'NOT_OBSERVED'|'UNKNOWN';observation_state?:string;package_name?:string;domain_name?:string;class_name?:string;signature?:string;annotations?:string[];evidence?:string[];evidence_refs?:{session_id:string;trace_id:string;span_id:string}[];observed_spans?:number|null;observed_calls?:number;source?:string;target?:string;source_domain?:string;target_domain?:string;observed?:number;total?:number;observed_classes?:string[];unobserved_classes?:string[];suggestion?:string|null};
 type CoverageDetailPage={kind:CoverageKind;status:'AVAILABLE'|'UNAVAILABLE';metric:{observed:number|null;total:number|null;percentage:number|null;status:string;reason?:string};reason:string;items:CoverageDetailItem[];total:number;offset:number;limit:number};
 
-export function RuntimeAnalysis({applications,analyses}:{applications:Application[];analyses:Analysis[]}){
+export function RuntimeAnalysis({applications,analyses,currentApplicationId,onApplication}:{applications:Application[];analyses:Analysis[];currentApplicationId?:string;onApplication?:(applicationId:string)=>void}){
   const client=useQueryClient();const [appId,setApp]=useState('');const [analysisId,setAnalysis]=useState('');
   const [name,setName]=useState('Runtime observation');const [environment,setEnvironment]=useState('LOCAL');
   const [mode,setMode]=useState('BOUNDARY');const [packages,setPackages]=useState('');
@@ -28,7 +28,8 @@ export function RuntimeAnalysis({applications,analyses}:{applications:Applicatio
   const [coverageKind,setCoverageKind]=useState<CoverageKind|null>(null);const [coverageFilter,setCoverageFilter]=useState<CoverageState>('ALL');const [coverageSearch,setCoverageSearch]=useState('');const [coverageOffset,setCoverageOffset]=useState(0);
   const [edge,setEdge]=useState<RuntimeEdge|null>(null);const [question,setQuestion]=useState('What does runtime coverage show?');
   const [answer,setAnswer]=useState<{answer:string;facts:{text:string;source:string}[]}|null>(null);
-  const effectiveApp=appId||applications[0]?.id||'';
+  const effectiveApp=appId||currentApplicationId||applications[0]?.id||'';
+  useEffect(()=>{if(effectiveApp)onApplication?.(effectiveApp);},[effectiveApp]);
   const available=analyses.filter(a=>a.application_id===effectiveApp&&a.status==='COMPLETED');
   const effectiveAnalysis=analysisId||available[0]?.id||'';
   const sessions=useQuery({queryKey:['runtime-sessions',effectiveApp],queryFn:()=>api<RuntimeSession[]>('/applications/'+effectiveApp+'/runtime-sessions'),enabled:!!effectiveApp,refetchInterval:3000});

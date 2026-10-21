@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect,useState} from 'react';
 import {useQuery,useQueryClient} from '@tanstack/react-query';
 import {api,post} from '../api';
 import {PageTitle,ErrorBox} from '../components';
@@ -16,14 +16,15 @@ type Graph={nodes:{id:string;name:string;kind:string}[];edges:{id:string;source:
 type CoverageRecord={observed?:number|null;total?:number|null;percentage?:number|null;status?:string;reason?:string};
 type Twin=Version&{domains:Domain[];coverage:Record<string,unknown>;quality?:Record<string,unknown>;unknowns:string[];projection:{state:string;attempts:number;error_code:string|null};};
 
-export function EvidenceWorkspace({applications,analyses}:{applications:Application[];analyses:Analysis[]}){
+export function EvidenceWorkspace({applications,analyses,currentApplicationId,onApplication}:{applications:Application[];analyses:Analysis[];currentApplicationId?:string;onApplication?:(applicationId:string)=>void}){
   const client=useQueryClient();const [app,setApp]=useState('');const [analysis,setAnalysis]=useState('');const [name,setName]=useState('Architecture observation');
   const [sessions,setSessions]=useState<string[]>([]);const [selected,setSelected]=useState('');const [parent,setParent]=useState('');
   const [error,setError]=useState<unknown>(null);const [busy,setBusy]=useState(false);const [previewing,setPreviewing]=useState(false);const [tab,setTab]=useState('Facts');
   const [preview,setPreview]=useState<{body:string;result:{fingerprint:string;counts:Record<string,number>}}|null>(null);
   const [review,setReview]=useState(false);const [reason,setReason]=useState('');const [names,setNames]=useState<Record<string,string>>({});const [membership,setMembership]=useState<Record<string,string>>({});
   const [fact,setFact]=useState('');const [note,setNote]=useState('');const [offset,setOffset]=useState(0);const [graphRoot,setGraphRoot]=useState('');const [comparison,setComparison]=useState<Record<string,number|null>|null>(null);
-  const appId=app||applications[0]?.id||'';const completed=analyses.filter(a=>a.application_id===appId&&a.status==='COMPLETED');const analysisId=analysis||completed[0]?.id||'';
+  const appId=app||currentApplicationId||applications[0]?.id||'';
+  useEffect(()=>{if(appId)onApplication?.(appId);},[appId]);const completed=analyses.filter(a=>a.application_id===appId&&a.status==='COMPLETED');const analysisId=analysis||completed[0]?.id||'';
   const versions=useQuery({queryKey:['versions',appId],queryFn:()=>api<Version[]>('/applications/'+appId+'/architecture-versions'),enabled:!!appId,refetchInterval:5000});
   const runtime=useQuery({queryKey:['version-runtime',appId],queryFn:()=>api<RuntimeSession[]>('/applications/'+appId+'/runtime-sessions'),enabled:!!appId});
   const baseline=useQuery({queryKey:['version-baseline',analysisId],queryFn:()=>api<{domains:Domain[];classes:{id:string;domain_id:string}[]}>('/analyses/'+analysisId+'/export'),enabled:!!analysisId&&review});

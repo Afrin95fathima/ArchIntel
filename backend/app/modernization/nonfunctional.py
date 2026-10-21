@@ -54,7 +54,8 @@ def build(static: dict, domains: list[dict]) -> dict:
             continue
         for did in touched:
             entry = by_domain[did]
-            subjects = [c.rsplit('.', 1)[-1] for c in risk['affected_components']][:10]
+            own = [c for c in risk['affected_components'] if membership.get(c) == did]            # an application-wide risk names every class; a domain's finding names its own
+            subjects = [c.rsplit('.', 1)[-1] for c in (own or risk['affected_components'])][:10]
             entry['findings'].append(dict(kind=kind, severity=risk['severity'], text=f'{risk["description"]}. {risk["consequence"]}', subjects=subjects, risk_id=risk['id'], rule_id=risk['rule_id'], evidence_ids=risk['evidence_ids'],
                                           measured=dict(affected_components=risk['affected_count'], detection_status=risk['detection_status'], runtime_validation_required=risk['runtime_validation_required']),
                                           threshold={'rule': risk['rule_id'], 'consequence_status': risk['consequence_status']}))
@@ -76,7 +77,7 @@ def build(static: dict, domains: list[dict]) -> dict:
             entry['concerns'] = cap['nonfunctional_concerns']
             actionable = [i for i in cap['implications'] if i['kind'] != 'NO_BLOCKING_CONSTRAINT_DETECTED' and i['severity'] != 'LOW']
             if actionable:
-                affected = sorted({c for r in analysis['risks'] if did in risk_domains[r['id']] for c in r['affected_components']})
+                affected = sorted({c for r in analysis['risks'] if did in risk_domains[r['id']] for c in r['affected_components'] if membership.get(c) == did})
                 entry['recommendations'].append(dict(kind='ADDRESS_NONFUNCTIONAL_CONSTRAINT', text=' '.join(i['text'] for i in actionable[:3]), affected_classes=affected[:20], dependency_pairs=[],
                                                      proposed_interface=None, target_domains=[], missing_evidence=['runtime validation (Performance tab or a load test) of every risk flagged runtime_validation_required', 'application.properties and gateway controls, which a compiled artifact does not show']))
         entry['findings'].sort(key=lambda f: (SEVERITY_RANK[f['severity']], f['kind'], f['text']))

@@ -23,6 +23,7 @@ const Responsibilities=lazy(()=>import('./insight/Responsibilities').then(module
 const TechnicalDebt=lazy(()=>import('./insight/TechnicalDebt').then(module=>({default:module.TechnicalDebt})));
 const TechnologyLifecycle=lazy(()=>import('./insight/TechnologyLifecycle').then(module=>({default:module.TechnologyLifecycle})));
 const UIKit=lazy(()=>import('./UIKit').then(module=>({default:module.UIKit})));
+import { ViewErrorBoundary } from './ViewErrorBoundary';
 import type { Analysis, Application, Project, Summary, Domain, Assessment, Issue, Metric, Cycle, Items, View } from './types';
 
 const navigation: {label:string;items:{id:View;label:string;icon:typeof Activity}[]}[] = [
@@ -74,6 +75,8 @@ export function App() {
   useEffect(()=>{const onPopState=()=>setViewState(window.location.pathname==='/ui-kit'?'uikit':'workspace');window.addEventListener('popstate',onPopState);return()=>window.removeEventListener('popstate',onPopState);},[]);
   function refresh(){for(const key of ['projects','applications','analyses'])client.invalidateQueries({queryKey:[key]});}
   function select(id:string){setSelected(id);setView('overview');}
+  /** Pages with their own application selector keep the workflow strip and the selected analysis on the same application (no navigation). */
+  function followApplication(applicationId:string){const next=(analyses.data||[]).find(a=>a.application_id===applicationId&&a.status==='COMPLETED');if(next&&next.id!==selected)setSelected(next.id);}
   function startService(intent:{applicationId:string;versionId:string;assessmentId:string;decisionId:string;candidateId:string;candidateName:string;rolloutMode:string}){
     sessionStorage.setItem('archintel-service-task-intent',JSON.stringify(intent));
     setView('tasks');
@@ -92,13 +95,13 @@ export function App() {
       <main className="main-content">
         {help&&<section className="help-panel"><h2>Demo quick start</h2><p>Open Applications → Explore demo application. Review Overview, expand the Architecture explorer, inspect Technical debt, then open Modernization plan and ask the Architecture assistant where to begin.</p><p>To analyze your own application, choose Analyze application and upload a compiled JAR/WAR or a project ZIP containing compiled module outputs. Source-only ZIPs are not supported. Larger artifacts take longer than the bundled Northstar Commerce sample.</p><div className="banner-actions"><a href="/api/v1/manual/user" className="text-link">User manual ↓</a><a href="/api/v1/manual/developer" className="text-link">Developer guide ↓</a><button className="text-link" onClick={()=>setHelp(false)}>Close help</button></div></section>}
         {run&&view!=='workspace'&&<Journey run={run} onNavigate={setView}/>}
-        <Suspense fallback={<Loading/>}>{view==='uikit'?<UIKit/>:view==='diagnostics'?<LocalDiagnostics/>:
+        <ViewErrorBoundary view={view}><Suspense fallback={<Loading/>}>{view==='uikit'?<UIKit/>:view==='diagnostics'?<LocalDiagnostics/>:
         view==='workspace'?<>{projects.error||applications.error||analyses.error?<ErrorBox error={projects.error||applications.error||analyses.error}/>:null}<Workspace projects={projects.data||[]} applications={applications.data||[]} analyses={analyses.data||[]} onSelect={select} onStarted={r=>{select(r.id);refresh();}} refresh={refresh}/></>:
-        view==='runtime'?<RuntimeAnalysis applications={applications.data||[]} analyses={analyses.data||[]}/>:
-        view==='tasks'?<TaskWorkspace applications={applications.data||[]}/>: 
-        view==='planning'||view==='modernization'?<ModernizationHub applications={applications.data||[]} onStartService={startService} assessments={loaded?assessments.data!.items:[]} confidenceByDomain={loaded?Object.fromEntries(domains.data!.items.map(domain=>[domain.id,domain.confidence])):{}} initialTab={view==='modernization'?'sequence':'proposal'}/>: 
-        view==='evidence'?<EvidenceWorkspace applications={applications.data||[]} analyses={analyses.data||[]}/>: 
-        view==='reports'?<Reports applications={applications.data||[]}/>: 
+        view==='runtime'?<RuntimeAnalysis applications={applications.data||[]} analyses={analyses.data||[]} currentApplicationId={run?.application_id} onApplication={followApplication}/>:
+        view==='tasks'?<TaskWorkspace applications={applications.data||[]} currentApplicationId={run?.application_id} onApplication={followApplication}/>: 
+        view==='planning'||view==='modernization'?<ModernizationHub applications={applications.data||[]} analysisId={selected} currentApplicationId={run?.application_id} onApplication={followApplication} onStartService={startService} assessments={loaded?assessments.data!.items:[]} confidenceByDomain={loaded?Object.fromEntries(domains.data!.items.map(domain=>[domain.id,domain.confidence])):{}} initialTab={view==='modernization'?'sequence':'proposal'}/>: 
+        view==='evidence'?<EvidenceWorkspace applications={applications.data||[]} analyses={analyses.data||[]} currentApplicationId={run?.application_id} onApplication={followApplication}/>: 
+        view==='reports'?<Reports applications={applications.data||[]} currentApplicationId={run?.application_id} onApplication={followApplication}/>: 
         !run?<Empty title="Choose an application to explore.">Open Applications and select an analysis, or start with the Northstar Commerce demo.</Empty>:
         run.status!=='COMPLETED'?<Progress run={run} onUpload={()=>setView('workspace')}/>:
         dataError?<ErrorBox error={dataError}/>:!loaded?<Loading/>:
@@ -111,7 +114,7 @@ export function App() {
           {view==='issues'&&<TechnicalDebt analysisId={selected}/>}
           {(view==='cycles'||view==='metrics')&&<Dependencies analysisId={selected} cycles={cycles.data!.items} metrics={metrics.data!.items} initialTab={view==='metrics'?'metrics':'cycles'}/>}
           {view==='lifecycle'&&<TechnologyLifecycle analysisId={selected}/>}
-        </div>}</Suspense>
+        </div>}</Suspense></ViewErrorBoundary>
       </main><footer className="app-footer"><span><Compass size={13}/> ArchIntel · Architecture & modernization intelligence</span><span>Evidence-backed analysis · Local deployment</span></footer>
     </div>
     {commandOpen&&<div className="command-backdrop" onMouseDown={event=>{if(event.target===event.currentTarget)setCommandOpen(false);}}><section className="command-palette" role="dialog" aria-modal="true" aria-label="Go to a workspace screen"><div className="command-search"><Search size={17}/><input autoFocus placeholder="Go to a workspace screen…" aria-label="Search workspace" onChange={event=>{const query=event.target.value.toLowerCase();document.querySelectorAll<HTMLButtonElement>('.command-list button').forEach(button=>{button.hidden=!button.textContent?.toLowerCase().includes(query);});}}/><kbd>ESC</kbd></div><div className="command-list">{[{id:'workspace' as View,label:'Applications',icon:FolderKanban},...navigation.flatMap(group=>group.items),{id:'reports' as View,label:'Reports',icon:FileText},{id:'diagnostics' as View,label:'Local setup',icon:Wrench},{id:'uikit' as View,label:'Design system',icon:Boxes}].map(item=><button key={item.id} onClick={()=>{setView(item.id);setCommandOpen(false);}}><item.icon size={16}/>{item.label}</button>)}</div><footer>Use Ctrl K to open · Esc to close</footer></section></div>}

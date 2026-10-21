@@ -43,3 +43,16 @@ it('shows a visible error when the report cannot be generated', async () => {
   fireEvent.click(screen.getByRole('button', { name: /Preview report/ }));
   await waitFor(() => expect(screen.getByText('The report could not be generated (HTTP 500).')).toBeTruthy());
 });
+
+
+it('reports the chosen application so the workflow strip follows it', async () => {
+  const two = [...applications, { id: 'a2', project_id: 'p', name: 'Northstar', version: '1', source_type: 'JAR' }];
+  mount();
+  cleanup();
+  const seen: string[] = [];
+  render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><Reports applications={two as never} currentApplicationId="a2" onApplication={id => seen.push(id)} /></QueryClientProvider>);
+  const select = await screen.findByLabelText('Application') as HTMLSelectElement;
+  expect(select.value).toBe('a2');
+  fireEvent.change(select, { target: { value: 'a1' } });
+  await waitFor(() => expect(seen).toEqual(['a2', 'a1']));
+});

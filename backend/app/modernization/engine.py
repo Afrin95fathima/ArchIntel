@@ -187,6 +187,7 @@ def build(assessment_id, version, static, facts, evidence, options):
         finding('BEHAVIOR_AND_DATA_UNKNOWN', 'MEDIUM', f"No behavioral contract tests or data-ownership review are recorded for {domain['name']}; extraction cannot be approved.", [],
             measured={'behavioral_contracts_recorded': False, 'data_ownership_reviewed': False}, threshold={'behavioral_contracts_recorded': True, 'data_ownership_reviewed': True}, subjects=[domain['name']])
         nfr_domain = nfr['by_domain'].get(did, dict(findings=[], blockers=[], recommendations=[], concerns=[], kind=None, implications=[]))
+        nfr_start = len(local_findings)
         for item in nfr_domain['findings']:
             # Support is the domain's captured static evidence, like every other finding; the specific bytecode evidence is referenced, not copied.
             finding(item['kind'], item['severity'], item['text'], [], None, item['measured'], item['threshold'], item['subjects'], key=item['risk_id'] or item['rule_id'],
@@ -326,7 +327,7 @@ def build(assessment_id, version, static, facts, evidence, options):
             confidence_note=f"Confidence {confidence}/100 for {domain['name']} = sum(input x weight) over {len(confidence_inputs)} measured input(s): " + '; '.join(f"{v['label'].lower()} {v['value']} ({v['text']})" for v in confidence_inputs.values())
                 + ". Not measured, so excluded: " + '; '.join(f"{e['label'].lower()} ({e['reason']})" for e in confidence_not_measured) + '. Confidence = sum(input × weight) as defined in the glossary, not a calibrated probability.',
             observation=observed, evidence_ids=support, fact_ids=fact_ids, blockers=blockers,
-            recommendations=[recommendation] + nfr_domain['recommendations'], nonfunctional=dict(capability_kind=nfr_domain['kind'], concerns=nfr_domain['concerns'], implications=nfr_domain['implications']), effort_band=effort_band, risk_band=risk_band,
+            recommendations=[recommendation] + [dict(r, finding_ids=list(local_findings[nfr_start:])) for r in nfr_domain['recommendations']], nonfunctional=dict(capability_kind=nfr_domain['kind'], concerns=nfr_domain['concerns'], implications=nfr_domain['implications']), effort_band=effort_band, risk_band=risk_band,
             cost_index=cost_index, cost_drivers=cost_drivers, cost_inputs=baseline.get('cost_inputs'), cost_formula=baseline.get('cost_formula'),
             difficulty='HIGH' if did in cyclic or shared[did] or combined < 60 else 'MEDIUM',
             order_rationale=f"Review after its {len([1 for s,t in all_graph.edges if s==did])} downstream dependency domain(s) and before its {len([1 for s,t in all_graph.edges if t==did])} dependent consumer(s); prioritize the observed {len(seams)} cross-domain class pair(s) and {len(shared[did])} shared-data signal(s).",

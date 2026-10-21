@@ -106,3 +106,36 @@ it('clicking again hides the result, and a third click shows it without another 
   const posts = (fetch as unknown as { mock: { calls: [string, RequestInit?][] } }).mock.calls.filter(([, init]) => init?.method === 'POST');
   expect(posts).toHaveLength(1);
 });
+
+
+it('shows the non-functional recommendation next to the domain recommendation and tolerates older recommendations that lack optional lists', async () => {
+  const modern = { kind: 'ADDRESS_NONFUNCTIONAL_CONSTRAINT', text: 'Before separating Owners: 3 persistent classes are shared.', affected_classes: ['petclinic.owner.Owner'], dependency_pairs: [], proposed_interface: null, target_domains: [],
+    finding_ids: ['f9'], missing_evidence: ['runtime validation (Performance tab or a load test)'] };
+  const legacy = { kind: 'COLLECT_DOMAIN_EVIDENCE', text: 'Exercise the entry points of Owners.' };           // saved before these lists existed
+  const owners = document.assessments[0] as unknown as { recommendations: unknown[] };
+  const before = owners.recommendations;
+  owners.recommendations = [legacy, modern];
+  try {
+    render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><PlanningWorkspace applications={[{ id: 'a1', project_id: 'p', name: 'PetClinic', version: '1' } as never]} /></QueryClientProvider>);
+    fireEvent.click(await screen.findByRole('button', { name: 'Readiness & confidence' }));
+    expect(await screen.findByText('ADDRESS NONFUNCTIONAL CONSTRAINT')).toBeTruthy();
+    expect(screen.getByText(/Supporting finding IDs: f9/)).toBeTruthy();
+    expect(screen.getByText(/Affected classes: petclinic.owner.Owner/)).toBeTruthy();
+    expect(screen.getByText(/Missing evidence: runtime validation/)).toBeTruthy();
+    expect(screen.getByText('COLLECT DOMAIN EVIDENCE')).toBeTruthy();
+    expect(screen.getAllByText(/Supporting finding IDs: none/).length).toBeGreaterThan(0);         // the older recommendation renders instead of crashing the page
+    expect(screen.getAllByText(/Affected classes: none identified/).length).toBeGreaterThan(0);
+  } finally { owners.recommendations = before; }
+});
+
+
+it('starts on the application of the selected analysis and tells the app when another application is chosen', async () => {
+  const apps = [{ id: 'a1', project_id: 'p', name: 'PetClinic', version: '1', source_type: 'JAR' }, { id: 'a2', project_id: 'p', name: 'Northstar', version: '1', source_type: 'JAR' }];
+  const seen: string[] = [];
+  render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><PlanningWorkspace applications={apps as never} currentApplicationId="a2" onApplication={id => seen.push(id)} /></QueryClientProvider>);
+  const select = await screen.findByLabelText('Planning application') as HTMLSelectElement;
+  expect(select.value).toBe('a2');                                         // the application of the selected analysis, not the first in the list
+  expect(seen).toEqual(['a2']);
+  fireEvent.change(select, { target: { value: 'a1' } });
+  await waitFor(() => expect(seen).toEqual(['a2', 'a1']));                 // the workflow strip can now follow the page
+});
