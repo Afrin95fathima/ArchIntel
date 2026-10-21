@@ -31,6 +31,18 @@ from app.insight.routes import router as insight_router, glossary_router as insi
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 
+
+class SpaFiles(StaticFiles):
+    """Hashed build assets never change, so they are cached for good; the page that names them is always revalidated.
+
+    Without this a browser may keep an old index.html after an upgrade and request asset files that no longer exist.
+    """
+    def file_response(self, full_path, stat_result, scope, status_code=200):
+        response = super().file_response(full_path, stat_result, scope, status_code)
+        immutable = '/assets/' in str(full_path).replace('\\', '/')
+        response.headers['Cache-Control'] = 'public, max-age=31536000, immutable' if immutable else 'no-cache'
+        return response
+
 def create_app(settings: Settings | None = None) -> FastAPI:
     config = settings or Settings()
 
@@ -146,7 +158,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(system_router)
     frontend = ROOT / 'frontend/dist'
     if frontend.exists():
-        app.mount('/', StaticFiles(directory=frontend,html=True),name='frontend')
+        app.mount('/', SpaFiles(directory=frontend,html=True),name='frontend')
     # Outermost host validation prevents a DNS-rebinding host from making an
     # attacker origin appear same-origin to browser_boundary.
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=config.allowed_hosts)

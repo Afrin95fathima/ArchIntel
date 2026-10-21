@@ -73,6 +73,8 @@
 .metric-point.over { fill: var(--severity-critical); }
 .group-row td { background: var(--neutral-100); }
 .explorer-layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; align-items: start; }
+/* The older overlay rule (absolute, top-right of the page) must not apply when the inspector is a column of this layout. */
+.explorer-layout > .node-inspector { position: static; width: auto; max-height: none; }
 @media (max-width: 1000px) { .explorer-layout { grid-template-columns: 1fr; } }
 .explorer-canvas-wrap { position: relative; border: 1px solid var(--neutral-200); border-radius: var(--radius-md); background: var(--neutral-0); }
 .explorer-canvas { height: 520px; }
