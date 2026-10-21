@@ -8,7 +8,7 @@ from app.insight import debt
 from test_modernization import pure
 from insight_fixtures import snapshot, model
 
-SECTIONS = ['decision', 'recommendation', 'options', 'scope', 'blockers', 'risks', 'confidence', 'unknowns']
+SECTIONS = ['decision', 'recommendation', 'options', 'scope', 'blockers', 'nonfunctional', 'risks', 'confidence', 'unknowns']
 
 
 @pytest.fixture(scope='module')
@@ -114,7 +114,10 @@ def test_tampered_numbers_are_rejected(petclinic):
     assert 'BRIEF_NUMBER_NOT_IN_FACT_TABLE' in validation.validate(forged, plan_facts, evidence)['errors']
     changed = copy.deepcopy(doc)
     facts_ = changed['decision_brief']['facts']
-    target = next(f for f in facts_ if f['id'] == 'rate_cross-domain-edges_n')      # 7: the text says '7 of 35 dependency edges' and no other fact equals 7
+    target = next(f for f in facts_ if f['id'] == 'rate_cross-domain-edges_n')      # 7: the text says '7 of 35 dependency edges'
+    for other in facts_:                                    # another fact may equal 7 by coincidence (a blocker count); move it so only the target backs the text
+        if other is not target and other['value'] == target['value']:
+            other['value'] += 2000; other['text'] = str(other['value'])
     assert [f['id'] for f in facts_ if f['value'] == target['value']] == ['rate_cross-domain-edges_n']
     target['value'] = 1007                       # value changed, text left alone
     assert 'BRIEF_FACT_TEXT_MISMATCH' in validation.validate(changed, plan_facts, evidence)['errors']

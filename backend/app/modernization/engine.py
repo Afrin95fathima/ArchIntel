@@ -14,7 +14,7 @@ from app.services.runtime.entry_points import is_method_entry_point
 from app.services.domain_analysis import dependency_matrix, model_overlap, entry_point_inventory
 from app.insight import lifecycle as lifecycle_module, modernization_plan as technology_plan
 from app.insight.model import InsightModel
-from . import brief as brief_module, decomposition, describe
+from . import brief as brief_module, decomposition, describe, nonfunctional
 
 RULE_VERSION = 'modernization-intelligence-4'
 CALIBRATION = 'fixture-calibration-1'
@@ -90,6 +90,7 @@ def build(assessment_id, version, static, facts, evidence, options):
     names = {d['id']: d['name'] for d in domains}
     membership = {c: d['id'] for d in domains for c in d['classes']}
     domain_ids = {d['id'] for d in domains}
+    nfr = nonfunctional.build(static, domains)       # non-functional findings, soft blockers and recommendations per domain
     structural_by = {a['domain_id']: a for a in structural(version, static)}
     all_graph, runtime_graph = nx.DiGraph(), nx.DiGraph()
     all_graph.add_nodes_from(sorted(domain_ids)); runtime_graph.add_nodes_from(sorted(domain_ids))
@@ -143,11 +144,12 @@ def build(assessment_id, version, static, facts, evidence, options):
         support = sorted({e for f in fs for e in f['evidence_ids']} | {
             e['id'] for e in evidence if e['kind'] == 'COVERAGE' and e['target'] == did or e['kind'] == 'STATIC' and e['target'] in domain['classes']})
         local_findings = []
-        def finding(kind, severity, text, fids=None, eids=None, measured=None, threshold=None, subjects=None):
+        def finding(kind, severity, text, fids=None, eids=None, measured=None, threshold=None, subjects=None, key=None, extra=None):
             # rule_id equals kind. measured/threshold/subjects are what "Explain why" shows: the value, the limit, and the named domains, classes or edges.
-            row = dict(id=uid('finding:' + did + ':' + kind), domain_id=did, kind=kind, rule_id=kind, severity=severity, text=text,
+            row = dict(id=uid('finding:' + did + ':' + kind + (':' + key if key else '')), domain_id=did, kind=kind, rule_id=kind, severity=severity, text=text,
                        fact_ids=fact_ids if fids is None else fids, evidence_ids=support if eids is None else sorted(set(eids)), rule_version=RULE_VERSION,
                        measured=measured or {}, threshold=threshold or {}, subjects=list(subjects or []))
+            row.update(extra or {})
             findings.append(row); local_findings.append(row['id'])
         conflicts = [f for f in fs if f.get('conflict_ids')]
         cross = [f for f in fs if membership.get(f['source']) == did and membership.get(f['target']) in domain_ids and membership[f['target']] != did]
@@ -184,6 +186,11 @@ def build(assessment_id, version, static, facts, evidence, options):
                 measured={'domain_review_recorded': False}, threshold={'domain_review_recorded': True}, subjects=[domain['name']])
         finding('BEHAVIOR_AND_DATA_UNKNOWN', 'MEDIUM', f"No behavioral contract tests or data-ownership review are recorded for {domain['name']}; extraction cannot be approved.", [],
             measured={'behavioral_contracts_recorded': False, 'data_ownership_reviewed': False}, threshold={'behavioral_contracts_recorded': True, 'data_ownership_reviewed': True}, subjects=[domain['name']])
+        nfr_domain = nfr['by_domain'].get(did, dict(findings=[], blockers=[], recommendations=[], concerns=[], kind=None, implications=[]))
+        for item in nfr_domain['findings']:
+            # Support is the domain's captured static evidence, like every other finding; the specific bytecode evidence is referenced, not copied.
+            finding(item['kind'], item['severity'], item['text'], [], None, item['measured'], item['threshold'], item['subjects'], key=item['risk_id'] or item['rule_id'],
+                    extra=dict(responsibility_risk_id=item['risk_id'], responsibility_evidence_ids=item['evidence_ids'], detection=item['measured'].get('detection_status')))
         outgoing = [f for f in fs if membership.get(f['source']) == did and f['classification'] != 'STATIC_ONLY' and f['target'] in membership]
         total = sum(f['call_count'] for f in outgoing)
         internal = sum(f['call_count'] for f in outgoing if membership[f['target']] == did)
@@ -272,6 +279,7 @@ def build(assessment_id, version, static, facts, evidence, options):
         if conflicts: blockers.append('EVIDENCE_CONFLICT')
         if did in cyclic: blockers.append('CROSS_DOMAIN_CYCLE')
         if shared[did]: blockers.append('SHARED_PERSISTENCE_REVIEW')
+        blockers += [b for b in nfr_domain['blockers'] if b not in blockers]   # soft: they ask for a decision, they do not block the label
         specialized = options['strategy'] in ('CLOUD_REFACTOR', 'JAVA_UPGRADE', 'FRAMEWORK_UPGRADE')
         if specialized: blockers.append('COMPATIBILITY_INVENTORY_REQUIRED')
         if conflicts or specialized: decision = 'MANUAL_REVIEW_REQUIRED'
@@ -318,7 +326,7 @@ def build(assessment_id, version, static, facts, evidence, options):
             confidence_note=f"Confidence {confidence}/100 for {domain['name']} = sum(input x weight) over {len(confidence_inputs)} measured input(s): " + '; '.join(f"{v['label'].lower()} {v['value']} ({v['text']})" for v in confidence_inputs.values())
                 + ". Not measured, so excluded: " + '; '.join(f"{e['label'].lower()} ({e['reason']})" for e in confidence_not_measured) + '. Confidence = sum(input × weight) as defined in the glossary, not a calibrated probability.',
             observation=observed, evidence_ids=support, fact_ids=fact_ids, blockers=blockers,
-            recommendations=[recommendation], effort_band=effort_band, risk_band=risk_band,
+            recommendations=[recommendation] + nfr_domain['recommendations'], nonfunctional=dict(capability_kind=nfr_domain['kind'], concerns=nfr_domain['concerns'], implications=nfr_domain['implications']), effort_band=effort_band, risk_band=risk_band,
             cost_index=cost_index, cost_drivers=cost_drivers, cost_inputs=baseline.get('cost_inputs'), cost_formula=baseline.get('cost_formula'),
             difficulty='HIGH' if did in cyclic or shared[did] or combined < 60 else 'MEDIUM',
             order_rationale=f"Review after its {len([1 for s,t in all_graph.edges if s==did])} downstream dependency domain(s) and before its {len([1 for s,t in all_graph.edges if t==did])} dependent consumer(s); prioritize the observed {len(seams)} cross-domain class pair(s) and {len(shared[did])} shared-data signal(s).",
@@ -441,7 +449,7 @@ def build(assessment_id, version, static, facts, evidence, options):
         options=options, assessments=assessments, findings=findings, decisions=decisions, target=target, waves=waves, decision_brief=result_brief,
         modernization_progress=modernization_progress,
         dependency_edges=[dict(source=s, target=t) for s, t in sorted(all_graph.edges)],
-        domain_dependency_matrix=matrix, data_ownership=ownership, entry_points=entry_points,
+        domain_dependency_matrix=matrix, data_ownership=ownership, entry_points=entry_points, nonfunctional=nfr['document'],
         dead_code_candidates=dead_candidates,
         data_quality=dict(artifact_state='AVAILABLE' if version.manifest.get('artifact_sha256') else 'UNAVAILABLE',
             artifact_impact=f'Static and modernization conclusions for {class_count} classes may be incomplete.' if not version.manifest.get('artifact_sha256') else f"Artifact hash {version.manifest['artifact_sha256'][:12]} is recorded in the version manifest.",
@@ -479,6 +487,23 @@ def planning_graph(aid, document, facts, evidence):
     target = node('target', 'TargetArchitecture', document['target']['strategy']); link(root, target, 'PROPOSES')
     for a in document['assessments']:
         node('domain:' + a['domain_id'], 'DomainAssessment', a['domain_name'], readiness=a['combined_score'], confidence=a['confidence_score'])
+    nf = document.get('nonfunctional') or {}
+    capability_nodes = {}
+    for c in nf.get('capabilities', []):
+        capability = capability_nodes[c['name']] = node('capability:' + c['domain_id'], 'BusinessCapability', c['name'], capability_kind=c['kind'])
+        link(capability, identity(aid, 'graph:domain:' + c['domain_id']), 'ASSOCIATED_WITH')
+        for concern in c['nonfunctional_concerns']:
+            link(capability, node('nfr-concern:' + concern['category'], 'NonFunctionalConcern', concern['category']), 'HAS_CONCERN')
+    for item in nf.get('cross_cutting', []):
+        shared_node = node('shared:' + item['id'], 'SharedComponent', item['name'], component_kind=item['kind'], deployment_form=item['deployment_form'])
+        for name in item['capabilities']:
+            if name in capability_nodes:
+                link(capability_nodes[name], shared_node, 'DEPENDS_ON')
+    for r in nf.get('risks', []):
+        risk_node = node('nfr-risk:' + r['id'], 'NonFunctionalRisk', r['rule_id'], category=r['category'], severity=r['severity'], detection_status=r['detection_status'], canonical_id=r['id'])
+        link(risk_node, node('nfr-concern:' + r['category'], 'NonFunctionalConcern', r['category']), 'CONCERNS')
+        for d in r['domains']:
+            link(risk_node, identity(aid, 'graph:domain:' + d['id']), 'AFFECTS')
     for f in facts:
         fid = node('fact:' + f['id'], 'ArchitectureFactReference', f['source'] + ' -> ' + f['target'], canonical_id=f['id'])
         for eid in f['evidence_ids']:

@@ -15,6 +15,9 @@ STOP = {'What', 'Which', 'Who', 'How', 'Does', 'Do', 'Is', 'Are', 'Show', 'List'
 MUTATING = re.compile(r'\b(refactor|rewrite|change|modify|delete|remove|fix|apply|patch|implement|generate|rename|move|migrate|upgrade|replace|edit|write)\b.*', re.I)
 ROLE_WORDS = {'controller': r'\bcontrollers?\b', 'repository': r'\brepositor(y|ies)\b', 'service': r'\bservices?\b', 'entity': r'\bentit(y|ies)\b', 'servlet': r'\bservlets?\b',
     'filter': r'\bfilters?\b', 'listener': r'\blisteners?\b', 'validator': r'\bvalidators?\b'}
+RESP = re.compile(r'\b(security|secure|authenticat\w*|authoriz\w*|authoris\w*|logging|logs?|observab\w*|metrics|tracing|monitor\w*|cach(?:e|es|ing)|transactions?|retr(?:y|ies)|resilien\w*|reliab\w*|timeouts?|non[- ]functional|cross[- ]cutting|shared (?:across|by|between|component|infrastructure|librar\w*)|responsib\w*|mixed|business capabilit\w*|concerns?|scalab\w*|privacy|audit\w*|testab\w*|maintainab\w*|interoperab\w*|availab\w*)\b', re.I)
+CROSS = re.compile(r'\b(cross[- ]cutting|shared)\b', re.I)
+RISKY = re.compile(r'\b(risks?|risky)\b', re.I)
 ROUTE = re.compile(r'\b(GET|POST|PUT|DELETE|PATCH)\s+(/[\w/{}.\-]*)|(/[\w/{}.\-]+)', re.I)
 
 
@@ -112,6 +115,44 @@ def answer(tools: Tools, question: str, last_entity: str | None = None) -> dict:
             sentences.append(_s(f"{i['technology']}{' ' + str(i['version']) if i['version'] else ''} is {i['status']}; recommended alternative: {i['alternative']}.{where}", ['aging:' + i['id']]))
         if r['data']['stale']:
             sentences.append(_s('The lifecycle rules file (lifecycle-rules.yaml) is stale, so these statuses may be out of date.', r['evidence'][:1]))
+    elif RESP.search(low) and not route:
+        from .tools import CONCERN_WORDS
+        pretty = lambda text: text.lower().replace('_', ' ')
+        concern = next((w for w in re.findall(r'[a-z]+', low) if w in CONCERN_WORDS), '')
+        r = use('get_responsibilities', name=subject, concern=concern)
+        if not r['ok']:
+            return cannot('I cannot determine that: ' + str(r.get('detail') or 'the responsibility analysis is not available for this analysis') + '.')
+        d = r['data']
+        where = f' in {short(subject)}' if subject else ''
+        if CROSS.search(low) and d['shared']:
+            for c in d['shared']:
+                sentences.append(_s(f"{c['name']} ({pretty(c['kind'])}) is used across {', '.join(c['domains'])}. {c['guidance']}", ['class:' + c['component']] if c['is_class'] else ['summary:analysis']))
+        elif RISKY.search(low) and d['risks']:
+            sentences.append(_s(f"{_plural(len(d['risks']), 'non-functional risk indicator')}{where}" + (f" for {pretty(d['concern'])}" if d['concern'] else '') + '; each is read from bytecode and its consequence is inferred.', r['evidence'][:1]))
+            for k in d['risks']:
+                sentences.append(_s(f"{k['severity'].title()}, {k['detection'].lower()}: {k['title']}. {k['description']}. Investigate: {k['investigate']}", ['risk:' + k['id']]))
+        elif d['concern']:
+            if not d['items']:
+                sentences.append(_s(f"No class{where} shows {d['concern_word']} ({pretty(d['concern'])}) in the analyzed bytecode ({d['analyzed']} classes checked); that does not prove the control is absent.", r['evidence'][:1] or ['summary:analysis']))
+            else:
+                sentences.append(_s(f"{_plural(d['total'], 'class')}{where} {'shows' if d['total'] == 1 else 'show'} {d['concern_word']} ({pretty(d['concern'])}).", r['evidence'][:1]))
+                for i in d['items'][:6]:
+                    for label in i['non_functional']:
+                        sentences.append(_s(f"{short(i['id'])} ({pretty(i['primary'])}): {label['description']}, {label['status'].lower()}, {label['confidence'].lower()} confidence.", label['evidence'] + ['class:' + i['id']]))
+        elif subject and len(d['items']) == 1:
+            i = d['items'][0]
+            functional = ', '.join(f"{pretty(l['category'])} ({l['status'].lower()})" for l in i['functional']) or 'none detected'
+            nonfunctional = ', '.join(f"{pretty(l['category'])} ({l['status'].lower()})" for l in i['non_functional']) or 'none detected'
+            sentences.append(_s(f"{short(i['id'])} is classified {pretty(i['primary'])}. Functional responsibilities: {functional}. Non-functional concerns: {nonfunctional}.", ['class:' + i['id']] + [e for l in i['functional'] + i['non_functional'] for e in l['evidence']][:3]))
+            for note in i['uncertainties'][:2]:
+                sentences.append(_s(note, ['class:' + i['id']]))
+        else:
+            counts = ', '.join(f"{n} {pretty(k)}" for k, n in d['primary_counts'].items())
+            sentences.append(_s(f"Of {_plural(d['analyzed'], 'class')}{where}: {counts}. Statuses are DETECTED when a bytecode fact establishes them and INFERRED when they are a reasoned reading.", r['evidence'][:1] or ['summary:analysis']))
+            for k in d['risks'][:3]:
+                sentences.append(_s(f"{k['severity'].title()} indicator: {k['title']}.", ['risk:' + k['id']]))
+        if d['limits'] and (RISKY.search(low) or d['concern']):
+            sentences.append(_s(d['limits'][0], ['summary:analysis']))
     elif route or re.search(r'\b(endpoint|endpoints|route|routes|entry point|entry points|url|urls|listener|scheduled|handles?|mapping)\b', low):
         text = ''
         if route:

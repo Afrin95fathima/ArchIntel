@@ -13,6 +13,13 @@ from .evidence import Index
 
 MAX_ITEMS = 25
 MAX_SOURCE_BYTES = 6000
+# Words a question may use for a concern, mapped to the category of the responsibility analysis.
+CONCERN_WORDS = {'security': 'SECURITY', 'secure': 'SECURITY', 'authentication': 'SECURITY', 'authorization': 'SECURITY', 'authorisation': 'SECURITY',
+    'cache': 'PERFORMANCE', 'caching': 'PERFORMANCE', 'performance': 'PERFORMANCE', 'logging': 'OBSERVABILITY', 'logs': 'OBSERVABILITY', 'log': 'OBSERVABILITY', 'observability': 'OBSERVABILITY',
+    'metrics': 'OBSERVABILITY', 'tracing': 'OBSERVABILITY', 'monitoring': 'OBSERVABILITY', 'transaction': 'DATA_INTEGRITY', 'transactions': 'DATA_INTEGRITY', 'integrity': 'DATA_INTEGRITY',
+    'retry': 'RELIABILITY', 'retries': 'RELIABILITY', 'resilience': 'RELIABILITY', 'reliability': 'RELIABILITY', 'timeout': 'RELIABILITY', 'timeouts': 'RELIABILITY', 'configuration': 'CONFIGURATION',
+    'scalability': 'SCALABILITY', 'privacy': 'PRIVACY_AND_DATA_PROTECTION', 'audit': 'AUDITABILITY_AND_COMPLIANCE', 'auditing': 'AUDITABILITY_AND_COMPLIANCE', 'testability': 'TESTABILITY',
+    'maintainability': 'MAINTAINABILITY', 'interoperability': 'INTEROPERABILITY', 'availability': 'AVAILABILITY'}
 
 CATALOG = {
     'get_package': dict(args={'name': 'package name; empty for the whole application'}, doc='Role mix, size, cycles, entry points and debt of a package.'),
@@ -26,8 +33,15 @@ CATALOG = {
     'get_aging_findings': dict(args={'name': 'optional class/package'}, doc='End-of-life / aging technologies and the classes that use them.'),
     'get_class_source': dict(args={'name': 'class'}, doc='Source (or a labelled bytecode outline) of one class, size-bounded.'),
     'search_classes': dict(args={'query': 'text in the name', 'role': 'optional role', 'limit': 'max items'}, doc='Find classes by name or role.'),
+    'get_responsibilities': dict(args={'name': 'optional class or package', 'concern': 'optional concern such as security, caching or logging, or a category id', 'limit': 'max items'}, doc='Functional responsibilities and non-functional concerns of classes with status, confidence and evidence, plus risk indicators and shared components.'),
     'get_metrics': dict(args={'name': 'class or package', 'top': 'or a metric key such as class.fan_in to rank by', 'limit': 'max items'}, doc='Coupling, instability, size and complexity metrics, or the top offenders for one metric.'),
 }
+
+# A narrow word also narrows the rules: "caching" means the cache rules, not every performance label (paging, eager fetching).
+CONCERN_RULES = {'cache': ('PERF-CACHE',), 'caching': ('PERF-CACHE',), 'logging': ('OBS-LOGGING',), 'logs': ('OBS-LOGGING',), 'log': ('OBS-LOGGING',), 'metrics': ('OBS-METRICS',), 'tracing': ('OBS-METRICS',),
+    'transaction': ('DI-TRANSACTION',), 'transactions': ('DI-TRANSACTION',), 'retry': ('REL-RETRY',), 'retries': ('REL-RETRY',), 'timeout': ('REL-TIMEOUT',), 'timeouts': ('REL-TIMEOUT',),
+    'authentication': ('SEC-AUTHORIZATION', 'SEC-API', 'SEC-PRINCIPAL', 'SEC-CONFIGURATION'), 'authorization': ('SEC-AUTHORIZATION', 'SEC-API', 'SEC-PRINCIPAL', 'SEC-CONFIGURATION'),
+    'authorisation': ('SEC-AUTHORIZATION', 'SEC-API', 'SEC-PRINCIPAL', 'SEC-CONFIGURATION')}
 
 
 _GENERIC = {'which', 'what', 'route', 'routes', 'endpoint', 'endpoints', 'entry', 'point', 'points', 'show', 'shows', 'page', 'list', 'the', 'for', 'that', 'this', 'does', 'handle', 'handles', 'serve', 'serves', 'url', 'urls', 'with', 'from', 'are', 'all'}
@@ -192,6 +206,48 @@ class Tools:
         return dict(ok=True, data=dict(rules_version=self.index.aging['rules']['rules_version'], stale=self.index.aging['rules']['stale'], items=[dict(id=f['id'], technology=f['technology'], version=f['version_found'],
             status=f['status'], alternative=f['recommended_alternative'], classes=classes[:10], class_count=len(classes)) for f, classes in rows[:MAX_ITEMS]]),
             evidence=['aging:' + f['id'] for f, _ in rows[:MAX_ITEMS]] or ['summary:analysis'])
+
+    def get_responsibilities(self, name: str = '', concern: str = '', limit: int = 8) -> dict:
+        result = self.model.responsibility
+        if result['status'] != 'AVAILABLE':
+            return dict(ok=False, error='NOT_AVAILABLE', detail=result.get('reason'), evidence=[])
+        target = self.resolve(name)
+        if target['kind'] in ('unknown', 'ambiguous'):
+            return dict(ok=False, error='NOT_FOUND' if target['kind'] == 'unknown' else 'AMBIGUOUS', detail=target, evidence=[])
+        scope = self._scope(target)
+        key = (concern or '').strip()
+        category = CONCERN_WORDS.get(key.lower()) or (key.upper() if key.upper() in result['taxonomy']['nonfunctional'] else None)
+        prefixes = CONCERN_RULES.get(key.lower(), ())
+        matches = lambda l: l['category'] == category and (not prefixes or any(r.startswith(p) for r in l['rule_ids'] for p in prefixes))
+        if key and not category:
+            return dict(ok=False, error='UNKNOWN_CONCERN', detail=key, evidence=[])
+        limit = max(1, min(int(limit or 8), MAX_ITEMS))
+        components = [c for f, c in sorted(result['components'].items()) if scope is None or f in scope]
+        shown = [c for c in components if not category or any(matches(l) for l in c['non_functional_responsibilities'])]
+        evidence, items = [], []
+        for c in shown[:limit]:
+            def brief(labels, wanted=None):
+                rows = []
+                for l in labels:
+                    if wanted and not matches(l):
+                        continue
+                    ids = ['resp:' + i for i in l['evidence_ids'][:2]]
+                    evidence.extend(ids)
+                    rows.append(dict(category=l['category'], status=l['status'], confidence=l['confidence']['level'], description=l['description'], evidence=ids))
+                return rows
+            items.append(dict(id=c['fqn'], primary=c['primary_classification'], role=c['architectural_role']['role'], uncertainties=c['uncertainties'],
+                              functional=brief(c['functional_responsibilities']), non_functional=brief(c['non_functional_responsibilities'], category)))
+            evidence.append('class:' + c['fqn'])
+        wanted = {c['fqn'] for c in components}
+        risks = [r for r in result['risks'] if (scope is None or wanted & set(r['affected_components'])) and (not category or r['category'] == category)]
+        for r in risks[:5]:
+            evidence.append('risk:' + r['id'])
+        shared = [c for c in result['cross_cutting'] if (scope is None or c['component'] in wanted or wanted & set(c['dependents'])) and (not category or category in c['concerns'])]
+        return dict(ok=True, data=dict(scope=target, concern=category, concern_word=key.lower() if category else '', total=len(shown), analyzed=len(components), items=items,
+                                       risks=[dict(id=r['id'], title=r['title'], severity=r['severity'], detection=r['detection_status'], runtime=r['runtime_validation_required'], description=r['description'], investigate=r['investigate']) for r in risks[:5]],
+                                       shared=[dict(name=c['name'], kind=c['kind'], is_class=c['component'] in result['components'], component=c['component'], domains=[x['name'] for x in c['capabilities']], guidance=c['guidance']) for c in shared[:3]],
+                                       primary_counts=dict(sorted(Counter(c['primary_classification'] for c in components).items())),
+                                       limits=result['limitations'][:2]), evidence=list(dict.fromkeys(evidence)) or ['summary:analysis'])
 
     def get_class_source(self, name: str) -> dict:
         target, error = self._need(name)

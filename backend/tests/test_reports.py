@@ -164,3 +164,18 @@ def test_runtime_sections_report_the_session_numbers_when_a_session_is_attached(
     sessions = next(t for t in next(s for s in report['sections'] if s['id'] == 'runtime')['technical'] if t.get('caption') == 'Sessions')
     assert sessions['rows'][0][0] == 'Test' and sessions['rows'][0][3:5] == ['1', '5'] and sessions['rows'][0][5] == sid
     assert report['numbers_check']['unregistered'] == []
+
+
+def test_report_carries_the_non_functional_constraints_in_plain_terms_and_in_tables(live):
+    base, aid, *_ = petclinic_report(live)
+    report = live.get(f'{base}/{aid}/report.json').json()
+    sections = {s['id']: s for s in report['sections']}
+    assert any('non-functional risk indicator' in sentence for sentence in sections['plan']['plain'])
+    technical = {t.get('caption') or t.get('title'): t for t in sections['risks']['technical']}
+    risks = technical['Non-functional risk indicators']
+    assert risks['columns'][:4] == ['Rule', 'Severity', 'Category', 'Detection'] and len(risks['rows']) >= 3
+    assert {row[3] for row in risks['rows']} <= {'DETECTED', 'INFERRED'} and 'none is a measurement' in risks['note']
+    assert {'Business capabilities and technical domains', 'Components shared across domains', 'Not examined for non-functional concerns'} <= set(technical)
+    assert any('SECURITY' == row[2] for row in risks['rows']) and any(row[0] == 'RISK-DATA-SHARED-MODEL' for row in risks['rows'])
+    html = live.get(f'{base}/{aid}/report.html').text
+    assert 'Non-functional risk indicators' in html and 'Components shared across domains' in html

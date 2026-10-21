@@ -147,6 +147,19 @@ def build(db, version, assessment, sessions, projection) -> dict:
             if fact and fact['id'] not in F.rows:
                 F.rows[fact['id']] = dict(fact)
         return sentence
+    # Non-functional constraints come from the plan document; the plain sentence is the brief's own paragraph, so its numbers stay registered.
+    nfr = doc.get('nonfunctional') or {}
+    nfr_section = next((x for x in brief.get('sections', []) if x['id'] == 'nonfunctional' and nfr.get('status') == 'AVAILABLE'), None)
+    if nfr.get('status') == 'AVAILABLE':
+        nfr_tables = [
+            table('Non-functional risk indicators', ['Rule', 'Severity', 'Category', 'Detection', 'Domains', 'Needs runtime validation', 'What to investigate'],
+                  [[r['rule_id'], r['severity'], r['category'], r['detection_status'], ', '.join(d['name'] for d in r['domains']), 'yes' if r['runtime_validation_required'] else 'no', r['investigate']] for r in nfr['risks']],
+                  note='ArchIntel reads each indicator from bytecode (detected) and reasons its consequence (inferred); none is a measurement.'),
+            table('Business capabilities and technical domains', ['Domain', 'Kind', 'Basis'], [[c['name'], c['kind'], c['basis']] for c in nfr['capabilities']]),
+            table('Components shared across domains', ['Component', 'Kind', 'Domains', 'Users', 'Guidance'], [[c['name'], c['kind'], ', '.join(c['capabilities']), c['dependent_count'], c['guidance']] for c in nfr['cross_cutting']]),
+            listing('Not examined for non-functional concerns', nfr['not_examined'] + nfr['limitations'])]
+    else:
+        nfr_tables = [listing('Non-functional constraints', [nfr.get('reason') or 'Non-functional constraints were not derived for this plan.'])]
     sections = []
 
     # 1. Summary
@@ -271,7 +284,8 @@ def build(db, version, assessment, sessions, projection) -> dict:
     sections.append(dict(id='plan', title='Modernization plan', plain=[
         f"The plan has {F.num('waves', 'Dependency waves', len(waves), 'plan: waves')} {_plural(len(waves), 'wave')} over {ds} domains, and the first is {_names(F, [names[d] for d in waves[0]['domains']], 3)}." if waves else 'The plan has no wave.',
         (f"Recommended approach: {F.name(brief['recommendation']['option'])} (" + (lambda t: t[0].lower() + t[1:])(adopt(first_sentence(brief['recommendation']['rationale']))) + ")." if brief.get('recommendation') else 'No approach is recommended.'),
-        (f"The technology work runs in {F.num('tech_phases', 'Technology phases', len(phases), 'technology plan: phases')} {_plural(len(phases), 'phase')}: " + '; '.join(f"({p['number']}) {p['title']}" for p in phases) + '.') if phases else 'No technology phase is planned.'],
+        (f"The technology work runs in {F.num('tech_phases', 'Technology phases', len(phases), 'technology plan: phases')} {_plural(len(phases), 'phase')}: " + '; '.join(f"({p['number']}) {p['title']}" for p in phases) + '.') if phases else 'No technology phase is planned.',
+        *([adopt(first_sentence(nfr_section['paragraphs'][0]))] if nfr_section else [])],
         technical=[table('Domain waves', ['Wave', 'Domains', 'Depends on', 'Why this order'], [[w['number'], ', '.join(names[d] for d in w['domains']), ', '.join(names[d] for d in w['dependencies']) or 'nothing', w['reason']] for w in waves]),
                    table('Readiness, confidence and blockers', ['Domain', 'Readiness', 'Confidence', 'Adjusted', 'Status', 'Blockers'], [[a['domain_name'], a['structural_score'], a['confidence_score'], a['confidence_adjusted_score'], a['readiness_label'], ', '.join(a['blockers'])] for a in doc['assessments']]),
                    table('Decisions', ['Domain', 'Decision', 'Action'], [[names[d['domain_id']], d['kind'], d['action']] for d in doc['decisions']]),
@@ -282,7 +296,7 @@ def build(db, version, assessment, sessions, projection) -> dict:
         (adopt(brief['risks'][0]['text']) if brief.get('risks') else f'No measured risk rate of {F.name(artifact_name)} is above zero.'),
         (f"{F.num('unknown_groups', 'Inputs that are not measured', len(brief.get('unknowns', [])), 'decision brief: unknowns')} inputs are not measured, for example: {adopt(brief['unknowns'][0])}" if brief.get('unknowns') else f'Every input of the {ds} domain scores was measured.'),
         (adopt(brief['questions'][0]) if brief.get('questions') else 'No open question was raised.')],
-        technical=[listing('Risks', [r['text'] for r in brief.get('risks', [])]), listing('Blockers', [f"{b['code']}: {b['meaning']} Affects {', '.join(b['domains'])}. Resolve: {b['resolve']}" for b in brief.get('blockers', [])]),
+        technical=[listing('Risks', [r['text'] for r in brief.get('risks', [])])] + nfr_tables + [listing('Blockers', [f"{b['code']}: {b['meaning']} Affects {', '.join(b['domains'])}. Resolve: {b['resolve']}" for b in brief.get('blockers', [])]),
                    listing('What is not known', brief.get('unknowns', []) + brief.get('questions', []))]))
 
     # 10. Appendix

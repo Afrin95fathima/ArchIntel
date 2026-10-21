@@ -9,7 +9,7 @@ from app.insight.debt import detect
 from app.insight.lifecycle import evaluate
 from app.insight.metrics import DEFINITIONS
 
-PREFIXES = ('class', 'package', 'edge', 'finding', 'cycle', 'entry', 'aging', 'metric', 'runtime', 'source', 'layer', 'summary')
+PREFIXES = ('class', 'package', 'edge', 'finding', 'cycle', 'entry', 'aging', 'metric', 'runtime', 'source', 'layer', 'summary', 'resp', 'risk')
 
 
 class Index:
@@ -66,6 +66,12 @@ class Index:
         if kind == 'metric':
             entity, _, key = value.rpartition(':')
             return key in DEFINITIONS and (entity in model.classes or entity in model.packages)
+        if kind == 'resp':          # one evidence item of the responsibility analysis
+            result = model.responsibility
+            return result['status'] == 'AVAILABLE' and value in result['evidence']
+        if kind == 'risk':
+            result = model.responsibility
+            return result['status'] == 'AVAILABLE' and any(r['id'] == value for r in result['risks'])
         if kind == 'runtime':
             return model.observed_classes is not None and value in model.classes
         return False

@@ -13,6 +13,11 @@ BLOCKERS = {
     'EVIDENCE_CONFLICT': ('Evidence sources disagree about a dependency.', 'Inspect the cited traces and static references and resolve the conflict.', 'CONFLICTING_EVIDENCE'),
     'CROSS_DOMAIN_CYCLE': ('The domain depends on other domains in a cycle.', 'Plan a joint cycle-remediation step before independent extraction.', 'CROSS_DOMAIN_CYCLE'),
     'SHARED_PERSISTENCE_REVIEW': ('More than one domain calls the same observed database resource.', 'Confirm table and entity ownership and the transaction boundaries.', 'SHARED_PERSISTENCE_CANDIDATE'),
+    'SECURITY_CONTROL_REVIEW': ('Entry points of the domain have no detectable authentication or authorization reference in the bytecode.', 'Confirm the access controls in front of the application and decide where an extracted service enforces them.', 'SECURITY_CONTROL_NOT_DETECTED'),
+    'SHARED_DATA_MODEL_REVIEW': ('Persistent classes of this domain are used by another domain, or it uses persistent classes assigned to another domain.', 'Decide which domain owns the data, then share it as a library or replace it with a published contract.', 'SHARED_DATA_MODEL'),
+    'CROSS_CUTTING_REVIEW': ('The domain owns or depends on a component that two or more domains share.', 'Decide whether each shared component becomes a library or module before the domains are separated.', 'CROSS_CUTTING_DEPENDENCY'),
+    'TRANSACTION_BOUNDARY_REVIEW': ('A transactional method calls classes of two or more domains.', 'Choose how consistency is kept once the domains are separated, for example a saga or keeping them together.', 'TRANSACTION_SPANS_DOMAINS'),
+    'TECHNICAL_DOMAIN_REVIEW': ('The candidate domain holds technical concerns rather than a business capability.', 'Decide whether it stays as shared configuration or a library instead of becoming a service.', 'TECHNICAL_DOMAIN'),
     'COMPATIBILITY_INVENTORY_REQUIRED': ('Upgrade compatibility has not been checked against the technology inventory.', 'Review target versions against the lifecycle rules and the dependency inventory.', None),
 }
 

@@ -21,7 +21,7 @@ def test_evaluation_harness_reports_pass_rate_and_no_hallucinated_classes():
 
 def test_every_tool_is_registered_read_only_and_scoped():
     assert set(CATALOG) == {'get_package', 'get_class', 'get_dependencies', 'get_dependents', 'get_cycles', 'get_debt_findings', 'get_runtime_coverage',
-        'get_entry_points', 'get_aging_findings', 'get_class_source', 'search_classes', 'get_metrics'}
+        'get_entry_points', 'get_aging_findings', 'get_class_source', 'search_classes', 'get_metrics', 'get_responsibilities'}
     tools = Tools(model('petclinic'), None, 'a1')
     assert tools.call('delete_everything', {})['error'] == 'UNKNOWN_TOOL'
     assert tools.call('get_class', {'name': 'Owner', 'evil': 1})['error'] == 'UNKNOWN_ARGUMENTS'
@@ -69,3 +69,27 @@ def test_heldout_paraphrases_are_reported_separately():
             print('  FAIL', r['q'], r['failures'])
     assert report['hallucinated_answers'] == 0          # the honest bar: never invent, even when the question is not understood
     assert report['pass_rate'] >= 0.6
+
+
+def test_responsibility_tool_cites_real_evidence_and_narrow_words_narrow_the_rules():
+    tools, index = Tools(model('petclinic'), None, 'a1'), Index(model('petclinic'))
+    caching = tools.call('get_responsibilities', {'concern': 'caching'})
+    assert caching['ok'] and {i['id'].rsplit('.', 1)[-1] for i in caching['data']['items']} == {'CacheConfiguration', 'VetRepository'}
+    assert all(index.exists(e) for e in caching['evidence']) and any(e.startswith('resp:') for e in caching['evidence'])
+    performance = tools.call('get_responsibilities', {'concern': 'PERFORMANCE'})['data']
+    assert performance['total'] > caching['data']['total']                      # the category is wider than the word "caching"
+    scoped = tools.call('get_responsibilities', {'name': 'OwnerController'})
+    assert scoped['data']['items'][0]['primary'] == 'MIXED' and all(index.exists(e) for e in scoped['evidence'])
+    assert tools.call('get_responsibilities', {'concern': 'astrology'})['error'] == 'UNKNOWN_CONCERN'
+    assert tools.call('get_responsibilities', {'name': 'NoSuchClass'})['error'] == 'NOT_FOUND'
+    assert tools.call('get_responsibilities', {'evil': 1})['error'] == 'UNKNOWN_ARGUMENTS'
+
+
+def test_the_verifier_accepts_real_responsibility_ids_and_rejects_invented_ones():
+    index, m = Index(model('petclinic')), model('petclinic')
+    real = next(iter(m.responsibility['evidence']))
+    risk = m.responsibility['risks'][0]['id']
+    assert index.exists('resp:' + real) and index.exists('risk:' + risk)
+    assert not index.exists('resp:resp-evidence-doesnotexist') and not index.exists('risk:resp-risk-doesnotexist')
+    kept, removed = check_answer(index, [dict(text='A claim.', cites=['resp:' + real]), dict(text='An invented claim.', cites=['resp:resp-evidence-doesnotexist'])])
+    assert [s['text'] for s in kept] == ['A claim.'] and removed[0]['reason'] == 'CITATION_NOT_FOUND'

@@ -242,6 +242,38 @@ def build(result: dict, static: dict, domains: list[dict], options: dict, eviden
     if not questions:
         questions.append(f"Which user-visible workflows of {F.name(artifact)} must stay unchanged? No behavioral contract tests are recorded.")
 
+    # 9. Non-functional constraints (from the responsibility analysis; text uses registered numbers and names only)
+    nf = result.get('nonfunctional') or {}
+    if nf.get('status') == 'AVAILABLE':
+        nf_risks = nf['risks']
+        nf_text = [f"{F.num('nfr_risks', 'Non-functional risk indicators', len(nf_risks), 'responsibility analysis: risks')} non-functional risk {_plural(len(nf_risks), 'indicator')} "
+                   f"{'was' if len(nf_risks) == 1 else 'were'} derived from the bytecode of {F.name(artifact)}: {F.num('nfr_high', 'High non-functional risks', sum(r['severity'] == 'HIGH' for r in nf_risks), 'responsibility analysis: risks')} high and "
+                   f"{F.num('nfr_medium', 'Medium non-functional risks', sum(r['severity'] == 'MEDIUM' for r in nf_risks), 'responsibility analysis: risks')} medium. They are structural indicators, not measurements; "
+                   f"{F.num('nfr_runtime', 'Risks needing runtime validation', sum(r['runtime_validation_required'] for r in nf_risks), 'responsibility analysis: risks')} of them need runtime validation before they are acted on."]
+        grouped = {}
+        for r in nf_risks:
+            g = grouped.setdefault(r['rule_id'], dict(title=r['title'], severity=r['severity'], components=set(), domains=set(), detection=r['detection_status']))
+            g['components'].update(r['affected_components']); g['domains'].update(d['name'] for d in r['domains'])
+        for rule_id, g in sorted(grouped.items(), key=lambda kv: ({'HIGH': 0, 'MEDIUM': 1, 'LOW': 2}[kv[1]['severity']], -len(kv[1]['components']), kv[0]))[:5]:
+            key = 'nfr_aff_' + re.sub(r'[^a-z0-9]+', '_', rule_id.lower())
+            nf_text.append(f"{F.name(g['title'])} ({g['severity'].lower()}, {g['detection'].lower()}): affects {F.num(key, g['title'] + ' affected components', len(g['components']), 'responsibility analysis: risks')} "
+                           f"{_plural(len(g['components']), 'component')} in {_list(F, sorted(g['domains']), 3)}.")
+        technical = [c['name'] for c in nf['capabilities'] if c['kind'] == 'TECHNICAL']
+        if technical:
+            nf_text.append(f"{F.num('nfr_technical', 'Domains holding technical concerns', len(technical), 'responsibility analysis: capabilities')} candidate {_plural(len(technical), 'domain')} "
+                           f"({_list(F, technical)}) {'holds' if len(technical) == 1 else 'hold'} technical concerns rather than a business capability; keep {'it' if len(technical) == 1 else 'them'} as shared configuration or {'a library' if len(technical) == 1 else 'libraries'}, because {'it is not a service candidate' if len(technical) == 1 else 'they are not service candidates'}.")
+        sharing = [i['name'] for i in nf['cross_cutting'] if i['kind'] != 'EXTERNAL_LIBRARY']
+        libraries = [i['name'] for i in nf['cross_cutting'] if i['kind'] == 'EXTERNAL_LIBRARY']
+        if sharing:
+            nf_text.append(f"{F.num('nfr_shared', 'Components shared across domains', len(sharing), 'responsibility analysis: cross-cutting components')} {_plural(len(sharing), 'component')} "
+                           f"({_list(F, sharing)}) {'is' if len(sharing) == 1 else 'are'} used by two or more domains; decide on a library, a module or an owner before separating those domains, because a service would add a network call to every user.")
+        if libraries:
+            nf_text.append(f"{F.num('nfr_libraries', 'Libraries used across domains', len(libraries), 'responsibility analysis: cross-cutting components')} {_plural(len(libraries), 'library', 'libraries')} "
+                           f"({_list(F, libraries, 3)}) already cross domain boundaries as ordinary dependencies; each extracted service includes them and none is a service candidate.")
+        nf_text.append('Not examined: ' + '; '.join(F.name(x) for x in nf['not_examined']) + '. A control that does not appear in the bytecode is not proven absent.')
+    else:
+        nf_text = [nf.get('reason') or 'Non-functional constraints were not derived for this plan.', f'The recommendation for {F.name(artifact)} therefore does not account for security, performance, reliability or data-integrity concerns.']
+
     # evidence ids
     used = []
     for f in sorted(findings, key=lambda f: (f['severity'] != 'HIGH', f['id'])):
@@ -258,6 +290,7 @@ def build(result: dict, static: dict, domains: list[dict], options: dict, eviden
         dict(id='options', title='Options considered', paragraphs=[f"{F.name(o['strategy'])}{' (requested)' if o['selected_by_user'] else ''}{' (recommended)' if o['recommended'] else ''}: " + ' '.join(o['tradeoffs']) for o in options_out]),
         dict(id='scope', title='Scope', paragraphs=[scope_text]),
         dict(id='blockers', title='Blockers and prerequisites', paragraphs=block_text + prerequisite_text),
+        dict(id='nonfunctional', title='Non-functional constraints', paragraphs=nf_text),
         dict(id='risks', title='Risks', paragraphs=[r['text'] for r in risks] + ([risk_note] if risk_note else [])),
         dict(id='confidence', title='Confidence and what was not observed', paragraphs=conf),
         dict(id='unknowns', title='What is not known', paragraphs=unknown + questions),
