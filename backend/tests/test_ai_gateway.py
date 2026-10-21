@@ -196,7 +196,9 @@ def test_context_limit_and_pii_block_policy_send_no_bytes(client,adapter):
     response=client.post(url,json={'question':'Architecture overview for person@example.com'})
     assert response.json()['mode']=='LOCAL_EVIDENCE' and not calls
     assert client.get('/api/v1/security/ai/invocations').json()[0]['reason']=='SENSITIVE_DATA'
-    response=client.post(url,json={'question':'Architecture overview'})
+    calls.clear()
+    # The fixture application is small, so its facts alone fit in 1 KB; a long question makes the outgoing envelope exceed the configured limit.
+    response=client.post(url,json={'question':'Architecture overview '+'of every package and class '*60})
     assert response.json()['mode']=='LOCAL_EVIDENCE' and not calls
     assert client.get('/api/v1/security/ai/invocations').json()[0]['reason']=='CONTEXT_LIMIT'
 
