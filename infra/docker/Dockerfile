@@ -22,6 +22,7 @@ COPY backend /app/backend
 RUN /opt/java/openjdk/bin/javac --release 17 -proc:none -cp "$JQASSISTANT_HOME/lib/*" -d /app/.runtime/exporter /app/backend/scanner-java/ExportGraph.java
 COPY samples /app/samples
 COPY scripts /app/scripts
+COPY runner/recipe /app/runner/recipe
 COPY docs /app/docs
 COPY --from=frontend /build/frontend/dist /app/frontend/dist
 RUN useradd --create-home archintel && mkdir -p /app/.data && chown -R archintel:archintel /app

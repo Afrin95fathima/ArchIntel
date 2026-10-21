@@ -81,3 +81,23 @@ it('offers no conversion for a technical domain', () => {
   mount({ candidate: { id: 'd-cfg', name: 'System Configuration', proposal_state: 'TECHNICAL_DOMAIN_NOT_A_SERVICE' } });
   expect(screen.queryByRole('button', { name: 'Convert with Claude' })).toBeNull();
 });
+
+
+it('records a promotion decision only with a note, asks to confirm reviewed differences, and offers the package once approved', async () => {
+  const calls = mount({ jobs: [{ ...done, promotion: undefined }] });
+  const box = await screen.findByRole('region', { name: 'Move to production' });
+  const approve = within(box).getByRole('button', { name: 'Approve for hand-off' }) as HTMLButtonElement;
+  expect(approve.disabled).toBe(true);
+  fireEvent.change(within(box).getByLabelText('Promotion note'), { target: { value: 'Differences on /vets are expected: JSON list moved' } });
+  expect(approve.disabled).toBe(true);                                                  // verdict is not EQUIVALENT
+  fireEvent.click(within(box).getByRole('checkbox'));
+  expect(approve.disabled).toBe(false);
+  fireEvent.click(approve);
+  await waitFor(() => expect(calls.some(c => c.method === 'POST' && c.url.endsWith('/conversions/j1/promotion'))).toBe(true));
+  expect(calls.find(c => c.url.endsWith('/promotion'))!.body).toEqual({ decision: 'APPROVED_FOR_HANDOFF', note: 'Differences on /vets are expected: JSON list moved', differences_reviewed: true });
+  expect(within(box).queryByRole('link', { name: 'Download hand-off package' })).toBeNull();
+  cleanup();
+  mount({ jobs: [{ ...done, promotion: { state: 'APPROVED_FOR_HANDOFF', history: [{ decision: 'APPROVED_FOR_HANDOFF', note: 'ok', actor_id: 'u', at: '2026-10-22T09:00:00Z' }] } }] });
+  const link = await screen.findByRole('link', { name: 'Download hand-off package' }) as HTMLAnchorElement;
+  expect(link.getAttribute('href')).toBe('/api/v1/architecture-versions/v1/modernization/p1/conversions/j1/package');
+});

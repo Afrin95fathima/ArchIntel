@@ -1,5 +1,6 @@
 // Build a generated Java service with the runner's own Dockerfile and run it in a constrained local container.
 import { execFile } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:net';
 import { dirname, join, normalize, sep } from 'node:path';
@@ -14,20 +15,8 @@ const services = new Map();
 const MAX_FILES = 300;
 const MAX_BYTES = 8 * 1024 * 1024;
 
-// Generated code never supplies its own Dockerfile: the build recipe is fixed here.
-export const DOCKERFILE = `FROM maven:3.9.9-eclipse-temurin-21 AS build
-WORKDIR /src
-COPY . .
-RUN mvn -B -q -ntp package
-RUN set -e; f=$(ls target/*.jar | grep -v -- '-plain.jar' | grep -v -- '-sources.jar' | head -1); cp "$f" /app.jar
-
-FROM eclipse-temurin:21-jre
-RUN useradd --system --uid 10001 service
-COPY --from=build /app.jar /app/app.jar
-USER 10001
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/app/app.jar", "--server.port=8080"]
-`;
+// Generated code never supplies its own Dockerfile: the build recipe is this fixed file, shared with ArchIntel's deployment package.
+export const DOCKERFILE = readFileSync(join(config.root, 'recipe', 'Dockerfile'), 'utf8');
 
 function run(args, timeoutMs, input) {
   return new Promise((resolve) => {

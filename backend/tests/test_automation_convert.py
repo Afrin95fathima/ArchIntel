@@ -149,3 +149,29 @@ def test_the_api_requires_the_acknowledgement_and_all_gates(ready):
     c.app.state.config.runner_token = SecretStr('')
     blocked = c.post(ready['base'], json=dict(body, acknowledgement=ACK))
     assert blocked.status_code == 409 and [m['id'] for m in blocked.json()['detail']['missing']] == ['RUNNER']
+
+
+def test_promotion_is_a_recorded_human_decision_and_the_package_contains_no_deployment_or_secret(ready):
+    import io, zipfile
+    from app.automation.promotion import manifests
+    state, doc, _ = start(ready, FakeRunner())
+    c = ready['client']
+    job_id = c.get(ready['base']).json()['items'][0]['id']
+    url = ready['base'] + f'/{job_id}'
+    assert c.get(url + '/package').status_code == 409                               # nothing before a decision
+    assert c.post(url + '/promotion', json=dict(decision='APPROVED_FOR_HANDOFF', note='')).status_code == 422
+    blocked = c.post(url + '/promotion', json=dict(decision='APPROVED_FOR_HANDOFF', note='Looks right'))
+    assert blocked.status_code == 409 and 'NOT_COMPARED' in blocked.text               # verdict was not EQUIVALENT
+    approved = c.post(url + '/promotion', json=dict(decision='APPROVED_FOR_HANDOFF', note='Reviewed: no scenario covered it, checked by hand', differences_reviewed=True))
+    assert approved.status_code == 200 and approved.json()['promotion']['state'] == 'APPROVED_FOR_HANDOFF'
+    package = c.get(url + '/package')
+    assert package.status_code == 200 and package.headers['content-type'] == 'application/zip'
+    names = zipfile.ZipFile(io.BytesIO(package.content)).namelist()
+    service = doc['service_name']
+    assert {f'{service}/{p}' for p in ('pom.xml', 'README.md', 'Dockerfile', 'PROMOTION.md', 'deploy/kubernetes.yaml', 'deploy/compose.yaml', 'archintel-conversion.json')} <= set(names)
+    text = zipfile.ZipFile(io.BytesIO(package.content)).read(f'{service}/PROMOTION.md').decode()
+    assert 'Who owns table A?' in text and 'Hand-off approved by' in text and 'Data ownership decided' in text
+    assert 'REGISTRY/' in manifests('x')['deploy/kubernetes.yaml'] and 'password' not in package.content.decode('latin1').lower()
+    rejected = c.post(url + '/promotion', json=dict(decision='REJECTED', note='Not now'))
+    assert rejected.json()['promotion']['state'] == 'REJECTED' and len(rejected.json()['promotion']['history']) == 2
+    assert c.get(url + '/package').status_code == 409                               # the latest decision counts

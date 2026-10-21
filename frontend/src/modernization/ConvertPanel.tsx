@@ -9,7 +9,7 @@ type Result={name:string;status:string;differences:string[];text_similarity:numb
 export type ConversionJob={id:string;state:string;created_at:string;candidate_id:string;candidate_name:string;service_name:string;model:string;lane:string;steps:Step[];limitations:string[];
   verdict?:string;error?:{step:string;code:string;detail:string};source?:{commit:string;files:{path:string;bytes:number}[];excluded:{path:string;reason:string}[]};
   generation?:{files:{path:string;bytes:number;rationale:string}[];unresolved_questions:string[];usage:{model:string;prompt_tokens:number|null;output_tokens:number|null;duration_ms:number;estimated_cost_usd:number|null}};
-  service?:{state:string;base_url:string|null;build_log_tail?:string};comparison?:{total:number;counts:Record<string,number>;results:Result[];method:string}};
+  service?:{state:string;base_url:string|null;build_log_tail?:string};promotion?:{state:string;history:{decision:string;note:string;actor_id:string;at:string}[]};comparison?:{total:number;counts:Record<string,number>;results:Result[];method:string}};
 type Repo={id:string;name:string;commit:string;granted:boolean};
 
 export const CONVERT_STEP:Record<string,string>={PRECHECK:'Check every gate again',SELECT_SOURCE:'Select the candidate source inside your grant',GENERATE:'Generate the service with Claude',
@@ -42,13 +42,14 @@ export function ConvertPanel({versionId,planId,candidate}:{versionId:string;plan
     <button disabled={busy||running||!ack||!gates.data?.ready} onClick={()=>void act(()=>post(base,{candidate_id:candidate.id,repository_id:repoId,acknowledgement:ACK}))}>{running?'Conversion running…':busy?'Starting…':'Convert with Claude'}</button>
     {!gates.data?.ready&&gates.data&&<p className="fine-print">Complete the missing items above to enable the conversion.</p>}
     {error?<ErrorBox error={error}/>:null}
-    {mine.slice(0,3).map(job=><ConversionView key={job.id} job={job} onStop={()=>void act(()=>api(`${base}/${job.id}/service`,{method:'DELETE'}))} onFile={path=>setFile({jobId:job.id,path})}/>)}
+    {mine.slice(0,3).map(job=><ConversionView key={job.id} job={job} onStop={()=>void act(()=>api(`${base}/${job.id}/service`,{method:'DELETE'}))} onFile={path=>setFile({jobId:job.id,path})}
+      promotion={job.state==='COMPLETED'&&job.generation?<Promotion job={job} url={`${base}/${job.id}`} onDecide={(body)=>act(()=>post(`${base}/${job.id}/promotion`,body))} busy={busy}/>:null}/>)}
     {file&&content.data&&<div className="convert-file" role="region" aria-label={`Generated file ${content.data.path}`}><h4>{content.data.path}</h4><p className="fine-print">{content.data.rationale}</p><pre>{content.data.content}</pre><button onClick={()=>setFile(null)}>Close file</button></div>}
     {content.error?<ErrorBox error={content.error}/>:null}
   </section>;
 }
 
-export function ConversionView({job,onStop,onFile}:{job:ConversionJob;onStop:()=>void;onFile:(path:string)=>void}){
+export function ConversionView({job,onStop,onFile,promotion}:{job:ConversionJob;onStop:()=>void;onFile:(path:string)=>void;promotion?:React.ReactNode}){
   const u=job.generation?.usage;const c=job.comparison;
   return <article className="exploration conversion">
     <strong>{new Date(job.created_at).toLocaleString()} · {job.state.toLowerCase()}</strong>
@@ -63,6 +64,23 @@ export function ConversionView({job,onStop,onFile}:{job:ConversionJob;onStop:()=
     {job.generation&&job.generation.unresolved_questions.length>0&&<details open><summary>Open questions from Claude ({job.generation.unresolved_questions.length})</summary><ul className="evidence-list">{job.generation.unresolved_questions.map((q,i)=><li key={i}>{q}</li>)}</ul></details>}
     {job.source&&<details><summary>Source sent ({job.source.files.length} files at {job.source.commit.slice(0,7)}), left out ({job.source.excluded.length})</summary><ul className="evidence-list">{job.source.files.map(f=><li key={f.path}>{f.path}</li>)}{job.source.excluded.map(f=><li key={'x'+f.path}>Left out {f.path}: {f.reason.replace(/_/g,' ').toLowerCase()}</li>)}</ul></details>}
     {job.service?.build_log_tail&&<details><summary>Build log (end)</summary><pre>{job.service.build_log_tail}</pre></details>}
+    {promotion}
     <p className="fine-print">{job.limitations.join(' ')}</p>
   </article>;
+}
+
+/** Production is a reviewed hand-off: a human records the decision, then downloads a package for their own pipeline. ArchIntel never deploys. */
+export function Promotion({job,url,onDecide,busy}:{job:ConversionJob;url:string;onDecide:(body:{decision:string;note:string;differences_reviewed:boolean})=>Promise<void>|void;busy:boolean}){
+  const [note,setNote]=useState('');const [reviewed,setReviewed]=useState(false);
+  const approved=job.promotion?.state==='APPROVED_FOR_HANDOFF';const needsReview=job.verdict!=='EQUIVALENT';
+  return <section className="promotion" aria-label="Move to production">
+    <h4>Move to production</h4>
+    <p className="fine-print">ArchIntel does not deploy and holds no production credentials. Approving produces a hand-off package (generated source, build recipe, Kubernetes and Compose manifests with placeholders, and a checklist) for your own CI/CD and reviewers.</p>
+    {job.promotion?.history.map((h,i)=><p key={i} className="fine-print">{h.decision==='APPROVED_FOR_HANDOFF'?'Approved for hand-off':'Rejected'} {new Date(h.at).toLocaleString()}: {h.note}</p>)}
+    <label>Decision note<textarea aria-label="Promotion note" value={note} onChange={e=>setNote(e.target.value)} maxLength={2000}/></label>
+    {needsReview&&<label className="consent"><input type="checkbox" checked={reviewed} onChange={e=>setReviewed(e.target.checked)}/>I reviewed every difference and open question listed above.</label>}
+    <button disabled={busy||!note.trim()||(needsReview&&!reviewed)} onClick={()=>void onDecide({decision:'APPROVED_FOR_HANDOFF',note,differences_reviewed:reviewed})}>Approve for hand-off</button>{' '}
+    <button disabled={busy||!note.trim()} onClick={()=>void onDecide({decision:'REJECTED',note,differences_reviewed:false})}>Reject</button>
+    {approved&&<p><a className="button" href={'/api/v1'+url+'/package'}>Download hand-off package</a></p>}
+  </section>;
 }

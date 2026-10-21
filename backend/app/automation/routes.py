@@ -158,3 +158,36 @@ def stop_conversion_service(vid: str, aid: str, job_id: str, request: Request, d
     job.document = document
     db.commit()
     return jobs.view(job)
+
+
+# ---- Promotion: a reviewed hand-off, never a deployment ------------------------------------------------------
+from fastapi.responses import Response
+from . import promotion
+
+
+class PromotionInput(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    decision: str = Field(max_length=40)
+    note: str = Field(max_length=2000)
+    differences_reviewed: bool = False
+
+
+@router.post('/architecture-versions/{vid}/modernization/{aid}/conversions/{job_id}/promotion')
+def promote(vid: str, aid: str, job_id: str, body: PromotionInput, request: Request, db=Depends(session)):
+    job = _conversion(db, request, vid, aid, job_id)
+    document = dict(job.document)
+    document['promotion'] = promotion.decide(job, request.state.identity, body.decision, body.note, body.differences_reviewed)
+    job.document = document
+    db.commit()
+    return jobs.view(job)
+
+
+@router.get('/architecture-versions/{vid}/modernization/{aid}/conversions/{job_id}/package')
+def deployment_package(vid: str, aid: str, job_id: str, request: Request, db=Depends(session)):
+    job = _conversion(db, request, vid, aid, job_id)
+    principal = db.get(Principal, request.state.identity['id'])
+    if not principal or 'SOURCE_READ' not in principal.permissions:
+        raise HTTPException(403, 'The package contains generated code; source-read permission is required.')
+    content = promotion.package(job, request.app.state.config.data_dir)
+    name = f"{job.document['service_name']}-handoff.zip"
+    return Response(content, media_type='application/zip', headers={'content-disposition': f'attachment; filename="{name}"', 'cache-control': 'no-store'})
