@@ -17,21 +17,21 @@ const metric = (coverage: Record<string, unknown>, key: string): Metric | null =
 };
 const plural = (n: number, one: string, many: string) => `${n.toLocaleString()} ${n === 1 ? one : many}`;
 
-export function readVersion(input: VerdictInput): Verdict {
+export function readVersion(input: VerdictInput, target: number = RUNTIME_TARGET): Verdict {
   const classCoverage = metric(input.coverage, 'classes');
   const entryCoverage = metric(input.coverage, 'entry_points');
   const percent = classCoverage?.percentage ?? null;
   const hasRuntime = input.sessions > 0 && classCoverage?.observed != null;
-  const strength: Verdict['strength'] = !hasRuntime ? 'NONE' : percent == null ? 'THIN' : percent >= RUNTIME_TARGET ? 'ENOUGH' : percent >= 50 ? 'PARTIAL' : 'THIN';
+  const strength: Verdict['strength'] = !hasRuntime ? 'NONE' : percent == null ? 'THIN' : percent >= target ? 'ENOUGH' : percent >= 50 ? 'PARTIAL' : 'THIN';
   const headline = `This version describes ${plural(input.classes, 'class', 'classes')} in ${plural(input.domains, 'domain', 'domains')}, built from ${input.sessions ? plural(input.sessions, 'runtime session', 'runtime sessions') : 'code structure only'}${input.reviewed ? ' and a reviewed set of domain boundaries' : ''}.`;
   const lines: string[] = [];
   if (!hasRuntime) lines.push('No runtime session is included, so nothing here shows which code actually runs.');
   else {
     if (classCoverage!.observed === 0) lines.push('The selected runtime sessions recorded no calls, so no class was reached. Check that the agent was connected while the application was exercised.');
     else lines.push(`The selected sessions reached ${classCoverage!.observed!.toLocaleString()} of ${classCoverage!.total?.toLocaleString() ?? 'an unknown number of'} classes${percent == null ? '' : ` (${percent}%)`}${entryCoverage?.observed != null && entryCoverage.total ? ` and ${entryCoverage.observed.toLocaleString()} of ${entryCoverage.total.toLocaleString()} entry points` : ''}.`);
-    lines.push(strength === 'ENOUGH' ? `That meets the ${RUNTIME_TARGET}% share the plan's runtime rule asks for.`
-      : strength === 'PARTIAL' ? `That is below the ${RUNTIME_TARGET}% share the plan's runtime rule asks for, so plan decisions will carry a runtime gap.`
-      : `That is well below the ${RUNTIME_TARGET}% share the plan's runtime rule asks for, so decisions rest mostly on code structure.`);
+    lines.push(strength === 'ENOUGH' ? `That meets the ${target}% share the plan's runtime rule asks for.`
+      : strength === 'PARTIAL' ? `That is below the ${target}% share the plan's runtime rule asks for, so plan decisions will carry a runtime gap.`
+      : `That is well below the ${target}% share the plan's runtime rule asks for, so decisions rest mostly on code structure.`);
   }
   const total = input.facts.both + input.facts.staticOnly + input.facts.runtimeOnly;
   if (total) lines.push(`Of ${plural(total, 'dependency', 'dependencies')}, ${input.facts.both.toLocaleString()} are confirmed by code and runtime, ${input.facts.staticOnly.toLocaleString()} appear in code only and ${input.facts.runtimeOnly.toLocaleString()} only at runtime. A code-only dependency is not proof of unused code.`);

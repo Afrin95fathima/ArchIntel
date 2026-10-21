@@ -15,6 +15,7 @@ from app.services.domain_analysis import dependency_matrix, model_overlap, entry
 from app.insight import lifecycle as lifecycle_module, modernization_plan as technology_plan
 from app.insight.model import InsightModel
 from . import brief as brief_module, decomposition, describe, nonfunctional
+from .thresholds import MIN_OBSERVED_CLASS_PERCENTAGE
 
 RULE_VERSION = 'modernization-intelligence-4'
 CALIBRATION = 'fixture-calibration-1'
@@ -175,12 +176,12 @@ def build(assessment_id, version, static, facts, evidence, options):
                 subjects=sorted({n for f in unresolved for n in (f['source'], f['target']) if n not in membership})[:10])
         observed = coverage[did]
         observation_score = round(100 * observed['observed'] / observed['total'], 2) if has_runtime and observed['total'] else 0
-        if observation_score < 80:
+        if observation_score < MIN_OBSERVED_CLASS_PERCENTAGE:
             finding('LIMITED_OBSERVATION', 'MEDIUM',
-                (f"Selected sessions observed {observed['observed']} of {observed['total']} classes of {domain['name']} ({observation_score}%, minimum 80%)." if has_runtime
+                (f"Selected sessions observed {observed['observed']} of {observed['total']} classes of {domain['name']} ({observation_score}%, minimum {MIN_OBSERVED_CLASS_PERCENTAGE}%)." if has_runtime
                  else f"No runtime session is attached to this version, so none of the {observed['total']} classes of {domain['name']} was observed."), [],
                 measured={'observed_classes': observed['observed'] if has_runtime else None, 'total_classes': observed['total'], 'observed_class_percentage': observation_score if has_runtime else None},
-                threshold={'minimum_observed_class_percentage': 80}, subjects=[domain['name']])
+                threshold={'minimum_observed_class_percentage': MIN_OBSERVED_CLASS_PERCENTAGE}, subjects=[domain['name']])
         if not version.manifest.get('domain_review'):
             finding('UNREVIEWED_BOUNDARY', 'MEDIUM', f"The membership of {domain['name']} ({len(domain['classes'])} classes) has not been reviewed.", [],
                 measured={'domain_review_recorded': False}, threshold={'domain_review_recorded': True}, subjects=[domain['name']])
@@ -273,7 +274,7 @@ def build(assessment_id, version, static, facts, evidence, options):
         confidence_weights = {k: round(CONFIDENCE_WEIGHTS[k] / weight_total, 6) for k in confidence_components}
         confidence = round(sum(confidence_components[k] * confidence_weights[k] for k in confidence_components), 1)
         blockers = list(PREREQUISITES)
-        if observation_score < 80: blockers.append('RUNTIME_OBSERVATION_GAP')
+        if observation_score < MIN_OBSERVED_CLASS_PERCENTAGE: blockers.append('RUNTIME_OBSERVATION_GAP')
         if not version.manifest.get('domain_review'): blockers.append('DOMAIN_REVIEW_REQUIRED')
         if unresolved: blockers.append('UNRESOLVED_MAPPING')
         if has_runtime and quality_penalty: blockers.append('RUNTIME_QUALITY_REVIEW')
@@ -287,7 +288,7 @@ def build(assessment_id, version, static, facts, evidence, options):
         elif did in cyclic: decision = 'BREAK_CYCLE_FIRST'
         elif shared[did]: decision = 'ISOLATE_DATA_FIRST'
         elif baseline['external_coupling'] > .5: decision = 'REDUCE_COUPLING_FIRST'
-        elif not has_runtime or observation_score < 80 or unresolved or quality_penalty or not version.manifest.get('domain_review'): decision = 'COLLECT_MORE_EVIDENCE'
+        elif not has_runtime or observation_score < MIN_OBSERVED_CLASS_PERCENTAGE or unresolved or quality_penalty or not version.manifest.get('domain_review'): decision = 'COLLECT_MORE_EVIDENCE'
         elif options['strategy'] == 'MODULAR_MONOLITH': decision = 'RETAIN_MODULAR_MONOLITH'
         else: decision = 'PREPARE_FOR_EXTRACTION'
         readiness_score = round(combined * confidence / 100, 1)

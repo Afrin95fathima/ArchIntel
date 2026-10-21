@@ -26,6 +26,8 @@ function mount() {
     }
     if (p.endsWith('/facts/f1/provenance')) return json({ fact: facts[0], evidence: [{ id: 'e1', kind: 'STATIC', source: 'org.x.owner.Pet', target: 'org.x.owner.PetType', observation: { field: 'type' }, confidence: 0.9, collector: 'scanner', timestamp: 't', resolved_references: [] }] });
     if (p.endsWith('/architecture-versions/v1/discovery')) return json({ items: [{ id: 'g1', kind: 'ENTRY_POINT', priority: 1, text: 'Exercise PetController.processUpdateForm', state: 'OPEN', gap_state: 'UNOBSERVED', revision: 0, note: '', history: [] }], total: 1 });
+    if (p.endsWith('/improvement')) return json({ target_percentage: 80, ready: false, conditions: [], domains: [], suggestions: [], limits: [] });
+    if (p.endsWith('/architecture-versions/v1/modernization')) return json([]);
     return json({});
   }));
   render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><EvidenceWorkspace applications={applications as never} analyses={analyses as never} /></QueryClientProvider>);

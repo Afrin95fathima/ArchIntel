@@ -3,7 +3,8 @@ from fastapi import APIRouter,Depends,Request,HTTPException,Query
 from sqlalchemy import select
 from app.api import session,get
 from app.models import now
-from . import service,projection
+from app.modernization.thresholds import MIN_OBSERVED_CLASS_PERCENTAGE
+from . import service,projection,improvement,comparison
 from .models import ArchitectureVersion,ArchitectureFact,Evidence,DiscoveryItem,Projection
 from .schemas import VersionInput,DiscoveryUpdate
 
@@ -44,6 +45,7 @@ def twin(vid:str,request:Request,db=Depends(session)):
     item=owned(db,request,vid);job=db.scalar(select(Projection).where(Projection.version_id==vid))
     return dict(**service.view(item),coverage=item.document['coverage'],quality=item.document['quality'],domains=item.document['domains'],unknowns=item.document['unknowns'],
                 projection=dict(state=job.state,attempts=job.attempts,error_code=job.error_code,content_hash=job.content_hash),
+                required_observed_class_percentage=MIN_OBSERVED_CLASS_PERCENTAGE,
                 note='Canonical version snapshot. Graph availability and currentness are checked on graph queries; APPLIED is the last successful projection state.')
 
 @router.get('/architecture-versions/{vid}/facts')
@@ -85,12 +87,22 @@ def update(vid:str,did:str,body:DiscoveryUpdate,request:Request,db=Depends(sessi
 @router.get('/architecture-versions/{vid}/compare/{other_id}')
 def compare(vid:str,other_id:str,request:Request,db=Depends(session)):
     a=owned(db,request,vid);b=owned(db,request,other_id)
-    if a.analysis_id!=b.analysis_id or a.manifest.get('domain_review')!=b.manifest.get('domain_review'):raise HTTPException(409,'Observation comparisons require the same static baseline and domain review.')
+    if a.analysis_id!=b.analysis_id:raise HTTPException(409,'Comparisons require the same static baseline.')
+    same_review=a.manifest.get('domain_review')==b.manifest.get('domain_review')
     delta={}
     for name in ('classes','methods','entry_points','dependencies','domains'):
         x=a.document['coverage'][name];y=b.document['coverage'][name]
-        delta[name]=None if x['percentage'] is None or y['percentage'] is None or x['total']!=y['total'] else round(y['percentage']-x['percentage'],2)
-    return dict(from_version=a.id,to_version=b.id,percentage_point_delta=delta,note=f'Percentage-point delta between versions {a.id[:8]} and {b.id[:8]}; it measures observation only and infers no modernization improvement.')
+        delta[name]=None if x['percentage'] is None or y['percentage'] is None or x['total']!=y['total'] or (name=='domains' and not same_review) else round(y['percentage']-x['percentage'],2)
+    return dict(from_version=a.id,to_version=b.id,percentage_point_delta=delta,same_domain_review=same_review,
+                **comparison.detail(db,a,b),
+                note=f'Percentage-point delta between versions {a.id[:8]} and {b.id[:8]}; it measures observation only and infers no modernization improvement.')
+
+@router.get('/architecture-versions/{vid}/improvement')
+def improvement_view(vid:str,request:Request,db=Depends(session)):
+    item=owned(db,request,vid)
+    facts=[dict(source=f.document['source'],target=f.document['target'],classification=f.classification) for f in db.scalars(select(ArchitectureFact).where(ArchitectureFact.version_id==vid))]
+    gaps=[dict(id=g.id,kind=g.document['kind'],text=g.document['text'],state=g.state) for g in db.scalars(select(DiscoveryItem).where(DiscoveryItem.version_id==vid))]
+    return improvement.build(item,facts,gaps)
 
 @router.get('/architecture-versions/{vid}/export')
 def export(vid:str,request:Request,db=Depends(session)):

@@ -70,3 +70,10 @@ For a prepared installation, from the repository root:
 ```
 
 See [Phase 4 verification](PHASE-4-VERIFICATION.md) and [developer handoff](PHASE-4-DEVELOPER-GUIDE.md). Phase 5 has not started.
+
+## Coverage by domain, improvement estimate, comparison and target view
+
+- **What it means** opens with **Coverage by domain**: one bar per candidate domain with the plan's target (80%) marked, the number of classes still needed, and the list of unobserved classes. It ends with **Current and proposed architecture**, which puts the services of a saved plan next to the domains found today. It is a proposal only; no code is generated or changed.
+- **What is missing** opens with **What would improve this plan**. It lists the conditions the plan checks (a runtime session, reviewed domain boundaries, the 80% class coverage per domain) and the best flows to exercise. The gain of a flow is an upper bound: the unobserved classes the code analysis can reach from its entry class. It is not a prediction of what a session will exercise.
+- **Compare with an earlier version** lists the change in runtime sessions, coverage by domain, domain renames and moved classes, dependencies that became confirmed, and suggestions that closed. The domain percentage is withheld when the two versions use different domain boundaries.
+- In the capture form, **Step 2** shows the domains as cards. Drag a class onto another card or use the menu on the class; a domain cannot be left empty.
