@@ -98,6 +98,8 @@ def create(db, request, version, body):
                           if c.get('id') == body.service_candidate_id), None)
         if not candidate or candidate.get('id') != decision.get('domain_id'):
             raise HTTPException(422, 'Selected service candidate must belong to the approved plan decision.')
+        if candidate.get('proposal_state') == 'TECHNICAL_DOMAIN_NOT_A_SERVICE':
+            raise HTTPException(422, 'A technical domain is kept as shared configuration or a library; it cannot be started as a service.')
         if body.rollout_mode not in ('ONE_BY_ONE', 'WHOLE_SYSTEM'):
             raise HTTPException(422, 'A service rollout mode is required for candidate modernization.')
         service_binding = dict(candidate_id=candidate['id'], name=candidate['name'],

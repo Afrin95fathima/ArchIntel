@@ -33,7 +33,7 @@ export function TaskWorkspace({applications,currentApplicationId,onApplication}:
  const vid=version||versions.data?.[0]?.id||'';
  const plans=useQuery({queryKey:['plans',vid],queryFn:()=>api<{id:string;strategy:string;objective:string}[]>('/architecture-versions/'+vid+'/modernization'),enabled:!!vid});
  const aid=plan||plans.data?.[0]?.id||'';
- const proposal=useQuery({queryKey:['task-proposal',vid,aid],queryFn:()=>api<{document:{decisions:{id:string;kind:string;domain_id:string}[]};reviews:{state:string}[]}>('/architecture-versions/'+vid+'/modernization/'+aid),enabled:!!aid&&!!vid});
+ const proposal=useQuery({queryKey:['task-proposal',vid,aid],queryFn:()=>api<{document:{decisions:{id:string;kind:string;domain_id:string}[];assessments?:{domain_id:string;domain_name:string}[]};reviews:{state:string}[]}>('/architecture-versions/'+vid+'/modernization/'+aid),enabled:!!aid&&!!vid});
  const did=decision||proposal.data?.document.decisions[0]?.id||'';
  const tasks=useQuery({queryKey:['tasks',vid],queryFn:()=>api<{id:string;state:string;objective:string;revision:number;blockers:number;validation_state?:string;validation_freshness?:string;next_action:string}[]>('/architecture-versions/'+vid+'/tasks'),enabled:!!vid});
  const tid=selected||tasks.data?.[0]?.id||'';const base='/transformation/tasks/'+tid;
@@ -57,7 +57,8 @@ export function TaskWorkspace({applications,currentApplicationId,onApplication}:
  <label>Task application<select value={appId} onChange={e=>{setApp(e.target.value);setVersion('');reset();}}>{applications.map(a=><option key={a.id} value={a.id}>{a.name}</option>)}</select></label>
  <label>Task architecture version<select value={vid} onChange={e=>{setVersion(e.target.value);reset();}}><option value="">Select version</option>{versions.data?.map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select></label>
  <label>Approved planning proposal<select value={aid} onChange={e=>{setPlan(e.target.value);setDecision('');}}><option value="">Select proposal</option>{plans.data?.map(p=><option key={p.id} value={p.id}>{p.strategy}: {p.objective}</option>)}</select></label>
- <label>Task decision<select value={did} onChange={e=>setDecision(e.target.value)}>{proposal.data?.document.decisions.map(d=><option key={d.id} value={d.id}>{d.kind} ({d.domain_id.slice(0,8)})</option>)}</select></label>
+ {aid&&proposal.data&&proposal.data.reviews.at(-1)?.state!=='APPROVED_PLANNING'&&<p role="alert">{proposal.data.reviews.length?`The latest review of this proposal is ${proposal.data.reviews.at(-1)!.state.replace(/_/g,' ').toLowerCase()}, so a source task cannot be created from it. Approve it again in the Modernization review.`:'This proposal has no recorded review. Approve it in the Modernization review before preparing a source task.'}</p>}
+ <label>Task decision<select value={did} onChange={e=>setDecision(e.target.value)}>{proposal.data?.document.decisions.map(d=><option key={d.id} value={d.id}>{d.kind} ({proposal.data?.document.assessments?.find(a=>a.domain_id===d.domain_id)?.domain_name||d.domain_id.slice(0,8)})</option>)}</select></label>
  <label>Registered repository ID<input value={repo} onChange={e=>setRepo(e.target.value)}/></label><label>Task pinned commit<input maxLength={40} value={commit} onChange={e=>setCommit(e.target.value)}/></label>
  <label>Task objective<input value={objective} maxLength={1000} onChange={e=>setObjective(e.target.value)}/></label><label>Expected change<input value={change} maxLength={1000} onChange={e=>setChange(e.target.value)}/></label>
  <label>Snapshot files, one per line<textarea value={files} onChange={e=>setFiles(e.target.value)}/></label><label>Files allowed to change, one per line<textarea value={allowed} onChange={e=>setAllowed(e.target.value)}/></label>

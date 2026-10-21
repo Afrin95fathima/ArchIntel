@@ -171,3 +171,13 @@ def test_start_with_prefers_business_domains_over_technical_ones(plan, plan_with
     first = doc['decision_brief']['top_actions'][0].split(':')[0]
     assert first in business and first not in technical
     assert plan_without[0]['decision_brief']['top_actions']                   # without the analysis the order is the plain cost order, as before
+
+
+def test_a_technical_domain_is_not_a_startable_service_candidate(plan):
+    doc = plan[0]
+    kinds = {c['domain_id']: c['kind'] for c in doc['nonfunctional']['capabilities']}
+    candidates = doc['microservice_decomposition']['service_candidates']
+    technical = [c for c in candidates if kinds[c['id']] == 'TECHNICAL']
+    assert technical and all(c['proposal_state'] == 'TECHNICAL_DOMAIN_NOT_A_SERVICE' for c in technical)
+    assert all(c['proposal_state'] == 'CANDIDATE_REQUIRES_REVIEW' for c in candidates if kinds[c['id']] != 'TECHNICAL')
+    assert any('cannot be started as a service' in text for text in doc['microservice_decomposition']['limitations'])

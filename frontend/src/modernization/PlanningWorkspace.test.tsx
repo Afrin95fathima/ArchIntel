@@ -139,3 +139,30 @@ it('starts on the application of the selected analysis and tells the app when an
   fireEvent.change(select, { target: { value: 'a1' } });
   await waitFor(() => expect(seen).toEqual(['a2', 'a1']));                 // the workflow strip can now follow the page
 });
+
+it('does not allow a technical domain to start as a service, and follows the latest review, not any earlier approval', async () => {
+  const base = globalThis.fetch as unknown as (url: string, init?: RequestInit) => Promise<unknown>;
+  const candidate = (id: string, name: string, state: string) => ({ id, name, repository_name: name.toLowerCase(), proposal_state: state, selection_source: 'S', boundary_confidence: 0.7, class_ids: ['c'], packages: [], dependencies: [], consumers: [], data: { repositories: [], entity_classes: [], ownership: 'UNCONFIRMED', note: '' }, decision: 'COLLECT_MORE_EVIDENCE', readiness: 70, evidence_confidence: 40, blockers: [], risks: [], fact_ids: [], evidence_ids: [], required_setup: [] });
+  const withService = { ...document, microservice_decomposition: { status: 'PROPOSAL_ONLY', strategy: 'MICROSERVICES', service_candidates: [candidate('dom-owners', 'Owners', 'CANDIDATE_REQUIRES_REVIEW'), candidate('dom-visits', 'Config', 'TECHNICAL_DOMAIN_NOT_A_SERVICE')], rollout_modes: [{ id: 'ONE_BY_ONE', name: 'One', output: 'o' }, { id: 'WHOLE_SYSTEM', name: 'All', output: 'o' }], execution: { state: 'NOT_GENERATED' }, shared_setup: [], limitations: [] } };
+  const review = (state: string) => ({ id: state, revision: 1, state, note: 'n', actor_id: 'x', created_at: '2026-01-01' });
+  let reviews = [review('APPROVED_PLANNING')];
+  const open = async () => {
+  vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => url.endsWith('/architecture-versions/v1/modernization/p1')
+    ? { ok: true, status: 200, json: async () => ({ id: 'p1', document: withService, context: { state: 'CURRENT' }, reviews, projection: { state: 'APPLIED', attempts: 1, error_code: null } }) }
+    : base(url, init)));
+  render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}><PlanningWorkspace applications={[{ id: 'a1', project_id: 'p', name: 'PetClinic', version: '1', source_type: 'JAR' }]} onStartService={() => {}} /></QueryClientProvider>);
+  fireEvent.click(await screen.findByRole('button', { name: 'Microservice modernization' }));
+  };
+  await open();
+  const start = () => screen.getByRole('button', { name: /Prepare this service task/ }) as HTMLButtonElement;
+  fireEvent.click(await screen.findByRole('button', { name: /Owners/ }));
+  expect(start().disabled).toBe(false);                                                   // business candidate, latest review approves
+  fireEvent.click(screen.getByRole('button', { name: /Config/ }));
+  expect(screen.getByText(/Not a service candidate/)).toBeTruthy();
+  expect(start().disabled).toBe(true);                                                    // technical domain: no service
+  cleanup();
+  reviews = [review('APPROVED_PLANNING'), review('REJECTED')];
+  await open();
+  fireEvent.click(await screen.findByRole('button', { name: /Owners/ }));
+  expect(start().disabled).toBe(true);                                                    // a later rejection withdraws the earlier approval
+});
