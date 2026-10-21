@@ -24,3 +24,10 @@
 .exploration-steps li.step-done strong{color:var(--state-success,#1a7f37)}
 .exploration-steps li.step-failed strong{color:var(--state-danger,#cf222e)}
 .exploration-steps li.step-running strong::after{content:' …'}
+
+.gate-list{list-style:none;padding:0;margin:8px 0;display:grid;gap:3px}
+.gate-list li.met::before{content:'✓ ';color:var(--state-success,#1a7f37)}
+.gate-list li.missing::before{content:'✕ ';color:var(--state-danger,#cf222e)}
+.convert-panel .consent{display:flex;gap:8px;align-items:flex-start;margin:8px 0}
+.convert-file pre,.conversion pre{max-height:420px;overflow:auto;background:var(--neutral-50,#f6f8fa);padding:10px;border-radius:6px;font-size:12px}
+.verdict-equivalent strong{color:var(--state-success,#1a7f37)}.verdict-review_differences strong{color:var(--state-warning,#9a6700)}
