@@ -86,7 +86,8 @@ class Settings(BaseSettings):
     # The API credential is read from GEMINI_API_KEY and is never persisted to DB.
     gemini_api_key: SecretStr = SecretStr('')
     gemini_model: str = 'gemini-3.8-flash'
-    gemini_timeout_seconds: int = 90
+    # Whole-service generation takes minutes on the standard tier (a trivial request measured 53-75 s), so the bound is long.
+    gemini_timeout_seconds: int = 900
     gemini_max_output_bytes: int = 1048576
     gemini_max_output_tokens: int = 32768
     gemini_max_generations_per_day: int = 5
@@ -120,7 +121,7 @@ class Settings(BaseSettings):
     @field_validator('gemini_timeout_seconds')
     @classmethod
     def valid_gemini_timeout(cls,value):
-        if not 5 <= value <= 120: raise ValueError('Gemini timeout must be 5 to 120 seconds.')
+        if not 5 <= value <= 1800: raise ValueError('Gemini timeout must be 5 to 1800 seconds.')
         return value
 
     @field_validator('gemini_max_output_bytes')

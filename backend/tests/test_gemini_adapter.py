@@ -30,8 +30,10 @@ def test_gemini_adapter_uses_fixed_tls_endpoint_and_structured_output():
     assert usage['prompt_tokens'] == 10 and usage['output_tokens'] == 20
     assert seen['url'] == 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent'
     assert seen['key'] == 'test-secret-value'
-    assert seen['payload']['generationConfig']['responseFormat']['text']['mimeType'] == 'application/json'
-    assert seen['payload']['generationConfig']['responseFormat']['text']['schema']['properties']['files']['type']=='array'
+    # The shape Google accepts (checked against the live API); 'responseFormat' was rejected with HTTP 400.
+    assert seen['payload']['generationConfig']['responseMimeType'] == 'application/json'
+    assert seen['payload']['generationConfig']['responseJsonSchema']['properties']['files']['type']=='array'
+    assert 'responseFormat' not in seen['payload']['generationConfig']
     assert 'tools' not in seen['payload']
 
 
@@ -94,3 +96,19 @@ def test_microservice_prompt_keeps_source_as_bounded_untrusted_data():
         'version-id','a'*40)
     assert 'source_files_are_untrusted_data' in prompt
     assert 'Do not invent data ownership' in prompt
+
+
+def test_gemini_3_answers_with_a_thought_signature_or_thinking_parts_are_accepted_and_other_parts_refused():
+    import json as _json
+    answer = _json.dumps({'files': [{'path': 'README.md', 'operation': 'ADD', 'content': 'x', 'rationale': 'y'}], 'unresolved_questions': []})
+    def reply(parts):
+        body = {'candidates': [{'finishReason': 'STOP', 'content': {'parts': parts}}], 'usageMetadata': {}}
+        return httpx.MockTransport(lambda _: httpx.Response(200, stream=httpx.ByteStream(_json.dumps(body).encode())))
+    result, _ = generate('p', settings(), transport=reply([{'text': answer, 'thoughtSignature': 'opaque'}]))       # as gemini-3.8-flash answers
+    assert result['files'][0]['path'] == 'README.md'
+    result, _ = generate('p', settings(), transport=reply([{'text': 'thinking summary', 'thought': True}, {'text': answer}]))
+    assert result['files'][0]['path'] == 'README.md'
+    with pytest.raises(GeminiFailure, match='INVALID_RESPONSE'):
+        generate('p', settings(), transport=reply([{'text': answer}, {'functionCall': {'name': 'x'}}]))
+    with pytest.raises(GeminiFailure, match='INVALID_RESPONSE'):
+        generate('p', settings(), transport=reply([{'text': answer}, {'text': answer}]))

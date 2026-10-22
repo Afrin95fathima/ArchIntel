@@ -58,7 +58,9 @@ def generate(prompt, settings, *, transport=None):
         )}]},
         'contents': [{'role': 'user', 'parts': [{'text': prompt}]}],
         'generationConfig': {
-            'responseFormat': {'text': {'mimeType': 'application/json', 'schema': _FILE_SCHEMA}},
+            # Structured output as documented for the Gemini API: JSON MIME type plus a JSON Schema (verified live).
+            'responseMimeType': 'application/json',
+            'responseJsonSchema': _FILE_SCHEMA,
             'temperature': 0.1,
             'maxOutputTokens': int(getattr(settings, 'gemini_max_output_tokens', 16384)),
         },
@@ -91,9 +93,14 @@ def generate(prompt, settings, *, transport=None):
         if candidate.get('finishReason') != 'STOP':
             raise GeminiFailure('INCOMPLETE_RESPONSE')
         parts = candidate['content']['parts']
-        if len(parts) != 1 or set(parts[0]) != {'text'}:
+        # Gemini 3 models attach an opaque 'thoughtSignature' to the answer part and may add separate thinking parts
+        # ('thought': true); those are ignored. Any other kind of part (for example a function call) is refused.
+        if any(not isinstance(p, dict) or not set(p) <= {'text', 'thoughtSignature', 'thought'} for p in parts):
             raise GeminiFailure('INVALID_RESPONSE')
-        result = json.loads(parts[0]['text'])
+        answers = [p for p in parts if 'text' in p and not p.get('thought')]
+        if len(answers) != 1:
+            raise GeminiFailure('INVALID_RESPONSE')
+        result = json.loads(answers[0]['text'])
         if not isinstance(result, dict) or set(result) != {'files', 'unresolved_questions'}:
             raise GeminiFailure('INVALID_RESPONSE')
         if not isinstance(result['files'], list) or not isinstance(result['unresolved_questions'], list):
