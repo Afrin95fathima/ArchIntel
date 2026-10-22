@@ -25,6 +25,8 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.8-flash}
+      # Checkouts under ./sources (mounted read-only below) can be registered in Security & access.
+      SOURCE_REPOSITORY_ROOTS: '["/app/sources"]'
     ports: ["127.0.0.1:8000:8000"]
     extra_hosts: ["host.docker.internal:host-gateway"]
     # Local source checkouts for conversion (register them in Security & access as /app/sources/<name>); read-only.
