@@ -5,7 +5,7 @@ import { ConvertPanel } from './ConvertPanel';
 
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 const steps = ['PRECHECK', 'SELECT_SOURCE', 'GENERATE', 'BUILD_SERVICE', 'START_ORIGINAL', 'COMPARE', 'STOP_ORIGINAL'];
-const gates = (missing: string[] = []) => ({ ready: !missing.length, model: 'claude-opus-5-5', limitations: [],
+const gates = (missing: string[] = []) => ({ ready: !missing.length, model: 'claude-opus-5-5', acknowledgement: 'I_APPROVE_SENDING_SELECTED_SOURCE_TO_ANTHROPIC_CLAUDE', limitations: [],
   items: ['PLAN_APPROVED', 'CLAUDE_POLICY', 'CLAUDE_KEY', 'RUNNER'].map(id => ({ id, met: !missing.includes(id), text: `${id} text` })) });
 const done = { id: 'j1', state: 'COMPLETED', created_at: '2026-10-22T08:00:00Z', candidate_id: 'd-vet', candidate_name: 'Vet', service_name: 'vet', model: 'claude-opus-5-5', lane: 'LOCAL_TRIAL',
   steps: steps.map(name => ({ name, state: 'DONE', detail: null })), limitations: ['Trial lane only.'], verdict: 'REVIEW_DIFFERENCES',
@@ -42,6 +42,14 @@ it('shows each gate and keeps the button disabled until all are met and the tran
   fireEvent.click(screen.getByRole('checkbox'));
   expect((screen.getByRole('button', { name: 'Convert with Claude' }) as HTMLButtonElement).disabled).toBe(true);
   expect(screen.getByText(/Complete the missing items above/)).toBeTruthy();
+})
+
+it('switches to Gemini: asks the checklist for Gemini, names Google in the consent and sends the Gemini acknowledgement', async () => {
+  const calls = mount();
+  fireEvent.change(await screen.findByLabelText('Model provider'), { target: { value: 'GEMINI' } });
+  expect(await screen.findByRole('button', { name: 'Convert with Gemini' })).toBeTruthy();
+  expect(screen.getByText(/to Google Gemini for this one generation/)).toBeTruthy();
+  await waitFor(() => expect(calls.some(c => c.url.includes('/preconditions') && c.url.endsWith('provider=GEMINI'))).toBe(true));
 });
 
 it('starts a conversion with the granted repository and the explicit acknowledgement', async () => {
@@ -53,7 +61,7 @@ it('starts a conversion with the granted repository and the explicit acknowledge
   await waitFor(() => expect(button.disabled).toBe(false));
   fireEvent.click(button);
   await waitFor(() => expect(calls.some(c => c.method === 'POST')).toBe(true));
-  expect(calls.find(c => c.method === 'POST')!.body).toEqual({ candidate_id: 'd-vet', repository_id: 'r1', acknowledgement: 'I_APPROVE_SENDING_SELECTED_SOURCE_TO_ANTHROPIC_CLAUDE' });
+  expect(calls.find(c => c.method === 'POST')!.body).toEqual({ candidate_id: 'd-vet', repository_id: 'r1', acknowledgement: 'I_APPROVE_SENDING_SELECTED_SOURCE_TO_ANTHROPIC_CLAUDE', provider: 'CLAUDE' });
   expect((screen.getByRole('option', { name: /other .*no grant/ }) as HTMLOptionElement).disabled).toBe(true);
 });
 

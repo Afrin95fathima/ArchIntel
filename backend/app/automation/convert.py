@@ -20,7 +20,7 @@ from sqlalchemy import select
 from app.access.core import latest_policy
 from app.access.gateway import git, matches
 from app.access.models import Principal, SourceGrant, SourceRepository
-from app.ai import claude
+from app.ai import claude, gemini
 from app.ai.gateway import event as model_event
 from app.ai.models import ModelInvocation
 from app.evidence.models import ArchitectureVersion
@@ -34,6 +34,13 @@ from .runner import Runner, RunnerError
 
 STEPS = ['PRECHECK', 'SELECT_SOURCE', 'GENERATE', 'BUILD_SERVICE', 'START_ORIGINAL', 'COMPARE', 'STOP_ORIGINAL']
 ACKNOWLEDGEMENT = 'I_APPROVE_SENDING_SELECTED_SOURCE_TO_ANTHROPIC_CLAUDE'
+# Each provider has its own policy switch, key, acknowledgement and daily cap; consent for one never covers the other.
+PROVIDERS = {
+    'CLAUDE': dict(label='Claude', ack=ACKNOWLEDGEMENT, policy='claude_source_transfer_enabled', key='anthropic_api_key', key_name='ANTHROPIC_API_KEY',
+                   model='claude_model', cap='claude_max_generations_per_day'),
+    'GEMINI': dict(label='Gemini', ack='I_APPROVE_SENDING_SELECTED_SOURCE_TO_GOOGLE_GEMINI', policy='gemini_source_transfer_enabled', key='gemini_api_key',
+                   key_name='GEMINI_API_KEY', model='gemini_model', cap='gemini_max_generations_per_day'),
+}
 MAX_SOURCE_FILES = 60
 RUNTIME_REQUIREMENTS = [
     'Build with Maven for Java 21 and Spring Boot 3; spring-boot-maven-plugin must produce exactly one executable jar in target/.',
@@ -54,11 +61,11 @@ def _slug(value: str) -> str:
     return (re.sub(r'[^a-z0-9]+', '-', value.lower()).strip('-') or 'service')[:50]
 
 
-def generations_today(db, tenant_id: str) -> int:
+def generations_today(db, tenant_id: str, provider: str = 'CLAUDE') -> int:
     from datetime import timedelta
     since = now() - timedelta(hours=24)
     rows = db.scalars(select(ModelInvocation).where(ModelInvocation.tenant_id == tenant_id, ModelInvocation.created_at >= since))
-    return sum(1 for row in rows if (row.metadata_json or {}).get('destination') == 'CLAUDE_EXTERNAL')
+    return sum(1 for row in rows if (row.metadata_json or {}).get('destination') == f'{provider}_EXTERNAL')
 
 
 def latest_exploration(db, application_id: str, analysis_id: str):
@@ -75,7 +82,7 @@ def candidate_of(document: dict, candidate_id: str) -> dict:
     return found
 
 
-def preconditions(db, settings, identity: dict, version, plan, candidate_id: str, repository_id: str) -> list[dict]:
+def preconditions(db, settings, identity: dict, version, plan, candidate_id: str, repository_id: str, provider: str = 'CLAUDE') -> list[dict]:
     """Every gate as a row (id, met, text); the job starts only when all are met. Also used to show a checklist."""
     rows = []
     def gate(gid, met, text): rows.append(dict(id=gid, met=bool(met), text=text))
@@ -92,10 +99,11 @@ def preconditions(db, settings, identity: dict, version, plan, candidate_id: str
     policy = latest_policy(db, identity['tenant_id'])
     doc = policy.document if policy else {}
     gate('SOURCE_POLICY', doc.get('source_read_enabled') and doc.get('transformation_enabled'), 'Workspace policy allows bounded source reading and source tasks for this account.')
-    gate('CLAUDE_POLICY', doc.get('claude_source_transfer_enabled'), 'Workspace policy allows sending selected source to Claude.')
-    gate('CLAUDE_KEY', bool(settings.anthropic_api_key.get_secret_value()), 'An Anthropic API key is configured (ANTHROPIC_API_KEY).')
-    gate('DAILY_BUDGET', generations_today(db, identity['tenant_id']) < settings.claude_max_generations_per_day,
-         f'Fewer than {settings.claude_max_generations_per_day} Claude generations in the last 24 hours.')
+    p = PROVIDERS[provider]
+    cap = getattr(settings, p['cap'])
+    gate(f'{provider}_POLICY', doc.get(p['policy']), f"Workspace policy allows sending selected source to {p['label']}.")
+    gate(f'{provider}_KEY', bool(getattr(settings, p['key']).get_secret_value()), f"A {p['label']} API key is configured ({p['key_name']}).")
+    gate('DAILY_BUDGET', generations_today(db, identity['tenant_id'], provider) < cap, f"Fewer than {cap} {p['label']} generations in the last 24 hours.")
     repo = db.get(SourceRepository, repository_id) if repository_id else None
     gate('REPOSITORY', repo and repo.tenant_id == identity['tenant_id'] and repo.application_id == version.application_id,
          'A source repository of this application is registered at a pinned commit.')
@@ -161,10 +169,12 @@ def observations_for(exploration: dict, candidate: dict, entry_points: list[dict
     return routes, scenarios[:40]
 
 
-def create(db, settings, identity, version, plan, candidate_id: str, repository_id: str, acknowledgement: str) -> AutomationJob:
-    if acknowledgement != ACKNOWLEDGEMENT:
-        raise HTTPException(422, 'Acknowledge that the selected source is sent to Anthropic Claude.')
-    rows = preconditions(db, settings, identity, version, plan, candidate_id, repository_id)
+def create(db, settings, identity, version, plan, candidate_id: str, repository_id: str, acknowledgement: str, provider: str = 'CLAUDE') -> AutomationJob:
+    if provider not in PROVIDERS:
+        raise HTTPException(422, 'Use provider CLAUDE or GEMINI.')
+    if acknowledgement != PROVIDERS[provider]['ack']:
+        raise HTTPException(422, f"Acknowledge that the selected source is sent to {PROVIDERS[provider]['label']}.")
+    rows = preconditions(db, settings, identity, version, plan, candidate_id, repository_id, provider)
     missing = [r for r in rows if not r['met']]
     if missing:
         raise HTTPException(409, dict(message='Conversion preconditions are not met.', missing=missing))
@@ -178,14 +188,14 @@ def create(db, settings, identity, version, plan, candidate_id: str, repository_
                         document=dict(version_id=version.id, plan_id=plan.id, plan_fingerprint=plan.fingerprint, candidate_id=candidate_id,
                                       candidate_name=candidate['name'], repository_id=repository_id, service_name=_slug(candidate['name']),
                                       consent=dict(actor_id=identity['id'], acknowledgement=acknowledgement, at=now().isoformat()),
-                                      provider='CLAUDE', model=settings.claude_model, lane='LOCAL_TRIAL',
+                                      provider=provider, model=getattr(settings, PROVIDERS[provider]['model']), lane='LOCAL_TRIAL',
                                       steps=[dict(name=s, state='PENDING', detail=None, at=None) for s in STEPS], limitations=LIMITATIONS))
     db.add(job)
     db.commit()
     return job
 
 
-def run(sessions, settings, job_id: str, identity: dict, runner_transport=None, claude_client=None):
+def run(sessions, settings, job_id: str, identity: dict, runner_transport=None, claude_client=None, gemini_transport=None):
     steps = Steps(sessions, job_id)
     runner = Runner(settings, runner_transport)
     request_shim = SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace(sessions=sessions)))
@@ -200,7 +210,8 @@ def run(sessions, settings, job_id: str, identity: dict, runner_transport=None, 
             d = dict(job.document)
             version = db.get(ArchitectureVersion, d['version_id'])
             plan = db.get(Assessment, d['plan_id'])
-            rows = preconditions(db, settings, identity, version, plan, d['candidate_id'], d['repository_id'])
+            provider = d.get('provider', 'CLAUDE')
+            rows = preconditions(db, settings, identity, version, plan, d['candidate_id'], d['repository_id'], provider)
             missing = [r['id'] for r in rows if not r['met']]
             if missing:
                 raise RunnerError('PRECONDITION_CHANGED', ', '.join(missing))
@@ -231,19 +242,24 @@ def run(sessions, settings, job_id: str, identity: dict, runner_transport=None, 
         steps.step(current, 'DONE', f"{len(files)} files at {repo_view.commit[:8]} ({sum(len(f['content']) for f in files):,} bytes); {len(excluded)} left out; {len(scenarios)} recorded scenarios.")
 
         current = 'GENERATE'
-        steps.step(current, 'RUNNING', f'Waiting for {settings.claude_model}.')
+        model = getattr(settings, PROVIDERS[provider]['model'])
+        steps.step(current, 'RUNNING', f'Waiting for {model}.')
         brief = dict(candidate_id=candidate['id'], name=candidate['name'], repository_name=d['service_name'], class_ids=candidate.get('class_ids', []),
                      packages=candidate.get('packages', []), dependencies=candidate.get('dependencies', []), data_signals=candidate.get('data', {}),
                      data_ownership='UNCONFIRMED', data_migration='NOT_AUTHORIZED_OR_EXECUTED')
         prompt = microservice_codegen.prompt_for(brief, files, [], d['version_id'], repo_view.commit, observations=routes, runtime_requirements=RUNTIME_REQUIREMENTS)
-        meta = dict(destination='CLAUDE_EXTERNAL', external_transfer=True, provider='CLAUDE', lane='LOCAL_TRIAL', job_id=job_id,
+        meta = dict(destination=f'{provider}_EXTERNAL', external_transfer=True, provider=provider, lane='LOCAL_TRIAL', job_id=job_id,
                     repository_id=repo_view.id, commit=repo_view.commit, candidate_id=candidate['id'], source_file_count=len(files),
-                    source_context_bytes=len(prompt.encode('utf-8')), source_context_sha256=hashlib.sha256(prompt.encode()).hexdigest(), model=settings.claude_model)
+                    source_context_bytes=len(prompt.encode('utf-8')), source_context_sha256=hashlib.sha256(prompt.encode()).hexdigest(), model=model)
         with sessions() as db:
-            if generations_today(db, identity['tenant_id']) >= settings.claude_max_generations_per_day:
+            if generations_today(db, identity['tenant_id'], provider) >= getattr(settings, PROVIDERS[provider]['cap']):
                 raise RunnerError('DAILY_GENERATION_LIMIT')
         model_event(request_shim, identity, invocation, 'REQUESTED', 'PER_REQUEST_HUMAN_APPROVAL', meta, resource='microservice:' + candidate['id'])
-        generated, usage = claude.generate(prompt, settings, client=claude_client)
+        if provider == 'CLAUDE':
+            generated, usage = claude.generate(prompt, settings, client=claude_client)
+        else:
+            generated, usage = gemini.generate(prompt, settings, transport=gemini_transport)
+            usage = dict(usage, estimated_cost_usd=None)            # no price table for Gemini models
         checked = microservice_codegen.validate_bundle(generated)
         out = Path(settings.data_dir) / 'conversions' / job_id / d['service_name']
         for item in checked['files']:
@@ -285,7 +301,7 @@ def run(sessions, settings, job_id: str, identity: dict, runner_transport=None, 
         steps.step(current, 'DONE', 'The generated service keeps running in Docker so you can try it; stop it from this page.')
         verdict = 'EQUIVALENT' if comparison.get('total') and counts.get('EQUIVALENT', 0) == comparison['total'] else 'REVIEW_DIFFERENCES' if comparison.get('total') else 'NOT_COMPARED'
         steps.update(state='COMPLETED', verdict=verdict, finished_at=now().isoformat())
-    except (RunnerError, claude.ClaudeFailure, microservice_codegen.BundleFailure, HTTPException, ValueError, OSError) as error:
+    except (RunnerError, claude.ClaudeFailure, gemini.GeminiFailure, microservice_codegen.BundleFailure, HTTPException, ValueError, OSError) as error:
         code = getattr(error, 'code', None) or (error.args[0] if error.args and isinstance(error.args[0], str) else type(error).__name__)
         detail = getattr(error, 'detail', '') if isinstance(error, RunnerError) else ''
         if current == 'GENERATE' and meta:

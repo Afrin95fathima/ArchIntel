@@ -57,13 +57,30 @@ def preflight(args):
             ok &= line(bool(tools.get(name)), f'runner tool {name}: {tools.get(name)}')
     except RunnerError as error:
         ok &= line(False, f'runner reachable ({error.code}); start it with scripts/runner-start.sh')
-    key = settings.anthropic_api_key.get_secret_value()
-    ok &= line(bool(key), 'ANTHROPIC_API_KEY is set (value not shown)')
+    key = (settings.gemini_api_key if args.provider == 'GEMINI' else settings.anthropic_api_key).get_secret_value()
+    ok &= line(bool(key), f"{'GEMINI' if args.provider == 'GEMINI' else 'ANTHROPIC'}_API_KEY is set (value not shown)")
+    if args.provider == 'GEMINI':
+        print(f'  INFO model {settings.gemini_model}, daily cap {settings.gemini_max_generations_per_day}')
     print(f'  INFO model {settings.claude_model}, effort {settings.claude_effort}, daily cap {settings.claude_max_generations_per_day}, refusal fallback {settings.claude_refusal_fallback}')
     with sessions() as db:
         app, run = application(db, args.application)
         ok &= line(run is not None, f'{args.application} has a completed analysis')
     sys.exit(0 if ok else 1)
+
+
+def gemini_smoke(args):
+    """The smallest real Gemini call: checks the key, the model and the structured bundle answer."""
+    from app.ai import gemini
+    settings, _ = connect()
+    prompt = ('Return a JSON bundle with exactly one file: path README.md, operation ADD, content "ArchIntel smoke test", '
+              'rationale "smoke test"; and an empty unresolved_questions list.')
+    try:
+        result, usage = gemini.generate(prompt, settings.model_copy(update=dict(gemini_max_output_tokens=2048)))
+    except gemini.GeminiFailure as error:
+        line(False, f'Gemini call failed: {error.args[0]}')
+        sys.exit(1)
+    line(bool(result['files']) and result['files'][0]['path'] == 'README.md', f"structured bundle returned ({len(result['files'])} file)")
+    print(f"  INFO {usage['model']}: {usage['prompt_tokens']} input, {usage['output_tokens']} output tokens, {usage['duration_ms']} ms")
 
 
 def claude_smoke(args):
@@ -120,16 +137,16 @@ def convert(args):
         candidate = next(c for c in plan.document['microservice_decomposition']['service_candidates'] if c['name'] == args.candidate)
         grants = {g.repository_id for g in db.scalars(select(SourceGrant).where(SourceGrant.principal_id == person.id))}
         repo = next((r for r in db.scalars(select(SourceRepository).where(SourceRepository.application_id == app.id)) if r.id in grants), None)
-        rows = conversion.preconditions(db, settings, identity, version, plan, candidate['id'], repo.id if repo else '')
+        rows = conversion.preconditions(db, settings, identity, version, plan, candidate['id'], repo.id if repo else '', args.provider)
         for row in rows:
             line(row['met'], row['text'])
         if not all(r['met'] for r in rows):
             sys.exit(1)
         if not args.yes:
-            sys.exit('Add --yes to confirm that the selected source of this candidate may be sent to Anthropic Claude.')
-        job = conversion.create(db, settings, identity, version, plan, candidate['id'], repo.id, conversion.ACKNOWLEDGEMENT)
+            sys.exit(f"Add --yes to confirm that the selected source of this candidate may be sent to {conversion.PROVIDERS[args.provider]['label']}.")
+        job = conversion.create(db, settings, identity, version, plan, candidate['id'], repo.id, conversion.PROVIDERS[args.provider]['ack'], args.provider)
         job_id = job.id
-    print(f'  INFO conversion {job_id} started for {args.candidate}; it also appears on the Modernization page')
+    print(f'  INFO conversion {job_id} started for {args.candidate} with {args.provider}; it also appears on the Modernization page')
     conversion.run(sessions, settings, job_id, identity)
     report(sessions, job_id)
 
@@ -162,7 +179,8 @@ def status(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('step', choices=['preflight', 'claude-smoke', 'explore', 'convert', 'status'])
+    parser.add_argument('step', choices=['preflight', 'claude-smoke', 'gemini-smoke', 'explore', 'convert', 'status'])
+    parser.add_argument('--provider', default='CLAUDE', choices=['CLAUDE', 'GEMINI'])
     parser.add_argument('--application', default='Spring PetClinic')
     parser.add_argument('--candidate', default='Vet')
     parser.add_argument('--username', default=None)
@@ -173,7 +191,7 @@ def main():
     parser.add_argument('--yes', action='store_true')
     args = parser.parse_args()
     started = time.monotonic()
-    dict(preflight=preflight, **{'claude-smoke': claude_smoke}, explore=explore, convert=convert, status=status)[args.step](args)
+    dict(preflight=preflight, **{'claude-smoke': claude_smoke, 'gemini-smoke': gemini_smoke}, explore=explore, convert=convert, status=status)[args.step](args)
     print(f'  INFO took {time.monotonic() - started:.0f} s')
 
 

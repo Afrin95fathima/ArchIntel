@@ -175,3 +175,36 @@ def test_promotion_is_a_recorded_human_decision_and_the_package_contains_no_depl
     rejected = c.post(url + '/promotion', json=dict(decision='REJECTED', note='Not now'))
     assert rejected.json()['promotion']['state'] == 'REJECTED' and len(rejected.json()['promotion']['history']) == 2
     assert c.get(url + '/package').status_code == 409                               # the latest decision counts
+
+
+def gemini_reply(request):
+    text = json.dumps(bundle())
+    body = {'candidates': [{'finishReason': 'STOP', 'content': {'parts': [{'text': text}]}}], 'usageMetadata': {'promptTokenCount': 900, 'candidatesTokenCount': 400}}
+    return httpx.Response(200, stream=httpx.ByteStream(json.dumps(body).encode()))   # the adapter reads the answer as a stream
+
+
+def test_gemini_is_a_separate_provider_with_its_own_policy_acknowledgement_and_audit(ready):
+    c = ready['client']
+    c.app.state.config.gemini_api_key = SecretStr('')                                   # independent of a GEMINI_API_KEY in the environment
+    url = ready['base'] + f"/preconditions?candidate_id={ready['candidate']['id']}&repository_id={ready['repo']}&provider=GEMINI"
+    missing = [r['id'] for r in c.get(url).json()['items'] if not r['met']]
+    assert missing == ['GEMINI_POLICY', 'GEMINI_KEY']                                    # Claude's switch and key do not count
+    policy = c.get('/api/v1/security/policy').json(); revision = policy.pop('revision')
+    assert c.post('/api/v1/security/policy', json=dict(policy, expected_revision=revision, gemini_source_transfer_enabled=True)).status_code == 200
+    c.app.state.config.gemini_api_key = SecretStr('g-test')
+    assert c.get(url).json()['ready'] is True and c.get(url).json()['acknowledgement'] == convert.PROVIDERS['GEMINI']['ack']
+    body = dict(candidate_id=ready['candidate']['id'], repository_id=ready['repo'], provider='GEMINI')
+    assert c.post(ready['base'], json=dict(body, acknowledgement=ACK)).status_code == 422             # Claude consent is not Gemini consent
+    with c.app.state.sessions() as db:
+        version = db.get(convert.ArchitectureVersion, ready['version']['id']); plan = db.get(convert.Assessment, ready['plan']['id'])
+        identity = dict(id=ready['owner'], tenant_id='local', kind='HUMAN')
+        job = convert.create(db, c.app.state.config, identity, version, plan, ready['candidate']['id'], ready['repo'], convert.PROVIDERS['GEMINI']['ack'], 'GEMINI')
+        job_id = job.id
+    convert.run(c.app.state.sessions, c.app.state.config, job_id, identity, httpx.MockTransport(FakeRunner()), gemini_transport=httpx.MockTransport(gemini_reply))
+    with c.app.state.sessions() as db:
+        job = db.get(AutomationJob, job_id)
+        audit = [r for r in db.scalars(select(ModelInvocation)) if (r.metadata_json or {}).get('lane') == 'LOCAL_TRIAL']
+    assert job.state == 'COMPLETED', job.document.get('error')
+    assert job.document['provider'] == 'GEMINI' and job.document['generation']['usage']['prompt_tokens'] == 900
+    assert job.document['generation']['usage']['estimated_cost_usd'] is None
+    assert [(r.outcome, r.metadata_json['destination']) for r in audit] == [('ALLOW', 'GEMINI_EXTERNAL')]

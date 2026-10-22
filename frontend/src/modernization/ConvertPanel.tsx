@@ -15,17 +15,18 @@ type Repo={id:string;name:string;commit:string;granted:boolean};
 export const CONVERT_STEP:Record<string,string>={PRECHECK:'Check every gate again',SELECT_SOURCE:'Select the candidate source inside your grant',GENERATE:'Generate the service with Claude',
   BUILD_SERVICE:'Build and start it in Docker',START_ORIGINAL:'Start the original application',COMPARE:'Replay recorded scenarios on both',STOP_ORIGINAL:'Stop the original application'};
 const VERDICT:Record<string,string>={EQUIVALENT:'Every replayed scenario behaved the same',REVIEW_DIFFERENCES:'Some replayed scenarios behaved differently',NOT_COMPARED:'No recorded scenario covered this candidate'};
-const ACK='I_APPROVE_SENDING_SELECTED_SOURCE_TO_ANTHROPIC_CLAUDE';
+const PROVIDER:Record<string,{label:string;company:string}>={CLAUDE:{label:'Claude',company:'Anthropic'},GEMINI:{label:'Gemini',company:'Google'}};
 
 /** Local conversion trial of one service candidate: Claude regenerates it, the runner builds and runs it, REA compares it with the original. */
 export function ConvertPanel({versionId,planId,candidate}:{versionId:string;planId:string;candidate:{id:string;name:string;proposal_state:string}}){
   const client=useQueryClient();
   const base=`/architecture-versions/${versionId}/modernization/${planId}/conversions`;
-  const [repo,setRepo]=useState('');const [ack,setAck]=useState(false);const [busy,setBusy]=useState(false);const [error,setError]=useState<unknown>(null);
+  const [repo,setRepo]=useState('');const [provider,setProvider]=useState('CLAUDE');const [ack,setAck]=useState(false);const [busy,setBusy]=useState(false);const [error,setError]=useState<unknown>(null);
   const [file,setFile]=useState<{jobId:string;path:string}|null>(null);
   const repos=useQuery({queryKey:['convert-repos',base],queryFn:()=>api<{items:Repo[]}>(base+'/repositories')});
   const repoId=repo||repos.data?.items.find(r=>r.granted)?.id||'';
-  const gates=useQuery({queryKey:['convert-gates',base,candidate.id,repoId],queryFn:()=>api<{ready:boolean;items:Gate[];model:string;limitations:string[]}>(`${base}/preconditions?candidate_id=${encodeURIComponent(candidate.id)}&repository_id=${encodeURIComponent(repoId)}`),refetchInterval:20000});
+  const gates=useQuery({queryKey:['convert-gates',base,candidate.id,repoId,provider],queryFn:()=>api<{ready:boolean;items:Gate[];model:string;acknowledgement:string;limitations:string[]}>(`${base}/preconditions?candidate_id=${encodeURIComponent(candidate.id)}&repository_id=${encodeURIComponent(repoId)}&provider=${provider}`),refetchInterval:20000});
+  const p=PROVIDER[provider];
   const jobs=useQuery({queryKey:['conversions',base],queryFn:()=>api<{items:ConversionJob[]}>(base),
     refetchInterval:q=>(q.state.data?.items||[]).some(j=>j.state==='RUNNING'||j.state==='QUEUED')?2500:20000});
   const content=useQuery({queryKey:['convert-file',file?.jobId,file?.path],queryFn:()=>api<{path:string;content:string;rationale:string}>(`${base}/${file!.jobId}/files/${file!.path}`),enabled:!!file});
@@ -35,11 +36,12 @@ export function ConvertPanel({versionId,planId,candidate}:{versionId:string;plan
   if(candidate.proposal_state==='TECHNICAL_DOMAIN_NOT_A_SERVICE')return null;
   return <section className="runtime-card convert-panel" aria-label={`Convert ${candidate.name}`}>
     <h3>Convert {candidate.name} locally (trial)</h3>
-    <p>Claude ({gates.data?.model||'Claude'}) regenerates this candidate as a standalone service from its source, the runner builds and starts it in Docker next to the original application, and REA replays the recorded scenarios against both. Nothing is merged or deployed.</p>
+    <label>Model provider<select aria-label="Model provider" value={provider} onChange={e=>{setProvider(e.target.value);setAck(false);}}><option value="CLAUDE">Anthropic Claude</option><option value="GEMINI">Google Gemini</option></select></label>
+    <p>{p.label} ({gates.data?.model||p.label}) regenerates this candidate as a standalone service from its source, the runner builds and starts it in Docker next to the original application, and REA replays the recorded scenarios against both. Nothing is merged or deployed.</p>
     <ul className="gate-list" aria-label="Conversion checklist">{(gates.data?.items||[]).map(g=><li key={g.id} className={g.met?'met':'missing'}>{g.met?'Met':'Missing'}: {g.text}</li>)}</ul>
     <label>Source repository<select aria-label="Source repository" value={repoId} onChange={e=>setRepo(e.target.value)}><option value="">Select a registered repository</option>{repos.data?.items.map(r=><option key={r.id} value={r.id} disabled={!r.granted}>{r.name} @ {r.commit.slice(0,7)}{r.granted?'':' (no grant)'}</option>)}</select></label>
-    <label className="consent"><input type="checkbox" checked={ack} onChange={e=>setAck(e.target.checked)}/>I approve sending the selected source of {candidate.name} to Anthropic Claude for this one generation.</label>
-    <button disabled={busy||running||!ack||!gates.data?.ready} onClick={()=>void act(()=>post(base,{candidate_id:candidate.id,repository_id:repoId,acknowledgement:ACK}))}>{running?'Conversion running…':busy?'Starting…':'Convert with Claude'}</button>
+    <label className="consent"><input type="checkbox" checked={ack} onChange={e=>setAck(e.target.checked)}/>I approve sending the selected source of {candidate.name} to {p.company} {p.label} for this one generation.</label>
+    <button disabled={busy||running||!ack||!gates.data?.ready} onClick={()=>void act(()=>post(base,{candidate_id:candidate.id,repository_id:repoId,acknowledgement:gates.data!.acknowledgement,provider}))}>{running?'Conversion running…':busy?'Starting…':`Convert with ${p.label}`}</button>
     {!gates.data?.ready&&gates.data&&<p className="fine-print">Complete the missing items above to enable the conversion.</p>}
     {error?<ErrorBox error={error}/>:null}
     {mine.slice(0,3).map(job=><ConversionView key={job.id} job={job} onStop={()=>void act(()=>api(`${base}/${job.id}/service`,{method:'DELETE'}))} onFile={path=>setFile({jobId:job.id,path})}

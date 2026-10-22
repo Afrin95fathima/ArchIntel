@@ -11,7 +11,7 @@ Production is a reviewed hand-off package; ArchIntel never deploys.
 | ArchIntel backend | Docker container | Plans, gates, jobs, audit; calls the runner and Claude |
 | Runner (`runner/`) | Your Mac (`scripts/runner-start.sh`) | Starts the application with the OpenTelemetry agent, drives it with REA 6.7.0 browser scenarios, builds and runs generated services in Docker, replays scenarios against two origins |
 | REA (`rea-agents` 6.7.0, pinned, signature-verified) | Inside the runner | Headless Chrome scenarios: navigate, fill, select, check, submit; returns page HTML and every request |
-| Claude (`claude-opus-5-5` by default) | Anthropic API | Generates one service repository as a strict JSON bundle |
+| Claude (`claude-opus-5-5` by default) or Gemini (`GEMINI_MODEL`, default `gemini-3.8-flash`) | Anthropic or Google API | Generates one service repository as a strict JSON bundle; you choose the provider per conversion |
 
 The runner and ArchIntel share `RUNNER_TOKEN` through the git-ignored `.env`. The runner listens on 127.0.0.1:8790 and only
 drives applications and services it started itself.
@@ -33,9 +33,9 @@ drives applications and services it started itself.
    - **Repositories**: register application *Spring PetClinic*, name `spring-petclinic`, path `/app/sources/spring-petclinic`,
      commit `30aab0ae764ad845b5eedd76028756835fec771f`.
    - **Grants**: give your own account `pom.xml` and `src/main/` on that repository (no protected paths needed).
-   - **Policy**: enable *source tasks* and *Claude source transfer*.
-3. Set the key: `./scripts/set-anthropic-key.sh` (hidden input, written to `.env`, backend restarted). Create the key in the
-   Anthropic Console as `archintel-rea-test` with a small monthly spend limit first.
+   - **Policy**: enable *source tasks* and *Claude source transfer* or *Gemini source transfer* (each provider has its own switch).
+3. Set the key: `./scripts/set-anthropic-key.sh` or `./scripts/set-gemini-key.sh` (hidden input, written to `.env`, backend
+   restarted). Give the key a small spend limit in the provider's console first.
 
 ## Live tests, one at a time
 
@@ -44,9 +44,9 @@ Run each from the ArchIntel folder; each prints PASS/FAIL lines and exits non-ze
 | # | Command | Calls Claude | Checks |
 |---|---|---|---|
 | 1 | `./scripts/live-test.sh preflight` | No | Runner, REA, Chrome, Java, Docker, agent, key present |
-| 2 | `./scripts/live-test.sh claude-smoke` | Yes, one tiny call (effort low) | Key, model, structured output and refusal-fallback parameter together; prints tokens and cost |
+| 2 | `./scripts/live-test.sh claude-smoke` or `gemini-smoke` | Yes, one tiny call, no source | Key, model and structured output; prints tokens (and cost for Claude) |
 | 3 | `JAR=<path to petclinic jar> ./scripts/live-test.sh explore` | No | Optional repeat of the automated exploration |
-| 4 | `./scripts/live-test.sh convert --yes` | Yes, one generation | All gates, source within grant, Claude bundle, Docker build, original start, scenario replay, verdict, cost |
+| 4 | `./scripts/live-test.sh convert --yes` (add `--provider GEMINI` for Gemini) | Yes, one generation | All gates, source within grant, Claude bundle, Docker build, original start, scenario replay, verdict, cost |
 | 5 | Modernization → Microservice modernization → Vet | No | The same conversion is shown with steps, verdict, differences, running service link, generated files |
 | 6 | In the conversion: **Move to production** → note → Approve for hand-off → Download | No | Package with source, Dockerfile, Kubernetes and Compose manifests, PROMOTION.md |
 | 7 | `./scripts/live-test.sh status` | No | All jobs and verdicts |
@@ -65,9 +65,10 @@ The first Docker build downloads the Maven and Temurin images and the Maven depe
 
 ## After testing: remove the key
 
-1. `./scripts/remove-anthropic-key.sh` removes it from `.env`, restarts the backend and verifies the backend no longer has it.
-2. Delete the key `archintel-rea-test` in the Anthropic Console so no copy can spend.
-3. Optionally disable *Claude source transfer* in Security & access.
+1. `./scripts/remove-anthropic-key.sh` or `./scripts/remove-gemini-key.sh` removes it from `.env`, restarts the backend and
+   verifies the backend no longer has it.
+2. Delete the key in the Anthropic Console or Google AI Studio so no copy can spend.
+3. Optionally disable the provider's source transfer in Security & access.
 
 ## What the trial does and does not prove
 

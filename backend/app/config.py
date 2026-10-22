@@ -88,6 +88,8 @@ class Settings(BaseSettings):
     gemini_model: str = 'gemini-3.8-flash'
     gemini_timeout_seconds: int = 90
     gemini_max_output_bytes: int = 1048576
+    gemini_max_output_tokens: int = 32768
+    gemini_max_generations_per_day: int = 5
     # Claude is an explicitly opted-in code-generation destination, like Gemini. The key is read from ANTHROPIC_API_KEY only.
     anthropic_api_key: SecretStr = SecretStr('')
     claude_model: str = 'claude-opus-5-5'

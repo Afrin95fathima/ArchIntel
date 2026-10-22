@@ -60,7 +60,7 @@ def generate(prompt, settings, *, transport=None):
         'generationConfig': {
             'responseFormat': {'text': {'mimeType': 'application/json', 'schema': _FILE_SCHEMA}},
             'temperature': 0.1,
-            'maxOutputTokens': 16384,
+            'maxOutputTokens': int(getattr(settings, 'gemini_max_output_tokens', 16384)),
         },
     }
     started = monotonic()

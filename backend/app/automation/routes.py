@@ -76,6 +76,7 @@ class ConversionInput(BaseModel):
     candidate_id: str = Field(min_length=1, max_length=80)
     repository_id: str = Field(min_length=36, max_length=36)
     acknowledgement: str = Field(max_length=120)
+    provider: str = Field(default='CLAUDE', pattern=r'^(CLAUDE|GEMINI)$')
 
 
 def _plan(db, request, vid, aid):
@@ -93,17 +94,21 @@ def conversion_repositories(vid: str, aid: str, request: Request, db=Depends(ses
 
 
 @router.get('/architecture-versions/{vid}/modernization/{aid}/conversions/preconditions')
-def conversion_preconditions(vid: str, aid: str, candidate_id: str, request: Request, repository_id: str = '', db=Depends(session)):
+def conversion_preconditions(vid: str, aid: str, candidate_id: str, request: Request, repository_id: str = '', provider: str = 'CLAUDE', db=Depends(session)):
+    if provider not in convert.PROVIDERS:
+        raise HTTPException(422, 'Use provider CLAUDE or GEMINI.')
     version, plan = _plan(db, request, vid, aid)
-    rows = convert.preconditions(db, request.app.state.config, request.state.identity, version, plan, candidate_id, repository_id)
-    return dict(ready=all(r['met'] for r in rows), items=rows, model=request.app.state.config.claude_model, limitations=convert.LIMITATIONS)
+    config = request.app.state.config
+    rows = convert.preconditions(db, config, request.state.identity, version, plan, candidate_id, repository_id, provider)
+    return dict(ready=all(r['met'] for r in rows), items=rows, provider=provider, model=getattr(config, convert.PROVIDERS[provider]['model']),
+                acknowledgement=convert.PROVIDERS[provider]['ack'], limitations=convert.LIMITATIONS)
 
 
 @router.post('/architecture-versions/{vid}/modernization/{aid}/conversions', status_code=202)
 def start_conversion(vid: str, aid: str, body: ConversionInput, request: Request, db=Depends(session)):
     version, plan = _plan(db, request, vid, aid)
     identity = dict(request.state.identity)
-    job = convert.create(db, request.app.state.config, identity, version, plan, body.candidate_id, body.repository_id, body.acknowledgement)
+    job = convert.create(db, request.app.state.config, identity, version, plan, body.candidate_id, body.repository_id, body.acknowledgement, body.provider)
     jobs.spawn(job.id, convert.run, request.app.state.sessions, request.app.state.config, job.id, identity)
     return jobs.view(job)
 
