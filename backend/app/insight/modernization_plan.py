@@ -192,7 +192,7 @@ def build(model, lifecycle_result: dict, candidates: dict | None = None, rules: 
         top = max(assigned[r] for r in group)
         for r in group:
             assigned[r] = top
-    titles = {1: 'Replace libraries that run on the current Java level', 2: f"Raise Java to {target_java}" if target_java else 'Raise the Java level', 3: 'Move frameworks and namespaces on the new Java level'}
+    titles = {1: 'Replace libraries without changing the Java level', 2: f"Raise Java to {target_java}" if target_java else 'Raise the Java level', 3: 'Move frameworks and namespaces on the new Java level'}
     phases = []
     for number in (1, 2, 3):
         members = [i for i in items if assigned[i['rule_id']] == number]

@@ -179,7 +179,8 @@ def run(sessions, settings, job_id: str, distribution: bytes, spec: dict, transp
             steps.update(coverage=dict(spans=sum(p['spans'] for p in passes), classes=classes, entry_points=combined.get('entry_points'), methods=combined.get('methods'),
                                        combined_sessions=[p['session_id'] for p in passes]))
             steps.step(current, 'DONE', f"{len(passes)} sessions combined: classes reached {classes.get('observed')} of {classes.get('total')}; "
-                                        f"select these sessions together in Dynamic analysis to see the combined evidence.")
+                                        f"select these sessions together in Dynamic analysis, and capture an architecture version from them within "
+                                        f"{settings.runtime_raw_trace_retention_hours} hours, before their raw spans expire and they can no longer be combined.")
         steps.update(state='COMPLETED', finished_at=now().isoformat())
     except RunnerError as error:
         _fail(steps, current, error.code, error.detail)

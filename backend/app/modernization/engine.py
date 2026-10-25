@@ -473,6 +473,9 @@ def build(assessment_id, version, static, facts, evidence, options):
     return result
 
 
+GRAPH_SUPPORT_LINKS = 100
+
+
 def planning_graph(aid, document, facts, evidence):
     """Separate assessment scope: never mutate the captured evidence graph."""
     nodes = {}; edges = {}
@@ -511,10 +514,14 @@ def planning_graph(aid, document, facts, evidence):
         for eid in f['evidence_ids']:
             if eid in evidence: link(node('evidence:' + eid, 'EvidenceReference', evidence[eid]['kind'], canonical_id=eid), fid, 'SUPPORTS')
     for f in document['findings']:
-        fid = node('finding:' + f['id'], 'ModernizationFinding', f['kind'], canonical_id=f['id'])
-        for eid in f['evidence_ids']:
-            if eid in evidence: link(node('evidence:' + eid, 'EvidenceReference', evidence[eid]['kind'], canonical_id=eid), fid, 'SUPPORTS')
-        for fact in f['fact_ids']: link(identity(aid, 'graph:fact:' + fact), fid, 'SUPPORTS')
+        # A domain-wide finding cites every evidence record of its domain (thousands in a large application). The graph shows
+        # a bounded sample per finding; the plan document keeps the full citation list and the node says how much is shown.
+        cited = [e for e in f['evidence_ids'] if e in evidence]
+        fid = node('finding:' + f['id'], 'ModernizationFinding', f['kind'], canonical_id=f['id'], evidence_count=len(cited), fact_count=len(f['fact_ids']),
+                   links_truncated=len(cited) > GRAPH_SUPPORT_LINKS or len(f['fact_ids']) > GRAPH_SUPPORT_LINKS)
+        for eid in cited[:GRAPH_SUPPORT_LINKS]:
+            link(node('evidence:' + eid, 'EvidenceReference', evidence[eid]['kind'], canonical_id=eid), fid, 'SUPPORTS')
+        for fact in f['fact_ids'][:GRAPH_SUPPORT_LINKS]: link(identity(aid, 'graph:fact:' + fact), fid, 'SUPPORTS')
     for d in document['decisions']:
         did = node('decision:' + d['id'], 'ModernizationDecision', d['kind'], canonical_id=d['id'])
         link(root, did, 'CONTAINS'); link(did, identity(aid, 'graph:domain:' + d['domain_id']), 'TARGETS')

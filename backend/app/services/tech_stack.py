@@ -7,6 +7,16 @@ import xml.etree.ElementTree as ET
 
 
 MAX_POMS = 500
+# Framework families named in the inventory when their main artifact is a resolved dependency (inventory only; support
+# status comes from lifecycle-rules.yaml).
+FRAMEWORK_ARTIFACTS = {
+    'org.springframework:spring-core': 'Spring Framework', 'org.eclipse.jetty:jetty-server': 'Jetty', 'org.apache.tomcat.embed:tomcat-embed-core': 'Tomcat',
+    'com.google.inject:guice': 'Guice', 'org.jboss.resteasy:resteasy-core': 'RESTEasy', 'org.glassfish.jersey.core:jersey-server': 'Jersey',
+    'org.jooq:jooq': 'jOOQ', 'org.hibernate.orm:hibernate-core': 'Hibernate ORM', 'org.hibernate:hibernate-core': 'Hibernate ORM',
+    'org.apache.shiro:shiro-core': 'Apache Shiro', 'org.liquibase:liquibase-core': 'Liquibase', 'org.flywaydb:flyway-core': 'Flyway',
+    'io.quarkus:quarkus-core': 'Quarkus', 'io.micronaut:micronaut-core': 'Micronaut', 'io.dropwizard:dropwizard-core': 'Dropwizard',
+    'com.fasterxml.jackson.core:jackson-databind': 'Jackson',
+}
 PROPERTY = re.compile(r'\$\{([^}]+)\}')
 
 
@@ -188,6 +198,13 @@ def inspect_artifact(path: Path, classes_dir: Path, static: dict) -> dict:
     jakarta_types=sorted(name for name in external_names if name.startswith(('jakarta.','jakarta/')))
     frameworks=[]
     if spring_boot_versions:frameworks.append(dict(name='Spring Boot',versions=sorted(spring_boot_versions),evidence='Archive manifest, Maven metadata, or bundled library filename.'))
+    found = {}
+    for d in all_deps:
+        name = FRAMEWORK_ARTIFACTS.get(f"{d['group_id']}:{d['artifact_id']}")
+        if name and d.get('version'):
+            found.setdefault(name, set()).add(d['version'])
+    for name, versions in sorted(found.items()):
+        frameworks.append(dict(name=name, versions=sorted(versions), evidence='Resolved Maven dependency metadata.'))
     build_tools=[]
     if has_maven_descriptor:
         build_tools.append(dict(name='Maven',evidence='pom.xml found in uploaded archive.'))

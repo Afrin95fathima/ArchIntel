@@ -181,3 +181,15 @@ def test_a_technical_domain_is_not_a_startable_service_candidate(plan):
     assert technical and all(c['proposal_state'] == 'TECHNICAL_DOMAIN_NOT_A_SERVICE' for c in technical)
     assert all(c['proposal_state'] == 'CANDIDATE_REQUIRES_REVIEW' for c in candidates if kinds[c['id']] != 'TECHNICAL')
     assert any('cannot be started as a service' in text for text in doc['microservice_decomposition']['limitations'])
+
+
+def test_the_planning_graph_shows_a_bounded_sample_of_a_domain_wide_finding_and_says_so():
+    from app.modernization.engine import GRAPH_SUPPORT_LINKS, planning_graph
+    evidence = {f'e{i:04}': dict(kind='STATIC') for i in range(GRAPH_SUPPORT_LINKS * 3)}
+    finding = dict(id='f1', kind='CROSS_CUTTING_DEPENDENCY', evidence_ids=sorted(evidence), fact_ids=[])
+    document = dict(version_id='v1', target=dict(strategy='MICROSERVICES'), assessments=[], findings=[finding], decisions=[], waves=[], nonfunctional={})
+    graph = planning_graph('00000000-0000-4000-8000-000000000000', document, [], evidence)
+    node = next(n for n in graph['nodes'] if n['kind'] == 'ModernizationFinding')
+    assert node['evidence_count'] == GRAPH_SUPPORT_LINKS * 3 and node['links_truncated'] is True
+    assert sum(1 for e in graph['edges'] if e['target'] == node['id'] and e['kind'] == 'SUPPORTS') == GRAPH_SUPPORT_LINKS
+    assert len(finding['evidence_ids']) == GRAPH_SUPPORT_LINKS * 3                 # the plan keeps every citation

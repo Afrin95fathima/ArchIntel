@@ -108,3 +108,17 @@ def test_lifecycle_package_rules_can_exclude_a_sub_package():
     assert package_usage(model, ['org.hibernate.'])['class_count'] == 2
     usage = package_usage(model, ['org.hibernate.'], excluded=['org.hibernate.validator.'])
     assert [row['class_name'] for row in usage['classes']] == ['a.Repo']
+
+
+def test_framework_families_are_named_from_resolved_dependencies(tmp_path):
+    import zipfile
+    from app.services.tech_stack import inspect_artifact
+    archive = tmp_path / 'project.zip'
+    pom = POM.format('<groupId>com.acme</groupId><artifactId>server</artifactId><version>1</version><dependencies>'
+                     '<dependency><groupId>org.eclipse.jetty</groupId><artifactId>jetty-server</artifactId><version>12.0.36</version></dependency>'
+                     '<dependency><groupId>com.google.inject</groupId><artifactId>guice</artifactId><version>6.0.0</version></dependency>'
+                     '<dependency><groupId>org.slf4j</groupId><artifactId>slf4j-api</artifactId><version>2.0.18</version></dependency></dependencies>')
+    with zipfile.ZipFile(archive, 'w') as z:
+        z.writestr('server/pom.xml', pom)
+    frameworks = {f['name']: f['versions'] for f in inspect_artifact(archive, tmp_path, {})['frameworks']}
+    assert frameworks == {'Guice': ['6.0.0'], 'Jetty': ['12.0.36']}
