@@ -46,7 +46,7 @@ Run each from the ArchIntel folder; each prints PASS/FAIL lines and exits non-ze
 | 1 | `./scripts/live-test.sh preflight` | No | Runner, REA, Chrome, Java, Docker, agent, key present |
 | 2 | `./scripts/live-test.sh claude-smoke` or `gemini-smoke` | Yes, one tiny call, no source | Key, model and structured output; prints tokens (and cost for Claude) |
 | 3 | `JAR=<path to petclinic jar> ./scripts/live-test.sh explore` | No | Optional repeat of the automated exploration |
-| 3b | `DIST=<concord-server-*-dist.tar.gz> ./scripts/live-test.sh explore-api --application "Walmart Concord" [--passes 5] [--mode DEEP]` | No | API exploration with the Concord launch recipe: fresh PostgreSQL, generated admin token, GET crawl, scenario steps, coverage passes |
+| 3b | `DIST=<concord-server-*-dist.tar.gz> DIST_AGENT=<concord-agent-*-dist.tar.gz> ./scripts/live-test.sh explore-api --application "Walmart Concord" [--passes 6] [--mode DEEP]` | No | API exploration with the Concord launch recipe: fresh PostgreSQL, server and agent with generated tokens, GET crawl, scenario steps with workflows run to FINISHED, coverage passes |
 | 4 | `./scripts/live-test.sh convert --yes` (add `--provider GEMINI` for Gemini) | Yes, one generation | All gates, source within grant, Claude bundle, Docker build, original start, scenario replay, verdict, cost |
 | 5 | Modernization → Microservice modernization → Vet | No | The same conversion is shown with steps, verdict, differences, running service link, generated files |
 | 6 | In the conversion: **Move to production** → note → Approve for hand-off → Download | No | Package with source, Dockerfile, Kubernetes and Compose manifests, PROMOTION.md |

@@ -31,7 +31,7 @@ function run(command, args, timeoutMs) {
 /** Store and unpack a distribution. Absolute paths, `..`, links and devices are rejected before anything is extracted. */
 export async function storeDistribution(sha256, bytes) {
   if (!SHA.test(sha256)) throw new RecipeError('DISTRIBUTION_ID_INVALID');
-  if (!bytes.length || bytes.length > config.maxArtifactBytes) throw new RecipeError('DISTRIBUTION_SIZE');
+  if (!bytes.length || bytes.length > config.maxDistributionBytes) throw new RecipeError('DISTRIBUTION_SIZE');
   if (createHash('sha256').update(bytes).digest('hex') !== sha256) throw new RecipeError('DISTRIBUTION_HASH_MISMATCH');
   if (bytes[0] !== 0x1f || bytes[1] !== 0x8b) throw new RecipeError('DISTRIBUTION_NOT_TAR_GZ');
   const base = join(config.workDir, 'distributions');
@@ -93,25 +93,34 @@ function mapping(value, keyPattern, max, code) {
   }));
 }
 
-/** Strict recipe check; returns a normalised copy. */
-export function validateRecipe(recipe) {
-  if (typeof recipe !== 'object' || recipe === null) throw new RecipeError('RECIPE_INVALID');
-  const name = text(recipe.name, 60, 'RECIPE_NAME_INVALID');
-  if (!/^[a-z][a-z0-9-]{0,59}$/.test(name)) throw new RecipeError('RECIPE_NAME_INVALID');
-  if (!CLASS.test(recipe.main_class || '')) throw new RecipeError('RECIPE_MAIN_CLASS_INVALID');
-  const classpath = strings(recipe.classpath, 20, 200, 'RECIPE_CLASSPATH_INVALID');
+/** What every started JVM shares: main class, classpath inside its distribution, JVM options, properties and environment. */
+function processSpec(input) {
+  if (!CLASS.test(input.main_class || '')) throw new RecipeError('RECIPE_MAIN_CLASS_INVALID');
+  const classpath = strings(input.classpath, 20, 200, 'RECIPE_CLASSPATH_INVALID');
   if (!classpath.length) throw new RecipeError('RECIPE_CLASSPATH_INVALID');
   for (const entry of classpath) {
     const clean = normalize(entry);
     if (entry.startsWith('/') || clean.startsWith('..') || clean.split(sep).includes('..') || entry.includes(':')) throw new RecipeError('RECIPE_CLASSPATH_INVALID', entry);
   }
-  const jvmArgs = strings(recipe.jvm_args, 40, 300, 'RECIPE_JVM_ARGS_INVALID');
+  const jvmArgs = strings(input.jvm_args, 40, 300, 'RECIPE_JVM_ARGS_INVALID');
   for (const arg of jvmArgs) if (!arg.startsWith('-') && !/^[\w.=/,-]+$/.test(arg) || RESERVED_JVM.test(arg)) throw new RecipeError('RECIPE_JVM_ARGS_INVALID', arg);
+  return { main_class: input.main_class, classpath, jvm_args: jvmArgs, args: strings(input.args, 20, 300, 'RECIPE_ARGS_INVALID'),
+    system_properties: mapping(input.system_properties, PROPERTY, 40, 'RECIPE_PROPERTIES_INVALID'), env: mapping(input.env, VARIABLE, 40, 'RECIPE_ENV_INVALID') };
+}
+
+/** Strict recipe check; returns a normalised copy. */
+export function validateRecipe(recipe) {
+  if (typeof recipe !== 'object' || recipe === null) throw new RecipeError('RECIPE_INVALID');
+  const name = text(recipe.name, 60, 'RECIPE_NAME_INVALID');
+  if (!/^[a-z][a-z0-9-]{0,59}$/.test(name)) throw new RecipeError('RECIPE_NAME_INVALID');
+  const main = processSpec(recipe);
   const secrets = (recipe.generated_secrets || []).map((s) => {
     if (!VARIABLE.test(s?.name || '') || !['base64', 'password'].includes(s?.kind)) throw new RecipeError('RECIPE_SECRET_INVALID');
     return { name: s.name, kind: s.kind };
   });
   if (secrets.length > 20) throw new RecipeError('RECIPE_SECRET_INVALID');
+  const ports = strings(recipe.ports, 5, 41, 'RECIPE_PORTS_INVALID');
+  if (ports.some((p) => !VARIABLE.test(p) || ['PORT', 'HOST'].includes(p))) throw new RecipeError('RECIPE_PORTS_INVALID');
   const files = (recipe.config_files || []).map((f) => {
     if (!/^[a-z0-9][a-z0-9._-]{0,60}$/.test(f?.name || '')) throw new RecipeError('RECIPE_CONFIG_FILE_INVALID');
     return { name: f.name, content: text(f.content, 200000, 'RECIPE_CONFIG_FILE_INVALID') };
@@ -127,14 +136,20 @@ export function validateRecipe(recipe) {
       ready_log: text(d.ready_log || '', 200, 'RECIPE_DEPENDENCY_INVALID'), ready_log_count: Math.min(Math.max(Number(d.ready_log_count) || 1, 1), 5) };
   });
   if (dependencies.length > 4) throw new RecipeError('RECIPE_DEPENDENCY_INVALID');
+  // Companion processes (for example a worker that executes jobs) start once the main process is ready, each from its
+  // own distribution, and count as ready when their log shows ready_log.
+  const companions = (recipe.companions || []).map((c) => {
+    if (!NAME.test(c?.name || '') || c.name === 'app' || !NAME.test(c.distribution || '')) throw new RecipeError('RECIPE_COMPANION_INVALID');
+    return { name: c.name, distribution: c.distribution, ...processSpec(c), ready_log: text(c.ready_log || '', 200, 'RECIPE_COMPANION_INVALID'),
+      ready_timeout_ms: Math.min(Math.max(Number(c.ready_timeout_ms) || 120000, 5000), 600000) };
+  });
+  if (companions.length > 3 || new Set(companions.map((c) => c.name)).size !== companions.length) throw new RecipeError('RECIPE_COMPANION_INVALID');
   const readyPath = text(recipe.ready?.path || '/', 200, 'RECIPE_READY_INVALID');
   if (!readyPath.startsWith('/')) throw new RecipeError('RECIPE_READY_INVALID');
   const credential = recipe.credential ? { header: text(recipe.credential.header, 60, 'RECIPE_CREDENTIAL_INVALID'), value: text(recipe.credential.value, 300, 'RECIPE_CREDENTIAL_INVALID') } : null;
   if (credential && !/^[A-Za-z][A-Za-z0-9-]{0,59}$/.test(credential.header)) throw new RecipeError('RECIPE_CREDENTIAL_INVALID');
   return {
-    name, main_class: recipe.main_class, classpath, jvm_args: jvmArgs, args: strings(recipe.args, 20, 300, 'RECIPE_ARGS_INVALID'),
-    system_properties: mapping(recipe.system_properties, PROPERTY, 40, 'RECIPE_PROPERTIES_INVALID'),
-    env: mapping(recipe.env, VARIABLE, 40, 'RECIPE_ENV_INVALID'), generated_secrets: secrets, config_files: files, dependencies,
+    name, ...main, generated_secrets: secrets, ports, config_files: files, dependencies, companions,
     ready: { path: readyPath, timeout_ms: Math.min(Math.max(Number(recipe.ready?.timeout_ms) || 300000, 10000), 900000) }, credential,
   };
 }

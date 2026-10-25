@@ -40,6 +40,7 @@ def recipes() -> list[dict]:
     for path in sorted(RECIPES.glob('*.json')):
         item = _load(path.stem)
         out.append(dict(id=item['id'], title=item['title'], description=item['description'], distribution_hint=item.get('distribution_hint'),
+                        distributions=item.get('distributions') or [dict(id='main', primary=True, title='Application distribution', hint=item.get('distribution_hint'))],
                         mode=(item.get('instrumentation') or {}).get('mode', 'STANDARD'), passes=(item.get('exploration') or {}).get('passes', 1), dependencies=[d['image'] for d in item['recipe'].get('dependencies', [])],
                         scenarios=[dict(name=s['name'], description=s.get('description', ''), steps=len(s.get('steps', [])), cleanup=len(s.get('cleanup', []))) for s in item.get('scenarios', [])]))
     return out
@@ -59,18 +60,19 @@ def steps_for(passes: int) -> list[str]:
     return STEPS + (['COMBINE_PASSES'] if passes > 1 else [])
 
 
-def create(db, identity: dict, application_id: str, analysis_id: str, distribution: bytes, spec: dict, options: dict) -> AutomationJob:
+def create(db, identity: dict, application_id: str, analysis_id: str, distribution: bytes, spec: dict, options: dict, extra: dict[str, bytes] | None = None) -> AutomationJob:
     passes = int(options.get('passes') or (spec.get('exploration') or {}).get('passes', 1))
     job = AutomationJob(tenant_id=identity['tenant_id'], application_id=application_id, analysis_id=analysis_id, kind='EXPLORE', state='QUEUED', actor_id=identity['id'],
                         document=dict(method='API', options=dict(options, passes=passes), recipe=dict(id=spec.get('id'), title=spec.get('title'), name=spec['recipe']['name']),
                                       artifact=dict(sha256=hashlib.sha256(distribution).hexdigest(), bytes=len(distribution)),
+                                      distributions=[dict(id=key, sha256=hashlib.sha256(data).hexdigest(), bytes=len(data)) for key, data in sorted((extra or {}).items())],
                                       steps=[dict(name=s, state='PENDING', detail=None, at=None) for s in steps_for(passes)], limitations=LIMITATIONS, passes=[]))
     db.add(job)
     db.commit()
     return job
 
 
-def run(sessions, settings, job_id: str, distribution: bytes, spec: dict, transport=None):
+def run(sessions, settings, job_id: str, distribution: bytes, spec: dict, transport=None, extra: dict[str, bytes] | None = None):
     """One or more coverage passes. Each pass is a fresh start with its own session; a later pass traces only classes no
     earlier pass traced, so together they spread the instrumentation budget over the whole application."""
     steps = Steps(sessions, job_id)
@@ -96,7 +98,13 @@ def run(sessions, settings, job_id: str, distribution: bytes, spec: dict, transp
         steps.step(current, 'RUNNING')
         sha = hashlib.sha256(distribution).hexdigest()
         stored = runner.upload_distribution(sha, distribution)
-        steps.step(current, 'DONE', f"{len(distribution):,} bytes, sha256 {sha[:12]}" + (' (already unpacked on the runner)' if stored.get('reused') else ''))
+        sent = [f"{len(distribution):,} bytes, sha256 {sha[:12]}" + (' (already unpacked on the runner)' if stored.get('reused') else '')]
+        companions = {}
+        for key, data in sorted((extra or {}).items()):
+            companions[key] = hashlib.sha256(data).hexdigest()
+            reply = runner.upload_distribution(companions[key], data)
+            sent.append(f"{key}: {len(data):,} bytes, sha256 {companions[key][:12]}" + (' (already unpacked)' if reply.get('reused') else ''))
+        steps.step(current, 'DONE', '; '.join(sent))
 
         scope = spec.get('instrumentation') or {}
         exploration = spec.get('exploration') or {}
@@ -130,10 +138,11 @@ def run(sessions, settings, job_id: str, distribution: bytes, spec: dict, transp
 
             current = 'START_APPLICATION'
             steps.step(current, 'RUNNING', f'Starting the dependencies, then the application with the OpenTelemetry agent{label}.')
-            started = runner.start_recipe(sha, spec['recipe'], otel)
+            started = runner.start_recipe(sha, spec['recipe'], otel, companions)
             run_id = started['id']
             deps = ', '.join(f"{d['name']} on port {d['port']}" for d in started.get('dependencies', [])) or 'none'
-            steps.step(current, 'DONE', f"Started on {started['base_url']}; dependencies: {deps}; credential {'generated' if started.get('credential') else 'not used'}{label}.")
+            others = ', '.join(c['name'] for c in started.get('companions', [])) or 'none'
+            steps.step(current, 'DONE', f"Started on {started['base_url']}; dependencies: {deps}; companion processes: {others}; credential {'generated' if started.get('credential') else 'not used'}{label}.")
 
             current = 'EXPLORE_API'
             steps.step(current, 'RUNNING', f'Calling the GET routes from the static analysis and running the scenario files{label}.')

@@ -70,7 +70,7 @@ export async function handle(req, res) {
     let m;
     if (req.method === 'PUT' && (m = path.match(/^\/v1\/artifacts\/([0-9a-f]{64})$/))) return send(res, 201, await apps.storeArtifact(m[1], await body(req, config.maxArtifactBytes)));
     if (req.method === 'POST' && path === '/v1/apps') return send(res, 201, await apps.start(await json(req)));
-    if (req.method === 'PUT' && (m = path.match(/^\/v1\/distributions\/([0-9a-f]{64})$/))) return send(res, 201, await storeDistribution(m[1], await body(req, config.maxArtifactBytes)));
+    if (req.method === 'PUT' && (m = path.match(/^\/v1\/distributions\/([0-9a-f]{64})$/))) return send(res, 201, await storeDistribution(m[1], await body(req, config.maxDistributionBytes)));
     if (req.method === 'POST' && path === '/v1/recipe-runs') return send(res, 201, await apps.startRecipe(await json(req)));
     if (req.method === 'GET' && path === '/v1/apps') return send(res, 200, { items: apps.list() });
     if (req.method === 'DELETE' && (m = path.match(/^\/v1\/apps\/([0-9a-f-]{36})$/))) return send(res, 200, await apps.stop(m[1]));

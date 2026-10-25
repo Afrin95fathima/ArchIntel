@@ -1,8 +1,8 @@
 {
   "id": "concord-server",
-  "title": "Walmart Concord server (with a disposable PostgreSQL)",
-  "description": "Starts the Concord server from its distribution (concord-server-<version>-dist.tar.gz) on a fresh PostgreSQL container, with a generated admin API token. Processes are queued but not executed, because no Concord agent is started.",
-  "distribution_hint": "server/dist/target/concord-server-<version>-dist.tar.gz from a Concord build",
+  "title": "Walmart Concord server and agent (with a disposable PostgreSQL)",
+  "description": "Starts the Concord server from concord-server-<version>-dist.tar.gz on a fresh PostgreSQL container with a generated admin API token, then the Concord agent from concord-agent-<version>-dist.tar.gz with a generated agent token. The agent runs every submitted process in its own JVM, and the OpenTelemetry agent is passed on to those JVMs, so server, agent and process runtime are all traced.",
+  "distribution_hint": "server/dist/target/concord-server-<version>-dist.tar.gz",
   "recipe": {
     "name": "concord-server",
     "main_class": "com.walmartlabs.concord.server.dist.Main",
@@ -70,7 +70,11 @@
     "config_files": [
       {
         "name": "concord.conf",
-        "content": "concord-server {\n    server {\n        port = ${PORT}\n    }\n    db {\n        url = \"jdbc:postgresql://127.0.0.1:${DB_PORT}/postgres\"\n        appUsername = \"postgres\"\n        appPassword = \"${DB_PASSWORD}\"\n        inventoryUsername = \"postgres\"\n        inventoryPassword = \"${DB_PASSWORD}\"\n        changeLogParameters {\n            defaultAdminToken = \"${ADMIN_TOKEN}\"\n            defaultAgentToken = \"${AGENT_TOKEN}\"\n        }\n    }\n    secretStore {\n        serverPassword = \"${SECRET_KEY}\"\n        secretStoreSalt = \"${SECRET_SALT}\"\n        projectSecretSalt = \"${PROJECT_SALT}\"\n    }\n}\n"
+        "content": "concord-server {\n    server {\n        port = ${PORT}\n    }\n    db {\n        url = \"jdbc:postgresql://127.0.0.1:${DB_PORT}/postgres\"\n        appUsername = \"postgres\"\n        appPassword = \"${DB_PASSWORD}\"\n        inventoryUsername = \"postgres\"\n        inventoryPassword = \"${DB_PASSWORD}\"\n        changeLogParameters {\n            defaultAdminToken = \"${ADMIN_TOKEN}\"\n            defaultAgentToken = \"${AGENT_TOKEN}\"\n        }\n    }\n    # The agent key of a fresh database has no user, so the agent WebSocket cannot carry the AGENT_WEBSOCKET permission check.\n    websockets {\n        requirePermission = false\n    }\n    secretStore {\n        serverPassword = \"${SECRET_KEY}\"\n        secretStoreSalt = \"${SECRET_SALT}\"\n        projectSecretSalt = \"${PROJECT_SALT}\"\n    }\n}\n"
+      },
+      {
+        "name": "agent.conf",
+        "content": "concord-agent {\n    workersCount = 2\n    workDirBase = \"${RUN_DIR}/agent-work\"\n    maintenanceModeListenerHost = \"127.0.0.1\"\n    maintenanceModeListenerPort = ${AGENT_MM_PORT}\n    server {\n        apiBaseUrl = \"http://127.0.0.1:${PORT}\"\n        websocketUrl = \"ws://127.0.0.1:${PORT}/websocket\"\n        apiKey = \"${AGENT_TOKEN}\"\n    }\n    runner {\n        jvmParams = [\"-Xmx256m\", \"-XX:+ExitOnOutOfMemoryError\", \"${OTEL_JVM_ARG}\"]\n    }\n    runnerV2 {\n        jvmParams = [\"-Xmx256m\", \"-XX:+ExitOnOutOfMemoryError\", \"${OTEL_JVM_ARG}\"]\n    }\n}\n"
       }
     ],
     "ready": {
@@ -80,17 +84,44 @@
     "credential": {
       "header": "Authorization",
       "value": "Bearer ${ADMIN_TOKEN}"
-    }
+    },
+    "ports": [
+      "AGENT_MM_PORT"
+    ],
+    "companions": [
+      {
+        "name": "agent",
+        "distribution": "agent",
+        "main_class": "com.walmartlabs.concord.agent.Main",
+        "classpath": [
+          "lib/*"
+        ],
+        "jvm_args": [
+          "-Xmx512m",
+          "--add-opens",
+          "java.base/java.lang=ALL-UNNAMED",
+          "--add-opens",
+          "java.base/java.util=ALL-UNNAMED",
+          "-Dfile.encoding=UTF-8",
+          "-Djava.net.preferIPv4Stack=true"
+        ],
+        "system_properties": {
+          "concord.conf": "${FILE:agent.conf}",
+          "logback.configurationFile": "com/walmartlabs/concord/agent/logback.xml"
+        },
+        "env": {
+          "RUNNER_V1_PATH": "${DIST_DIR_AGENT}/runner/runner-v1.jar",
+          "RUNNER_V2_PATH": "${DIST_DIR_AGENT}/runner/runner-v2.jar",
+          "CONCORD_TMP_DIR": "${RUN_DIR}"
+        },
+        "ready_log": "run -> using",
+        "ready_timeout_ms": 180000
+      }
+    ]
   },
   "instrumentation": {
     "mode": "DEEP",
     "exclude_packages": [
-      "com.walmartlabs.concord.agent",
-      "com.walmartlabs.concord.runtime.v2.runner",
-      "com.walmartlabs.concord.runtime.v1",
-      "com.walmartlabs.concord.runner",
-      "com.walmartlabs.concord.client2",
-      "com.walmartlabs.concord.plugins",
       "com.walmartlabs.concord.cli"
     ]
   },
@@ -105,7 +136,7 @@
   "scenarios": [
     {
       "name": "Organization lifecycle",
-      "description": "Creates an organization with a project, secret, team, inventory, JSON store and policy, starts a process from a concord.yml payload, reads everything back, then removes it.",
+      "description": "Creates an organization with a project, secret, team, inventory, JSON store and policy, runs a process to completion on the agent with runtime v2, runs a second process on runtime v1 that waits on a form and submits it, reads everything back, then removes it.",
       "steps": [
         {
           "id": "create-org",
@@ -293,11 +324,30 @@
             "concord.yml": {
               "filename": "concord.yml",
               "type": "application/octet-stream",
-              "content": "flows:\n  default:\n    - log: \"Hello from ArchIntel exploration\"\n"
+              "content": "configuration:\n  runtime: \"concord-v2\"\n  arguments:\n    greeting: \"Hello from ArchIntel exploration\"\nflows:\n  default:\n    - log: \"${greeting}\"\n    - set:\n        counter: 3\n    - if: ${counter > 2}\n      then:\n        - call: helper\n    - try:\n        - throw: \"expected failure\"\n      error:\n        - log: \"handled the expected failure\"\n  helper:\n    - log: \"helper flow, counter ${counter}\"\n"
             }
           },
           "extract": {
             "PROCESS_ID": "instanceId"
+          }
+        },
+        {
+          "id": "wait-for-process",
+          "method": "GET",
+          "path": "/api/v1/process/${PROCESS_ID}",
+          "until": {
+            "path": "status",
+            "in": [
+              "FINISHED",
+              "FAILED",
+              "CANCELLED",
+              "TIMED_OUT"
+            ],
+            "timeout_ms": 300000,
+            "interval_ms": 2000,
+            "success": [
+              "FINISHED"
+            ]
           }
         },
         {
@@ -319,6 +369,94 @@
           "id": "list-org-processes",
           "method": "GET",
           "path": "/api/v2/process?orgName=archintel-${RUN_ID}&limit=10"
+        },
+        {
+          "id": "read-process-events",
+          "method": "GET",
+          "path": "/api/v1/process/${PROCESS_ID}/event"
+        },
+        {
+          "id": "read-process-checkpoints",
+          "method": "GET",
+          "path": "/api/v1/process/${PROCESS_ID}/checkpoint"
+        },
+        {
+          "id": "start-form-process",
+          "method": "POST",
+          "path": "/api/v1/process",
+          "multipart": {
+            "org": "archintel-${RUN_ID}",
+            "project": "project-${RUN_ID}",
+            "concord.yml": {
+              "filename": "concord.yml",
+              "type": "application/octet-stream",
+              "content": "flows:\n  default:\n    - form: approval\n    - log: \"Approved by ${approval.name}: ${approval.approved}\"\nforms:\n  approval:\n    - name: { label: \"Name\", type: \"string\" }\n    - approved: { label: \"Approved\", type: \"boolean\" }\n"
+            }
+          },
+          "extract": {
+            "FORM_PROCESS_ID": "instanceId"
+          }
+        },
+        {
+          "id": "wait-for-form",
+          "method": "GET",
+          "path": "/api/v1/process/${FORM_PROCESS_ID}",
+          "until": {
+            "path": "status",
+            "in": [
+              "SUSPENDED",
+              "FAILED",
+              "FINISHED"
+            ],
+            "timeout_ms": 300000,
+            "interval_ms": 2000,
+            "success": [
+              "SUSPENDED"
+            ]
+          }
+        },
+        {
+          "id": "list-forms",
+          "method": "GET",
+          "path": "/api/v1/process/${FORM_PROCESS_ID}/form"
+        },
+        {
+          "id": "read-form",
+          "method": "GET",
+          "path": "/api/v1/process/${FORM_PROCESS_ID}/form/approval"
+        },
+        {
+          "id": "submit-form",
+          "method": "POST",
+          "path": "/api/v1/process/${FORM_PROCESS_ID}/form/approval",
+          "json": {
+            "name": "ArchIntel",
+            "approved": true
+          }
+        },
+        {
+          "id": "wait-for-form-process",
+          "method": "GET",
+          "path": "/api/v1/process/${FORM_PROCESS_ID}",
+          "until": {
+            "path": "status",
+            "in": [
+              "FINISHED",
+              "FAILED",
+              "CANCELLED",
+              "TIMED_OUT"
+            ],
+            "timeout_ms": 300000,
+            "interval_ms": 2000,
+            "success": [
+              "FINISHED"
+            ]
+          }
+        },
+        {
+          "id": "read-form-process-events",
+          "method": "GET",
+          "path": "/api/v1/process/${FORM_PROCESS_ID}/event"
         }
       ],
       "cleanup": [
@@ -383,6 +521,19 @@
           "path": "/api/v1/org/archintel-${RUN_ID}?confirmation=yes"
         }
       ]
+    }
+  ],
+  "distributions": [
+    {
+      "id": "server",
+      "primary": true,
+      "title": "Concord server distribution",
+      "hint": "server/dist/target/concord-server-<version>-dist.tar.gz"
+    },
+    {
+      "id": "agent",
+      "title": "Concord agent distribution",
+      "hint": "agent/target/concord-agent-<version>-dist.tar.gz"
     }
   ]
 }

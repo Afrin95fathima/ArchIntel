@@ -121,7 +121,13 @@ export function validateScenario(scenario) {
     return steps.map((s, i) => {
       if (!METHODS.has(s?.method) || typeof s.path !== 'string' || !s.path.startsWith('/') || s.path.startsWith('//') || s.path.length > 500) throw new ApiError('SCENARIO_STEP_INVALID', `${label} ${i + 1}`);
       if (s.json !== undefined && s.multipart !== undefined) throw new ApiError('SCENARIO_STEP_INVALID', `${label} ${i + 1}: json or multipart, not both`);
-      return { id: String(s.id || `${label}-${i + 1}`).slice(0, 80), method: s.method, path: s.path, json: s.json, multipart: s.multipart,
+      let until = null;
+      if (s.until !== undefined) {
+        if (s.method !== 'GET' || typeof s.until?.path !== 'string' || !Array.isArray(s.until.in) || !s.until.in.length || s.until.in.length > 20) throw new ApiError('SCENARIO_STEP_INVALID', `${label} ${i + 1}: until needs a GET, a path and values`);
+        until = { path: s.until.path, in: s.until.in.map(String), success: (Array.isArray(s.until.success) && s.until.success.length ? s.until.success : s.until.in).map(String), timeout_ms: Math.min(Math.max(Number(s.until.timeout_ms) || 120000, 1000), 600000),
+          interval_ms: Math.min(Math.max(Number(s.until.interval_ms) || 2000, 500), 30000) };
+      }
+      return { id: String(s.id || `${label}-${i + 1}`).slice(0, 80), method: s.method, path: s.path, json: s.json, multipart: s.multipart, until,
         expect: Array.isArray(s.expect) ? s.expect.map(Number) : null, extract: s.extract && typeof s.extract === 'object' ? s.extract : {} };
     });
   };
@@ -201,13 +207,24 @@ export async function exploreApi({ baseUrl, credential = null, endpoints = [], s
     const results = [];
     for (const step of steps) {
       if (!budget()) { results.push({ id: step.id, state: 'SKIPPED_BUDGET' }); continue; }
-      const { record, body } = await call(step.method, substitute(step.path, vars), `scenario:${scenario.name}`, { json: substitute(step.json, vars), multipart: substitute(step.multipart, vars) });
-      const ok = record.error === null && (step.expect ? step.expect.includes(record.status) : record.status < 400);
+      let { record, body } = await call(step.method, substitute(step.path, vars), `scenario:${scenario.name}`, { json: substitute(step.json, vars), multipart: substitute(step.multipart, vars) });
+      // A polling step repeats its GET until the field at until.path holds one of until.in, or its timeout passes.
+      let reached = null;
+      if (step.until) {
+        const deadline = Date.now() + step.until.timeout_ms;
+        while (!step.until.in.includes(String(pick(body, step.until.path))) && Date.now() < deadline && budget()) {
+          await new Promise((r) => setTimeout(r, step.until.interval_ms));
+          ({ record, body } = await call(step.method, substitute(step.path, vars), `scenario:${scenario.name}`));
+        }
+        reached = pick(body, step.until.path) ?? null;
+      }
+      const ok = record.error === null && (step.expect ? step.expect.includes(record.status) : record.status < 400) && (!step.until || step.until.success.includes(String(reached)));
       for (const [name, path] of Object.entries(step.extract)) {
         const value = pick(body, path);
         if (value !== undefined && value !== null && typeof value !== 'object') vars[name] = value;
       }
-      results.push({ id: step.id, kind, method: step.method, path: record.path, status: record.status, state: ok ? 'PASSED' : 'FAILED', error: record.error });
+      results.push({ id: step.id, kind, method: step.method, path: record.path, status: record.status, state: ok ? 'PASSED' : 'FAILED', error: record.error,
+        ...(step.until ? { reached: reached === null ? null : String(reached).slice(0, 120) } : {}) });
     }
     return results;
   };

@@ -124,14 +124,17 @@ def explore_api(args):
     if spec is None:
         sys.exit(f'No launch recipe named {args.recipe!r}.')
     distribution = open(args.distribution, 'rb').read()
+    # The recipe's other distributions are read from /tmp/distribution-<id>.tar.gz (live-test.sh copies DIST_<ID> there).
+    extra = {item['id']: open(f"/tmp/distribution-{item['id']}.tar.gz", 'rb').read()
+             for item in next(r for r in exploration.recipes() if r['id'] == args.recipe)['distributions'] if not item.get('primary')}
     with sessions() as db:
         app, run = application(db, args.application)
         person = human(db, args.username)
         job = exploration.create(db, dict(tenant_id=app.tenant_id, id=person.id), app.id, run.id, distribution, spec,
-                                 dict(mode=args.mode, max_requests=args.max_requests, passes=args.passes, artifact_name=args.distribution.rsplit('/', 1)[-1], scenario_source='RECIPE'))
+                                 dict(mode=args.mode, max_requests=args.max_requests, passes=args.passes, artifact_name=args.distribution.rsplit('/', 1)[-1], scenario_source='RECIPE'), extra)
         job_id = job.id
     print(f'  INFO API exploration {job_id} started with recipe {args.recipe} on analysis {run.id[:8]}')
-    exploration.run(sessions, settings, job_id, distribution, spec)
+    exploration.run(sessions, settings, job_id, distribution, spec, None, extra)
     with sessions() as db:
         from app.automation.models import AutomationJob
         document = db.get(AutomationJob, job_id).document

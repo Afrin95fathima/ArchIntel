@@ -64,6 +64,7 @@ it('reports where a failed exploration stopped and why', async () => {
 });
 
 const recipe = { id: 'concord-server', title: 'Walmart Concord server', description: 'Starts the server on a fresh PostgreSQL.', distribution_hint: 'server/dist/target/*.tar.gz',
+  distributions: [{ id: 'server', primary: true, title: 'Concord server distribution', hint: 'server/dist/target/*.tar.gz' }, { id: 'agent', title: 'Concord agent distribution', hint: 'agent/target/*.tar.gz' }],
   mode: 'STANDARD', passes: 1, dependencies: ['postgres:14.21-alpine'], scenarios: [{ name: 'Organization lifecycle', description: '', steps: 25, cleanup: 12 }] };
 const apiSteps = ['CHECK_RUNNER', 'CREATE_SESSION', 'UPLOAD_DISTRIBUTION', 'START_APPLICATION', 'EXPLORE_API', 'STOP_APPLICATION', 'COMPLETE_SESSION'];
 const apiDone = { id: 'j3', state: 'COMPLETED', created_at: '2026-10-23T10:00:00Z', method: 'API', recipe: { id: 'concord-server', title: 'Concord', name: 'concord-server' },
@@ -98,7 +99,9 @@ it('starts an API exploration with a launch recipe, a distribution and an option
   expect(screen.getByText(/Organization lifecycle \(25 steps, 12 cleanup\)/)).toBeTruthy();
   const start = screen.getByRole('button', { name: 'Start API exploration' }) as HTMLButtonElement;
   expect(start.disabled).toBe(true);
-  fireEvent.change(screen.getByLabelText('Application distribution'), { target: { files: [new File(['x'], 'concord-server-2.46.0-dist.tar.gz')] } });
+  fireEvent.change(screen.getByLabelText('Concord server distribution'), { target: { files: [new File(['x'], 'concord-server-2.46.0-dist.tar.gz')] } });
+  expect(start.disabled).toBe(true);                                   // the agent distribution is still missing
+  fireEvent.change(screen.getByLabelText('Concord agent distribution'), { target: { files: [new File(['y'], 'concord-agent-2.46.0-dist.tar.gz')] } });
   fireEvent.change(screen.getByLabelText('Scenario file'), { target: { files: [new File(['{}'], 'mine.json')] } });
   fireEvent.change(screen.getByLabelText('API instrumentation depth'), { target: { value: 'DEEP' } });
   fireEvent.change(screen.getByLabelText('Coverage passes'), { target: { value: '3' } });
@@ -107,6 +110,7 @@ it('starts an API exploration with a launch recipe, a distribution and an option
   await waitFor(() => expect(posts).toHaveLength(1));
   expect([posts[0].get('analysis_id'), posts[0].get('recipe_id'), posts[0].get('mode'), posts[0].get('max_requests'), posts[0].get('passes')]).toEqual(['r1', 'concord-server', 'DEEP', '0', '3']);
   expect((posts[0].get('scenario_file') as File).name).toBe('mine.json');
+  expect([(posts[0].get('file') as File).name, (posts[0].get('file_agent') as File).name]).toEqual(['concord-server-2.46.0-dist.tar.gz', 'concord-agent-2.46.0-dist.tar.gz']);
 });
 
 it('shows the API result: routes, scenario steps, coverage and what was not called', async () => {

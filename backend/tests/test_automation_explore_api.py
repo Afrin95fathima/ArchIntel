@@ -1,6 +1,7 @@
 """API exploration with a launch recipe: the job drives a (fake) runner that starts a distribution, sends real OTLP spans back,
 and ends with an ordinary completed session; the routes check the distribution, the recipe and the scenario file."""
 import gzip
+import hashlib
 import json
 import httpx
 from app.automation import explore_api
@@ -26,11 +27,11 @@ class FakeRunner:
             return httpx.Response(201, json=dict(sha256=path.rsplit('/', 1)[1], bytes=len(request.content), reused=False))
         if path == '/v1/recipe-runs':
             body = json.loads(request.content)
-            self.otel, self.recipe = body['otel'], body['recipe']
+            self.otel, self.recipe, self.distributions = body['otel'], body['recipe'], body['distributions']
             if self.fail_start:
                 return httpx.Response(409, json=dict(error='APP_EXITED', detail='exit 1\nCould not connect to the database'))
             return httpx.Response(201, json=dict(id='11111111-2222-3333-4444-555555555555', base_url='http://127.0.0.1:18080', port=18080,
-                                                 dependencies=[dict(name='db', port=15430)], credential=True))
+                                                 dependencies=[dict(name='db', port=15430)], credential=True, companions=[dict(name='agent', running=True)]))
         if path == '/v1/explore-api':
             self.explore = json.loads(request.content)
             token = self.otel['headers'].split('Bearer ', 1)[1]
@@ -46,12 +47,15 @@ class FakeRunner:
         return httpx.Response(404, json=dict(error='NOT_FOUND'))
 
 
+AGENT = gzip.compress(b'tar bytes of the agent distribution')
+
+
 def run_job(client, fake, spec=None):
     spec = spec or explore_api.recipe('concord-server')
     with client.app.state.sessions() as db:
-        job = explore_api.create(db, dict(tenant_id='local', id='tester'), client.app_id, client.run_id, DIST, spec, dict(mode=None, max_requests=None))
+        job = explore_api.create(db, dict(tenant_id='local', id='tester'), client.app_id, client.run_id, DIST, spec, dict(mode=None, max_requests=None), dict(agent=AGENT))
         job_id = job.id
-    explore_api.run(client.app.state.sessions, client.app.state.config, job_id, DIST, spec, httpx.MockTransport(fake))
+    explore_api.run(client.app.state.sessions, client.app.state.config, job_id, DIST, spec, httpx.MockTransport(fake), dict(agent=AGENT))
     with client.app.state.sessions() as db:
         job = db.get(AutomationJob, job_id)
         session = db.get(RuntimeSession, job.document.get('session_id')) if job.document.get('session_id') else None
@@ -62,6 +66,7 @@ def test_built_in_recipes_are_listed_without_their_configuration():
     items = explore_api.recipes()
     concord = next(r for r in items if r['id'] == 'concord-server')
     assert concord['dependencies'] == ['postgres:14.21-alpine'] and concord['mode'] == 'DEEP' and concord['passes'] == 5
+    assert [(d['id'], d.get('primary', False)) for d in concord['distributions']] == [('server', True), ('agent', False)]
     assert concord['scenarios'][0]['steps'] >= 20 and concord['scenarios'][0]['cleanup'] >= 10
     assert 'config_files' not in json.dumps(items) and 'ADMIN_TOKEN' not in json.dumps(items)
 
@@ -72,9 +77,11 @@ def test_an_api_exploration_records_a_completed_session_scoped_by_the_recipe(liv
     assert state == 'COMPLETED', document.get('error')
     assert [s['state'] for s in document['steps']] == ['DONE'] * len(explore_api.steps_for(5))
     assert session['status'] == 'COMPLETED' and session['spans'] == 2
-    assert session['settings']['mode'] == 'DEEP' and 'com.walmartlabs.concord.agent' in session['settings']['exclude_packages']
+    assert session['settings']['mode'] == 'DEEP' and session['settings']['exclude_packages'] == ['com.walmartlabs.concord.cli']
     assert fake.recipe['name'] == 'concord-server' and fake.explore['skip_paths'] and fake.explore['scenarios'][0]['name'] == 'Organization lifecycle'
     assert fake.explore['max_requests'] == 800
+    assert fake.distributions == dict(agent=hashlib.sha256(AGENT).hexdigest()) and fake.recipe['companions'][0]['name'] == 'agent'
+    assert ('PUT', f'/v1/distributions/{hashlib.sha256(AGENT).hexdigest()}') in fake.calls and 'companion processes: agent' in next(s for s in document['steps'] if s['name'] == 'START_APPLICATION')['detail']
     assert document['exploration']['summary']['scenario_steps_passed'] == 1 and document['coverage']['spans'] == 2
     assert document['recipe']['name'] == 'concord-server' and document['method'] == 'API'
     assert ('DELETE', '/v1/apps/11111111-2222-3333-4444-555555555555') in fake.calls
@@ -93,22 +100,26 @@ def test_the_api_checks_the_recipe_the_distribution_and_the_scenario_file(live):
     base = f'/api/v1/applications/{live.app_id}/runtime-sessions'
     assert [r['id'] for r in live.get(base + '/recipes').json()['items']] == ['concord-server']
     url, form = base + '/explore-api', dict(analysis_id=live.run_id, recipe_id='concord-server')
-    assert live.post(url, data=dict(form, recipe_id='nope'), files=dict(file=('d.tar.gz', DIST))).status_code == 404
-    assert live.post(url, data=form, files=dict(file=('d.zip', DIST))).status_code == 422
-    assert live.post(url, data=form, files=dict(file=('d.tar.gz', b'not gzip'))).status_code == 422
-    assert live.post(url, data=dict(form, mode='EVERYTHING'), files=dict(file=('d.tar.gz', DIST))).status_code == 422
-    bad = live.post(url, data=form, files=dict(file=('d.tar.gz', DIST), scenario_file=('s.json', b'{"name": "x"}')))
+    both = dict(file=('d.tar.gz', DIST), file_agent=('agent.tar.gz', AGENT))
+    assert live.post(url, data=dict(form, recipe_id='nope'), files=both).status_code == 404
+    assert live.post(url, data=form, files=dict(both, file=('d.zip', DIST))).status_code == 422
+    assert live.post(url, data=form, files=dict(both, file=('d.tar.gz', b'not gzip'))).status_code == 422
+    assert live.post(url, data=dict(form, mode='EVERYTHING'), files=both).status_code == 422
+    missing = live.post(url, data=form, files=dict(file=('d.tar.gz', DIST)))
+    assert missing.status_code == 422 and 'Concord agent distribution' in missing.json()['detail']
+    assert live.post(url, data=form, files=dict(both, file_agent=('agent.tar.gz', b'not gzip'))).status_code == 422
+    bad = live.post(url, data=form, files=dict(both, scenario_file=('s.json', b'{"name": "x"}')))
     assert bad.status_code == 422 and 'steps' in bad.json()['detail']
-    assert live.post(url, data=form, files=dict(file=('d.tar.gz', DIST), scenario_file=('s.json', b'not json'))).status_code == 422
+    assert live.post(url, data=form, files=dict(both, scenario_file=('s.json', b'not json'))).status_code == 422
 
 
 def test_coverage_passes_trace_new_classes_each_time_and_stop_when_none_are_left(live):
     fake = FakeRunner(configured(live))
     spec = explore_api.recipe('concord-server')
     with live.app.state.sessions() as db:
-        job = explore_api.create(db, dict(tenant_id='local', id='tester'), live.app_id, live.run_id, DIST, spec, dict(passes=3))
+        job = explore_api.create(db, dict(tenant_id='local', id='tester'), live.app_id, live.run_id, DIST, spec, dict(passes=3), dict(agent=AGENT))
         job_id = job.id
-    explore_api.run(live.app.state.sessions, live.app.state.config, job_id, DIST, spec, httpx.MockTransport(fake))
+    explore_api.run(live.app.state.sessions, live.app.state.config, job_id, DIST, spec, httpx.MockTransport(fake), dict(agent=AGENT))
     with live.app.state.sessions() as db:
         document = dict(db.get(AutomationJob, job_id).document)
         sessions = [db.get(RuntimeSession, p['session_id']) for p in document['passes']]

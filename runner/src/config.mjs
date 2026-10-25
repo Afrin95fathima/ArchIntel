@@ -31,6 +31,9 @@ export const config = {
     : [process.execPath, join(root, 'node_modules', 'rea-agents', 'scripts', 'rea.mjs')],
   appPorts: [Number(process.env.RUNNER_APP_PORT_FROM || 18080), Number(process.env.RUNNER_APP_PORT_TO || 18099)],
   maxArtifactBytes: 200 * 1024 * 1024,
+  maxDistributionBytes: 512 * 1024 * 1024,
+  // Diagnosis only: keep recipe run folders (they contain generated secrets) after the run stops.
+  keepRunDirs: process.env.RUNNER_KEEP_RUN_DIRS === '1',
   // Dependency containers a launch recipe may start (image name prefixes) and the loopback ports they get.
   allowedImages: (process.env.RUNNER_ALLOWED_IMAGES || 'postgres:,library/postgres:').split(',').map((s) => s.trim()).filter(Boolean),
   dependencyPorts: [Number(process.env.RUNNER_DEP_PORT_FROM || 15430), Number(process.env.RUNNER_DEP_PORT_TO || 15469)],

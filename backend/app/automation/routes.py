@@ -2,6 +2,7 @@
 import json
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from sqlalchemy import select
+from starlette.datastructures import UploadFile as StarletteUpload
 from app.api import session, get
 from app.models import AnalysisRun, Application
 from . import explore, explore_api, jobs
@@ -62,6 +63,19 @@ def launch_recipes(app_id: str, db=Depends(session)):
     return dict(items=explore_api.recipes())
 
 
+async def _distribution(upload, label: str, limit: int) -> bytearray:
+    if not (upload.filename or '').lower().endswith(('.tar.gz', '.tgz')):
+        raise HTTPException(422, f'Upload the {label} as a .tar.gz file.')
+    content = bytearray()
+    while chunk := await upload.read(1024 * 1024):
+        content.extend(chunk)
+        if len(content) > limit:
+            raise HTTPException(413, f'The {label} exceeds the distribution upload limit.')
+    if content[:2] != b'\x1f\x8b':
+        raise HTTPException(422, f'The {label} is not a gzip-compressed tar archive.')
+    return content
+
+
 @router.post('/applications/{app_id}/runtime-sessions/explore-api', status_code=202)
 async def start_api_exploration(app_id: str, request: Request, file: UploadFile = File(...), analysis_id: str = Form(...), recipe_id: str = Form(...),
                                 scenario_file: UploadFile | None = File(None), mode: str = Form(''), max_requests: int = Form(0), passes: int = Form(0), db=Depends(session)):
@@ -74,16 +88,18 @@ async def start_api_exploration(app_id: str, request: Request, file: UploadFile 
         raise HTTPException(404, 'Unknown launch recipe.')
     if mode not in ('', 'BOUNDARY', 'STANDARD', 'DEEP') or not 0 <= max_requests <= 5000 or not 0 <= passes <= 6:
         raise HTTPException(422, 'Use mode BOUNDARY, STANDARD or DEEP, at most 5000 requests and at most 6 coverage passes.')
-    if not (file.filename or '').lower().endswith(('.tar.gz', '.tgz')):
-        raise HTTPException(422, 'Upload the application distribution as a .tar.gz file.')
-    limit = request.app.state.config.max_upload_mb * 1024 ** 2
-    content = bytearray()
-    while chunk := await file.read(1024 * 1024):
-        content.extend(chunk)
-        if len(content) > limit:
-            raise HTTPException(413, 'The distribution exceeds the upload limit.')
-    if content[:2] != b'\x1f\x8b':
-        raise HTTPException(422, 'The file is not a gzip-compressed tar archive.')
+    limit = request.app.state.config.max_distribution_mb * 1024 ** 2
+    content = await _distribution(file, 'application distribution', limit)
+    # The recipe's other distributions (for example a worker process) arrive as file_<id>.
+    form = await request.form()
+    extra = {}
+    for item in [d for d in explore_api.recipes() if d['id'] == recipe_id][0]['distributions']:
+        if item.get('primary'):
+            continue
+        upload = form.get('file_' + item['id'])
+        if not isinstance(upload, StarletteUpload) or not upload.filename:
+            raise HTTPException(422, f"This recipe also needs the {item['title']} ({item.get('hint') or item['id']}).")
+        extra[item['id']] = bytes(await _distribution(upload, item['title'], limit))
     if scenario_file is not None and scenario_file.filename:
         raw = await scenario_file.read(512 * 1024 + 1)
         if len(raw) > 512 * 1024:
@@ -103,8 +119,8 @@ async def start_api_exploration(app_id: str, request: Request, file: UploadFile 
         raise HTTPException(409, 'An exploration of this application is already running.')
     options = dict(mode=mode or None, max_requests=max_requests or None, passes=passes or None, artifact_name=file.filename[:200],
                    scenario_source='UPLOADED' if scenario_file is not None and scenario_file.filename else 'RECIPE')
-    job = explore_api.create(db, request.state.identity, app_id, analysis_id, bytes(content), spec, options)
-    jobs.spawn(job.id, explore_api.run, request.app.state.sessions, request.app.state.config, job.id, bytes(content), spec)
+    job = explore_api.create(db, request.state.identity, app_id, analysis_id, bytes(content), spec, options, extra)
+    jobs.spawn(job.id, explore_api.run, request.app.state.sessions, request.app.state.config, job.id, bytes(content), spec, None, extra)
     return jobs.view(job)
 
 

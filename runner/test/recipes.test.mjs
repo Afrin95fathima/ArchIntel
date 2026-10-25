@@ -118,3 +118,35 @@ test('scenario files are validated before anything is sent', () => {
   assert.throws(() => validateScenario({ name: 'x', steps: [{ method: 'POST', path: '/a', json: {}, multipart: {} }] }), (e) => e.code === 'SCENARIO_STEP_INVALID');
   assert.equal(validateScenario({ name: 'x', steps: [{ method: 'GET', path: '/a' }] }).steps[0].id, 'step-1');
 });
+
+test('companion processes need their own distribution and the same JVM rules; extra ports are named variables', async () => {
+  const companion = { name: 'agent', distribution: 'agent', main_class: 'com.example.agent.Main', classpath: ['lib/*'], jvm_args: ['-Xmx256m'], ready_log: 'started' };
+  const recipe = validateRecipe({ ...RECIPE, ports: ['AGENT_PORT'], companions: [companion] });
+  assert.equal(recipe.companions[0].ready_timeout_ms, 120000);
+  assert.deepEqual(recipe.ports, ['AGENT_PORT']);
+  const reject = (change, code) => assert.throws(() => validateRecipe({ ...RECIPE, ...change }), (e) => e.code === code);
+  reject({ companions: [{ ...companion, jvm_args: ['-javaagent:/tmp/x.jar'] }] }, 'RECIPE_JVM_ARGS_INVALID');
+  reject({ companions: [{ ...companion, classpath: ['../../etc'] }] }, 'RECIPE_CLASSPATH_INVALID');
+  reject({ companions: [{ ...companion, distribution: 'Not Valid' }] }, 'RECIPE_COMPANION_INVALID');
+  reject({ companions: [companion, companion] }, 'RECIPE_COMPANION_INVALID');
+  reject({ ports: ['PORT'] }, 'RECIPE_PORTS_INVALID');
+  const { startRecipe, redact } = await import('../src/apps.mjs');
+  await assert.rejects(startRecipe({ distribution_sha256: 'a'.repeat(64), recipe: { ...RECIPE, companions: [companion] } }),
+    (e) => ['DISTRIBUTION_NOT_UPLOADED', 'COMPANION_DISTRIBUTION_MISSING'].includes(e.code));
+  assert.equal(redact('API token created: c2VjcmV0LXRva2VuLXZhbHVl and again c2VjcmV0LXRva2VuLXZhbHVl', ['c2VjcmV0LXRva2VuLXZhbHVl']),
+    'API token created: [generated secret] and again [generated secret]');
+});
+
+test('a polling step repeats its GET until a final value and passes only on a success value', async () => {
+  let calls = 0;
+  const fetcher = async () => {
+    calls += 1;
+    const status = calls < 3 ? 'RUNNING' : 'FAILED';
+    return { status: 200, headers: new Headers({ 'content-type': 'application/json' }), text: async () => JSON.stringify({ status }) };
+  };
+  const scenario = { name: 'wait', steps: [{ id: 'wait', method: 'GET', path: '/p/1', until: { path: 'status', in: ['FINISHED', 'FAILED'], success: ['FINISHED'], interval_ms: 500, timeout_ms: 10000 } }] };
+  const result = await exploreApi({ baseUrl: 'http://app.test', scenarios: [scenario] }, fetcher);
+  assert.equal(calls, 3);
+  assert.deepEqual([result.scenarios[0].steps[0].state, result.scenarios[0].steps[0].reached], ['FAILED', 'FAILED']);
+  assert.throws(() => validateScenario({ name: 'x', steps: [{ method: 'POST', path: '/a', until: { path: 's', in: ['A'] } }] }), (e) => e.code === 'SCENARIO_STEP_INVALID');
+});

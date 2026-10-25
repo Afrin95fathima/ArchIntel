@@ -58,9 +58,10 @@ class Runner:
     def upload_distribution(self, sha256: str, content: bytes):
         return self._call('PUT', f'/v1/distributions/{sha256}', content=content, timeout=600)
 
-    def start_recipe(self, distribution_sha256: str, recipe: dict, otel: dict | None):
-        # Dependencies are pulled and started first; a first database migration can take minutes.
-        return self._call('POST', '/v1/recipe-runs', json=dict(distribution_sha256=distribution_sha256, recipe=recipe, otel=otel), timeout=960)
+    def start_recipe(self, distribution_sha256: str, recipe: dict, otel: dict | None, distributions: dict[str, str] | None = None):
+        # Dependencies are pulled and started first; a first database migration can take minutes. `distributions` maps each
+        # companion process's distribution id to its uploaded sha256.
+        return self._call('POST', '/v1/recipe-runs', json=dict(distribution_sha256=distribution_sha256, distributions=distributions or {}, recipe=recipe, otel=otel), timeout=960)
 
     def explore_api(self, run_id: str, endpoints: list[dict], scenarios: list[dict], skip_paths: list[str], max_requests: int):
         return self._call('POST', '/v1/explore-api', json=dict(run_id=run_id, endpoints=endpoints, scenarios=scenarios, skip_paths=skip_paths,

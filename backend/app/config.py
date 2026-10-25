@@ -64,6 +64,8 @@ class Settings(BaseSettings):
         return value
     external_prefixes: list[str] = ['java.', 'javax.', 'jakarta.', 'org.springframework.', 'org.hibernate.', 'org.slf4j.', 'com.fasterxml.', 'kotlin.']
     max_upload_mb: int = 100
+    # Application distributions for API exploration (a server or agent .tar.gz with all libraries) are larger than analysis uploads.
+    max_distribution_mb: int = 400
     max_expanded_mb: int = 400
     max_archive_entries: int = 50000
     max_classes: int = 20000
