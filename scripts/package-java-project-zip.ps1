@@ -17,6 +17,11 @@ $files = Get-ChildItem -LiteralPath $root -Recurse -File -Filter '*.class' -Erro
   $_.FullName -notmatch '[\\/](\.git|node_modules|\.m2|deps|dependencies|\.gradle)[\\/]'
 }
 if (-not $files) { throw 'No compiled Java classes found. Build the application first, then run this script again.' }
+# Build descriptors let ArchIntel resolve dependency versions (parent poms and imported BOMs inside the bundle).
+$descriptors = Get-ChildItem -LiteralPath $root -Recurse -File -Include 'pom.xml','build.gradle','build.gradle.kts','settings.gradle','settings.gradle.kts' -ErrorAction Stop | Where-Object {
+  $_.FullName -notmatch '[\\/](target|build|\.git|node_modules|\.m2|\.gradle)[\\/]'
+}
+$files = @($files) + @($descriptors)
 if (Test-Path -LiteralPath $output) { throw 'Output ZIP already exists. Choose a new output path so an existing file is preserved.' }
 $outputDirectory = Split-Path -Parent $output
 New-Item -ItemType Directory -Force -Path $outputDirectory | Out-Null
@@ -33,4 +38,4 @@ if ($size -gt ($MaxUploadMB * 1MB)) {
   throw "ZIP is $([math]::Round($size/1MB,1)) MiB, above ArchIntel's $MaxUploadMB MiB upload limit. Package fewer modules or raise the configured upload limit."
 }
 Write-Output "Created compiled Java project bundle: $output"
-Write-Output "Included $($files.Count) class files; compressed size $([math]::Round($size/1MB,1)) MiB."
+Write-Output "Included $($files.Count - @($descriptors).Count) class files and $(@($descriptors).Count) build descriptors; compressed size $([math]::Round($size/1MB,1)) MiB."

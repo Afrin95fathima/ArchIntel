@@ -137,6 +137,8 @@ class Settings(BaseSettings):
     scanner_engine: str = 'jqassistant'
     bytecode_facts_enabled: bool = True
     bytecode_facts_max_bytes: int = 48 * 1024 * 1024
+    # Leave classes produced by code generators (Immutables, jOOQ, OpenAPI clients) out of the graph; see app/insight/generated.py.
+    exclude_generated_code: bool = True
     # Source store for the assistant and AI explanation steps. DENY disables storage entirely.
     source_store_mode: str = 'ALLOW'
     source_store_max_bytes_per_class: int = 65536
