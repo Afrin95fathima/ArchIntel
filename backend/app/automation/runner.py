@@ -55,6 +55,17 @@ class Runner:
     def explore(self, run_id: str, seeds: list[str], max_pages: int, max_forms: int):
         return self._call('POST', '/v1/explore', json=dict(run_id=run_id, seeds=seeds, max_pages=max_pages, max_forms=max_forms))
 
+    def upload_distribution(self, sha256: str, content: bytes):
+        return self._call('PUT', f'/v1/distributions/{sha256}', content=content, timeout=600)
+
+    def start_recipe(self, distribution_sha256: str, recipe: dict, otel: dict | None):
+        # Dependencies are pulled and started first; a first database migration can take minutes.
+        return self._call('POST', '/v1/recipe-runs', json=dict(distribution_sha256=distribution_sha256, recipe=recipe, otel=otel), timeout=960)
+
+    def explore_api(self, run_id: str, endpoints: list[dict], scenarios: list[dict], skip_paths: list[str], max_requests: int):
+        return self._call('POST', '/v1/explore-api', json=dict(run_id=run_id, endpoints=endpoints, scenarios=scenarios, skip_paths=skip_paths,
+                                                              max_requests=max_requests), timeout=3700)
+
     def build_service(self, name: str, files: list[dict]):
         return self._call('POST', '/v1/services', json=dict(name=name, files=files))
 

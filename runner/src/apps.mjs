@@ -6,6 +6,7 @@ import { mkdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:net';
 import { join } from 'node:path';
 import { config } from './config.mjs';
+import { distributionDir, generateSecrets, interpolate, startDependencies, stopDependencies, validateRecipe } from './recipes.mjs';
 
 export class AppError extends Error {
   constructor(code, detail) { super(code); this.code = code; this.detail = detail; }
@@ -66,12 +67,12 @@ export function otelEnvironment(otel) {
   return env;
 }
 
-async function waitReady(run, timeoutMs) {
+async function waitReady(run, timeoutMs, path = '/') {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     if (run.exit !== null) throw new AppError('APP_EXITED', `exit ${run.exit}`);
     try {
-      const response = await fetch(run.base_url + '/', { redirect: 'manual', signal: AbortSignal.timeout(3000) });
+      const response = await fetch(run.base_url + path, { redirect: 'manual', signal: AbortSignal.timeout(3000) });
       if (response.status < 500) return;
     } catch { /* not up yet */ }
     await new Promise((r) => setTimeout(r, 1000));
@@ -102,15 +103,62 @@ export async function start({ artifact_sha256, otel = null, profile = null, read
   return view(run);
 }
 
+/**
+ * Start a distribution with a launch recipe: dependency containers first, then `java -cp <distribution classpath> <main class>`
+ * with the OpenTelemetry agent. Generated secrets and the credential stay in this process; the view only says one exists.
+ */
+export async function startRecipe({ distribution_sha256, recipe: input, otel = null }) {
+  const recipe = validateRecipe(input);
+  const home = distributionDir(distribution_sha256);
+  if (!config.javaPath) throw new AppError('JAVA_UNAVAILABLE');
+  if (otel && !config.otelAgentJar) throw new AppError('OTEL_AGENT_UNAVAILABLE');
+  const port = await pickPort();
+  const id = randomUUID();
+  const dir = join(config.workDir, 'runs', id);
+  await mkdir(dir, { recursive: true });
+  const variables = { PORT: port, HOST: '127.0.0.1', RUN_DIR: dir, DIST_DIR: home, ...generateSecrets(recipe.generated_secrets) };
+  const run = { id, port, base_url: `http://127.0.0.1:${port}`, artifact_sha256: distribution_sha256, recipe: recipe.name, otel: !!otel,
+    started_at: new Date().toISOString(), exit: null, child: null, dir, dependencies: [], credential: null };
+  runs.set(id, run);
+  try {
+    const used = new Set([...runs.values()].flatMap((r) => (r.dependencies || []).map((d) => d.port)));
+    run.dependencies = await startDependencies(id, recipe.dependencies, variables, used);
+    const files = {};
+    for (const file of recipe.config_files) files[file.name] = join(dir, file.name);
+    for (const file of recipe.config_files) await writeFile(files[file.name], interpolate(file.content, variables, files), { mode: 0o600 });
+    const properties = Object.entries(recipe.system_properties).map(([k, v]) => `-D${k}=${interpolate(v, variables, files)}`);
+    const classpath = recipe.classpath.map((entry) => join(home, entry)).join(':');
+    const args = [...recipe.jvm_args.map((a) => interpolate(a, variables, files)), ...(otel ? [`-javaagent:${config.otelAgentJar}`] : []), ...properties,
+      '-cp', classpath, recipe.main_class, ...recipe.args.map((a) => interpolate(a, variables, files))];
+    const env = Object.fromEntries(Object.entries(recipe.env).map(([k, v]) => [k, interpolate(v, variables, files)]));
+    const log = createWriteStream(join(dir, 'app.log'));
+    const child = spawn(config.javaPath, args, { cwd: dir, env: { PATH: process.env.PATH, HOME: process.env.HOME, ...env, ...otelEnvironment(otel) }, stdio: ['ignore', 'pipe', 'pipe'] });
+    child.stdout.pipe(log); child.stderr.pipe(log);
+    run.child = child;
+    child.on('exit', (code, signal) => { run.exit = code ?? signal; });
+    if (recipe.credential) run.credential = { header: recipe.credential.header, value: interpolate(recipe.credential.value, variables, files) };
+    await waitReady(run, recipe.ready.timeout_ms, recipe.ready.path);
+  } catch (error) {
+    if (run.child) {
+      const tail = await logTail(id, 3000).then((r) => r.text, () => '');
+      error.detail = `${error.detail ? error.detail + '\n' : ''}${tail}`;
+    }
+    await stop(id);
+    throw error;
+  }
+  return view(run);
+}
+
 export async function stop(id) {
   const run = runs.get(id);
   if (!run) throw new AppError('RUN_NOT_FOUND');
-  if (run.exit === null) {
+  if (run.child && run.exit === null) {
     run.child.kill('SIGTERM');                              // lets the OpenTelemetry agent flush its last spans
     const deadline = Date.now() + 15000;
     while (run.exit === null && Date.now() < deadline) await new Promise((r) => setTimeout(r, 200));
     if (run.exit === null) run.child.kill('SIGKILL');
   }
+  await stopDependencies(run.dependencies);
   runs.delete(id);
   return { id, stopped: true, exit: run.exit };
 }
@@ -124,7 +172,10 @@ export async function logTail(id, bytes = 8000) {
   return { id, text };
 }
 
-export function view(run) { return { id: run.id, base_url: run.base_url, port: run.port, artifact_sha256: run.artifact_sha256, otel: run.otel, started_at: run.started_at, running: run.exit === null }; }
+export function view(run) {
+  return { id: run.id, base_url: run.base_url, port: run.port, artifact_sha256: run.artifact_sha256, otel: run.otel, started_at: run.started_at, running: run.exit === null,
+    recipe: run.recipe || null, dependencies: (run.dependencies || []).map((d) => ({ name: d.name, port: d.port })), credential: !!run.credential };
+}
 export function list() { return [...runs.values()].map(view); }
 export function get(id) { const r = runs.get(id); if (!r) throw new AppError('RUN_NOT_FOUND'); return r; }
 export async function stopAll() { for (const id of [...runs.keys()]) await stop(id).catch(() => {}); }

@@ -7,7 +7,7 @@ from app.models import AnalysisRun,now
 from app.runtime.models import RuntimeSession,RuntimeEvent
 from app.services.runtime import session_service as service
 from app.services.runtime.mapping import method_descriptor
-from app.services.runtime.instrumentation import build_plan
+from app.services.runtime.instrumentation import build_plan, MAX_BYTES, MAX_CLASSES
 from app.services.runtime.graph_builder import build
 from app.services.runtime.coverage import calculate
 from test_runtime import live,baseline,span,payload,events,create
@@ -51,10 +51,30 @@ def test_plan_scope_boundaries_exclusions_annotations_and_limits():
     assert build_plan(dict(static,classes=list(reversed(static['classes']))),settings)==plan
     assert not build_plan(static,dict(settings,include_packages=['app.ab']))['classes']
     assert not build_plan(static,dict(settings,exclude_packages=['app.a']))['classes']
-    many=dict(static,classes=[dict(static['classes'][0],id='app.a.Class'+str(i)) for i in range(250)])
+    many=dict(static,classes=[dict(static['classes'][0],id='app.a.Class'+str(i)) for i in range(MAX_CLASSES+50)])
     bounded=build_plan(many,settings)
-    assert len(bounded['classes'])==200 and bounded['omissions']['PLAN_BUDGET']==50
-    assert bounded['encoded_bytes']<=24000
+    assert len(bounded['classes'])==MAX_CLASSES and bounded['omissions']['PLAN_BUDGET']==50
+    assert bounded['encoded_bytes']<=MAX_BYTES
+
+
+def test_a_later_coverage_pass_skips_classes_an_earlier_pass_traced():
+    static=baseline()
+    for c in static['classes']:c['methods']=[{'name':'work','signature':'void work()','annotations':[]}]
+    first=build_plan(static,{'mode':'DEEP'})
+    second=build_plan(static,{'mode':'DEEP','exclude_classes':[first['classes'][0]['class_name']]})
+    assert first['classes'][0]['class_name'] not in {c['class_name'] for c in second['classes']}
+    assert second['omissions']['TRACED_IN_EARLIER_PASS']==1 and len(second['classes'])==len(first['classes'])-1
+
+
+def test_plan_budget_goes_to_entry_points_and_components_before_alphabetical_order():
+    static=baseline()
+    plain=[dict(id=f'app.a.Aaa{i:03}',annotations=[],methods=[{'name':'work','signature':'void work()','annotations':[]}],metrics={'fan_in':0,'fan_out':0}) for i in range(MAX_CLASSES)]
+    resource=dict(id='app.z.ZResource',annotations=[],methods=[{'name':'list','signature':'java.util.List list()','annotations':['javax.ws.rs.GET']}],metrics={})
+    component=dict(id='app.z.ZDao',annotations=['javax.inject.Named'],methods=[{'name':'find','signature':'void find()','annotations':[]}],metrics={})
+    plan=build_plan(dict(static,classes=plain+[resource,component]),{'mode':'DEEP'})
+    chosen={c['class_name']:c['reason'] for c in plan['classes']}
+    assert chosen['app.z.ZResource']=='Annotated entry point' and chosen['app.z.ZDao']=='Annotated application boundary'
+    assert len(plan['classes'])==MAX_CLASSES and plan['omissions']['PLAN_BUDGET']==2
 
 
 def test_jax_rs_entry_points_are_counted_and_selected_for_instrumentation():

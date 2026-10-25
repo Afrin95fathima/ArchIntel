@@ -13,6 +13,16 @@ class SessionInput(BaseModel):
     exclude_packages: list[str] = Field(default_factory=list, max_length=30)
     binding_mode: Literal['COMPATIBLE','STRICT'] = 'COMPATIBLE'
     service_name: str | None = Field(default=None, min_length=1, max_length=120, pattern=r'^[A-Za-z0-9_.-]+$')
+    # Classes an earlier coverage pass already traced; the plan spends its budget on the rest.
+    exclude_classes: list[str] = Field(default_factory=list, max_length=10000)
+
+    @field_validator('exclude_classes')
+    @classmethod
+    def class_names(cls,values):
+        import re
+        if any(not re.fullmatch(r'[A-Za-z_$][A-Za-z0-9_$]*(?:\.[A-Za-z_$][A-Za-z0-9_$]*)+',v) for v in values):
+            raise ValueError('Use fully qualified Java class names.')
+        return sorted(set(values))
 
     @field_validator('include_packages','exclude_packages')
     @classmethod

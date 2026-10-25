@@ -206,6 +206,19 @@ Dynamic analysis receives OpenTelemetry traces from a running Java application. 
 
 The session list displays name/environment, state, agent status, received trace/span counts, and dropped telemetry. **Start** opens ingestion for a created session; **Stop** closes it; **New token** rotates the credential, invalidating the previous one. Select sessions to combine evidence only when they share the same static baseline.
 
+### Explore automatically
+
+Instead of exercising the application yourself, the **Explore automatically** panel lets ArchIntel's host-side runner (`scripts/runner-start.sh`) start the application with the OpenTelemetry agent and drive it. Both methods produce an ordinary runtime session.
+
+| Method | Input | What the runner does |
+|---|---|---|
+| Web pages (runnable JAR or WAR) | A runnable archive, page and form limits, instrumentation depth, and the disposable-data confirmation. | Starts `java -jar`, and REA visits linked pages and submits forms with synthetic values. Password forms and delete/logout links are skipped. |
+| REST API (distribution with a launch recipe) | A launch recipe (for example *Walmart Concord server*), the application distribution (`.tar.gz`), an optional scenario file (JSON), instrumentation depth, coverage passes and a request budget. | Starts the recipe's dependency containers (a fresh PostgreSQL for Concord) and the application from its classpath with a generated credential, calls every GET route of the static analysis with path variables filled from earlier responses, runs the scenario files (create, read, then clean up), stops everything and removes the containers. |
+
+**Coverage passes.** The instrumentation plan traces at most 400 classes per run, chosen by priority: entry points first, then components (`@Named`, `@Singleton`, Spring stereotypes), then the most coupled classes. With several passes the application is restarted and each pass traces classes no earlier pass traced; the job then shows the combined coverage and lists one session per pass. Select those sessions together to inspect the combined evidence. For Concord 2.46.0, four passes observed 566 classes, 1,442 methods and 92 entry points.
+
+The result lists the scenario steps with their status codes, every request with its route template, routes that were not called because no value was seen for a path variable, and routes the recipe skips (long-polling endpoints such as `waitForCompletion`). Recipes and the scenario format are described in [LAUNCH-RECIPES.md](LAUNCH-RECIPES.md).
+
 ### Runtime result tabs
 
 | Tab | What it shows and controls |

@@ -1,9 +1,10 @@
 """Exploration endpoints. Paths sit under /runtime-sessions so the RUNTIME_READ/RUNTIME_WRITE permissions apply."""
+import json
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from sqlalchemy import select
 from app.api import session, get
 from app.models import AnalysisRun, Application
-from . import explore, jobs
+from . import explore, explore_api, jobs
 from .models import AutomationJob
 from .runner import Runner, RunnerError
 
@@ -52,6 +53,58 @@ async def start_exploration(app_id: str, request: Request, file: UploadFile = Fi
     job = explore.create(db, request.state.identity, app_id, analysis_id, bytes(content),
                          dict(max_pages=max_pages, max_forms=max_forms, mode=mode, artifact_name=file.filename[:200]))
     jobs.spawn(job.id, explore.run, request.app.state.sessions, request.app.state.config, job.id, bytes(content))
+    return jobs.view(job)
+
+
+@router.get('/applications/{app_id}/runtime-sessions/recipes')
+def launch_recipes(app_id: str, db=Depends(session)):
+    get(db, Application, app_id)
+    return dict(items=explore_api.recipes())
+
+
+@router.post('/applications/{app_id}/runtime-sessions/explore-api', status_code=202)
+async def start_api_exploration(app_id: str, request: Request, file: UploadFile = File(...), analysis_id: str = Form(...), recipe_id: str = Form(...),
+                                scenario_file: UploadFile | None = File(None), mode: str = Form(''), max_requests: int = Form(0), passes: int = Form(0), db=Depends(session)):
+    get(db, Application, app_id)
+    run = get(db, AnalysisRun, analysis_id)
+    if run.application_id != app_id or run.status != 'COMPLETED' or not run.result:
+        raise HTTPException(409, 'Choose a completed static analysis of this application.')
+    spec = explore_api.recipe(recipe_id)
+    if spec is None:
+        raise HTTPException(404, 'Unknown launch recipe.')
+    if mode not in ('', 'BOUNDARY', 'STANDARD', 'DEEP') or not 0 <= max_requests <= 5000 or not 0 <= passes <= 6:
+        raise HTTPException(422, 'Use mode BOUNDARY, STANDARD or DEEP, at most 5000 requests and at most 6 coverage passes.')
+    if not (file.filename or '').lower().endswith(('.tar.gz', '.tgz')):
+        raise HTTPException(422, 'Upload the application distribution as a .tar.gz file.')
+    limit = request.app.state.config.max_upload_mb * 1024 ** 2
+    content = bytearray()
+    while chunk := await file.read(1024 * 1024):
+        content.extend(chunk)
+        if len(content) > limit:
+            raise HTTPException(413, 'The distribution exceeds the upload limit.')
+    if content[:2] != b'\x1f\x8b':
+        raise HTTPException(422, 'The file is not a gzip-compressed tar archive.')
+    if scenario_file is not None and scenario_file.filename:
+        raw = await scenario_file.read(512 * 1024 + 1)
+        if len(raw) > 512 * 1024:
+            raise HTTPException(413, 'The scenario file exceeds 512 KiB.')
+        try:
+            uploaded = json.loads(raw)
+        except ValueError:
+            raise HTTPException(422, 'The scenario file is not valid JSON.') from None
+        scenarios = uploaded if isinstance(uploaded, list) else uploaded.get('scenarios') if isinstance(uploaded, dict) and 'scenarios' in uploaded else [uploaded]
+        if not isinstance(scenarios, list) or not all(isinstance(s, dict) and isinstance(s.get('name'), str) and isinstance(s.get('steps'), list) for s in scenarios):
+            raise HTTPException(422, 'A scenario needs a name and a list of steps.')
+        spec = dict(spec, scenarios=scenarios)
+    if not Runner(request.app.state.config).configured:
+        raise HTTPException(503, 'The runner is not configured: set RUNNER_TOKEN for ArchIntel and start the runner.')
+    running = db.scalar(select(AutomationJob).where(AutomationJob.application_id == app_id, AutomationJob.kind == 'EXPLORE', AutomationJob.state.in_(['QUEUED', 'RUNNING'])))
+    if running:
+        raise HTTPException(409, 'An exploration of this application is already running.')
+    options = dict(mode=mode or None, max_requests=max_requests or None, passes=passes or None, artifact_name=file.filename[:200],
+                   scenario_source='UPLOADED' if scenario_file is not None and scenario_file.filename else 'RECIPE')
+    job = explore_api.create(db, request.state.identity, app_id, analysis_id, bytes(content), spec, options)
+    jobs.spawn(job.id, explore_api.run, request.app.state.sessions, request.app.state.config, job.id, bytes(content), spec)
     return jobs.view(job)
 
 
