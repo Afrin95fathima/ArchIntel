@@ -120,14 +120,17 @@ export function validateScenario(scenario) {
     if (!Array.isArray(steps) || steps.length > 100) throw new ApiError('SCENARIO_INVALID', label);
     return steps.map((s, i) => {
       if (!METHODS.has(s?.method) || typeof s.path !== 'string' || !s.path.startsWith('/') || s.path.startsWith('//') || s.path.length > 500) throw new ApiError('SCENARIO_STEP_INVALID', `${label} ${i + 1}`);
-      if (s.json !== undefined && s.multipart !== undefined) throw new ApiError('SCENARIO_STEP_INVALID', `${label} ${i + 1}: json or multipart, not both`);
+      if ([s.json, s.multipart, s.text].filter((b) => b !== undefined).length > 1) throw new ApiError('SCENARIO_STEP_INVALID', `${label} ${i + 1}: one of json, multipart or text`);
+      if (s.text !== undefined && (typeof s.text !== 'string' || s.text.length > 100000)) throw new ApiError('SCENARIO_STEP_INVALID', `${label} ${i + 1}: text must be a string`);
       let until = null;
       if (s.until !== undefined) {
         if (s.method !== 'GET' || typeof s.until?.path !== 'string' || !Array.isArray(s.until.in) || !s.until.in.length || s.until.in.length > 20) throw new ApiError('SCENARIO_STEP_INVALID', `${label} ${i + 1}: until needs a GET, a path and values`);
         until = { path: s.until.path, in: s.until.in.map(String), success: (Array.isArray(s.until.success) && s.until.success.length ? s.until.success : s.until.in).map(String), timeout_ms: Math.min(Math.max(Number(s.until.timeout_ms) || 120000, 1000), 600000),
           interval_ms: Math.min(Math.max(Number(s.until.interval_ms) || 2000, 500), 30000) };
       }
-      return { id: String(s.id || `${label}-${i + 1}`).slice(0, 80), method: s.method, path: s.path, json: s.json, multipart: s.multipart, until,
+      if (s.basic_auth !== undefined && (typeof s.basic_auth?.username !== 'string' || typeof s.basic_auth?.password !== 'string')) throw new ApiError('SCENARIO_STEP_INVALID', `${label} ${i + 1}: basic_auth needs a username and a password`);
+      return { id: String(s.id || `${label}-${i + 1}`).slice(0, 80), method: s.method, path: s.path, json: s.json, multipart: s.multipart, text: s.text, until,
+        basic_auth: s.basic_auth ? { username: s.basic_auth.username, password: s.basic_auth.password } : null,
         expect: Array.isArray(s.expect) ? s.expect.map(Number) : null, extract: s.extract && typeof s.extract === 'object' ? s.extract : {} };
     });
   };
@@ -138,23 +141,26 @@ export function validateScenario(scenario) {
  * Explore one origin. `fetcher` is injectable for tests. Returns every request (bounded), the endpoint coverage of the
  * static GET routes and the scenario results. Credentials are sent but never returned.
  */
-export async function exploreApi({ baseUrl, credential = null, endpoints = [], scenarios = [], skipPaths = [], maxRequests = 400, maxDurationMs = 15 * 60 * 1000 }, fetcher = fetch) {
+export async function exploreApi({ baseUrl, credential = null, endpoints = [], scenarios = [], skipPaths = [], variables = {}, maxRequests = 400, maxDurationMs = 15 * 60 * 1000 }, fetcher = fetch) {
   const origin = new URL(baseUrl).origin;
   const started = Date.now();
   const values = new Values();
   const requests = [];
-  const vars = { RUN_ID: randomBytes(4).toString('hex') };
+  const vars = { ...variables, RUN_ID: randomBytes(4).toString('hex') };
   const budget = () => requests.length < maxRequests && Date.now() - started < maxDurationMs;
   const checked = scenarios.map(validateScenario);
   const skip = compileSkips(skipPaths);
 
-  async function call(method, path, phase, { json, multipart, template = null } = {}) {
+  async function call(method, path, phase, { json, multipart, text, basicAuth = null, template = null } = {}) {
     const url = new URL(path, origin);
     if (url.origin !== origin) throw new ApiError('ORIGIN_NOT_ALLOWED', path);
     const headers = { accept: 'application/json, text/plain, */*' };
     if (credential) headers[credential.header.toLowerCase()] = credential.value;
+    // A step may log in as someone else (for example an LDAP user) instead of using the run's credential.
+    if (basicAuth) { delete headers[(credential?.header || 'authorization').toLowerCase()]; headers.authorization = 'Basic ' + Buffer.from(`${basicAuth.username}:${basicAuth.password}`).toString('base64'); }
     let body;
     if (json !== undefined) { headers['content-type'] = 'application/json'; body = JSON.stringify(json); }
+    if (text !== undefined) { headers['content-type'] = 'text/plain'; body = text; }
     if (multipart !== undefined) {
       body = new FormData();
       for (const [name, value] of Object.entries(multipart)) {
@@ -207,12 +213,18 @@ export async function exploreApi({ baseUrl, credential = null, endpoints = [], s
     const results = [];
     for (const step of steps) {
       if (!budget()) { results.push({ id: step.id, state: 'SKIPPED_BUDGET' }); continue; }
-      let { record, body } = await call(step.method, substitute(step.path, vars), `scenario:${scenario.name}`, { json: substitute(step.json, vars), multipart: substitute(step.multipart, vars) });
+      // A value an earlier step should have extracted is missing: sending the literal placeholder would only produce noise.
+      const missing = [...new Set([...substitute(step.path, vars).matchAll(/\$\{([A-Za-z_][\w]*)\}/g)].map((m) => m[1]))];
+      if (missing.length) {
+        results.push({ id: step.id, kind, method: step.method, path: step.path, status: null, state: 'SKIPPED_MISSING_VALUE', error: `no value for ${missing.join(', ')}` });
+        continue;
+      }
+      let { record, body } = await call(step.method, substitute(step.path, vars), `scenario:${scenario.name}`, { json: substitute(step.json, vars), multipart: substitute(step.multipart, vars), text: substitute(step.text, vars), basicAuth: substitute(step.basic_auth, vars) });
       // A polling step repeats its GET until the field at until.path holds one of until.in, or its timeout passes.
       let reached = null;
       if (step.until) {
         const deadline = Date.now() + step.until.timeout_ms;
-        while (!step.until.in.includes(String(pick(body, step.until.path))) && Date.now() < deadline && budget()) {
+        while (!step.until.in.includes(String(pick(body, step.until.path))) && record.error === null && record.status < 400 && Date.now() < deadline && budget()) {
           await new Promise((r) => setTimeout(r, step.until.interval_ms));
           ({ record, body } = await call(step.method, substitute(step.path, vars), `scenario:${scenario.name}`));
         }

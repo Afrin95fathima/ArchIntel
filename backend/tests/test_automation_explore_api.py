@@ -65,7 +65,7 @@ def run_job(client, fake, spec=None):
 def test_built_in_recipes_are_listed_without_their_configuration():
     items = explore_api.recipes()
     concord = next(r for r in items if r['id'] == 'concord-server')
-    assert concord['dependencies'] == ['postgres:14.21-alpine'] and concord['mode'] == 'DEEP' and concord['passes'] == 5
+    assert concord['dependencies'] == ['postgres:14.21-alpine', 'osixia/openldap:1.5.0'] and concord['mode'] == 'DEEP' and concord['passes'] == 5
     assert [(d['id'], d.get('primary', False)) for d in concord['distributions']] == [('server', True), ('agent', False)]
     assert concord['scenarios'][0]['steps'] >= 20 and concord['scenarios'][0]['cleanup'] >= 10
     assert 'config_files' not in json.dumps(items) and 'ADMIN_TOKEN' not in json.dumps(items)

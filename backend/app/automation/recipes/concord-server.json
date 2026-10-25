@@ -1,6 +1,6 @@
 {
   "id": "concord-server",
-  "title": "Walmart Concord server and agent (with a disposable PostgreSQL)",
+  "title": "Walmart Concord server and agent (with disposable PostgreSQL and OpenLDAP)",
   "description": "Starts the Concord server from concord-server-<version>-dist.tar.gz on a fresh PostgreSQL container with a generated admin API token, then the Concord agent from concord-agent-<version>-dist.tar.gz with a generated agent token. The agent runs every submitted process in its own JVM, and the OpenTelemetry agent is passed on to those JVMs, so server, agent and process runtime are all traced.",
   "distribution_hint": "server/dist/target/concord-server-<version>-dist.tar.gz",
   "recipe": {
@@ -52,6 +52,14 @@
       {
         "name": "PROJECT_SALT",
         "kind": "base64"
+      },
+      {
+        "name": "LDAP_PASSWORD",
+        "kind": "password"
+      },
+      {
+        "name": "LDAP_USER_PASSWORD",
+        "kind": "password"
       }
     ],
     "dependencies": [
@@ -65,12 +73,37 @@
         },
         "ready_log": "database system is ready to accept connections",
         "ready_log_count": 2
+      },
+      {
+        "name": "ldap",
+        "image": "osixia/openldap:1.5.0",
+        "port": 389,
+        "env": {
+          "LDAP_ADMIN_PASSWORD": "${LDAP_PASSWORD}",
+          "LDAP_ORGANISATION": "ArchIntel exploration",
+          "LDAP_DOMAIN": "example.org"
+        },
+        "ready_log": "slapd starting",
+        "ready_log_count": 1,
+        "init": {
+          "command": [
+            "ldapadd",
+            "-x",
+            "-H",
+            "ldap://localhost",
+            "-D",
+            "cn=admin,dc=example,dc=org",
+            "-w",
+            "${LDAP_PASSWORD}"
+          ],
+          "stdin": "dn: ou=people,dc=example,dc=org\nobjectClass: organizationalUnit\nou: people\n\ndn: cn=archintel-user,ou=people,dc=example,dc=org\nobjectClass: inetOrgPerson\ncn: archintel-user\nsn: Exploration\ndisplayName: ArchIntel exploration user\nmail: archintel-user@example.org\nuserPassword: ${LDAP_USER_PASSWORD}\n\ndn: cn=archintel-admins,ou=people,dc=example,dc=org\nobjectClass: groupOfNames\ncn: archintel-admins\nmember: cn=archintel-user,ou=people,dc=example,dc=org\n"
+        }
       }
     ],
     "config_files": [
       {
         "name": "concord.conf",
-        "content": "concord-server {\n    server {\n        port = ${PORT}\n    }\n    db {\n        url = \"jdbc:postgresql://127.0.0.1:${DB_PORT}/postgres\"\n        appUsername = \"postgres\"\n        appPassword = \"${DB_PASSWORD}\"\n        inventoryUsername = \"postgres\"\n        inventoryPassword = \"${DB_PASSWORD}\"\n        changeLogParameters {\n            defaultAdminToken = \"${ADMIN_TOKEN}\"\n            defaultAgentToken = \"${AGENT_TOKEN}\"\n        }\n    }\n    # The agent key of a fresh database has no user, so the agent WebSocket cannot carry the AGENT_WEBSOCKET permission check.\n    websockets {\n        requirePermission = false\n    }\n    secretStore {\n        serverPassword = \"${SECRET_KEY}\"\n        secretStoreSalt = \"${SECRET_SALT}\"\n        projectSecretSalt = \"${PROJECT_SALT}\"\n    }\n}\n"
+        "content": "concord-server {\n    server {\n        port = ${PORT}\n    }\n    db {\n        url = \"jdbc:postgresql://127.0.0.1:${DB_PORT}/postgres\"\n        appUsername = \"postgres\"\n        appPassword = \"${DB_PASSWORD}\"\n        inventoryUsername = \"postgres\"\n        inventoryPassword = \"${DB_PASSWORD}\"\n        changeLogParameters {\n            defaultAdminToken = \"${ADMIN_TOKEN}\"\n            defaultAgentToken = \"${AGENT_TOKEN}\"\n        }\n    }\n    # Disposable OpenLDAP container; search base and admin DN are the image defaults.\n    ldap {\n        url = \"ldap://127.0.0.1:${LDAP_PORT}\"\n        systemPassword = \"${LDAP_PASSWORD}\"\n    }\n    # Fixture repositories are served by the runner over loopback HTTP.\n    git {\n        allowedSchemes = [ \"https\", \"http\", \"ssh\", \"classpath\" ]\n    }\n    # The agent key of a fresh database has no user, so the agent WebSocket cannot carry the AGENT_WEBSOCKET permission check.\n    websockets {\n        requirePermission = false\n    }\n    secretStore {\n        serverPassword = \"${SECRET_KEY}\"\n        secretStoreSalt = \"${SECRET_SALT}\"\n        projectSecretSalt = \"${PROJECT_SALT}\"\n    }\n}\n"
       },
       {
         "name": "agent.conf",
@@ -117,6 +150,19 @@
         "ready_log": "run -> using",
         "ready_timeout_ms": 180000
       }
+    ],
+    "git_repositories": [
+      {
+        "name": "demo",
+        "branch": "main",
+        "files": {
+          "concord.yml": "configuration:\n  runtime: \"concord-v2\"\nflows:\n  default:\n    - log: \"Started from the ArchIntel fixture repository\"\n  onEvent:\n    - log: \"Triggered by the archintel event\"\ntriggers:\n  - archintel:\n      version: 2\n      entryPoint: onEvent\n      conditions:\n        source: \"exploration\"\n  - cron:\n      spec: \"* * * * *\"\n      entryPoint: default\n      timezone: \"UTC\"\n",
+          "README.md": "Fixture repository created by the ArchIntel runner for one exploration run.\n"
+        }
+      }
+    ],
+    "scenario_variables": [
+      "LDAP_USER_PASSWORD"
     ]
   },
   "instrumentation": {
@@ -136,7 +182,7 @@
   "scenarios": [
     {
       "name": "Organization lifecycle",
-      "description": "Creates an organization with a project, secret, team, inventory, JSON store and policy, runs a process to completion on the agent with runtime v2, runs a second process on runtime v1 that waits on a form and submits it, reads everything back, then removes it.",
+      "description": "Creates an organization with a project, secret, team, inventory, JSON store and policy, runs a process to completion on the agent with runtime v2, runs a second process on runtime v1 that waits on a form and submits it, reads everything back, then removes it; adds a Git repository from a runner-created fixture, starts a process from it, fires its event trigger, and exercises process cards, project configuration, encryption, template aliases and v2 API keys and secrets, and logs in through an OpenLDAP container to exercise LDAP authentication and group mapping.",
       "steps": [
         {
           "id": "create-org",
@@ -324,7 +370,7 @@
             "concord.yml": {
               "filename": "concord.yml",
               "type": "application/octet-stream",
-              "content": "configuration:\n  runtime: \"concord-v2\"\n  arguments:\n    greeting: \"Hello from ArchIntel exploration\"\nflows:\n  default:\n    - log: \"${greeting}\"\n    - set:\n        counter: 3\n    - if: ${counter > 2}\n      then:\n        - call: helper\n    - try:\n        - throw: \"expected failure\"\n      error:\n        - log: \"handled the expected failure\"\n  helper:\n    - log: \"helper flow, counter ${counter}\"\n"
+              "content": "configuration:\n  runtime: \"concord-v2\"\n  arguments:\n    greeting: \"Hello from ArchIntel exploration\"\nflows:\n  default:\n    - log: \"${greeting}\"\n    - checkpoint: \"after-greeting\"\n    - call: itemFlow\n      in:\n        value: ${item}\n      loop:\n        items: [1, 2, 3]\n    - try:\n        - script: js\n          body: |\n            execution.variables().set(\"scripted\", 42);\n      error:\n        - log: \"script step failed\"\n    - try:\n        - task: sleep\n          in:\n            duration: 1\n      error:\n        - log: \"sleep task failed\"\n    - try:\n        - task: kv\n          in:\n            action: putString\n            key: \"archintel\"\n            value: \"recorded\"\n      error:\n        - log: \"kv task failed\"\n    - set:\n        counter: 3\n    - if: ${counter > 2}\n      then:\n        - call: helper\n    - try:\n        - throw: \"expected failure\"\n      error:\n        - log: \"handled the expected failure\"\n  itemFlow:\n    - log: \"item ${value}\"\n  helper:\n    - log: \"helper flow, counter ${counter}\"\n"
             }
           },
           "extract": {
@@ -457,6 +503,245 @@
           "id": "read-form-process-events",
           "method": "GET",
           "path": "/api/v1/process/${FORM_PROCESS_ID}/event"
+        },
+        {
+          "id": "create-repository",
+          "method": "POST",
+          "path": "/api/v1/org/archintel-${RUN_ID}/project/project-${RUN_ID}/repository",
+          "json": {
+            "name": "repo-${RUN_ID}",
+            "url": "${GIT_DEMO_URL}",
+            "branch": "main"
+          }
+        },
+        {
+          "id": "validate-repository",
+          "method": "POST",
+          "path": "/api/v1/org/archintel-${RUN_ID}/project/project-${RUN_ID}/repository/repo-${RUN_ID}/validate"
+        },
+        {
+          "id": "refresh-repository",
+          "method": "POST",
+          "path": "/api/v1/org/archintel-${RUN_ID}/project/project-${RUN_ID}/repository/repo-${RUN_ID}/refresh"
+        },
+        {
+          "id": "read-repository",
+          "method": "GET",
+          "path": "/api/v1/org/archintel-${RUN_ID}/project/project-${RUN_ID}/repository/repo-${RUN_ID}"
+        },
+        {
+          "id": "list-triggers",
+          "method": "GET",
+          "path": "/api/v2/trigger?orgName=archintel-${RUN_ID}&projectName=project-${RUN_ID}&repoName=repo-${RUN_ID}"
+        },
+        {
+          "id": "start-repository-process",
+          "method": "POST",
+          "path": "/api/v1/process",
+          "multipart": {
+            "org": "archintel-${RUN_ID}",
+            "project": "project-${RUN_ID}",
+            "repo": "repo-${RUN_ID}"
+          },
+          "extract": {
+            "REPO_PROCESS_ID": "instanceId"
+          }
+        },
+        {
+          "id": "wait-for-repository-process",
+          "method": "GET",
+          "path": "/api/v1/process/${REPO_PROCESS_ID}",
+          "until": {
+            "path": "status",
+            "in": [
+              "FINISHED",
+              "FAILED",
+              "CANCELLED",
+              "TIMED_OUT"
+            ],
+            "success": [
+              "FINISHED"
+            ],
+            "timeout_ms": 300000,
+            "interval_ms": 2000
+          }
+        },
+        {
+          "id": "send-external-event",
+          "method": "POST",
+          "path": "/api/v1/events/archintel",
+          "json": {
+            "source": "exploration",
+            "note": "sent by the ArchIntel scenario"
+          }
+        },
+        {
+          "id": "create-process-card",
+          "method": "POST",
+          "path": "/api/v1/processcard",
+          "multipart": {
+            "org": "archintel-${RUN_ID}",
+            "project": "project-${RUN_ID}",
+            "repo": "repo-${RUN_ID}",
+            "entryPoint": "default",
+            "name": "card-${RUN_ID}",
+            "description": "Created by ArchIntel exploration"
+          },
+          "extract": {
+            "CARD_ID": "id"
+          }
+        },
+        {
+          "id": "list-process-cards",
+          "method": "GET",
+          "path": "/api/v1/processcard"
+        },
+        {
+          "id": "read-process-card",
+          "method": "GET",
+          "path": "/api/v1/processcard/${CARD_ID}"
+        },
+        {
+          "id": "update-project-configuration",
+          "method": "PUT",
+          "path": "/api/v1/org/archintel-${RUN_ID}/project/project-${RUN_ID}/cfg",
+          "json": {
+            "arguments": {
+              "recordedBy": "archintel"
+            }
+          }
+        },
+        {
+          "id": "read-project-configuration",
+          "method": "GET",
+          "path": "/api/v1/org/archintel-${RUN_ID}/project/project-${RUN_ID}/cfg"
+        },
+        {
+          "id": "encrypt-value",
+          "method": "POST",
+          "path": "/api/v1/org/archintel-${RUN_ID}/project/project-${RUN_ID}/encrypt",
+          "text": "not-a-real-secret-${RUN_ID}"
+        },
+        {
+          "id": "create-template-alias",
+          "method": "POST",
+          "path": "/api/v1/template/alias",
+          "json": {
+            "alias": "tpl-${RUN_ID}",
+            "url": "https://example.invalid/archintel-template.jar"
+          }
+        },
+        {
+          "id": "list-template-aliases",
+          "method": "GET",
+          "path": "/api/v1/template/alias"
+        },
+        {
+          "id": "create-api-key-v2",
+          "method": "POST",
+          "path": "/api/v2/apikey",
+          "json": {
+            "username": "user-${RUN_ID}",
+            "name": "key-v2-${RUN_ID}"
+          },
+          "extract": {
+            "API_KEY_V2_ID": "id"
+          }
+        },
+        {
+          "id": "update-secret-v2",
+          "method": "POST",
+          "path": "/api/v2/org/archintel-${RUN_ID}/secret/secret-${RUN_ID}",
+          "multipart": {
+            "type": "USERNAME_PASSWORD",
+            "username": "archintel-updated",
+            "password": "still-not-a-real-password-${RUN_ID}"
+          }
+        },
+        {
+          "id": "grant-secret-access",
+          "method": "POST",
+          "path": "/api/v1/org/archintel-${RUN_ID}/secret/secret-${RUN_ID}/access",
+          "json": {
+            "teamName": "team-${RUN_ID}",
+            "level": "READER"
+          }
+        },
+        {
+          "id": "read-secret-access",
+          "method": "GET",
+          "path": "/api/v1/org/archintel-${RUN_ID}/secret/secret-${RUN_ID}/access"
+        },
+        {
+          "id": "disable-process",
+          "method": "POST",
+          "path": "/api/v1/process/${PROCESS_ID}/disable/true"
+        },
+        {
+          "id": "restart-process",
+          "method": "POST",
+          "path": "/api/v1/process/${PROCESS_ID}/restart"
+        },
+        {
+          "id": "disable-user",
+          "method": "PUT",
+          "path": "/api/v1/user/${USER_ID}/disable?disable=true"
+        },
+        {
+          "id": "ldap-login",
+          "method": "GET",
+          "path": "/api/service/console/whoami",
+          "basic_auth": {
+            "username": "archintel-user",
+            "password": "${LDAP_USER_PASSWORD}"
+          }
+        },
+        {
+          "id": "ldap-login-api",
+          "method": "GET",
+          "path": "/api/v1/org",
+          "basic_auth": {
+            "username": "archintel-user",
+            "password": "${LDAP_USER_PASSWORD}"
+          }
+        },
+        {
+          "id": "sync-ldap-groups",
+          "method": "POST",
+          "path": "/api/v1/userldapgroup/sync",
+          "json": {
+            "username": "archintel-user",
+            "userDomain": null
+          }
+        },
+        {
+          "id": "add-role-ldap-groups",
+          "method": "PUT",
+          "path": "/api/v1/role/role-${RUN_ID}/ldapGroups",
+          "json": [
+            "cn=archintel-admins,ou=people,dc=example,dc=org"
+          ]
+        },
+        {
+          "id": "read-role-ldap-groups",
+          "method": "GET",
+          "path": "/api/v1/role/role-${RUN_ID}/ldapGroups"
+        },
+        {
+          "id": "add-team-ldap-groups",
+          "method": "PUT",
+          "path": "/api/v1/org/archintel-${RUN_ID}/team/team-${RUN_ID}/ldapGroups",
+          "json": [
+            {
+              "group": "cn=archintel-admins,ou=people,dc=example,dc=org",
+              "role": "MEMBER"
+            }
+          ]
+        },
+        {
+          "id": "read-team-ldap-groups",
+          "method": "GET",
+          "path": "/api/v1/org/archintel-${RUN_ID}/team/team-${RUN_ID}/ldapGroups"
         }
       ],
       "cleanup": [
@@ -469,6 +754,16 @@
           "id": "delete-api-key",
           "method": "DELETE",
           "path": "/api/v1/apikey/${API_KEY_ID}"
+        },
+        {
+          "id": "delete-api-key-v2",
+          "method": "DELETE",
+          "path": "/api/v1/apikey/${API_KEY_V2_ID}"
+        },
+        {
+          "id": "delete-template-alias",
+          "method": "DELETE",
+          "path": "/api/v1/template/alias/tpl-${RUN_ID}"
         },
         {
           "id": "delete-user",
@@ -509,6 +804,16 @@
           "id": "delete-secret",
           "method": "DELETE",
           "path": "/api/v1/org/archintel-${RUN_ID}/secret/secret-${RUN_ID}"
+        },
+        {
+          "id": "delete-process-card",
+          "method": "DELETE",
+          "path": "/api/v1/processcard/${CARD_ID}"
+        },
+        {
+          "id": "delete-repository",
+          "method": "DELETE",
+          "path": "/api/v1/org/archintel-${RUN_ID}/project/project-${RUN_ID}/repository/repo-${RUN_ID}"
         },
         {
           "id": "delete-project",

@@ -56,7 +56,7 @@ function owned(baseUrl) {
 export async function health() {
   return {
     status: 'READY', runner: '1',
-    tools: { java: !!config.javaPath, chrome: !!config.chromePath, otel_agent: !!config.otelAgentJar, rea: await version(), docker: await services.dockerVersion() },
+    tools: { java: !!config.javaPath, git: !!config.gitPath, chrome: !!config.chromePath, otel_agent: !!config.otelAgentJar, rea: await version(), docker: await services.dockerVersion() },
     apps: apps.list(), services: services.list(),
   };
 }
@@ -92,7 +92,7 @@ export async function handle(req, res) {
       busy.exploreApi = true;
       try {
         return send(res, 200, await exploreApi({ baseUrl: run.base_url, credential: run.credential, endpoints: Array.isArray(input.endpoints) ? input.endpoints.slice(0, 2000) : [],
-          scenarios: Array.isArray(input.scenarios) ? input.scenarios.slice(0, 20) : [], skipPaths: input.skip_paths || [], maxRequests: Math.min(Number(input.max_requests) || 400, 5000),
+          scenarios: Array.isArray(input.scenarios) ? input.scenarios.slice(0, 20) : [], skipPaths: input.skip_paths || [], variables: run.exposed || {}, maxRequests: Math.min(Number(input.max_requests) || 400, 5000),
           maxDurationMs: Math.min(Number(input.max_duration_ms) || 900000, 3600000) }));
       } finally { busy.exploreApi = false; }
     }

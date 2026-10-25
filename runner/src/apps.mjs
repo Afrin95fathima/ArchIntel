@@ -6,7 +6,7 @@ import { mkdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:net';
 import { join } from 'node:path';
 import { config } from './config.mjs';
-import { distributionDir, freePort, generateSecrets, interpolate, startDependencies, stopDependencies, validateRecipe } from './recipes.mjs';
+import { createRepositories, distributionDir, freePort, generateSecrets, interpolate, startDependencies, stopDependencies, validateRecipe } from './recipes.mjs';
 
 export class AppError extends Error {
   constructor(code, detail) { super(code); this.code = code; this.detail = detail; }
@@ -161,6 +161,13 @@ export async function startRecipe({ distribution_sha256, distributions = {}, rec
       variables[name] = await freePort(config.dependencyPorts[0], config.dependencyPorts[1], new Set([...used, ...run.dependencies.map((d) => d.port), ...run.ports]));
       run.ports.push(variables[name]);
     }
+    // Repository URLs are no secret: they also reach the scenarios as ${GIT_<NAME>_URL}.
+    const gitPort = recipe.git_repositories.length ? await freePort(config.dependencyPorts[0], config.dependencyPorts[1], new Set([...used, ...run.dependencies.map((d) => d.port), ...run.ports])) : null;
+    if (gitPort) run.ports.push(gitPort);
+    const repositories = await createRepositories(dir, recipe.git_repositories, gitPort);
+    run.gitServer = repositories.server;
+    run.exposed = { ...repositories.urls, ...Object.fromEntries(recipe.scenario_variables.map((name) => [name, variables[name]])) };
+    Object.assign(variables, run.exposed);
     const files = {};
     for (const file of recipe.config_files) files[file.name] = join(dir, file.name);
     for (const file of recipe.config_files) await writeFile(files[file.name], interpolate(file.content, variables, files), { mode: 0o600 });
@@ -207,6 +214,7 @@ export async function stop(id) {
   for (const companion of [...(run.companions || [])].reverse()) await terminate(companion);
   await terminate(run);
   await stopDependencies(run.dependencies);
+  if (run.gitServer) await run.gitServer.close();
   // A recipe run folder holds generated secrets in its config files and logs; it does not outlive the run.
   if (run.removeDir) await rm(run.dir, { recursive: true, force: true });
   runs.delete(id);

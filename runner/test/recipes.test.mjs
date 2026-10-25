@@ -150,3 +150,56 @@ test('a polling step repeats its GET until a final value and passes only on a su
   assert.deepEqual([result.scenarios[0].steps[0].state, result.scenarios[0].steps[0].reached], ['FAILED', 'FAILED']);
   assert.throws(() => validateScenario({ name: 'x', steps: [{ method: 'POST', path: '/a', until: { path: 's', in: ['A'] } }] }), (e) => e.code === 'SCENARIO_STEP_INVALID');
 });
+
+test('steps with a missing extracted value are skipped, and polling stops on an error response', async () => {
+  const seen = [];
+  const fetcher = async (url) => {
+    seen.push(new URL(url).pathname);
+    return { status: 404, headers: new Headers({ 'content-type': 'application/json' }), text: async () => '{}' };
+  };
+  const scenario = { name: 's', steps: [
+    { id: 'start', method: 'POST', path: '/start', json: {}, extract: { ID: 'instanceId' } },
+    { id: 'wait', method: 'GET', path: '/p/${ID}', until: { path: 'status', in: ['DONE'], interval_ms: 500, timeout_ms: 60000 } },
+    { id: 'poll-missing', method: 'GET', path: '/known', until: { path: 'status', in: ['DONE'], interval_ms: 500, timeout_ms: 60000 } }] };
+  const started = Date.now();
+  const result = await exploreApi({ baseUrl: 'http://app.test', scenarios: [scenario] }, fetcher);
+  const [, wait, known] = result.scenarios[0].steps;
+  assert.deepEqual([wait.state, wait.error], ['SKIPPED_MISSING_VALUE', 'no value for ID']);
+  assert.equal(known.state, 'FAILED');
+  assert.deepEqual(seen, ['/start', '/known']);                                  // nothing sent for /p/${ID}, one call for /known
+  assert.ok(Date.now() - started < 5000);
+});
+
+test('fixture repositories are served read-only over HTTP, and their URLs and named secrets reach the scenarios', async () => {
+  const { createRepositories } = await import('../src/recipes.mjs');
+  const { allowed } = await import('../src/git_http.mjs');
+  const recipe = validateRecipe({ ...RECIPE, generated_secrets: [...RECIPE.generated_secrets, { name: 'USER_PW', kind: 'password' }], scenario_variables: ['USER_PW'],
+    git_repositories: [{ name: 'demo', files: { 'concord.yml': 'flows: {}\n' } }] });
+  assert.deepEqual(recipe.scenario_variables, ['USER_PW']);
+  assert.throws(() => validateRecipe({ ...RECIPE, scenario_variables: ['NOT_GENERATED'] }), (e) => e.code === 'RECIPE_SCENARIO_VARIABLES_INVALID');
+  assert.throws(() => validateRecipe({ ...RECIPE, git_repositories: [{ name: 'demo', files: { '../escape': 'x' } }] }), (e) => e.code === 'RECIPE_GIT_INVALID');
+  assert.throws(() => validateRecipe({ ...RECIPE, git_repositories: [{ name: 'demo', files: { '.git/config': 'x' } }] }), (e) => e.code === 'RECIPE_GIT_INVALID');
+  const dir = mkdtempSync(`${tmpdir()}/repo-test-`);
+  const { urls, server } = await createRepositories(dir, recipe.git_repositories, 15468);
+  try {
+    assert.deepEqual(urls, { GIT_DEMO_URL: 'http://127.0.0.1:15468/demo.git' });
+    const refs = await fetch(urls.GIT_DEMO_URL + '/info/refs?service=git-upload-pack');
+    assert.equal(refs.status, 200);
+    assert.match(await refs.text(), /refs\/heads\/main/);
+    assert.equal((await fetch(urls.GIT_DEMO_URL + '/info/refs?service=git-receive-pack')).status, 403);
+    assert.equal((await fetch('http://127.0.0.1:15468/demo.git/config')).status, 403);
+  } finally { await server.close(); }
+  assert.equal(allowed('POST', '/demo.git/git-receive-pack', ''), false);
+  assert.equal(allowed('GET', '/../etc/passwd', ''), false);
+});
+
+test('dependency seeding is an argument list with stdin, and a step can log in with basic auth instead of the run credential', async () => {
+  const recipe = validateRecipe({ ...RECIPE, dependencies: [{ ...RECIPE.dependencies[0], init: { command: ['psql', '-c', 'select 1'], stdin: '-- ${TOKEN}' } }] });
+  assert.deepEqual(recipe.dependencies[0].init.command, ['psql', '-c', 'select 1']);
+  assert.throws(() => validateRecipe({ ...RECIPE, dependencies: [{ ...RECIPE.dependencies[0], init: { command: [] } }] }), (e) => e.code === 'RECIPE_DEPENDENCY_INVALID');
+  const headers = [];
+  const fetcher = async (url, init) => { headers.push(init.headers.authorization); return { status: 200, headers: new Headers(), text: async () => '' }; };
+  await exploreApi({ baseUrl: 'http://app.test', credential: { header: 'Authorization', value: 'Bearer run-token' }, variables: { PW: 'ldap-pw' },
+    scenarios: [{ name: 's', steps: [{ method: 'GET', path: '/whoami', basic_auth: { username: 'user', password: '${PW}' } }, { method: 'GET', path: '/next' }] }] }, fetcher);
+  assert.deepEqual(headers, ['Basic ' + Buffer.from('user:ldap-pw').toString('base64'), 'Bearer run-token']);
+});

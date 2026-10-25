@@ -35,12 +35,14 @@ screen lists them under **Explore automatically → REST API**, with one upload 
 | `jvm_args`, `args` | Extra JVM and program arguments. `-javaagent`, `-agentlib`, `-agentpath`, `-cp`, `-jar`, `-Dotel.*` and `-XX:OnError` are reserved for the runner. |
 | `system_properties`, `env` | `-D` properties and environment variables. |
 | `generated_secrets` | `{name, kind}` with kind `base64` or `password`; a new random value per run, never returned to ArchIntel. |
-| `dependencies` | Up to four containers: `{name, image, port, env, ready_log, ready_log_count}`. Images must match `RUNNER_ALLOWED_IMAGES` (default `postgres:`). Each gets a fresh container on a loopback port and is removed when the run stops. |
+| `dependencies` | Up to four containers: `{name, image, port, env, ready_log, ready_log_count, init}`. Images must match `RUNNER_ALLOWED_IMAGES` (default `postgres:`, `osixia/openldap:`). `init` `{command, stdin}` seeds the container once it is ready: an argument list run with `docker exec` (no shell) and its standard input, retried for 20 seconds; Concord's recipe adds an LDAP user and group with `ldapadd`. Each gets a fresh container on a loopback port and is removed when the run stops. |
 | `config_files` | `{name, content}` written to the run folder with mode 600. |
 | `ready` | `{path, timeout_ms}`: the application is ready when this path answers below HTTP 500. |
 | `ports` | Up to five extra loopback ports by variable name (for example `AGENT_MM_PORT`), for listeners a companion opens. |
 | `companions` | Up to three more processes started once the main process is ready, in order: `{name, distribution, main_class, classpath, jvm_args, args, system_properties, env, ready_log, ready_timeout_ms}`. `distribution` names an entry of `distributions`; each gets the OpenTelemetry agent and the same JVM-option rules; it is ready when its log contains `ready_log`. Companions stop before the main process. |
 | `credential` | `{header, value}` sent with every exploration request, for example `Authorization: Bearer ${ADMIN_TOKEN}`. |
+| `git_repositories` | Up to three `{name, branch, files}` repositories the runner creates with one commit and serves read-only over smart HTTP on a loopback port (`git http-backend`; clone and fetch only, pushes refused). Their URLs are `${GIT_<NAME>_URL}` in config files and scenarios. |
+| `scenario_variables` | Names of generated secrets or ports that scenarios may use, for example an LDAP user's password for a `basic_auth` step. They are sent in requests and never returned. |
 
 Placeholders in values: `${PORT}`, `${HOST}`, `${RUN_DIR}`, `${DIST_DIR}`, `${DIST_DIR_<ID>}` for a companion distribution
 (`${DIST_DIR_AGENT}`), `${<DEPENDENCY>_PORT}` (for a dependency named `db`, `${DB_PORT}`), each extra port and generated
@@ -85,9 +87,12 @@ not reach. Upload one on the screen to replace the recipe's built-in scenarios (
 | `json` or `multipart` | Request body; a multipart value given as `{filename, content, type}` is sent as a file. |
 | `extract` | `{VARIABLE: "dotted.path"}` read from the JSON response, for later steps as `${VARIABLE}`. |
 | `expect` | Status codes that count as passed (default: below 400). |
+| `text` | A `text/plain` body, for endpoints such as Concord's value encryption. |
+| `basic_auth` | `{username, password}` sent as HTTP Basic instead of the run's credential, to exercise a login realm such as LDAP. |
 | `until` | GET only: `{path, in, success, timeout_ms, interval_ms}` repeats the request until the field at `path` holds a value of `in` (a final state), and passes only when it is one of `success` (default: `in`). Example: wait for a process to reach `FINISHED`, stopping early on `FAILED`. |
 
-`${RUN_ID}` is a random value per run, so names never collide. Cleanup steps run after the second crawl, so the crawl can
+`${RUN_ID}` is a random value per run, so names never collide. A step whose path still holds an unresolved `${...}` (an earlier
+step did not return the value) is skipped and reported, not sent, and a polling step stops at the first error response. Cleanup steps run after the second crawl, so the crawl can
 read back what the scenario created. A failed step is recorded and the next one still runs.
 
 ## How the crawl fills path variables
