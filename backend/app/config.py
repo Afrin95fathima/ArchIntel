@@ -64,6 +64,8 @@ class Settings(BaseSettings):
         return value
     external_prefixes: list[str] = ['java.', 'javax.', 'jakarta.', 'org.springframework.', 'org.hibernate.', 'org.slf4j.', 'com.fasterxml.', 'kotlin.']
     max_upload_mb: int = 100
+    # Application distributions for API exploration (a server or agent .tar.gz with all libraries) are larger than analysis uploads.
+    max_distribution_mb: int = 400
     max_expanded_mb: int = 400
     max_archive_entries: int = 50000
     max_classes: int = 20000
@@ -137,6 +139,8 @@ class Settings(BaseSettings):
     scanner_engine: str = 'jqassistant'
     bytecode_facts_enabled: bool = True
     bytecode_facts_max_bytes: int = 48 * 1024 * 1024
+    # Leave classes produced by code generators (Immutables, jOOQ, OpenAPI clients) out of the graph; see app/insight/generated.py.
+    exclude_generated_code: bool = True
     # Source store for the assistant and AI explanation steps. DENY disables storage entirely.
     source_store_mode: str = 'ALLOW'
     source_store_max_bytes_per_class: int = 65536

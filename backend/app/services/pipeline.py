@@ -13,6 +13,7 @@ from app.services.engine import analyze
 from app.services.tech_stack import inspect_artifact
 from app.insight.facts import extract as extract_bytecode, bounded_for_snapshot
 from app.insight.scan import BytecodeScanner, supplement as supplement_edges
+from app.insight.generated import exclude as exclude_generated
 
 logger = logging.getLogger('archintel.pipeline')
 
@@ -97,6 +98,10 @@ class AnalysisWorker:
             validator = validate_project_zip if metadata['filename'].lower().endswith('.zip') else validate_archive
             validator(artifact_path, self.config, classes_dir)
             check_job_budget()
+            generated = None
+            if self.config.exclude_generated_code:
+                stage('DETECTING_GENERATED_CODE', 9)
+                generated = exclude_generated(classes_dir, work / 'generated')
             stage('SCANNING', 12)
             classes, edges = self.scanner.scan(work, classes_dir, stage)
             if len(classes)>self.config.max_classes:
@@ -121,6 +126,12 @@ class AnalysisWorker:
                 reconcile(result)
                 from app.insight.source_store import capture as capture_sources
                 result['source_store'] = capture_sources(self.config, analysis_id, artifact_path, result)
+                if result['bytecode'].get('reductions'):
+                    result['limitations'].append('Bytecode facts were reduced to fit the snapshot limit: ' + '; '.join(result['bytecode']['reductions']) + '.')
+            result['generated_code'] = generated or dict(status='NOT_CHECKED', class_count=0, note='Generated-code detection is disabled (EXCLUDE_GENERATED_CODE=false).')
+            if generated and generated['status'] == 'EXCLUDED':
+                counts = ', '.join(f'{name} {count}' for name, count in generated['by_generator'].items())
+                result['limitations'].append(f"{generated['class_count']} generated classes ({counts}) were excluded from the analysis; references to them appear as external types.")
             result['tech_inventory'] = inspect_artifact(artifact_path, classes_dir, result)
             from app.insight.lifecycle import evaluate as evaluate_lifecycle, compatibility_summary
             from app.insight.model import InsightModel
