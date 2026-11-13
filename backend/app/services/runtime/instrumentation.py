@@ -4,8 +4,11 @@ import json
 import re
 from .entry_points import METHOD_ENTRY_ANNOTATIONS, is_method_entry_point
 
-VERSION='runtime-plan-2'
-BOUNDARIES={'Controller','RestController','Service','Repository','Component','Configuration'}
+VERSION='runtime-plan-3'
+# Spring stereotypes and JSR-330 components (Guice, CDI, Dagger) mark application boundaries.
+BOUNDARIES={'Controller','RestController','Service','Repository','Component','Configuration','Named','Singleton'}
+# The plan travels as OTEL_INSTRUMENTATION_METHODS_INCLUDE; the runner accepts up to 64 KiB.
+MAX_CLASSES,MAX_METHODS,MAX_BYTES=400,6000,60000
 ENTRY_POINTS=METHOD_ENTRY_ANNOTATIONS
 
 
@@ -15,14 +18,16 @@ def in_package(identity,prefixes):
 
 def build_plan(static,settings):
     included=settings.get('include_packages',[]);excluded=settings.get('exclude_packages',[]);mode=settings.get('mode','BOUNDARY')
+    earlier=set(settings.get('exclude_classes',[]))
     cyclic={n for c in static['cycles'] if c['level']=='CLASS' for n in c['members']}
-    selected=[];omitted={};method_count=0;encoded_bytes=0
+    selected=[];omitted={};method_count=0;encoded_bytes=0;candidates=[]
     def omit(reason):omitted[reason]=omitted.get(reason,0)+1
     for cls in sorted(static['classes'],key=lambda c:c['id']):
         identity=cls['id']
         if not re.fullmatch(r'[A-Za-z_$][A-Za-z0-9_$.]*',identity):omit('UNSUPPORTED_CLASS_NAME');continue
         if included and not in_package(identity,included):omit('OUTSIDE_INCLUDE_SCOPE');continue
         if in_package(identity,excluded):omit('EXCLUDED_PACKAGE');continue
+        if identity in earlier:omit('TRACED_IN_EARLIER_PASS');continue
         boundary=any(a.rsplit('.',1)[-1] in BOUNDARIES for a in cls.get('annotations',[]))
         entry=any(is_method_entry_point(m.get('annotations',[])) for m in cls.get('methods',[]))
         important=identity in cyclic or cls.get('metrics',{}).get('fan_out',0)>5
@@ -30,10 +35,16 @@ def build_plan(static,settings):
         methods=sorted({m['name'] for m in cls.get('methods',[]) if m.get('name') and re.fullmatch(r'[A-Za-z_][A-Za-z_0-9]*',m['name'])})
         if not methods:omit('NO_INSTRUMENTABLE_METHOD_INVENTORY');continue
         if len(methods)>100:omit('METHOD_NAMES_TRUNCATED');methods=methods[:100]
+        metrics=cls.get('metrics',{})
+        rank=(0 if entry else 1 if boundary else 2 if important else 3,-(metrics.get('fan_in',0)+metrics.get('fan_out',0)),identity)
+        candidates.append((rank,identity,methods,dict(class_name=identity,methods=','.join(methods),reason='Annotated application boundary' if boundary else 'Annotated entry point' if entry else 'Static importance' if important else 'Explicit deep tracing',priority=1 if boundary or entry else 2)))
+    # The budget goes to entry points first, then components, then the most coupled classes: never to alphabetical order.
+    for _,identity,methods,row in sorted(candidates,key=lambda c:c[0]):
         size=len((identity+'['+','.join(methods)+'];').encode())
-        if len(selected)>=200 or method_count+len(methods)>3000 or encoded_bytes+size>24000:omit('PLAN_BUDGET');continue
+        if len(selected)>=MAX_CLASSES or method_count+len(methods)>MAX_METHODS or encoded_bytes+size>MAX_BYTES:omit('PLAN_BUDGET');continue
         method_count+=len(methods);encoded_bytes+=size
-        selected.append(dict(class_name=identity,methods=','.join(methods),reason='Annotated application boundary' if boundary else 'Annotated entry point' if entry else 'Static importance' if important else 'Explicit deep tracing',priority=1 if boundary or entry else 2))
+        selected.append(row)
+    selected.sort(key=lambda c:c['class_name'])
     plan=dict(version=VERSION,mode=mode,include_packages=included,exclude_packages=excluded,classes=selected,
               selected_method_names=method_count,encoded_bytes=encoded_bytes,omissions=omitted,
               limitations=['Method-name instrumentation includes every overload; exact overload coverage needs code.method.descriptor telemetry.',

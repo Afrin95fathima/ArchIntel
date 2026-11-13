@@ -3,7 +3,7 @@ import copy
 from uuid import uuid4
 import pytest
 from app.modernization import engine, validation
-from app.modernization.brief import unregistered_numbers, _texts, NUMBER
+from app.modernization.brief import unregistered_numbers, _texts, NUMBER, Facts, _list
 from app.insight import debt
 from test_modernization import pure
 from insight_fixtures import snapshot, model
@@ -137,3 +137,11 @@ def test_options_carry_measured_tradeoffs_and_the_legacy_fields_are_data_derived
     assert brief['headline'] == brief['decision'] and brief['next_step'].startswith('Start with ')
     assert all(e['id'] and e['kind'] for e in brief['evidence']) and len(brief['evidence']) <= 30
     assert 'Which user-visible workflows and business invariants must remain unchanged?' not in brief['unresolved_questions']
+
+
+def test_a_long_list_named_with_two_limits_registers_two_consistent_facts():
+    facts = Facts()
+    names = [f'Domain {i}' for i in range(19)]
+    assert _list(facts, names, 5).endswith('and 14 more') and _list(facts, names).endswith('and 15 more')
+    assert sorted(r['value'] for r in facts.table()) == [14, 15]
+    assert _list(facts, names, 5).endswith('and 14 more')                       # repeating a listing reuses its fact

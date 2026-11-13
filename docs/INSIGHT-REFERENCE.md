@@ -13,7 +13,14 @@ missing the UI says "not available" and why.
 3. `app/insight/bytecode.py` parses every owned `.class` file as **data only** (nothing is loaded or executed):
    annotation values, parameter names (`MethodParameters` or `LocalVariableTable`), call sites with line numbers,
    field accesses, bytecode length and branch counts, synthetic/bridge flags, inner-class owners, lambdas,
-   generic signatures, `@Deprecated`. Output is bounded (`bytecode_facts_max_bytes`; reductions are recorded).
+   generic signatures, `@Deprecated`. Output is bounded (`bytecode_facts_max_bytes`). Reductions run in order and are
+   recorded in the snapshot and its limitations: external field/type sites, then external call sites, then all sites of
+   the largest classes, and only as a last resort the facts of the largest classes. Facts are never dropped wholesale.
+   Before scanning, `app/insight/generated.py` moves generated classes out of the scanned tree (`EXCLUDE_GENERATED_CODE`,
+   default true): Immutables (`@org.immutables.value.Generated`), jOOQ (generated base classes, `org.jooq.EnumType`
+   enums and helpers next to a generated schema) and OpenAPI Generator clients (a package with `ApiClient`,
+   `ApiException` and `Pair`). References to them remain as external types; the snapshot's `generated_code` record
+   lists counts, packages and the evidence per class, and the Overview shows the exclusion.
 4. `scan.supplement` adds dependency types the graph export does not distinguish (parameter, return, member
    annotations, exceptions, type arguments). `reconcile` makes class counts and the entry-point inventory agree
    with the bytecode facts.
@@ -36,6 +43,7 @@ rules:
       packages: ["org.apache.log4j."]            # used by application bytecode (class refs and call sites)
       artifacts: ["log4j:log4j", "log4j"]        # groupId:artifactId or bare artifactId (metadata / bundled jar names)
       # java_target: true                         # evaluate per class-file major version instead
+      # exclude_packages: ["org.apache.log4j.x."]  # sub-packages that belong to another technology
     source: https://logging.apache.org/log4j/1.x/ # required
     status: end-of-life          # default when the version is unknown
     versions:                    # first matching range wins; ranges: <,<=,>,>=,== on dotted numbers, comma = AND
@@ -47,7 +55,9 @@ rules:
 ```
 
 Statuses are **end-of-life / aging / current**. They describe vendor support, never vulnerabilities (the UI and
-API say so). When a version is not found in the manifest (MANIFEST.MF, pom.properties), the finding states why and uses the default of its rule in lifecycle-rules.yaml. The effort
+API say so). Versions come from MANIFEST.MF, pom.properties, bundled jar names and, for project ZIPs, the module `pom.xml` files: properties,
+parent `dependencyManagement` and BOMs imported from inside the archive are resolved; a BOM or parent outside the archive is not.
+When no version is found, the finding states why and uses the default of its rule in lifecycle-rules.yaml. The effort
 hint is a labelled heuristic index (`weight × affected classes`), not a time or cost estimate.
 The dates in lifecycle-rules.yaml were compiled from the cited vendor pages on its reviewed_on date and must be
 re-verified before use; the freshness banner appears when reviewed_on is older than the configured limit.

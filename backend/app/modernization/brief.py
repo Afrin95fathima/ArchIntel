@@ -48,7 +48,8 @@ def _list(F, items, limit=4):
     items = [F.name(i) for i in items]
     if len(items) <= limit:
         return ', '.join(items)
-    key = 'more_' + hashlib.sha256('|'.join(items).encode()).hexdigest()[:8]
+    # The same set can be listed with different limits (5 in the decision, 4 elsewhere); each limit is its own fact.
+    key = 'more_' + hashlib.sha256(('|'.join(items) + f'#{limit}').encode()).hexdigest()[:8]
     return ', '.join(items[:limit]) + f" and {F.num(key, 'Further items not listed by name', len(items) - limit, 'brief: length of the listed set')} more"
 
 

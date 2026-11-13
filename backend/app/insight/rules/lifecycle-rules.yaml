@@ -8,6 +8,7 @@
 #       packages     - package prefixes used by application bytecode (class references and call sites)
 #       artifacts    - Maven groupId:artifactId from archive metadata or bundled jar names (artifactId only)
 #       java_target  - true: the rule is evaluated per class-file major version
+#       exclude_packages - sub-packages of `packages` that belong to a different technology (e.g. Hibernate Validator under org.hibernate.)
 #   rules[].versions: ordered; first matching `range` wins. Range syntax: comma-separated
 #       comparisons (<, <=, >, >=, ==) on dotted numeric versions, e.g. ">=3.0,<3.5".
 #       `status` is one of end-of-life | aging | current.
@@ -229,7 +230,7 @@ rules:
   - id: hibernate-orm
     technology: Hibernate ORM
     category: framework
-    match: {artifacts: ["org.hibernate:hibernate-core", "org.hibernate.orm:hibernate-core", "hibernate-core"], packages: ["org.hibernate."]}
+    match: {artifacts: ["org.hibernate:hibernate-core", "org.hibernate.orm:hibernate-core", "hibernate-core"], packages: ["org.hibernate."], exclude_packages: ["org.hibernate.validator."]}
     source: https://hibernate.org/orm/releases/
     status: aging
     versions:

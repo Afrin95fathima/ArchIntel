@@ -11,6 +11,10 @@ function chrome() {
   return candidates.find((c) => c && existsSync(c)) || null;
 }
 
+function git() {
+  return [process.env.RUNNER_GIT, '/usr/bin/git', '/opt/homebrew/bin/git', '/usr/local/bin/git'].find((c) => c && existsSync(c)) || null;
+}
+
 function java() {
   const home = process.env.RUNNER_JAVA_HOME || process.env.JAVA_HOME || '/opt/homebrew/opt/openjdk@21';
   const bin = join(home, 'bin', 'java');
@@ -25,10 +29,17 @@ export const config = {
   workDir: process.env.RUNNER_WORK_DIR || join(root, '.work'),
   chromePath: chrome(),
   javaPath: java(),
+  gitPath: git(),
   otelAgentJar: process.env.RUNNER_OTEL_AGENT || '',
   // Exact local REA install pinned by package-lock.json; tests replace it with a fake.
   reaCommand: process.env.RUNNER_REA_COMMAND ? JSON.parse(process.env.RUNNER_REA_COMMAND)
     : [process.execPath, join(root, 'node_modules', 'rea-agents', 'scripts', 'rea.mjs')],
   appPorts: [Number(process.env.RUNNER_APP_PORT_FROM || 18080), Number(process.env.RUNNER_APP_PORT_TO || 18099)],
   maxArtifactBytes: 200 * 1024 * 1024,
+  maxDistributionBytes: 512 * 1024 * 1024,
+  // Diagnosis only: keep recipe run folders (they contain generated secrets) after the run stops.
+  keepRunDirs: process.env.RUNNER_KEEP_RUN_DIRS === '1',
+  // Dependency containers a launch recipe may start (image name prefixes) and the loopback ports they get.
+  allowedImages: (process.env.RUNNER_ALLOWED_IMAGES || 'postgres:,library/postgres:,osixia/openldap:').split(',').map((s) => s.trim()).filter(Boolean),
+  dependencyPorts: [Number(process.env.RUNNER_DEP_PORT_FROM || 15430), Number(process.env.RUNNER_DEP_PORT_TO || 15469)],
 };

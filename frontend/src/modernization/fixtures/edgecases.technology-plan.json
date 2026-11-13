@@ -994,7 +994,7 @@
    "number": 1,
    "prerequisites": [],
    "source_number": 1,
-   "title": "Replace libraries that run on the current Java level"
+   "title": "Replace libraries without changing the Java level"
   },
   {
    "class_count": 19,

@@ -171,7 +171,7 @@ def analysis(analysis_id: str, db: Session = Depends(session)):
 def summary(analysis_id: str, db: Session = Depends(session)):
     result = snapshot(db, analysis_id)
     return dict(result['summary'], artifact=result['artifact'], scanner=result['scanner'],
-        algorithm_version=result['algorithm_version'], limitations=result['limitations'])
+        algorithm_version=result['algorithm_version'], limitations=result['limitations'], generated_code=result.get('generated_code'))
 
 
 @router.get('/analyses/{analysis_id}/graph/{level}', response_model=GraphResponse)

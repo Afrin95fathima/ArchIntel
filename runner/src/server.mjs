@@ -8,6 +8,8 @@ import * as services from './services.mjs';
 import { explore } from './explore.mjs';
 import { runScenario, version } from './rea.mjs';
 import { compareRuns } from './compare.mjs';
+import { storeDistribution } from './recipes.mjs';
+import { exploreApi } from './api_explore.mjs';
 
 const MAX_JSON = 4 * 1024 * 1024;
 
@@ -40,7 +42,7 @@ function send(res, status, payload) {
   res.end(text);
 }
 
-const busy = { explore: false };
+const busy = { explore: false, exploreApi: false };
 
 /** Origins the runner may drive: only applications and services it started itself. */
 function owned(baseUrl) {
@@ -54,7 +56,7 @@ function owned(baseUrl) {
 export async function health() {
   return {
     status: 'READY', runner: '1',
-    tools: { java: !!config.javaPath, chrome: !!config.chromePath, otel_agent: !!config.otelAgentJar, rea: await version(), docker: await services.dockerVersion() },
+    tools: { java: !!config.javaPath, git: !!config.gitPath, chrome: !!config.chromePath, otel_agent: !!config.otelAgentJar, rea: await version(), docker: await services.dockerVersion() },
     apps: apps.list(), services: services.list(),
   };
 }
@@ -68,6 +70,8 @@ export async function handle(req, res) {
     let m;
     if (req.method === 'PUT' && (m = path.match(/^\/v1\/artifacts\/([0-9a-f]{64})$/))) return send(res, 201, await apps.storeArtifact(m[1], await body(req, config.maxArtifactBytes)));
     if (req.method === 'POST' && path === '/v1/apps') return send(res, 201, await apps.start(await json(req)));
+    if (req.method === 'PUT' && (m = path.match(/^\/v1\/distributions\/([0-9a-f]{64})$/))) return send(res, 201, await storeDistribution(m[1], await body(req, config.maxDistributionBytes)));
+    if (req.method === 'POST' && path === '/v1/recipe-runs') return send(res, 201, await apps.startRecipe(await json(req)));
     if (req.method === 'GET' && path === '/v1/apps') return send(res, 200, { items: apps.list() });
     if (req.method === 'DELETE' && (m = path.match(/^\/v1\/apps\/([0-9a-f-]{36})$/))) return send(res, 200, await apps.stop(m[1]));
     if (req.method === 'GET' && (m = path.match(/^\/v1\/apps\/([0-9a-f-]{36})\/log$/))) return send(res, 200, await apps.logTail(m[1]));
@@ -80,6 +84,17 @@ export async function handle(req, res) {
         return send(res, 200, await explore({ baseUrl: run.base_url, seeds: input.seeds || [], maxPages: Math.min(Number(input.max_pages) || 40, 200),
           maxForms: Math.min(Number(input.max_forms) || 12, 60), includeForms: input.include_forms !== false, maxDurationMs: Math.min(Number(input.max_duration_ms) || 900000, 3600000) }));
       } finally { busy.explore = false; }
+    }
+    if (req.method === 'POST' && path === '/v1/explore-api') {
+      const input = await json(req);
+      const run = apps.get(String(input.run_id || ''));
+      if (busy.exploreApi) return send(res, 409, { error: 'EXPLORATION_RUNNING' });
+      busy.exploreApi = true;
+      try {
+        return send(res, 200, await exploreApi({ baseUrl: run.base_url, credential: run.credential, endpoints: Array.isArray(input.endpoints) ? input.endpoints.slice(0, 2000) : [],
+          scenarios: Array.isArray(input.scenarios) ? input.scenarios.slice(0, 20) : [], skipPaths: input.skip_paths || [], variables: run.exposed || {}, maxRequests: Math.min(Number(input.max_requests) || 400, 5000),
+          maxDurationMs: Math.min(Number(input.max_duration_ms) || 900000, 3600000) }));
+      } finally { busy.exploreApi = false; }
     }
     if (req.method === 'POST' && path === '/v1/scenarios') {
       const input = await json(req);

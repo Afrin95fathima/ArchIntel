@@ -26,7 +26,7 @@ it('states the language and runtime recommendations with the reasons', () => {
 it('orders libraries, then Java, then framework moves, naming each affected class and the alternatives not chosen', () => {
   mount();
   const titles = screen.getAllByRole('heading', { level: 3 }).map(h => h.textContent).filter(t => t!.startsWith('Phase'));
-  expect(titles).toEqual(['Phase 1: Replace libraries that run on the current Java level', 'Phase 2: Raise Java to 21', 'Phase 3: Move frameworks and namespaces on the new Java level']);
+  expect(titles).toEqual(['Phase 1: Replace libraries without changing the Java level', 'Phase 2: Raise Java to 21', 'Phase 3: Move frameworks and namespaces on the new Java level']);
   const servlet = screen.getByRole('article', { name: 'Technology Servlet API on the javax.servlet namespace' });
   expect(within(servlet).getByText('Affected classes (2):').parentElement!.textContent).toContain('AuditFilter, LegacyServlet');
   expect(within(servlet).getByText('NAMESPACE').parentElement!.textContent).toBe('NAMESPACE COUPLED: javax.servlet -> jakarta.servlet: 2 classes use the old namespace (AuditFilter, LegacyServlet).');

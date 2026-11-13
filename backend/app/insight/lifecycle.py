@@ -99,10 +99,10 @@ def _matches_artifact(row: dict, patterns: list[str]) -> bool:
     return False
 
 
-def package_usage(model, prefixes: list[str], limit_classes: int = 200, limit_sites: int = 25) -> dict:
-    """Which application classes use APIs under the prefixes, with call sites (class, method, line)."""
+def package_usage(model, prefixes: list[str], limit_classes: int = 200, limit_sites: int = 25, excluded: list[str] | None = None) -> dict:
+    """Which application classes use APIs under the prefixes (minus excluded sub-packages), with call sites (class, method, line)."""
     def hit(name: str) -> bool:
-        return any(name == p.rstrip('.') or name.startswith(p) for p in prefixes)
+        return any(name == p.rstrip('.') or name.startswith(p) for p in prefixes) and not any(name == p.rstrip('.') or name.startswith(p) for p in excluded or [])
     classes: dict[str, dict] = defaultdict(lambda: dict(types=set(), sites=[], edge_types=set()))
     for edge in model.external_edges:
         if hit(edge['target']):
@@ -167,7 +167,7 @@ def evaluate(model, inventory: dict | None, rules: dict | None = None, today: da
                          class_count=len(names), call_site_count=0, truncated=len(names) > 200), suffix=str(target)))
             continue
         deps = [d for d in dependencies if _matches_artifact(d, match.get('artifacts', []))]
-        usage = package_usage(model, match.get('packages', [])) if match.get('packages') else dict(classes=[], class_count=0, call_site_count=0, truncated=False)
+        usage = package_usage(model, match.get('packages', []), excluded=match.get('exclude_packages')) if match.get('packages') else dict(classes=[], class_count=0, call_site_count=0, truncated=False)
         if not deps and not usage['class_count']:
             continue
         versions = sorted({d['version'] for d in deps if d.get('version') and _version_tuple(d['version'])}, key=_version_tuple)

@@ -158,8 +158,31 @@ def bounded_for_snapshot(extracted: dict, internal: set[str], max_bytes: int) ->
             for method in info['methods']:
                 method['invokes'] = [s for s in method['invokes'] if s['owner'] in internal]
         reductions.append('external call sites removed (aging-API call sites limited to class-level references)')
-    if size(facts) > max_bytes:
-        return dict(schema=SCHEMA, classes={}, class_count=0, reductions=reductions + ['facts omitted: snapshot size limit'],
-            parse_failure_count=extracted.get('parse_failure_count', 0), omitted_reason='Bytecode facts exceeded bytecode_facts_max_bytes.')
+    total = size(facts)
+    if total > max_bytes:
+        # Largest classes first: drop their method-level sites; signatures, annotations and fields stay.
+        stripped = []
+        for fqn in sorted(facts['classes'], key=lambda name: (-size(facts['classes'][name]), name)):
+            if total <= max_bytes:
+                break
+            info = facts['classes'][fqn]
+            before = size(info)
+            for method in info['methods']:
+                method['invokes'], method['field_access'], method['type_refs'] = [], [], []
+            info['sites_removed'] = True
+            total -= before - size(info)
+            stripped.append(fqn)
+        reductions.append(f'call, field and type sites removed from the {len(stripped)} largest classes to fit {max_bytes} bytes')
+        facts['sites_removed_classes'] = stripped[:200]
+    if total > max_bytes:
+        omitted = []
+        for fqn in sorted(facts['classes'], key=lambda name: (-size(facts['classes'][name]), name)):
+            if total <= max_bytes:
+                break
+            total -= size(facts['classes'].pop(fqn)) + len(json.dumps(fqn)) + 2
+            omitted.append(fqn)
+        reductions.append(f'facts of the {len(omitted)} largest classes omitted to fit {max_bytes} bytes')
+        facts['omitted_classes'], facts['omitted_class_count'] = omitted[:200], len(omitted)
+        facts['class_count'] = len(facts['classes'])
     facts['reductions'] = reductions
     return facts

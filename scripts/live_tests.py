@@ -2,7 +2,7 @@
 
     docker compose exec -T -w /app/backend backend python /app/scripts/live_tests.py <step> [options]
 
-Steps (in order): preflight, claude-smoke, explore, convert, status. Each prints what it checked and exits non-zero on failure.
+Steps (in order): preflight, claude-smoke, explore (or explore-api for a distribution with a launch recipe), convert, status. Each prints what it checked and exits non-zero on failure.
 Only claude-smoke and convert call the Claude API; both print the token usage and the estimated cost.
 """
 import argparse
@@ -117,6 +117,37 @@ def explore(args):
     report(sessions, job_id)
 
 
+def explore_api(args):
+    from app.automation import explore_api as exploration
+    settings, sessions = connect()
+    spec = exploration.recipe(args.recipe)
+    if spec is None:
+        sys.exit(f'No launch recipe named {args.recipe!r}.')
+    distribution = open(args.distribution, 'rb').read()
+    # The recipe's other distributions are read from /tmp/distribution-<id>.tar.gz (live-test.sh copies DIST_<ID> there).
+    extra = {item['id']: open(f"/tmp/distribution-{item['id']}.tar.gz", 'rb').read()
+             for item in next(r for r in exploration.recipes() if r['id'] == args.recipe)['distributions'] if not item.get('primary')}
+    with sessions() as db:
+        app, run = application(db, args.application)
+        person = human(db, args.username)
+        job = exploration.create(db, dict(tenant_id=app.tenant_id, id=person.id), app.id, run.id, distribution, spec,
+                                 dict(mode=args.mode, max_requests=args.max_requests, passes=args.passes, artifact_name=args.distribution.rsplit('/', 1)[-1], scenario_source='RECIPE'), extra)
+        job_id = job.id
+    print(f'  INFO API exploration {job_id} started with recipe {args.recipe} on analysis {run.id[:8]}')
+    exploration.run(sessions, settings, job_id, distribution, spec, None, extra)
+    with sessions() as db:
+        from app.automation.models import AutomationJob
+        document = db.get(AutomationJob, job_id).document
+    if (document.get('exploration') or {}).get('summary'):
+        print(f"  INFO {document['exploration']['summary']}")
+    for item in document.get('passes', []):
+        print(f"  PASS {item['index']}: {item['plan_classes']} classes planned, {item['spans']:,} spans, classes reached {item['classes'].get('observed')} of {item['classes'].get('total')}")
+    if document.get('coverage'):
+        c = document['coverage']
+        print(f"  COVERAGE classes {c['classes'].get('observed')}/{c['classes'].get('total')}, entry points {(c.get('entry_points') or {}).get('observed')}/{(c.get('entry_points') or {}).get('total')}, methods {(c.get('methods') or {}).get('observed')}/{(c.get('methods') or {}).get('total')}")
+    report(sessions, job_id)
+
+
 def convert(args):
     from app.automation import convert as conversion
     from app.access.models import SourceGrant, SourceRepository
@@ -179,7 +210,7 @@ def status(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('step', choices=['preflight', 'claude-smoke', 'gemini-smoke', 'explore', 'convert', 'status'])
+    parser.add_argument('step', choices=['preflight', 'claude-smoke', 'gemini-smoke', 'explore', 'explore-api', 'convert', 'status'])
     parser.add_argument('--provider', default='CLAUDE', choices=['CLAUDE', 'GEMINI'])
     parser.add_argument('--application', default='Spring PetClinic')
     parser.add_argument('--candidate', default='Vet')
@@ -187,11 +218,16 @@ def main():
     parser.add_argument('--jar', default='/tmp/petclinic.jar')
     parser.add_argument('--max-pages', type=int, default=40)
     parser.add_argument('--max-forms', type=int, default=12)
+    parser.add_argument('--recipe', default='concord-server')
+    parser.add_argument('--distribution', default='/tmp/distribution.tar.gz')
+    parser.add_argument('--mode', default=None, choices=['BOUNDARY', 'STANDARD', 'DEEP'])
+    parser.add_argument('--max-requests', type=int, default=None)
+    parser.add_argument('--passes', type=int, default=None)
     parser.add_argument('--limit', type=int, default=10)
     parser.add_argument('--yes', action='store_true')
     args = parser.parse_args()
     started = time.monotonic()
-    dict(preflight=preflight, **{'claude-smoke': claude_smoke, 'gemini-smoke': gemini_smoke}, explore=explore, convert=convert, status=status)[args.step](args)
+    dict(preflight=preflight, **{'claude-smoke': claude_smoke, 'gemini-smoke': gemini_smoke}, explore=explore, **{'explore-api': explore_api}, convert=convert, status=status)[args.step](args)
     print(f'  INFO took {time.monotonic() - started:.0f} s')
 
 
